@@ -37,7 +37,7 @@ I18NS = \
 	i18n/note_edit.ro_RO.qm
 
 RESOURCES = \
-	resources/tutorial.rcc
+	resources/fulltutorial.rcc
 
 I18NS_TS = $(I18NS:.qm=.ts)
 

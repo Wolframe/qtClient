@@ -27,7 +27,7 @@ I18NS = \
 	i18n\note_edit.ro_RO.qm
 
 RESOURCES = \
-	resources\tutorial.rcc
+	resources\fulltutorial.rcc
 
 i18n\init.de_CH.qm: i18n\init.de_CH.ts
 	$(QT_DIR)\bin\lrelease.exe i18n\init.de_CH.ts -qm i18n\init.de_CH.qm
@@ -89,8 +89,8 @@ i18n\note_edit.de_CH.qm: i18n\note_edit.de_CH.ts
 i18n\note_edit.ro_RO.qm: i18n\note_edit.ro_RO.ts
 	$(QT_DIR)\bin\lrelease.exe i18n\note_edit.ro_RO.ts -qm i18n\note_edit.ro_RO.qm
 
-resources\tutorial.rcc: resources\tutorial.qrc
-	$(QT_DIR)\bin\rcc.exe -binary resources\tutorial.qrc -o resources\tutorial.rcc
+resources\fulltutorial.rcc: resources\fulltutorial.qrc
+	$(QT_DIR)\bin\rcc.exe -binary resources\fulltutorial.qrc -o resources\fulltutorial.rcc
 
 local_all: $(I18NS) $(RESOURCES)
 
