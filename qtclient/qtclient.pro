@@ -4,15 +4,26 @@ TARGET = qtclient
 
 CONFIG += thread qt uitools designer debug
 
-DEFINES += WITH_SSL
+DEFINES += X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
 
-INCLUDEPATH += .
+unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
+win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
 
-unix:LIBS += plugins/libwolframewidgets.so
-win32:LIBS += plugins/release/wolframewidgets.lib
-macxLIBS += plugins/build/Release/libwolframewidgets.dylib
+INCLUDEPATH += ../libqtwolframeclient
 
-QT += core gui network sql
+unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
+win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.so
+
+unix:LIBS += ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
+win32:LIBS += ../plugins/filechooser/release/libfilechooser.lib ../plugins/picturechooser/picturechooser.lib
+macx:LIBS += ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
+
+QT += core gui network
+
+contains(QT_VERSION,^5\\..*) {
+QT += widgets
+}
 
 SOURCES += \	
 	MainWindow.cpp \
@@ -22,9 +33,6 @@ SOURCES += \
 	DataLoader.cpp \
 	FileDataLoader.cpp \
 	NetworkDataLoader.cpp \
-	WolframeClient.cpp \
-	WolframeClientProtocol.cpp \
-	WolframeClientProtocolBase.cpp \
 	WidgetVisitor.cpp \
 	WidgetEnabler.cpp \
 	WidgetListener.cpp \
@@ -58,7 +66,6 @@ SOURCES += \
 	FormWidget.cpp \
 	PreferencesDialog.cpp \
 	FormChooseDialog.cpp \
-	connection.cpp \
 	manageServersDialog.cpp \
 	serverDefinitionDialog.cpp \
 	settings.cpp \
@@ -76,9 +83,6 @@ HEADERS += \
 	DataLoader.hpp \
 	FileDataLoader.hpp \
 	NetworkDataLoader.hpp \	
-	WolframeClient.hpp \
-	WolframeClientProtocol.hpp \
-	WolframeClientProtocolBase.hpp \
 	WidgetVisitor.hpp \
 	WidgetEnabler.hpp \
 	WidgetListener.hpp \
@@ -112,7 +116,6 @@ HEADERS += \
 	FormWidget.hpp \
 	PreferencesDialog.hpp \
 	FormChooseDialog.hpp \
-	connection.hpp \
 	manageServersDialog.hpp \
 	serverDefinitionDialog.hpp \
 	settings.hpp \
