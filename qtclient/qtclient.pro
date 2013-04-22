@@ -2,7 +2,7 @@ TEMPLATE = app
 
 TARGET = qtclient
 
-CONFIG += thread qt uitools designer debug
+CONFIG += thread qt debug
 
 DEFINES += X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
 
