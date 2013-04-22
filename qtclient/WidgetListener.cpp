@@ -170,7 +170,7 @@ static QString widgetText( QWidget* widget, const QString& menuitem=QString())
 	}
 	else
 	{
-		action = widget->property( QByteArray("action:") + menuitem.toAscii());
+		action = widget->property( QByteArray("action:") + menuitem.toLatin1());
 		form = visitor.property( QString("form:") + menuitem);
 		if (action.isValid())
 		{
