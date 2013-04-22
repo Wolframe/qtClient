@@ -46,7 +46,7 @@
 #include <QDesignerExportWidget>
 #define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
 #else
-#define EXPORT_AS_PLUGIN
+#define EXPORT_AS_PLUGIN X_EXPORT
 #endif
 
 class EXPORT_AS_PLUGIN PictureChooser : public QWidget
@@ -62,6 +62,9 @@ class EXPORT_AS_PLUGIN PictureChooser : public QWidget
 	public slots:
 		void setFileName( const QString &_filename );
 		void setPicture( const QByteArray &_data );
+
+	signals:
+		void changed();
 
 	private:
 		void initialize( );

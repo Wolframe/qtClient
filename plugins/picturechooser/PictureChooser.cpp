@@ -81,6 +81,7 @@ void PictureChooser::updatePicture( QByteArray _data )
 	m_data = _data;
 	
 	updatePicture( );
+	emit changed();
 }
 
 void PictureChooser::updatePicture( )
@@ -95,6 +96,7 @@ void PictureChooser::updatePicture( )
 	m_label->setPixmap( p.scaled( QSize( w, h ), Qt::KeepAspectRatio, Qt::SmoothTransformation ) );
 
 	m_label->adjustSize( );	
+	emit changed();
 }
 
 void PictureChooser::setFileName( const QString &_fileName )

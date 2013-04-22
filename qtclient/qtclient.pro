@@ -7,17 +7,16 @@ CONFIG += thread qt uitools designer debug
 DEFINES += X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
 
 unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
-win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 
-INCLUDEPATH += ../skeleton ../libqtwolframeclient
+INCLUDEPATH += ../skeleton ../libqtwolframeclient ../plugins/filechooser ../plugins/picturechooser
 
 unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
-win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.so
 
-unix:LIBS += ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
-win32:LIBS += ../plugins/filechooser/release/libfilechooser.lib ../plugins/picturechooser/picturechooser.lib
-macx:LIBS += ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
+#unix:LIBS += ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
+#macx:LIBS += ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
 QT += core gui network
 
@@ -74,6 +73,8 @@ SOURCES += \
 	../skeleton/loginDialog.cpp \
 	../skeleton/manageServersDialog.cpp \
 	../skeleton/serverDefinitionDialog.cpp
+#	../plugins/filechooser/FileChooser.cpp
+#	../plugins/picturechooser/PictureChooser.cpp
 
 HEADERS += \
 	MainWindow.hpp \
@@ -123,6 +124,8 @@ HEADERS += \
 	../skeleton/loginDialog.hpp \
 	../skeleton/manageServersDialog.hpp \
 	../skeleton/serverDefinitionDialog.hpp
+#	../plugins/filechooser/FileChooser.hpp \
+#	../plugins/picturechooser/PictureChooser.hpp
 
 RESOURCES = \
 	qtclient.qrc
