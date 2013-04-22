@@ -44,14 +44,15 @@
 #include <QFrame>
 #include <QList>
 
-FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug )
+FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, bool _mdi )
 	: QWidget( _parent ), m_form( ),
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
 	  m_dataLoader( _dataLoader ), m_globals(_globals ), m_ui( 0 ),
 	  m_locale( DEFAULT_LOCALE ), m_layout( 0 ), m_forms( ),
-	  m_debug( _debug ), m_modal( false )
+	  m_debug( _debug ), m_modal( false ),
+	  m_mdi( _mdi )
 {
-	initialize( );
+	initialize();
 }
 
 void FormWidget::initialize( )
@@ -169,7 +170,11 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		QString nextForm = formlink.toString();
 		if (nextForm == "_CLOSE_")
 		{
-			if (m_modal)
+			if (m_mdi || m_ui->property( "parentid").isValid())
+			{
+				emit closed( );
+			}
+			else if (m_modal)
 			{
 				emit closed( );
 			}
@@ -485,7 +490,14 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	qDebug( ) << "set window title" << m_ui->windowTitle( );
 	setWindowTitle( m_ui->windowTitle( ) );
 
-	if( oldUi ) {
+	bool explicit_close = false;
+	if (m_mdi || visitor.property( "parentid").isValid())
+	{
+		//... if a parent link is given then we act as in
+		// MDI mode and we close the predecessor window only explicitely to pass parameters back)
+		explicit_close = true;
+	}
+	if ( !explicit_close && oldUi ) {
 		m_ui->move( oldUi->pos( ) );
 		oldUi->hide( );
 		oldUi->deleteLater( );

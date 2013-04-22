@@ -54,7 +54,7 @@ class FormWidget : public QWidget
 	Q_OBJECT
 
 	public:		
-		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent = 0, bool _debug = false );
+		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, bool _mdi);
 		virtual ~FormWidget( );
 
 		void loadForm( QString name, bool modal = false );
@@ -87,7 +87,8 @@ class FormWidget : public QWidget
 		QHash<QString,QList<WidgetEnablerR> > m_enablers;	// objects holding the logic for enabling buttons when conditions defined by properties referenced are met
 		bool m_debug;
 		bool m_modal;
-		
+		bool m_mdi;
+
 	private:
 		void initialize( );
 		void switchForm( QWidget *actionwidget, const QString& actionid=QString());

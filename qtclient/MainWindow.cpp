@@ -328,7 +328,7 @@ bool MainWindow::initialize( )
 
 void MainWindow::CreateFormWidget( const QString &name )
 {
-	m_formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug );
+	m_formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.mdi );
 
 	connect( m_formWidget, SIGNAL( formLoaded( QString ) ),
 		this, SLOT( formLoaded( QString ) ) );
@@ -645,11 +645,28 @@ void MainWindow::endModal( )
 	m_formWidget->reload( );
 }
 
+void MainWindow::endFormWidget( )
+{
+	qDebug( ) << "end form widget";
+
+// restore wiring in main frame
+	disconnect( QObject::sender(), SIGNAL( closed() ),
+		this, SLOT( endFormWidget( ) ) );
+
+	QWidget* widget = qobject_cast<QWidget*>( QObject::sender());
+	if (widget)
+	{
+		widget->hide( );
+		widget->deleteLater( );
+		widget->setParent( 0 );
+	}
+}
+
 void MainWindow::formModal( QString name )
 {
 	m_modalDialog = new QDialog( this );
 
-	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, m_modalDialog, settings.debug );
+	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, m_modalDialog, settings.debug, settings.mdi );
 
 	connect( formWidget, SIGNAL( formLoaded( QString ) ),
 		this, SLOT( formLoaded( QString ) ) );
@@ -898,7 +915,7 @@ void MainWindow::on_actionReload_triggered( )
 
 QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form )
 {
-	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug );
+	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.mdi );
 
 	connect( formWidget, SIGNAL( formLoaded( QString ) ),
 		this, SLOT( formLoaded( QString ) ) );
@@ -908,6 +925,8 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form )
 		this, SLOT( formError( QString ) ) );
 	connect( formWidget,SIGNAL( destroyed( ) ),
 		this, SLOT( updateMenusAndToolbars( ) ) );
+	connect( formWidget,SIGNAL( closed( ) ),
+		this, SLOT( endFormWidget( ) ) );
 
 	QMdiSubWindow *mdiSubWindow = m_mdiArea->addSubWindow( formWidget );
 	mdiSubWindow->setAttribute( Qt::WA_DeleteOnClose );

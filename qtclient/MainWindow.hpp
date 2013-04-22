@@ -133,7 +133,8 @@ class MainWindow : public QMainWindow
 		void formListLoaded( QStringList forms );
 		void formLoaded( QString name );
 		void formModal( QString name );
-		void endModal( void );
+		void endModal();
+		void endFormWidget();
 		void formError( QString error );
 
 // MDI slots
