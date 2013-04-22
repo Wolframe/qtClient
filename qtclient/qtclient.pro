@@ -6,16 +6,16 @@ CONFIG += thread qt uitools designer debug
 
 DEFINES += X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
 
-unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
+unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
 win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 
 INCLUDEPATH += ../skeleton ../libqtwolframeclient ../plugins/filechooser ../plugins/picturechooser
 
-unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
+unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
 win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.so
 
-#unix:LIBS += ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
+#unix:LIBS +=  ../plugins/picturechooser/libpicturechooser.so
 #macx:LIBS += ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
 QT += core gui network
