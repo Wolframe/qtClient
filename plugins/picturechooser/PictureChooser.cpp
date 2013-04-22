@@ -57,7 +57,7 @@ void PictureChooser::initialize( )
 	m_fileChooser = new FileChooser( FileChooser::SelectExistingFile, this );
 	m_fileChooser->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
 	l->addWidget( m_fileChooser );
-        	
+
 	connect( m_fileChooser, SIGNAL( fileNameChanged( QString ) ),
 		this, SLOT( updatePicture( QString ) ) );
 
