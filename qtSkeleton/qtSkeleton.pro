@@ -24,7 +24,6 @@ SOURCES += \
 	DataLoader.cpp \
 	FileDataLoader.cpp \
 	NetworkDataLoader.cpp \
-	DataHandler.cpp \
 	PreferencesDialog.cpp \
 	manageServersDialog.cpp \
 	serverDefinitionDialog.cpp \
@@ -33,14 +32,16 @@ SOURCES += \
 	LoadMode.cpp \
 	DebugTerminal.cpp \
 	HistoryLineEdit.cpp \
-	qtSkeleton.cpp
+	qtSkeleton.cpp \
+	../skeleton/loginDialog.cpp \
+	../skeleton/manageServersDialog.cpp \
+	../skeleton/serverDefinitionDialog.cpp
 
 HEADERS += \
 	MainWindow.hpp \
 	DataLoader.hpp \
 	FileDataLoader.hpp \
 	NetworkDataLoader.hpp \
-	DataHandler.hpp \
 	PreferencesDialog.hpp \
 	manageServersDialog.hpp \
 	serverDefinitionDialog.hpp \
@@ -48,7 +49,10 @@ HEADERS += \
 	loginDialog.hpp \
 	LoadMode.hpp \
 	DebugTerminal.hpp \
-	HistoryLineEdit.hpp
+	HistoryLineEdit.hpp \
+	../skeleton/loginDialog.hpp \
+	../skeleton/manageServersDialog.hpp \
+	../skeleton/serverDefinitionDialog.hpp
 
 RESOURCES = \
 	qtSkeleton.qrc
@@ -57,10 +61,7 @@ FORMS += \
 	MainWindow.ui \
 	PreferencesDialog.ui \
 	PreferencesDialogDeveloper.ui \
-	PreferencesDialogInterface.ui \
-	loginDialog.ui \
-	manageServersDialog.ui \
-	serverDefinitionDialog.ui
+	PreferencesDialogInterface.ui
 
 TRANSLATIONS += \
 	i18n/qtSkeleton.de_CH.ts \
