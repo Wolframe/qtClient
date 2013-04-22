@@ -4,9 +4,15 @@ TARGET = qtSkeleton
 
 CONFIG += thread qt uitools designer debug
 
-#DEFINES += WITH_SSL
+DEFINES += X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
 
-INCLUDEPATH += .
+unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
+win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+
+INCLUDEPATH += ../libqtwolframeclient
+
+unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
+win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
 
 #LIBS += plugins/release/wolframewidgets.lib
 #LIBS += plugins/build/Release/libwolframewidgets.dylib
@@ -19,9 +25,7 @@ SOURCES += \
 	FileDataLoader.cpp \
 	NetworkDataLoader.cpp \
 	DataHandler.cpp \
-	WolframeClient.cpp \
 	PreferencesDialog.cpp \
-	connection.cpp \
 	manageServersDialog.cpp \
 	serverDefinitionDialog.cpp \
 	settings.cpp \
@@ -37,9 +41,7 @@ HEADERS += \
 	FileDataLoader.hpp \
 	NetworkDataLoader.hpp \
 	DataHandler.hpp \
-	WolframeClient.hpp \
 	PreferencesDialog.hpp \
-	connection.hpp \
 	manageServersDialog.hpp \
 	serverDefinitionDialog.hpp \
 	settings.hpp \
