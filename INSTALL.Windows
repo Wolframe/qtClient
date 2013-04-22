@@ -1,0 +1,120 @@
+Build Instructions for Windows
+==============================
+
+Table of Contents
+-----------------
+
+  Prerequisites
+    OpenSSL
+      Compile and install openssl
+    Compile and install Qt
+  Using ccache with MSVC
+
+Prerequisites
+-------------
+
+- Visual C++ (cl, link and nmake), VC8 or later
+- Platform SDK 6.0a or later
+- mc.exe may be missing in your path (for instance on VC8),
+  usually it is available as part of the Platform SDK,
+  copy it into the path
+- optionally (WITH_SSL) openssl 0.9.8 or later
+- 4, 4.5.x or later, or Qt 5
+
+OpenSSL
+-------
+
+Compile and install openssl
+---------------------------
+
+Easiest is to get the native Windows binary version from:
+
+http://www.slproweb.com/products/Win32OpenSSL.html
+
+Despite the name you get also 64-bit versions there.
+
+Do not copy the OpenSSL binaries to the Windows system directory, copy
+them to the Bin subdirectory of the OpenSSL installation directory!
+
+If you want to compile your own version, use
+- Microsoft Compiler
+- a perl (ActivePerl)
+- optionally NASM
+
+perl Configure debug-VC-WIN32 \
+	--prefix="C:\OpenSSL\openssl-1.0.1-win32-debug"
+
+respectively
+
+perl Configure VC-WIN32 \
+	--prefix="C:\OpenSSL\openssl-1.0.1-win32-release"
+	
+Make sure there prefix has no spaces in it!
+
+ms\do_nasm
+
+nmake /f ms\ntdll.mak
+nmake /f ms\ntdll.mak install
+
+Have a closer look to INSTALL.W32 and INSTALL.W64 of the package itself.
+
+Qt
+--
+
+Compile and install Qt
+----------------------
+
+Easiest is to get a precompiled MSVC version of the SDK.
+But this version is missing SSL support.
+
+If you insist on compiling on your own:
+
+Get the MinGW version of the SDK.
+If you want SSL support, get also OpenSSL (see above).
+
+(The Openssl parts in INCLUDE, LIB and configure are needed if you enable SSL with WITH_SSL=1)
+
+Make sure the SDK variables for compilation and linking are set correctly:
+
+set PLATFORM_SDK=D:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2
+set OPENSSL_DIR=D:\Program Files\OpenSSL-1.0.0d
+set INCLUDE=%INCLUDE%;%PLATFORM_SDK%\include;%OPENSSL_DIR%\include
+set LIB=%LIB%;%PLATFORM_SDK%\lib;%OPENSSL_DIR%\lib
+set PATH=%PATH%;%PLATFORM_SDK%\bin
+
+Clean up first the MinGW build with:
+
+nmake confclean
+del bin\*.dll bin\*.exe
+del lib\*.a
+
+Configure and build it with:
+
+configure -platform win32-msvc2008 -release -openssl
+nmake
+
+See also http://qtnode.net/wiki/Qt4_with_Visual_Studio.
+
+Build qtclient
+--------------
+
+C:\Qt\4.8.1\bin\qmake.exe qtClient.pro
+nmake
+
+Using ccache with MSVC
+----------------------
+
+Get ccache with msvc support from:
+
+http://ccgit.freedesktop.org/libreoffice/contrib/dev-tools/tree/ccache-msvc
+
+You also need the Cygwin runtime.
+
+Set CYGWIN=nodosfilewarning
+
+to get rid of funny warnings.
+
+Set CC and CXX in the following way in your config.mk:
+
+CC="C:\cygwin\home\Andreas Baumann\ccache.exe" "C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\cl.exe"
+CXX="C:\cygwin\home\Andreas Baumann\ccache.exe" "C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\cl.exe"
