@@ -9,7 +9,7 @@ DEFINES += X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
 unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
 win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
 
-INCLUDEPATH += ../libqtwolframeclient
+INCLUDEPATH += ../skeleton ../libqtwolframeclient
 
 unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
 win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
@@ -66,14 +66,14 @@ SOURCES += \
 	FormWidget.cpp \
 	PreferencesDialog.cpp \
 	FormChooseDialog.cpp \
-	manageServersDialog.cpp \
-	serverDefinitionDialog.cpp \
 	settings.cpp \
-	loginDialog.cpp \
 	LoadMode.cpp \
 	DebugTerminal.cpp \
 	HistoryLineEdit.cpp \
-	qtclient.cpp
+	qtclient.cpp \
+	../skeleton/loginDialog.cpp \
+	../skeleton/manageServersDialog.cpp \
+	../skeleton/serverDefinitionDialog.cpp
 
 HEADERS += \
 	MainWindow.hpp \
@@ -116,13 +116,13 @@ HEADERS += \
 	FormWidget.hpp \
 	PreferencesDialog.hpp \
 	FormChooseDialog.hpp \
-	manageServersDialog.hpp \
-	serverDefinitionDialog.hpp \
 	settings.hpp \
-	loginDialog.hpp \
 	LoadMode.hpp \
 	DebugTerminal.hpp \
-	HistoryLineEdit.hpp
+	HistoryLineEdit.hpp \
+	../skeleton/loginDialog.hpp \
+	../skeleton/manageServersDialog.hpp \
+	../skeleton/serverDefinitionDialog.hpp
 
 RESOURCES = \
 	qtclient.qrc
@@ -131,10 +131,7 @@ FORMS += \
 	MainWindow.ui \
 	PreferencesDialog.ui \
 	PreferencesDialogDeveloper.ui \
-	PreferencesDialogInterface.ui \
-	loginDialog.ui \
-	manageServersDialog.ui \
-	serverDefinitionDialog.ui
+	PreferencesDialogInterface.ui
 
 TRANSLATIONS += \
 	i18n/qtclient.de_CH.ts \
