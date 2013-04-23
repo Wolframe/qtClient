@@ -198,14 +198,12 @@ void SkeletonMainWindow::on_actionLogin_triggered( )
 
 // no SSL compiled in and the user picks a secure connection, warn him,
 // don't blindly connect
-#ifndef WITH_SSL
-		if( selectedConnection.SSL ) {
+		if( !WolframeClient::SSLsupported( ) && selectedConnection.SSL ) {
 			QMessageBox::critical( this, tr( "Parameters error"),
 				"No SSL support is compiled in, can't open a secure connection" );
 			delete loginDlg;
 			return;
 		}
-#endif
 
 // create a Wolframe protocol client
 		m_wolframeClient = new WolframeClient( selectedConnection );

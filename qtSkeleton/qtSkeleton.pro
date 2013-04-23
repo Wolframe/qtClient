@@ -27,8 +27,6 @@ SOURCES += \
 	settings.cpp \
 	loginDialog.cpp \
 	LoadMode.cpp \
-	DebugTerminal.cpp \
-	HistoryLineEdit.cpp \
 	qtSkeleton.cpp \
 	../skeleton/loginDialog.cpp \
 	../skeleton/manageServersDialog.cpp \
@@ -45,8 +43,6 @@ HEADERS += \
 	settings.hpp \
 	loginDialog.hpp \
 	LoadMode.hpp \
-	DebugTerminal.hpp \
-	HistoryLineEdit.hpp \
 	../skeleton/loginDialog.hpp \
 	../skeleton/manageServersDialog.hpp \
 	../skeleton/serverDefinitionDialog.hpp

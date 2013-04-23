@@ -4,7 +4,7 @@ TARGET = qtclient
 
 CONFIG += thread qt uitools designer debug
 
-DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
+DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT
 
 unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
 win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
