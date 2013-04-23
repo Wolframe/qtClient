@@ -431,11 +431,11 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	}
 	buf.close( );
 	qDebug( ) << "Constructed UI form XML for form" << name << m_modal;
-
+		
 // if we have a modal dialog, we must not replace our own form, but emit
 // a signal, so the main window can rearange and load the form modal in
 // a new window
-	if( !m_modal && m_ui->isModal( ) ) {
+	if( !m_modal && ( m_ui->isModal( ) || m_ui->isWindow( ) ) ) {
 		m_ui = oldUi;
 		m_form = m_previousForm;
 		emit formModal( name );
