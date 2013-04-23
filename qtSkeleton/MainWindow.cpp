@@ -54,7 +54,9 @@ MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
 	m_wolframeClient( 0 ), m_settings( ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
-	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
+	m_terminating( false ), 
+	//~ m_debugTerminal( 0 ), 
+	m_debugTerminalAction( 0 ),
 	m_modalDialog( 0 )
 {
 // setup designer UI
@@ -73,7 +75,7 @@ MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
 }
 
 static bool _debug = false;
-static DebugTerminal *_debugTerminal = 0;
+//~ static DebugTerminal *_debugTerminal = 0;
 
 void MainWindow::readSettings( )
 {
@@ -100,9 +102,9 @@ static void myMessageOutput( QtMsgType type, const QMessageLogContext &context, 
 	switch( type ) {
 		case QtDebugMsg:
 			if( _debug ) {
-				if( _debugTerminal ) {
-					_debugTerminal->sendComment( msg );
-				}
+				//~ if( _debugTerminal ) {
+					//~ _debugTerminal->sendComment( msg );
+				//~ }
 				fprintf( stderr, "%s\n", qPrintable( msg ) );
 			}
 			break;
@@ -129,9 +131,9 @@ static void myMessageOutput( QtMsgType type, const char *msg )
 	switch( type ) {
 		case QtDebugMsg:
 			if( _debug ) {
-				if( _debugTerminal ) {
-					_debugTerminal->sendComment( msg );
-				}
+				//~ if( _debugTerminal ) {
+					//~ _debugTerminal->sendComment( msg );
+				//~ }
 				fprintf( stderr, "%s\n", msg );
 			}
 			break;
@@ -164,11 +166,11 @@ MainWindow::~MainWindow( )
 		delete m_wolframeClient;
 		m_wolframeClient = 0;
 	}
-	if( m_debugTerminal ) {
-		delete m_debugTerminal;
-		m_debugTerminal = 0;
-		_debugTerminal = 0;
-	}
+	//~ if( m_debugTerminal ) {
+		//~ delete m_debugTerminal;
+		//~ m_debugTerminal = 0;
+		//~ _debugTerminal = 0;
+	//~ }
 	if( m_uiLoader ) {
 		delete m_uiLoader;
 		m_uiLoader = 0;
@@ -270,7 +272,7 @@ bool MainWindow::initialize( )
 	}
 
 // update shortcuts to standard ones
-	updateActionShortcuts( );
+	//~ updateActionShortcuts( );
 
 // add connection and encryption state indicators to status bar
 	addStatusBarIndicators( );
@@ -282,10 +284,10 @@ bool MainWindow::initialize( )
 //	m_formLoader->initiateListLoad( );
 
 // load language codes for language picker
-	loadLanguages( );
+	//~ loadLanguages( );
 
 // load language resources, repaints the whole interface if necessary
-	loadLanguage( m_language );
+	//~ loadLanguage( m_language );
 
 // auto login for developers
 	if( settings.autoLogin )
@@ -408,12 +410,12 @@ void MainWindow::disconnected( )
 	m_wolframeClient->deleteLater( );
 	m_wolframeClient = 0;
 
-	if( m_debugTerminal ) {
-		m_debugTerminalAction->setChecked( false );
-		m_debugTerminal->deleteLater( );
-		m_debugTerminal = 0;
-		_debugTerminal = 0;
-	}
+	//~ if( m_debugTerminal ) {
+		//~ m_debugTerminalAction->setChecked( false );
+		//~ m_debugTerminal->deleteLater( );
+		//~ m_debugTerminal = 0;
+		//~ _debugTerminal = 0;
+	//~ }
 
 //	if( settings.uiLoadMode == LoadMode::NETWORK ) {
 //		delete m_uiLoader;
@@ -519,8 +521,8 @@ void MainWindow::languageCodesLoaded( QStringList languages )
 void MainWindow::languageSelected( QAction *action )
 {
 	QString language = action->data( ).toString( );
-	if( language != m_language )
-		loadLanguage( language );
+	//~ if( language != m_language )
+		//~ loadLanguage( language );
 }
 
 void MainWindow::switchTranslator( QTranslator &translator, const QString &filename, const QString &i18n )
@@ -567,7 +569,7 @@ void MainWindow::changeEvent( QEvent* _event )
 		else if ( _event->type() == QEvent::LocaleChange )	{
 			QString locale = QLocale::system( ).name( );
 			locale.truncate( locale.lastIndexOf( '_' ) );
-			loadLanguage( locale );
+			//~ loadLanguage( locale );
 		}
 	}
 
@@ -744,21 +746,21 @@ void MainWindow::restoreStateAndPositions( )
 		if( settings.saveRestoreState ) {
 			for( int i = 0; i < settings.states.size( ); i++ ) {
 				WinState state = settings.states[i];
-				QMdiSubWindow *w = CreateMdiSubWindow( state.form );
-				w->move( state.position );
-				w->resize( state.size );
+				//~ QMdiSubWindow *w = CreateMdiSubWindow( state.form );
+				//~ w->move( state.position );
+				//~ w->resize( state.size );
 			}
 		} else {
-			(void)CreateMdiSubWindow( "init" );
+			//~ (void)CreateMdiSubWindow( "init" );
 // default it tiling MDI subwindows, no better option
 			m_mdiArea->tileSubWindows( );
 		}
 	} else {
 		if( settings.saveRestoreState && settings.states.size( ) > 0 ) {
 			WinState state = settings.states[0];
-			CreateFormWidget( state.form );
+			//~ CreateFormWidget( state.form );
 		} else {
-			CreateFormWidget( "init" );
+			//~ CreateFormWidget( "init" );
 		}
 	}
 }
@@ -1055,8 +1057,8 @@ void MainWindow::updateMenusAndToolbars( )
 	activateAction( "actionSelectAll", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
 
 // developer menu: debug terminal
-	if( m_debugTerminalAction )
-		m_debugTerminalAction->setEnabled( m_debugTerminal );
+	//~ if( m_debugTerminalAction )
+		//~ m_debugTerminalAction->setEnabled( m_debugTerminal );
 }
 
 // -- logins/logouts/connections
@@ -1085,29 +1087,27 @@ void MainWindow::on_actionLogin_triggered( )
 
 // no SSL compiled in and the user picks a secure connection, warn him,
 // don't blindly connect
-#ifndef WITH_SSL
-	if( m_selectedConnection.SSL ) {
+	if( !WolframeClient::SSLsupported( ) && m_selectedConnection.SSL ) {
 		QMessageBox::critical( this, tr( "Parameters error"),
 			"No SSL support is compiled in, can't open a secure connection" );
 		delete loginDlg;
 		return;
 	}
-#endif
 
 // create a Wolframe protocol client
 		m_wolframeClient = new WolframeClient( m_selectedConnection );
 
 // create a debug terminal and attach it to the protocol client
-	if( settings.debug && settings.developEnabled ) {
-		m_debugTerminal = new DebugTerminal( m_wolframeClient, this );
-		m_debugTerminal->setAttribute( Qt::WA_DeleteOnClose );
-		_debugTerminal = m_debugTerminal;
-		connect( m_wolframeClient, SIGNAL( lineSent( QString ) ),
-			m_debugTerminal, SLOT( sendLine( QString ) ) );
-		connect( m_debugTerminal,SIGNAL( destroyed( ) ),
-			this, SLOT( removeDebugToggle( ) ) );
-		qDebug( ) << "Debug window initialized";
-	}
+	//~ if( settings.debug && settings.developEnabled ) {
+		//~ m_debugTerminal = new DebugTerminal( m_wolframeClient, this );
+		//~ m_debugTerminal->setAttribute( Qt::WA_DeleteOnClose );
+		//~ _debugTerminal = m_debugTerminal;
+		//~ connect( m_wolframeClient, SIGNAL( lineSent( QString ) ),
+			//~ m_debugTerminal, SLOT( sendLine( QString ) ) );
+		//~ connect( m_debugTerminal,SIGNAL( destroyed( ) ),
+			//~ this, SLOT( removeDebugToggle( ) ) );
+		//~ qDebug( ) << "Debug window initialized";
+	//~ }
 
 // catch signals from the network layer
 		connect( m_wolframeClient, SIGNAL( error( QString ) ),
@@ -1155,34 +1155,34 @@ void MainWindow::on_actionManageServers_triggered( )
 
 void MainWindow::showDebugTerminal( bool checked )
 {
-	if( m_debugTerminal ) {
-		if( checked ) {
-			m_debugTerminal->bringToFront( );
-		} else {
-			m_debugTerminal->hide( );
-		}
-	}
+	//~ if( m_debugTerminal ) {
+		//~ if( checked ) {
+			//~ m_debugTerminal->bringToFront( );
+		//~ } else {
+			//~ m_debugTerminal->hide( );
+		//~ }
+	//~ }
 }
 
 void MainWindow::removeDebugToggle( )
 {
-	m_debugTerminalAction->setChecked( false );
-	_debugTerminal = 0;
+	//~ m_debugTerminalAction->setChecked( false );
+	//~ _debugTerminal = 0;
 }
 
 void MainWindow::addDeveloperMenu( )
 {
-	QMenu *developerMenu = menuBar( )->addMenu( tr( "&Developer" ) );
+	//~ QMenu *developerMenu = menuBar( )->addMenu( tr( "&Developer" ) );
 
-	m_debugTerminalAction = new QAction( QIcon( ":/images/debug.png" ), tr( "&Debugging Terminal..." ), this );
-	m_debugTerminalAction->setStatusTip( tr( "Open debug terminal showing the Wolframe protocol" ));
-	m_debugTerminalAction->setCheckable( true );
-	m_debugTerminalAction->setShortcut( QKeySequence( "Ctrl+Alt+D" ) );
-	developerMenu->addAction( m_debugTerminalAction );
+	//~ m_debugTerminalAction = new QAction( QIcon( ":/images/debug.png" ), tr( "&Debugging Terminal..." ), this );
+	//~ m_debugTerminalAction->setStatusTip( tr( "Open debug terminal showing the Wolframe protocol" ));
+	//~ m_debugTerminalAction->setCheckable( true );
+	//~ m_debugTerminalAction->setShortcut( QKeySequence( "Ctrl+Alt+D" ) );
+	//~ developerMenu->addAction( m_debugTerminalAction );
 
-	QToolBar *developerToolBar = addToolBar( tr( "Developer" ));
-	developerToolBar->addAction( m_debugTerminalAction );
+	//~ QToolBar *developerToolBar = addToolBar( tr( "Developer" ));
+	//~ developerToolBar->addAction( m_debugTerminalAction );
 
-	connect( m_debugTerminalAction, SIGNAL( toggled( bool ) ), this,
-		SLOT( showDebugTerminal( bool ) ) );
+	//~ connect( m_debugTerminalAction, SIGNAL( toggled( bool ) ), this,
+		//~ SLOT( showDebugTerminal( bool ) ) );
 }
