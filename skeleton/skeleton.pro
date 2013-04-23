@@ -1,10 +1,12 @@
-TEMPLATE = app
+TEMPLATE = lib
 
 TARGET = skeleton
 
-CONFIG += qt debug
+VERSION = 0.0.1
 
-DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT
+CONFIG += qt debug static_and_shared
+
+DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT SKELETON_VISIBILITY=Q_DECL_EXPORT
 
 QT += core network
 
@@ -21,7 +23,6 @@ unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
 win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
 
 SOURCES += \
-	main.cpp \
 	SkeletonMainWindow.cpp \
 	loginDialog.cpp \
 	manageServersDialog.cpp \
@@ -38,7 +39,7 @@ FORMS += \
 	loginDialog.ui \
 	manageServersDialog.ui \
 	serverDefinitionDialog.ui
-	
+
 RESOURCES = \
 	skeleton.qrc
 
