@@ -170,7 +170,7 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		QString nextForm = formlink.toString();
 		if (nextForm == "_CLOSE_")
 		{
-			if (m_mdi || m_ui->property( "parentid").isValid())
+			if (m_mdi || m_ui->property( "pwidgetid").isValid())
 			{
 				emit closed( );
 			}
@@ -491,7 +491,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	setWindowTitle( m_ui->windowTitle( ) );
 
 	bool explicit_close = false;
-	if (m_mdi || visitor.property( "parentid").isValid())
+	if (m_mdi || visitor.property( "pwidgetid").isValid())
 	{
 		//... if a parent link is given then we act as in
 		// MDI mode and we close the predecessor window only explicitely to pass parameters back)
