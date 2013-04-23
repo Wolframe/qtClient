@@ -503,8 +503,6 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		oldUi->deleteLater( );
 		oldUi->setParent( 0 );
 	}
-	/*[-]*/m_ui->move( 30, 30);
-	/*[-]*/m_ui->resize( 30, 30);
 	m_ui->show( );
 
 // set localization now
