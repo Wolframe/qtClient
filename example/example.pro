@@ -4,7 +4,7 @@ TARGET = example
 
 CONFIG += qt debug
 
-DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT
+DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT SKELETON_VISIBILITY=Q_DECL_IMPORT
 
 INCLUDEPATH += ../skeleton ../libqtwolframeclient
 
@@ -14,26 +14,18 @@ contains(QT_VERSION,^5\\..*) {
 QT += widgets
 }
 
-unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
-win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../skeleton -lskeleton
+win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../skeleton/debug/skeleton0.lib
 
-unix;PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
-win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+unix;PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so ../skeleton/libskeleton.so
+win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../skeleton/debug/skeleton0.lib
 
 SOURCES += \
 	main.cpp \
-	MainWindow.cpp \
-	../skeleton/SkeletonMainWindow.cpp \
-	../skeleton/loginDialog.cpp \
-	../skeleton/manageServersDialog.cpp \
-	../skeleton/serverDefinitionDialog.cpp
+	MainWindow.cpp
 	
 HEADERS += \
-	MainWindow.hpp \
-	../skeleton/SkeletonMainWindow.hpp \
-	../skeleton/loginDialog.hpp \
-	../skeleton/manageServersDialog.hpp \
-	../skeleton/serverDefinitionDialog.hpp
+	MainWindow.hpp
 
 FORMS += \
 	MainWindow.ui

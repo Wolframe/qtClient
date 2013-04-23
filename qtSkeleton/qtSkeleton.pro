@@ -4,17 +4,17 @@ TARGET = qtSkeleton
 
 CONFIG += thread qt uitools designer debug
 
-DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT
+DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT SKELETON_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT
 
-unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
-win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
-macx:LIBS += ../libqtwolframeclient/build/Release/libqtwolframeclient0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
+unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../skeleton -lskeleton -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
+win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
+macx:LIBS += ../libqtwolframeclient/build/Release/libqtwolframeclient0.dylib .../skeleton/build/Release/skeleton0.dylib ./plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
 INCLUDEPATH += ../skeleton ../libqtwolframeclient ../plugins/filechooser ../plugins/picturechooser
 
-unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
-win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
-macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
+unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so ../skeleton/libskeleton.so ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
+win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
+macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.dylib ..skeleton/build/release/skeleton0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
 QT += core gui network
 
@@ -26,10 +26,7 @@ SOURCES += \
 	PreferencesDialog.cpp \
 	settings.cpp \
 	LoadMode.cpp \
-	qtSkeleton.cpp \
-	../skeleton/loginDialog.cpp \
-	../skeleton/manageServersDialog.cpp \
-	../skeleton/serverDefinitionDialog.cpp
+	qtSkeleton.cpp
 
 HEADERS += \
 	MainWindow.hpp \
@@ -38,10 +35,7 @@ HEADERS += \
 	NetworkDataLoader.hpp \
 	PreferencesDialog.hpp \
 	settings.hpp \
-	LoadMode.hpp \
-	../skeleton/loginDialog.hpp \
-	../skeleton/manageServersDialog.hpp \
-	../skeleton/serverDefinitionDialog.hpp
+	LoadMode.hpp
 
 RESOURCES = \
 	qtSkeleton.qrc

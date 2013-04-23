@@ -41,7 +41,7 @@ namespace Ui {
 class ManageServersDialog;
 }
 
-class ManageServersDialog : public QDialog
+class SKELETON_VISIBILITY ManageServersDialog : public QDialog
 {
 	Q_OBJECT
 

@@ -44,7 +44,7 @@ namespace Ui {
 class ServerDefinitionDialog;
 }
 
-class ServerDefinitionDialog : public QDialog
+class SKELETON_VISIBILITY ServerDefinitionDialog : public QDialog
 {
 	Q_OBJECT
 

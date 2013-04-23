@@ -42,7 +42,7 @@
 class WolframeClient;
 class QLabel;
 
-class SkeletonMainWindow : public QMainWindow
+class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
