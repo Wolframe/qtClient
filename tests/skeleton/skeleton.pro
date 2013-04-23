@@ -22,3 +22,7 @@ win32:PRE_TARGETDEPS += ../../libqtwolframeclient/debug/qtwolframeclient0.lib ..
 
 SOURCES += \
 	main.cpp
+
+RESOURCES = \
+	skeleton.qrc
+
