@@ -32,8 +32,8 @@
 ************************************************************************/
 
 #include "MainWindow.hpp"
-#include "FileDataLoader.hpp"
-#include "NetworkDataLoader.hpp"
+//~ #include "FileDataLoader.hpp"
+//~ #include "NetworkDataLoader.hpp"
 #include "settings.hpp"
 #include "PreferencesDialog.hpp"
 #include "global.hpp"

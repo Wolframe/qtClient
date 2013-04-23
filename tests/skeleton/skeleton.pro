@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-TARGET = skeleton
+TARGET = skeletonTest
 
 CONFIG += qt debug
 
@@ -22,3 +22,7 @@ win32:PRE_TARGETDEPS += ../../libqtwolframeclient/debug/qtwolframeclient0.lib ..
 
 SOURCES += \
 	main.cpp
+
+RESOURCES = \
+	skeletonTest.qrc
+

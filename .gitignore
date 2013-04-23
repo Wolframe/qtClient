@@ -20,3 +20,6 @@ qtclient/qtclient
 skeleton/skeleton
 tests/functions/testDataTree
 tests/skeleton/skeleton
+libqtwolframeclient/libqtwolframeclient.pro.user*
+qtClient.pro.user*
+skeleton/skeleton.pro.user*

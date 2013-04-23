@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>422</width>
-    <height>419</height>
+    <width>419</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,361 +20,238 @@
    <iconset>
     <normaloff>:/images/world.png</normaloff>:/images/world.png</iconset>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>380</y>
-     <width>401</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="nameLbl">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>131</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Connection name :</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="hostLbl">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>50</y>
-     <width>121</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Server name / IP :</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="portLbl">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>80</y>
-     <width>101</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Server port :</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="portSpinBox">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>80</y>
-     <width>72</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="minimum">
-    <number>1</number>
-   </property>
-   <property name="maximum">
-    <number>65535</number>
-   </property>
-   <property name="value">
-    <number>7661</number>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="nameEdit">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>20</y>
-     <width>261</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="hostEdit">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>50</y>
-     <width>261</width>
-     <height>27</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="testBttn">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>380</y>
-     <width>141</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&amp;Test Connection</string>
-   </property>
-  </widget>
-  <widget class="QFrame" name="SSLframe">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>150</y>
-     <width>401</width>
-     <height>221</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QCheckBox" name="SSLcheck">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>0</y>
-      <width>141</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>SSL connection</string>
-    </property>
-   </widget>
-   <widget class="QFrame" name="SSLclientFrame">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>381</width>
-      <height>101</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Sunken</enum>
-    </property>
-    <widget class="QLabel" name="certificateLbl">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>30</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
+  <layout class="QGridLayout" name="gridLayout_5">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="nameLbl">
+       <property name="text">
+        <string>Connection name :</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="nameEdit"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="hostLbl">
+       <property name="text">
+        <string>Server name / IP :</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QLineEdit" name="hostEdit"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="portLbl">
+       <property name="text">
+        <string>Server port :</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="portSpinBox">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>65535</number>
+       </property>
+       <property name="value">
+        <number>7661</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="timeoutLbl">
+       <property name="text">
+        <string>Message timeout :</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="timeoutSpinBox">
+       <property name="suffix">
+        <string> sec.</string>
+       </property>
+       <property name="value">
+        <number>15</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Preferred</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>179</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QFrame" name="SSLframe">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="text">
-      <string>Certificate file :</string>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
-     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="SSLcheck">
+        <property name="text">
+         <string>SSL connection</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QFrame" name="SSLclientFrame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0" colspan="2">
+          <widget class="QCheckBox" name="clientCertCheck">
+           <property name="text">
+            <string>Send client certificate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="certificateLbl">
+           <property name="text">
+            <string>Certificate file :</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="certEdit"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QToolButton" name="certFileBttn">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="keyLbl">
+           <property name="text">
+            <string>Key file :</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="keyEdit"/>
+         </item>
+         <item row="2" column="2">
+          <widget class="QToolButton" name="keyFileBttn">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QFrame" name="SSLverifyFrame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0" colspan="2">
+          <widget class="QCheckBox" name="SSLverifyCheck">
+           <property name="text">
+            <string>Verify Server Certificate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="CAbundleLbl">
+           <property name="text">
+            <string>CA bundle file :</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="CAbundleEdit"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QToolButton" name="CAbundleFileBttn">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </widget>
-    <widget class="QLineEdit" name="certEdit">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>30</y>
-       <width>211</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="keyLbl">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>60</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Key file :</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="keyEdit">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>60</y>
-       <width>211</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QToolButton" name="certFileBttn">
-     <property name="geometry">
-      <rect>
-       <x>342</x>
-       <y>30</y>
-       <width>31</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-    <widget class="QToolButton" name="keyFileBttn">
-     <property name="geometry">
-      <rect>
-       <x>342</x>
-       <y>60</y>
-       <width>31</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-    <widget class="QCheckBox" name="clientCertCheck">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>211</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Send client certificate</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QFrame" name="SSLverifyFrame">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>140</y>
-      <width>381</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Sunken</enum>
-    </property>
-    <widget class="QCheckBox" name="SSLverifyCheck">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>201</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Verify Server Certificate</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="CAbundleLbl">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>111</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>CA bundle file :</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="CAbundleEdit">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>30</y>
-       <width>211</width>
-       <height>27</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QToolButton" name="CAbundleFileBttn">
-     <property name="geometry">
-      <rect>
-       <x>342</x>
-       <y>30</y>
-       <width>31</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </widget>
-  </widget>
-  <widget class="QSpinBox" name="timeoutSpinBox">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>110</y>
-     <width>81</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="suffix">
-    <string> sec.</string>
-   </property>
-   <property name="value">
-    <number>15</number>
-   </property>
-  </widget>
-  <widget class="QLabel" name="timeoutLbl">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>110</y>
-     <width>131</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Message timeout :</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
-   </property>
-  </widget>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="testBttn">
+       <property name="text">
+        <string>&amp;Test Connection</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
   <zorder>SSLframe</zorder>
   <zorder>buttonBox</zorder>
   <zorder>nameLbl</zorder>
@@ -386,6 +263,7 @@
   <zorder>testBttn</zorder>
   <zorder>timeoutSpinBox</zorder>
   <zorder>timeoutLbl</zorder>
+  <zorder>horizontalSpacer</zorder>
  </widget>
  <tabstops>
   <tabstop>nameEdit</tabstop>
@@ -401,12 +279,10 @@
   <tabstop>SSLverifyCheck</tabstop>
   <tabstop>CAbundleEdit</tabstop>
   <tabstop>CAbundleFileBttn</tabstop>
-  <tabstop>buttonBox</tabstop>
   <tabstop>testBttn</tabstop>
+  <tabstop>buttonBox</tabstop>
  </tabstops>
- <resources>
-  <include location="skeleton.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

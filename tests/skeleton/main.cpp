@@ -36,7 +36,7 @@
 #include "SkeletonMainWindow.hpp"
 
 int main( int argc, char* argv[] ) {
-	Q_INIT_RESOURCE( skeleton );	
+	Q_INIT_RESOURCE( skeletonTest );	
 	QApplication app( argc, argv );
 
 	int code;

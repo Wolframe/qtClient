@@ -33,6 +33,7 @@
 
 #ifndef _Wolframe_CLIENT_PROTOCOL_HPP_INCLUDED
 #define _Wolframe_CLIENT_PROTOCOL_HPP_INCLUDED
+
 #include "WolframeClientProtocolBase.hpp"
 #include <QObject>
 #include <QWidget>
