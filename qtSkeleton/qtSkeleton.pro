@@ -20,7 +20,6 @@ QT += core gui network
 
 SOURCES += \
 	MainWindow.cpp \
-	DataLoader.cpp \
 	PreferencesDialog.cpp \
 	settings.cpp \
 	LoadMode.cpp \
@@ -28,7 +27,6 @@ SOURCES += \
 
 HEADERS += \
 	MainWindow.hpp \
-	DataLoader.hpp \
 	PreferencesDialog.hpp \
 	settings.hpp \
 	LoadMode.hpp
