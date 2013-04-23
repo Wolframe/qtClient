@@ -925,8 +925,8 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form )
 		this, SLOT( formError( QString ) ) );
 	connect( formWidget,SIGNAL( destroyed( ) ),
 		this, SLOT( updateMenusAndToolbars( ) ) );
-	connect( formWidget,SIGNAL( closed( ) ),
-		this, SLOT( endFormWidget( ) ) );
+	//[-]PF:DISABLE connect( formWidget,SIGNAL( closed( ) ),
+	//[-]	this, SLOT( endFormWidget( ) ) );
 
 	QMdiSubWindow *mdiSubWindow = m_mdiArea->addSubWindow( formWidget );
 	mdiSubWindow->setAttribute( Qt::WA_DeleteOnClose );

@@ -170,11 +170,11 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		QString nextForm = formlink.toString();
 		if (nextForm == "_CLOSE_")
 		{
-			if (m_mdi || m_ui->property( "pwidgetid").isValid())
-			{
-				emit closed( );
-			}
-			else if (m_modal)
+			//[-]PF:if (m_mdi || m_ui->property( "pwidgetid").isValid())
+			//[-]PF:{
+			//[-]PF:	emit closed( );
+			//[-]PF:}
+			if (m_modal)
 			{
 				emit closed( );
 			}
@@ -490,14 +490,15 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	qDebug( ) << "set window title" << m_ui->windowTitle( );
 	setWindowTitle( m_ui->windowTitle( ) );
 
-	bool explicit_close = false;
-	if (m_mdi || visitor.property( "pwidgetid").isValid())
-	{
-		//... if a parent link is given then we act as in
-		// MDI mode and we close the predecessor window only explicitely to pass parameters back)
-		explicit_close = true;
-	}
-	if ( !explicit_close && oldUi ) {
+	//[-]PF:bool explicit_close = false;
+	//[-]PF:if (m_mdi || visitor.property( "pwidgetid").isValid())
+	//[-]PF:{
+	//[-]PF:	... if a parent link is given then we act as in
+	//[-]PF:	    MDI mode and we close the predecessor window only explicitely to pass parameters back)
+	//[-]PF:	explicit_close = true;
+	//[-]PF:}
+
+	if ( oldUi ) {
 		m_ui->move( oldUi->pos( ) );
 		oldUi->hide( );
 		oldUi->deleteLater( );
