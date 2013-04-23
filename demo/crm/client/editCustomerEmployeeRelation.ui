@@ -89,6 +89,9 @@
       <property name="form" stdset="0">
        <string notr="true">relationCustomerEmployee?customer.selected={relation.customerid}</string>
       </property>
+      <property name="datasignal:clicked" stdset="0">
+       <string>listCustomerEmployeeRelation</string>
+      </property>
      </widget>
     </item>
     <item>

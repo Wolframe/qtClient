@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <property name="synonym:employeeid" stdset="0">
    <string>employee.selected</string>
   </property>
@@ -81,10 +84,13 @@
        <string>Add</string>
       </property>
       <property name="form" stdset="0">
-       <string notr="true">relationCustomerEmployee?customer.selected={relation.customerid}</string>
+       <string notr="true">_CLOSE_</string>
       </property>
       <property name="action" stdset="0">
        <string>InsertCustomerRelation relation {employeeid={relation.employeeid}; customerid={relation.customerid}; description{{relation.description}} }</string>
+      </property>
+      <property name="datasignal:clicked" stdset="0">
+       <string notr="true">listCustomerEmployeeRelation</string>
       </property>
      </widget>
     </item>

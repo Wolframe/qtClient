@@ -253,10 +253,6 @@ class WidgetVisitor
 			{
 				QList<QString> id[(int)NofDataSignalTypes];
 			};
-			struct DataSlots
-			{
-				QList<QString> id[(int)NofDataSignalTypes];
-			};
 			friend class WidgetVisitorStackElement;
 			friend class WidgetVisitor;
 			typedef QPair< QString,QString> LinkDef;
@@ -268,7 +264,7 @@ class WidgetVisitor
 			QList<Assignment> m_assignments;		//< assignment done at initialization and destruction
 			QList<Assignment> m_globals;			//< assignment done at initialization and destruction
 			DataSignals m_datasignals;			//< datasignals to emit on certain state changes
-			DataSlots m_dataslots;				//< dataslot to declare a receiver by name for being informed on certain state changes
+			QList<QString> m_dataslots;				//< dataslot to declare a receiver by name for being informed on certain state changes
 			QHash<QString,QVariant> m_dynamicProperties;	//< map of defined dynamic properties
 			int m_synonym_entercnt;				//< counter for how many stack elements to pop on a leave (for multipart synonyms)
 			int m_internal_entercnt;			//< counter for calling State::leave() before removing stack elements

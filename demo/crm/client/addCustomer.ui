@@ -145,6 +145,9 @@
        <property name="action" stdset="0">
         <string>InsertCustomer customer {name {{addCustomer.name}}; description {{addCustomer.description}}; addr_line1 {{addCustomer.addr_line1}}; addr_line2{{addCustomer.addr_line2}}; addr_postalcode{{addCustomer.addr_postalcode}}; addr_district{{addCustomer.addr_district}}; addr_country{{addCustomer.addr_country}} }</string>
        </property>
+       <property name="datasignal:clicked" stdset="0">
+        <string>listCustomer</string>
+       </property>
       </widget>
      </item>
      <item>

@@ -186,28 +186,18 @@ WidgetVisitor::State::State( QWidget* widget_)
 					qCritical() << "error widget visitor state" << widget_->metaObject()->className() << widget_->objectName() << ": defined unknown data signal name" << prop;
 				}
 			}
-			else if (prop.startsWith( "dataslot:"))
-			{
-				const char* slotname = (const char*)prop + 9/*std::strlen( "dataslot:")*/;
-				QList<QString> values;
-				foreach (const QString& vv, m_widget->property( prop).toString().trimmed().split(','))
-				{
-					values.push_back( vv.trimmed());
-				}
-				DataSignalType dt;
-				if (WidgetVisitor::getDataSignalType( slotname, dt))
-				{
-					m_dataslots.id[(int)dt] = values;
-				}
-				else
-				{
-					qCritical() << "error widget visitor state" << widget_->metaObject()->className() << widget_->objectName() << ": defined unknown data slot name" << prop;
-				}
-			}
 		}
 		if (!prop.startsWith( "_w_") && !prop.startsWith( "_q_"))
 		{
 			m_dynamicProperties.insert( prop, m_widget->property( prop));
+		}
+	}
+	QVariant dataslots = m_widget->property( "dataslot");
+	if (dataslots.isValid())
+	{
+		foreach (const QString& vv, dataslots.toString().trimmed().split(','))
+		{
+			m_dataslots.push_back( vv.trimmed());
 		}
 	}
 	static qint64 g_cnt = 0;
@@ -1100,9 +1090,9 @@ void WidgetVisitor::ERROR( const char* msg, const QString& arg) const
 	logError( widget(), msg, QString( arg));
 }
 
-static bool nodeProperty_hasDataSlot( const QByteArray& sigpropname, const QWidget* widget, const QVariant& cond)
+static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& cond)
 {
-	QVariant dataslots = widget->property( sigpropname);
+	QVariant dataslots = widget->property( "dataslot");
 	int idx = 0;
 	while ((idx=dataslots.toString().indexOf( cond.toString(), idx)) >= 0)
 	{
@@ -1111,46 +1101,6 @@ static bool nodeProperty_hasDataSlot( const QByteArray& sigpropname, const QWidg
 		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ',') return true;
 	}
 	return false;
-}
-
-struct DataSlotPropertyName :public QByteArray
-{
-	DataSlotPropertyName( WidgetVisitor::DataSignalType dt)
-	{
-		append( "dataslot:");
-		append( WidgetVisitor::dataSignalTypeName( dt));
-	}
-};
-
-static bool nodeProperty_hasDataSlot_changed( const QWidget* widget, const QVariant& cond)
-{
-	static const DataSlotPropertyName dataslot( WidgetVisitor::SigChanged);
-	return nodeProperty_hasDataSlot( dataslot, widget, cond);
-}
-static bool nodeProperty_hasDataSlot_activated( const QWidget* widget, const QVariant& cond)
-{
-	static const DataSlotPropertyName dataslot( WidgetVisitor::SigActivated);
-	return nodeProperty_hasDataSlot( dataslot, widget, cond);
-}
-static bool nodeProperty_hasDataSlot_entered( const QWidget* widget, const QVariant& cond)
-{
-	static const DataSlotPropertyName dataslot( WidgetVisitor::SigEntered);
-	return nodeProperty_hasDataSlot( dataslot, widget, cond);
-}
-static bool nodeProperty_hasDataSlot_pressed( const QWidget* widget, const QVariant& cond)
-{
-	static const DataSlotPropertyName dataslot( WidgetVisitor::SigPressed);
-	return nodeProperty_hasDataSlot( dataslot, widget, cond);
-}
-static bool nodeProperty_hasDataSlot_clicked( const QWidget* widget, const QVariant& cond)
-{
-	static const DataSlotPropertyName dataslot( WidgetVisitor::SigClicked);
-	return nodeProperty_hasDataSlot( dataslot, widget, cond);
-}
-static bool nodeProperty_hasDataSlot_doubleclicked( const QWidget* widget, const QVariant& cond)
-{
-	static const DataSlotPropertyName dataslot( WidgetVisitor::SigDoubleClicked);
-	return nodeProperty_hasDataSlot( dataslot, widget, cond);
 }
 
 QList<QWidget*> WidgetVisitor::get_datasignal_receivers( DataSignalType type)
@@ -1181,18 +1131,8 @@ QList<QWidget*> WidgetVisitor::get_datasignal_receivers( DataSignalType type)
 		else
 		{
 			WidgetVisitor mainvisitor( uirootwidget());
-			NodeProperty nodeprop = 0;
-			switch (type)
-			{
-				case SigChanged: nodeprop = nodeProperty_hasDataSlot_changed; break;
-				case SigActivated: nodeprop = nodeProperty_hasDataSlot_activated; break;
-				case SigEntered: nodeprop = nodeProperty_hasDataSlot_entered; break;
-				case SigPressed: nodeprop = nodeProperty_hasDataSlot_pressed; break;
-				case SigClicked: nodeprop = nodeProperty_hasDataSlot_clicked; break;
-				case SigDoubleClicked: nodeprop = nodeProperty_hasDataSlot_doubleclicked; break;
-			}
 			QWidget* thiswidget = widget();
-			foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeprop, receiverid))
+			foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, receiverid))
 			{
 				if (rcvwidget != thiswidget)
 				{

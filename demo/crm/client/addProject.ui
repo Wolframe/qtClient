@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>addProject</class>
  <widget class="QWidget" name="addProject">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -85,6 +88,9 @@
        </property>
        <property name="form" stdset="0">
         <string notr="true">listProject</string>
+       </property>
+       <property name="datasignal:clicked" stdset="0">
+        <string>listProject</string>
        </property>
       </widget>
      </item>
