@@ -19,3 +19,4 @@ Makefile.Static
 qrc_*.cpp
 qtclient/qtclient
 skeleton/skeleton
+tests/functions/testDataTree

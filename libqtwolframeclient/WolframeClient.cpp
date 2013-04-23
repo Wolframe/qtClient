@@ -40,16 +40,17 @@
 #include <QTimer>
 #ifdef WITH_SSL
 #include <QSslCipher>
+#include <QSslSocket>
+#include <QSslCertificate>
 #endif
 
 WolframeClient::WolframeClient( const ConnectionParameters _connParams,	QWidget *_parent )
 	: QObject( _parent ),
 	m_connParams( _connParams ),
 	m_state( Disconnected ),
+	m_socket( 0 ),
 	m_hasErrors( false )
-#ifdef WITH_SSL
 	,m_initializedSsl( false )
-#endif
 {
 #ifdef WITH_SSL
 	m_socket = new QSslSocket( this );
@@ -91,6 +92,15 @@ void WolframeClient::setConnectionParameters( const ConnectionParameters _connPa
 	m_connParams = _connParams;
 }
 
+bool WolframeClient::SSLsupported( )
+{
+#ifdef WITH_SSL
+	return true;
+#else
+	return false;
+#endif
+}
+
 void WolframeClient::timeoutOccurred( )
 {
 	m_timeoutTimer->stop( );
@@ -101,9 +111,9 @@ void WolframeClient::timeoutOccurred( )
 	}
 }
 
-#ifdef WITH_SSL
 void WolframeClient::initializeSsl( )
 {
+#ifdef WITH_SSL
 	if( m_initializedSsl ) return;
 
 // CA certificate to verify the client certificate
@@ -123,10 +133,12 @@ void WolframeClient::initializeSsl( )
 	}
 
 	m_initializedSsl = true;
+#endif
 }
 
 QSslCertificate WolframeClient::getCertificate( QString filename )
 {
+#ifdef WITH_SSL
 	QFile file( filename );
 
 	if( !file.exists( ) )
@@ -148,10 +160,12 @@ QSslCertificate WolframeClient::getCertificate( QString filename )
 		emit error( tr( "certificate in %1 is invalid" ).arg( filename ) );
 
 	return cert;
+#endif
 }
 
 void WolframeClient::sslErrors( const QList<QSslError> &errors )
 {
+#ifdef WITH_SSL
 // for all other errors warn user about it
 	foreach( const QSslError &e, errors ) {
 		if( e.error( ) == QSslError::SelfSignedCertificateInChain) continue;
@@ -163,28 +177,34 @@ void WolframeClient::sslErrors( const QList<QSslError> &errors )
 
 // ignore them
 	qobject_cast<QSslSocket *>( m_socket )->ignoreSslErrors( );
+#endif
 }
 
 void WolframeClient::peerVerifyError( const QSslError &e )
 {
+#ifdef WITH_SSL
 	if( e.error( ) == QSslError::SelfSignedCertificateInChain ) return;
 	if( e.error( ) == QSslError::HostNameMismatch) return;
 	m_hasErrors = true;
 	qDebug( ) << "PEER VERIFY SSL ERROR: " << e;
 	emit error( e.errorString( ) );
+#endif
 }
 
 void WolframeClient::encrypted( )
 {
+#ifdef WITH_SSL
 	if( m_hasErrors ) {
 		emit error( tr( "Channel is encrypted, but there were errors on the way." ) );
 	}
-}
+#else
+	return false;
 #endif
+}
 
 WolframeClient::~WolframeClient( )
 {
-	delete m_socket;
+	if( m_socket ) delete m_socket;
 }
 
 void WolframeClient::connect( )

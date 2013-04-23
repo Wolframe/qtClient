@@ -282,12 +282,11 @@ void ServerDefinitionDialog::testConnection()
 		return;
 	}
 
-#ifndef WITH_SSL
-	if( m_params.SSL ) {
+	if( !WolframeClient::SSLsupported( ) && m_params.SSL ) {
 		QMessageBox::critical( this, tr( "Parameters error"),
 			"No SSL support is compiled in, can't test a SSL connection" );
+		return;
 	}
-#endif
 
 	ui->testBttn->setEnabled( false );
 

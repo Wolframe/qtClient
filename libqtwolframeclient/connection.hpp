@@ -36,7 +36,7 @@
 
 #include <QString>
 
-struct X_EXPORT ConnectionParameters	{
+struct LIBWOLFRAMECLIENT_VISIBILITY ConnectionParameters	{
 	QString		name;
 	QString		host;
 	unsigned short	port;

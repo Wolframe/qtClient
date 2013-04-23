@@ -37,11 +37,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QAbstractSocket>
-#ifdef WITH_SSL
-#include <QSslSocket>
-#include <QSslCertificate>
 #include <QList>
-#endif
 #include <QQueue>
 #include <QStringList>
 #include <QTimer>
@@ -49,7 +45,10 @@
 #include "WolframeClientProtocol.hpp"
 #include "connection.hpp"
 
-class X_EXPORT WolframeClient : public QObject
+class QSslError;
+class QSslCertificate;
+
+class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 {
 	Q_OBJECT
 
@@ -78,9 +77,6 @@ class X_EXPORT WolframeClient : public QObject
 		QAbstractSocket *m_socket;
 		bool m_hasErrors;
 		WolframeClientProtocol m_protocol;
-#ifdef WITH_SSL
-		bool m_initializedSsl;
-#endif
 		QTimer *m_timeoutTimer;
 
 	public:
@@ -88,6 +84,8 @@ class X_EXPORT WolframeClient : public QObject
 		virtual ~WolframeClient( );
 
 		void setConnectionParameters( const ConnectionParameters _connParams );
+		
+		static bool SSLsupported( );
 
 // low-level commands, pre-protocol, for debugging mainly
 		void connect();
@@ -106,13 +104,6 @@ class X_EXPORT WolframeClient : public QObject
 	private slots:
 		void timeoutOccurred( );
 		void error( QAbstractSocket::SocketError );
-#ifdef WITH_SSL
-		void initializeSsl( );
-		QSslCertificate getCertificate( QString filename );
-		void sslErrors( const QList<QSslError> &errors );
-		void encrypted( );
-		void peerVerifyError( const QSslError &e );
-#endif
 		void dataAvailable( );
 		void privateConnected( );
 		void privateDisconnected( );
@@ -137,6 +128,18 @@ class X_EXPORT WolframeClient : public QObject
 
 // high-level commands
 		void answerReceived( bool success, const QString& tag, const QByteArray& content );
+
+// intentionally no WITH_SSL here (maintain binary compatibility, a D-ptr is better (TODO), but
+// how to slots work with d_ptr?)
+	private:
+		bool m_initializedSsl;
+		
+	private slots:
+		void initializeSsl( );
+		QSslCertificate getCertificate( QString filename );
+		void sslErrors( const QList<QSslError> &errors );
+		void encrypted( );
+		void peerVerifyError( const QSslError &e );
 };
 
 #endif // _Wolframe_CLIENT_HPP_INCLUDED

@@ -69,9 +69,10 @@ void DebugTerminal::initialize( )
 
 	QStringList wordList;
 	wordList << "connect" << "quit" << "help";
-#ifdef WITH_SSL
-	wordList << "sconnect";
-#endif
+	if( WolframeClient::SSLsupported( ) ) {
+		wordList << "sconnect";
+	}
+	
 	QCompleter *completer = new QCompleter( wordList, this );
 	completer->setCaseSensitivity( Qt::CaseInsensitive );
 	completer->setCompletionMode( QCompleter::InlineCompletion );
@@ -121,9 +122,9 @@ void DebugTerminal::lineEntered( QString line )
 			connParams.name = "debug";
 			connParams.host = rx.cap( 1 );
 			connParams.port = rx.cap( 2 ).toUShort( );
-//~ #ifdef WITH_SSL
-			//~ m_wolframeClient->setSecure( line.toLower( ).startsWith( "sconnect" ) );
-//~ #endif
+			//~ if( WolframeClient::SSLsupported( ) ) {
+				//~ m_wolframeClient->setSecure( line.toLower( ).startsWith( "sconnect" ) );
+			//~ }
 			m_wolframeClient->setConnectionParameters( connParams );
 			m_wolframeClient->connect( );
 		} else {
@@ -137,9 +138,9 @@ void DebugTerminal::lineEntered( QString line )
 		m_output->setTextColor( QColor( "blue" ) );
 		m_output->append( "HELP - show this help page" );
 		m_output->append( "CONNECT host:port - connect to Wolframe server (insecure)" );
-#ifdef WITH_SSL
-		m_output->append( "SCONNECT host:port - connect to Wolframe server (secure)" );
-#endif
+		if( WolframeClient::SSLsupported( ) ) {
+			m_output->append( "SCONNECT host:port - connect to Wolframe server (secure)" );
+		}
 		m_output->append( "QUIT - terminate connection to Wolframe server" );
 		m_output->setTextColor( QColor( "black" ) );
 	} else {

@@ -4,6 +4,8 @@ TARGET = filechooser
 
 CONFIG += qt warn_on plugin
 
+DEFINES += X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
+
 QT += 
 
 contains(QT_VERSION,^5\\..*) {

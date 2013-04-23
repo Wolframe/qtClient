@@ -4,6 +4,8 @@ TARGET = picturechooser
 
 CONFIG += qt warn_on plugin
 
+DEFINES += X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
+
 INCLUDEPATH += ../filechooser
 
 QT += 

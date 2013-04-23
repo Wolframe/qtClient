@@ -4,7 +4,7 @@ TARGET = testDataTree
 
 CONFIG += qt debug
 
-INCLUDEPATH += ../..
+INCLUDEPATH += ../../qtclient
 
 QT += core gui
 
@@ -14,4 +14,4 @@ QT += widgets
 
 SOURCES += \	
 	testDataTree.cpp \
-	../../DataTree.cpp
+	../../qtclient/DataTree.cpp

@@ -52,7 +52,7 @@
 #include "ui_MainWindow.h"
 #include "settings.hpp"
 #include "connection.hpp"
-#include "DebugTerminal.hpp"
+//~ #include "DebugTerminal.hpp"
 
 class MainWindow : public QMainWindow
 {
@@ -81,7 +81,7 @@ class MainWindow : public QMainWindow
 		bool m_terminating;
 		QLabel *m_statusBarConn;
 		QLabel *m_statusBarSSL;
-		DebugTerminal *m_debugTerminal;
+		//~ DebugTerminal *m_debugTerminal;
 		QAction *m_debugTerminalAction;
 		QDialog *m_modalDialog;
 
@@ -89,9 +89,9 @@ class MainWindow : public QMainWindow
 		void readSettings( );
 		void parseArgs( );
 		bool initialize( );
-		void loadLanguages( );
-		void loadForm( QString formName );
-		void loadLanguage( QString language );
+		//~ void loadLanguages( );
+		//~ void loadForm( QString formName );
+		//~ void loadLanguage( QString language );
 
 	protected:
 		void changeEvent( QEvent *_event );
@@ -126,14 +126,14 @@ class MainWindow : public QMainWindow
 // form loader slots
 		void languageCodesLoaded( QStringList languages );
 		void formListLoaded( QStringList forms );
-		void formLoaded( QString name );
-		void formModal( QString name );
-		void endModal( void );
+		//~ void formLoaded( QString name );
+		//~ void formModal( QString name );
+		//~ void endModal( void );
 		void formError( QString error );
 
 // MDI slots
 		void subWindowSelected( QAction *action );
-		void subWindowChanged( QMdiSubWindow *w );
+		//~ void subWindowChanged( QMdiSubWindow *w );
 		void updateMdiMenusAndToolbars( );
 		void updateWindowMenu( );
 
@@ -150,9 +150,9 @@ class MainWindow : public QMainWindow
 		void on_actionPreferences_triggered( );
 		void on_actionAbout_triggered( );
 		void on_actionAboutQt_triggered( );
-		void on_actionOpenForm_triggered( );
-		void on_actionOpenFormNewWindow_triggered( );
-		void on_actionReload_triggered( );
+		//~ void on_actionOpenForm_triggered( );
+		//~ void on_actionOpenFormNewWindow_triggered( );
+		//~ void on_actionReload_triggered( );
 		void on_actionNextWindow_triggered( );
 		void on_actionPreviousWindow_triggered( );
 		void on_actionClose_triggered( );

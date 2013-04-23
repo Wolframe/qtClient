@@ -4,20 +4,17 @@ TARGET = qtclient
 
 CONFIG += thread qt uitools designer debug
 
-DEFINES += X_EXPORT=Q_DECL_IMPORT WITH_SSL=1
+DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT
 
-unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
-win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
+win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
+macx:LIBS += ../libqtwolframeclient/build/Release/libqtwolframeclient0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
-INCLUDEPATH += ../skeleton ../libqtwolframeclient
+INCLUDEPATH += ../skeleton ../libqtwolframeclient ../plugins/filechooser ../plugins/picturechooser
 
-unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
-win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
-macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.so
-
-unix:LIBS += ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
-win32:LIBS += ../plugins/filechooser/release/libfilechooser.lib ../plugins/picturechooser/picturechooser.lib
-macx:LIBS += ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
+unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
+win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
+macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
 QT += core gui network
 

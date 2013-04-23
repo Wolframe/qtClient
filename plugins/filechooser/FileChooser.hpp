@@ -47,7 +47,7 @@
 #include <QDesignerExportWidget>
 #define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
 #else
-#define EXPORT_AS_PLUGIN
+#define EXPORT_AS_PLUGIN X_EXPORT
 #endif
 
 class EXPORT_AS_PLUGIN FileChooser : public QWidget
