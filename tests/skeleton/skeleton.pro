@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-TARGET = skeleton
+TARGET = skeletonTest
 
 CONFIG += qt debug
 
@@ -24,5 +24,5 @@ SOURCES += \
 	main.cpp
 
 RESOURCES = \
-	skeleton.qrc
+	skeletonTest.qrc
 
