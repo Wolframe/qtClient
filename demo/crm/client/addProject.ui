@@ -87,7 +87,7 @@
         <string notr="true">InsertProject project {customerid={addProject.customerid},name{{addProject.name}},description{{addProject.description}}}</string>
        </property>
        <property name="form" stdset="0">
-        <string notr="true">listProject</string>
+        <string notr="true">_CLOSE_</string>
        </property>
        <property name="datasignal:clicked" stdset="0">
         <string>listProject</string>

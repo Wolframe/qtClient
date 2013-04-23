@@ -474,13 +474,21 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 
 	foreach (const QVariant& elem, state.toList())
 	{
-		QLine range = elem.toLine();
-		int top = range.p1().x();
-		int left = range.p1().y();
-		int bottom = range.p2().x();
-		int right = range.p2().y();
-		QTableWidgetSelectionRange selected( top, left, bottom, right);
-		m_tableWidget->setRangeSelected( selected, true);
+		if (elem.type() == QVariant::Line)
+		{
+			QLine range = elem.toLine();
+			int top = range.p1().x();
+			int left = range.p1().y();
+			int bottom = range.p2().x();
+			int right = range.p2().y();
+			QTableWidgetSelectionRange selected( top, left, bottom, right);
+			m_tableWidget->setRangeSelected( selected, true);
+		}
+		else
+		{
+			m_tableWidget->setProperty( "_w_selected", elem);
+			endofDataFeed();
+		}
 	}
 	m_tableWidget->horizontalHeader()->setStretchLastSection(true);
 #if QT_VERSION >= 0x050000
@@ -502,6 +510,9 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 QVariant WidgetVisitorState_QTableWidget::getState() const
 {
 	QList<QVariant> rt;
+	QVariant selected = getSelectedValue();
+	rt.push_back( selected);
+
 	foreach (const QTableWidgetSelectionRange& selected, m_tableWidget->selectedRanges())
 	{
 		int top = selected.topRow();

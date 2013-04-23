@@ -85,6 +85,7 @@ class FormWidget : public QWidget
 		QTranslator m_translator;		// contains the translations for the current form
 		QHash<QString,QList<WidgetListenerR> > m_listeners;	// widget signal listeners for this form
 		QHash<QString,QList<WidgetEnablerR> > m_enablers;	// objects holding the logic for enabling buttons when conditions defined by properties referenced are met
+		QHash<QString,QVariant> m_formstatemap;
 		bool m_debug;
 		bool m_modal;
 		bool m_mdi;
@@ -100,6 +101,9 @@ class FormWidget : public QWidget
 		void enablePushButtonEnablers( QWidget* ownerwidget);
 		///\brief Signal the push button enablers to recheck their state
 		void signalPushButtonEnablers();
+
+		QVariant getWidgetStates() const;
+		void setWidgetStates( const QVariant& state);
 
 	signals:
 		void formLoaded( QString name );

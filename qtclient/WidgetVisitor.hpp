@@ -228,11 +228,11 @@ class WidgetVisitor
 			///\brief Restore the widget state from a variable
 			virtual void setState( const QVariant& /*state*/){}
 			///\brief Get the current the widget state
-			virtual QVariant getState()						{return QVariant();}
+			virtual QVariant getState() const					{return QVariant();}
 			///\brief Hook to complete the feeding of data
 			virtual void endofDataFeed(){}
 			///\brief Check if a an element can appear more than once
-			virtual bool isArrayElement( const QString&/*name*/)		{return false;}
+			virtual bool isArrayElement( const QString&/*name*/)			{return false;}
 
 			///\brief Create listener object for the widget
 			virtual WidgetListener* createListener( DataLoader* dataLoader);

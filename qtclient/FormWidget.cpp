@@ -205,6 +205,8 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		}
 		else
 		{
+			m_formstatemap[ m_form] = getWidgetStates();
+			m_formstatemap[ nextForm] = QVariant();
 			loadForm( nextForm );
 		}
 	}
@@ -410,6 +412,47 @@ void FormWidget::signalPushButtonEnablers()
 	}
 }
 
+QVariant FormWidget::getWidgetStates() const
+{
+	if (!m_ui) return QVariant();
+	QList<QVariant> rt;
+	foreach( QWidget *widget, m_ui->findChildren<QWidget*>())
+	{
+		if (!widget->objectName().isEmpty() && !widget->objectName().startsWith( "qt_"))
+		{
+			WidgetVisitor visitor( widget);
+			QVariant state = visitor.getState();
+			if (state.isValid())
+			{
+				rt.push_back( visitor.objectName());
+				rt.push_back( visitor.getState());
+			}
+		}
+	}
+	if (rt.isEmpty()) return QVariant();
+	return rt;
+}
+
+void FormWidget::setWidgetStates( const QVariant& state)
+{
+	QList<QVariant> statelist = state.toList();
+	QList<QVariant>::const_iterator itr = statelist.begin();
+
+	foreach( QWidget *widget, m_ui->findChildren<QWidget*>())
+	{
+		if (itr != statelist.end() && widget->objectName() == itr->toString())
+		{
+			WidgetVisitor visitor( widget);
+			++itr;
+			if (itr != statelist.end())
+			{
+				visitor.setState( *itr);
+				++itr;
+			}
+		}
+	}
+}
+
 void FormWidget::formLoaded( QString name, QByteArray formXml )
 {
 // that's not us
@@ -460,6 +503,13 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	}
 // initialize the form variables given by assignments
 	visitor.do_readAssignments();
+
+// restore widget states if widget was opened with a '_CLOSE_'
+	QVariant formstate = m_formstatemap[ m_form];
+	if (formstate.isValid())
+	{
+		setWidgetStates( formstate);
+	}
 
 // connect listener to signals converted to data signals
 	m_listeners.clear();
