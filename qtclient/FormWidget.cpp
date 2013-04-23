@@ -43,7 +43,6 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QList>
-#include <QDialog>
 
 FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, bool _mdi )
 	: QWidget( _parent ), m_form( ),
@@ -436,7 +435,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 // if we have a modal dialog, we must not replace our own form, but emit
 // a signal, so the main window can rearange and load the form modal in
 // a new window
-	if( !m_modal && ( m_ui->isModal( ) || qobject_cast<QDialog *>( m_ui ) ) ) {
+	if( !m_modal && m_ui->isModal( ) ) {
 		m_ui = oldUi;
 		m_form = m_previousForm;
 		emit formModal( name );
