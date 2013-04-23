@@ -71,8 +71,6 @@ SOURCES += \
 	../skeleton/loginDialog.cpp \
 	../skeleton/manageServersDialog.cpp \
 	../skeleton/serverDefinitionDialog.cpp
-#	../plugins/filechooser/FileChooser.cpp
-#	../plugins/picturechooser/PictureChooser.cpp
 
 HEADERS += \
 	MainWindow.hpp \
@@ -122,8 +120,6 @@ HEADERS += \
 	../skeleton/loginDialog.hpp \
 	../skeleton/manageServersDialog.hpp \
 	../skeleton/serverDefinitionDialog.hpp
-#	../plugins/filechooser/FileChooser.hpp \
-#	../plugins/picturechooser/PictureChooser.hpp
 
 RESOURCES = \
 	qtclient.qrc

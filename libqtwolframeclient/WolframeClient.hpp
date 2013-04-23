@@ -49,7 +49,7 @@
 #include "WolframeClientProtocol.hpp"
 #include "connection.hpp"
 
-class X_EXPORT WolframeClient : public QObject
+class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 {
 	Q_OBJECT
 

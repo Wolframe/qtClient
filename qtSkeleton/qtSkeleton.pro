@@ -14,9 +14,6 @@ INCLUDEPATH += ../libqtwolframeclient
 unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
 win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
 
-#LIBS += plugins/release/wolframewidgets.lib
-#LIBS += plugins/build/Release/libwolframewidgets.dylib
-
 QT += core gui network sql
 
 SOURCES += \
