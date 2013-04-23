@@ -21,8 +21,6 @@ QT += core gui network
 SOURCES += \
 	MainWindow.cpp \
 	DataLoader.cpp \
-	FileDataLoader.cpp \
-	NetworkDataLoader.cpp \
 	PreferencesDialog.cpp \
 	settings.cpp \
 	LoadMode.cpp \
@@ -31,8 +29,6 @@ SOURCES += \
 HEADERS += \
 	MainWindow.hpp \
 	DataLoader.hpp \
-	FileDataLoader.hpp \
-	NetworkDataLoader.hpp \
 	PreferencesDialog.hpp \
 	settings.hpp \
 	LoadMode.hpp
