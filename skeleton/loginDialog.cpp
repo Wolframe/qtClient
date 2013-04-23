@@ -83,6 +83,12 @@ void LoginDialog::manageConnections()
 	delete manageDlg;
 }
 
+bool LoginDialog::hasSelectedConnection( )
+{
+	return( ui->serverCombo->currentIndex( ) >= 0 &&
+		ui->serverCombo->currentIndex( ) < m_connParams.size( ) );
+}
+
 ConnectionParameters LoginDialog::selectedConnection( )
 {
 	return m_connParams[ ui->serverCombo->currentIndex( ) ];

@@ -194,6 +194,14 @@ void SkeletonMainWindow::on_actionLogin_triggered( )
 			//~ settings.lastConnection = loginDlg->selectedConnection( ).name;
 		//~ }
 
+// user choose nothing, bail out
+		if( !loginDlg->hasSelectedConnection( ) ) {
+			QMessageBox::critical( this, tr( "Parameters error"),
+				"You didn't select any connection!" );
+			delete loginDlg;
+			return;
+		}
+			
 		ConnectionParameters selectedConnection = loginDlg->selectedConnection( );
 
 // no SSL compiled in and the user picks a secure connection, warn him,

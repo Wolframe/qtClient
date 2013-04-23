@@ -51,6 +51,7 @@ public:
 				QWidget *parent = 0 );
 	~LoginDialog();
 
+	bool hasSelectedConnection( );
 	ConnectionParameters selectedConnection( );
 	QString username( );
 	
