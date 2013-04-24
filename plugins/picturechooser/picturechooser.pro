@@ -10,16 +10,19 @@ INCLUDEPATH += ../filechooser
 
 QT += 
 
-contains(QT_VERSION,^5\\..*) {
-QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += widgets
 }
 
-contains(QT_VERSION,^5\\..*) {
+greaterThan(QT_MAJOR_VERSION, 4) {
 	QT += designer
 } else {
 	CONFIG += designer
 }
-	
+
+# Aba: we get link trouble on Windows currently, must recheck and fix
+# X_EXPORT first!
+
 #unix:LIBS += -L../filechooser -lfilechooser
 #win32:LIBS += ../filechooser/debug/filechooser.lib
 

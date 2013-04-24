@@ -1,3 +1,5 @@
+questions:
+- Q_EXPORT_PLUGIN2(qgif, QGifPlugin) and TARGET = $$qtLibraryTarget($$TARGET)
 musts:
 - multi-line plain text fields (like desription in recipe) loose newlines
 - ILLEGAL STATE 4 in dataAvailable!
