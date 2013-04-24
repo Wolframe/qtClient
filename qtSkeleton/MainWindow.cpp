@@ -35,7 +35,7 @@
 //~ #include "FileDataLoader.hpp"
 //~ #include "NetworkDataLoader.hpp"
 #include "settings.hpp"
-#include "PreferencesDialog.hpp"
+//~ #include "PreferencesDialog.hpp"
 #include "global.hpp"
 #include "manageServersDialog.hpp"
 
@@ -812,12 +812,12 @@ void MainWindow::closeEvent( QCloseEvent *e )
 
 void MainWindow::on_actionPreferences_triggered( )
 {
-	PreferencesDialog prefs( settings, m_languages, this );
-	if( prefs.exec( ) == QDialog::Accepted ) {
-		qDebug( ) << "Reloading application";
-		storeSettings( );
-		QApplication::instance( )->exit( RESTART_CODE );
-	}
+	//~ PreferencesDialog prefs( settings, m_languages, this );
+	//~ if( prefs.exec( ) == QDialog::Accepted ) {
+		//~ qDebug( ) << "Reloading application";
+		//~ storeSettings( );
+		//~ QApplication::instance( )->exit( RESTART_CODE );
+	//~ }
 }
 
 void MainWindow::on_actionAbout_triggered( )
