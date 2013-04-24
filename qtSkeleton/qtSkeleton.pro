@@ -20,25 +20,16 @@ QT += core gui network
 
 SOURCES += \
 	MainWindow.cpp \
-	PreferencesDialog.cpp \
-	settings.cpp \
-	LoadMode.cpp \
 	qtSkeleton.cpp
 
 HEADERS += \
-	MainWindow.hpp \
-	PreferencesDialog.hpp \
-	settings.hpp \
-	LoadMode.hpp
+	MainWindow.hpp
 
 RESOURCES = \
 	qtSkeleton.qrc
 
 FORMS += \
-	MainWindow.ui \
-	PreferencesDialog.ui \
-	PreferencesDialogDeveloper.ui \
-	PreferencesDialogInterface.ui
+	MainWindow.ui
 
 TRANSLATIONS += \
 	i18n/qtSkeleton.de_CH.ts \

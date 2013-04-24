@@ -34,8 +34,8 @@
 #include "MainWindow.hpp"
 //~ #include "FileDataLoader.hpp"
 //~ #include "NetworkDataLoader.hpp"
-#include "settings.hpp"
-#include "PreferencesDialog.hpp"
+//~ #include "settings.hpp"
+//~ #include "PreferencesDialog.hpp"
 #include "global.hpp"
 #include "manageServersDialog.hpp"
 
@@ -51,7 +51,8 @@
 // built-in defaults
 MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
 	m_uiLoader( 0 ),
-	m_wolframeClient( 0 ), m_settings( ),
+	m_wolframeClient( 0 ),
+	//~ m_settings( ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
 	m_terminating( false ), 
@@ -79,21 +80,21 @@ static bool _debug = false;
 
 void MainWindow::readSettings( )
 {
-	if( m_settings.isNull( ) ) {
-// read from standard config location (.config/Wolframe or registry)
-		settings.read( ORGANIZATION_NAME, APPLICATION_NAME );
-	} else {
-// read from configuration file given as '-s xxx.conf' on the command line
-		settings.read( m_settings );
-	}
+	//~ if( m_settings.isNull( ) ) {
+//~ // read from standard config location (.config/Wolframe or registry)
+		//~ settings.read( ORGANIZATION_NAME, APPLICATION_NAME );
+	//~ } else {
+//~ // read from configuration file given as '-s xxx.conf' on the command line
+		//~ settings.read( m_settings );
+	//~ }
 
-	_debug = settings.debug;
+	//~ _debug = settings.debug;
 
-	if( settings.locale == SYSTEM_LANGUAGE ) {
-		m_language = QLocale::system( ).name( );
-	} else {
-		m_language = settings.locale;
-	}
+	//~ if( settings.locale == SYSTEM_LANGUAGE ) {
+		//~ m_language = QLocale::system( ).name( );
+	//~ } else {
+		//~ m_language = settings.locale;
+	//~ }
 }
 
 #if QT_VERSION >= 0x050000
@@ -158,10 +159,10 @@ static void myMessageOutput( QtMsgType type, const char *msg )
 
 MainWindow::~MainWindow( )
 {
-	if( settings.mdi ) {
-		if( m_mdiArea )
-			m_mdiArea->closeAllSubWindows( );
-	}
+	//~ if( settings.mdi ) {
+		//~ if( m_mdiArea )
+			//~ m_mdiArea->closeAllSubWindows( );
+	//~ }
 	if( m_wolframeClient ) {
 		delete m_wolframeClient;
 		m_wolframeClient = 0;
@@ -181,13 +182,13 @@ MainWindow::~MainWindow( )
 
 void MainWindow::parseArgs( )
 {
-	QStringList args = QApplication::arguments( );
-	foreach( QString arg, args ) {
-		qDebug( ) << arg;
-	}
-	if( args.size( ) > 1 ) {
-		m_settings = args[1];
-	}
+	//~ QStringList args = QApplication::arguments( );
+	//~ foreach( QString arg, args ) {
+		//~ qDebug( ) << arg;
+	//~ }
+	//~ if( args.size( ) > 1 ) {
+		//~ m_settings = args[1];
+	//~ }
 }
 
 // -- initialization
@@ -210,19 +211,19 @@ bool MainWindow::initialize( )
 	qDebug( ) << "Will load custom widget plugins from" << paths;
 
 // ..same for the data loader
-	switch( settings.dataLoadMode ) {
-		case LoadMode::FILE:
-//			m_dataLoader = new FileDataLoader( settings.dataLoaderDir );
-			break;
-
-		case LoadMode::NETWORK:
-			// skip, delay, needs a working connection for this
-			break;
-
-		case LoadMode::UNDEFINED:
-			QMessageBox::critical( this, tr( "Configuration error" ), "Unknown value for data load mode in the configuration", QMessageBox::Ok );
-			return false;
-	}
+	//~ switch( settings.dataLoadMode ) {
+		//~ case LoadMode::FILE:
+//~ //			m_dataLoader = new FileDataLoader( settings.dataLoaderDir );
+			//~ break;
+//~ 
+		//~ case LoadMode::NETWORK:
+			//~ // skip, delay, needs a working connection for this
+			//~ break;
+//~ 
+		//~ case LoadMode::UNDEFINED:
+			//~ QMessageBox::critical( this, tr( "Configuration error" ), "Unknown value for data load mode in the configuration", QMessageBox::Ok );
+			//~ return false;
+	//~ }
 
 //// link the form loader for form loader notifications needed by the main window
 //// (list of forms for form menu, list of language for language picker)
@@ -232,44 +233,44 @@ bool MainWindow::initialize( )
 //		this, SLOT( formListLoaded( QStringList ) ) );
 
 // create central widget, either as MDI area or as one form widget
-	if( settings.mdi ) {
-		m_mdiArea = findChild<QMdiArea *>( "centralWidget" );
-		if( m_mdiArea ) {
-// attach mdi area to some specific signals
-			m_mdiArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-			m_mdiArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-			connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow * ) ),
-				this, SLOT( subWindowChanged( QMdiSubWindow * ) ) );
-
-// connect some MDI specific signals to menu and toolbar
-			QAction *action = findChild<QAction *>( "actionTile" );
-			if( action ) {
-				action->setEnabled( true );
-				connect( action, SIGNAL( triggered( ) ),
-					m_mdiArea, SLOT( tileSubWindows( ) ) );
-			}
-			action = findChild<QAction *>( "actionCascade" );
-			if( action ) {
-				action->setEnabled( true );
-				connect( action, SIGNAL( triggered( ) ),
-					m_mdiArea, SLOT( cascadeSubWindows( ) ) );
-			}
-		} else {
-// missing a MDI area, so we disable the m_mdi flag
-			settings.mdi = false;
-		}
-	}
+	//~ if( settings.mdi ) {
+		//~ m_mdiArea = findChild<QMdiArea *>( "centralWidget" );
+		//~ if( m_mdiArea ) {
+//~ // attach mdi area to some specific signals
+			//~ m_mdiArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+			//~ m_mdiArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+			//~ connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow * ) ),
+				//~ this, SLOT( subWindowChanged( QMdiSubWindow * ) ) );
+//~ 
+//~ // connect some MDI specific signals to menu and toolbar
+			//~ QAction *action = findChild<QAction *>( "actionTile" );
+			//~ if( action ) {
+				//~ action->setEnabled( true );
+				//~ connect( action, SIGNAL( triggered( ) ),
+					//~ m_mdiArea, SLOT( tileSubWindows( ) ) );
+			//~ }
+			//~ action = findChild<QAction *>( "actionCascade" );
+			//~ if( action ) {
+				//~ action->setEnabled( true );
+				//~ connect( action, SIGNAL( triggered( ) ),
+					//~ m_mdiArea, SLOT( cascadeSubWindows( ) ) );
+			//~ }
+		//~ } else {
+//~ // missing a MDI area, so we disable the m_mdi flag
+			//~ settings.mdi = false;
+		//~ }
+	//~ }
 
 // in local file UI and data mode we can load the form right away, we don't
 // wait for the user to log in
-	if( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) {
-		restoreStateAndPositions( );
-	}
+	//~ if( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) {
+		//~ restoreStateAndPositions( );
+	//~ }
 
 // add the menu entries for the developer mode
-	if( settings.developEnabled ) {
-		addDeveloperMenu( );
-	}
+	//~ if( settings.developEnabled ) {
+		//~ addDeveloperMenu( );
+	//~ }
 
 // update shortcuts to standard ones
 	//~ updateActionShortcuts( );
@@ -711,96 +712,96 @@ void MainWindow::on_actionExit_triggered( )
 {
 	m_terminating = true;
 
-	if( settings.uiLoadMode == LoadMode::NETWORK || settings.dataLoadMode == LoadMode::NETWORK ) {
+	//~ if( settings.uiLoadMode == LoadMode::NETWORK || settings.dataLoadMode == LoadMode::NETWORK ) {
 		if( m_wolframeClient ) {
 			m_wolframeClient->disconnect( );
 		} else {
 			close( );
 		}
-	} else {
-// terminate brutally in local mode (this is for a connection from the debug window)
-		if( m_wolframeClient )
-			disconnect( m_wolframeClient, SIGNAL( error( QString ) ), 0, 0 );
-
-		if( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) {
-			storeStateAndPositions( );
-		}
-
-		close( );
-	}
+	//~ } else {
+//~ // terminate brutally in local mode (this is for a connection from the debug window)
+		//~ if( m_wolframeClient )
+			//~ disconnect( m_wolframeClient, SIGNAL( error( QString ) ), 0, 0 );
+//~ 
+		//~ if( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) {
+			//~ storeStateAndPositions( );
+		//~ }
+//~ 
+		//~ close( );
+	//~ }
 }
 
 void MainWindow::restoreStateAndPositions( )
 {
 // restore main window position and size
-	move( settings.mainWindowPos );
-	resize( settings.mainWindowSize );
+	//~ move( settings.mainWindowPos );
+	//~ resize( settings.mainWindowSize );
 
 // load initial form, load forms and position of windows from settings,
 // of none there, load init form in a MDI subwindow or directly
-	if( settings.mdi ) {
-		if( settings.saveRestoreState ) {
-			for( int i = 0; i < settings.states.size( ); i++ ) {
-				WinState state = settings.states[i];
+	//~ if( settings.mdi ) {
+		//~ if( settings.saveRestoreState ) {
+			//~ for( int i = 0; i < settings.states.size( ); i++ ) {
+				//~ WinState state = settings.states[i];
 				//~ QMdiSubWindow *w = CreateMdiSubWindow( state.form );
 				//~ w->move( state.position );
 				//~ w->resize( state.size );
-			}
-		} else {
+			//~ }
+		//~ } else {
 			//~ (void)CreateMdiSubWindow( "init" );
-// default it tiling MDI subwindows, no better option
-			m_mdiArea->tileSubWindows( );
-		}
-	} else {
-		if( settings.saveRestoreState && settings.states.size( ) > 0 ) {
-			WinState state = settings.states[0];
+//~ // default it tiling MDI subwindows, no better option
+			//~ m_mdiArea->tileSubWindows( );
+		//~ }
+	//~ } else {
+		//~ if( settings.saveRestoreState && settings.states.size( ) > 0 ) {
+			//~ WinState state = settings.states[0];
 			//~ CreateFormWidget( state.form );
-		} else {
+		//~ } else {
 			//~ CreateFormWidget( "init" );
-		}
-	}
+		//~ }
+	//~ }
 }
 
 void MainWindow::storeStateAndPositions( )
 {
-// save our own size and position
-	if( settings.saveRestoreState ) {
-		settings.mainWindowPos = pos( );
-		settings.mainWindowSize = size( );
-	}
-
-// save position/size and state of subwindows (if wished)
-	if( settings.saveRestoreState ) {
-		settings.states.clear( );
-		if( settings.mdi ) {
-			foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
-				WinState state;
-//				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
-//				state.form = f->form( );
-				state.position = w->pos( );
-				state.size = w->size( );
-				settings.states.append( state );
-			}
-		} else {
-			settings.states.clear( );
-//			if( m_formWidget ) {
-//				WinState state;
-//				state.form = m_formWidget->form( );
-//				state.position = m_formWidget->pos( );
-//				state.size = m_formWidget->size( );
-//				settings.states.append( state );
-//			}
-		}
-	}
+//~ // save our own size and position
+	//~ if( settings.saveRestoreState ) {
+		//~ settings.mainWindowPos = pos( );
+		//~ settings.mainWindowSize = size( );
+	//~ }
+//~ 
+//~ // save position/size and state of subwindows (if wished)
+	//~ if( settings.saveRestoreState ) {
+		//~ settings.states.clear( );
+		//~ if( settings.mdi ) {
+			//~ foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
+				//~ WinState state;
+//~ //				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
+//~ //				state.form = f->form( );
+				//~ state.position = w->pos( );
+				//~ state.size = w->size( );
+				//~ settings.states.append( state );
+			//~ }
+		//~ } else {
+			//~ settings.states.clear( );
+//~ //			if( m_formWidget ) {
+//~ //				WinState state;
+//~ //				state.form = m_formWidget->form( );
+//~ //				state.position = m_formWidget->pos( );
+//~ //				state.size = m_formWidget->size( );
+//~ //				settings.states.append( state );
+//~ //			}
+		//~ }
+	//~ }
 }
 
 void MainWindow::storeSettings( )
 {
-	if( m_settings.isEmpty( ) ) {
-		settings.write( ORGANIZATION_NAME, APPLICATION_NAME );
-	} else {
-		settings.write( m_settings );
-	}
+	//~ if( m_settings.isEmpty( ) ) {
+		//~ settings.write( ORGANIZATION_NAME, APPLICATION_NAME );
+	//~ } else {
+		//~ settings.write( m_settings );
+	//~ }
 }
 
 void MainWindow::closeEvent( QCloseEvent *e )
@@ -812,12 +813,12 @@ void MainWindow::closeEvent( QCloseEvent *e )
 
 void MainWindow::on_actionPreferences_triggered( )
 {
-	PreferencesDialog prefs( settings, m_languages, this );
-	if( prefs.exec( ) == QDialog::Accepted ) {
-		qDebug( ) << "Reloading application";
-		storeSettings( );
-		QApplication::instance( )->exit( RESTART_CODE );
-	}
+	//~ PreferencesDialog prefs( settings, m_languages, this );
+	//~ if( prefs.exec( ) == QDialog::Accepted ) {
+		//~ qDebug( ) << "Reloading application";
+		//~ storeSettings( );
+		//~ QApplication::instance( )->exit( RESTART_CODE );
+	//~ }
 }
 
 void MainWindow::on_actionAbout_triggered( )
@@ -945,9 +946,9 @@ int MainWindow::nofSubWindows( ) const
 void MainWindow::updateMdiMenusAndToolbars( )
 {
 // present new form menu entry if logged in
-	activateAction( "actionOpenFormNewWindow",
-		( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) ||
-		m_wolframeClient );
+	//~ activateAction( "actionOpenFormNewWindow",
+		//~ ( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) ||
+		//~ m_wolframeClient );
 
 // enable/disable menu/toolbar items depending on the number of subwindows
 	activateAction( "actionClose", nofSubWindows( ) > 0 );
@@ -1025,32 +1026,32 @@ void MainWindow::updateMenusAndToolbars( )
 	}
 
 // logged in or logged out?
-	activateAction( "actionOpenForm",
-		( ( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE )
-		|| ( m_wolframeClient && m_wolframeClient->isConnected( ) ) )
-		&& ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
-	activateAction( "actionReload",
-		( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) ||
-		( m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) ) );
+	//~ activateAction( "actionOpenForm",
+		//~ ( ( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE )
+		//~ || ( m_wolframeClient && m_wolframeClient->isConnected( ) ) )
+		//~ && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionReload",
+		//~ ( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) ||
+		//~ ( m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) ) );
 
-	if( settings.uiLoadMode == LoadMode::NETWORK || settings.dataLoadMode == LoadMode::NETWORK ) {
-		activateAction( "actionLogin", !m_wolframeClient || !m_wolframeClient->isConnected( ) );
-		activateAction( "actionLogout", m_wolframeClient && m_wolframeClient->isConnected( ) );
-	}
+	//~ if( settings.uiLoadMode == LoadMode::NETWORK || settings.dataLoadMode == LoadMode::NETWORK ) {
+		//~ activateAction( "actionLogin", !m_wolframeClient || !m_wolframeClient->isConnected( ) );
+		//~ activateAction( "actionLogout", m_wolframeClient && m_wolframeClient->isConnected( ) );
+	//~ }
 
 // MDI menus and toolbars
-	if( settings.mdi ) {
-		updateMdiMenusAndToolbars( );
-	}
+	//~ if( settings.mdi ) {
+		//~ updateMdiMenusAndToolbars( );
+	//~ }
 
 // edit menu (TODO: this is provisoric)
-	activateAction( "actionUndo", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
-	activateAction( "actionRedo", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
-	activateAction( "actionCut", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
-	activateAction( "actionCopy", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
-	activateAction( "actionPaste", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
-	activateAction( "actionDelete", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
-	activateAction( "actionSelectAll", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionUndo", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionRedo", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionCut", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionCopy", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionPaste", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionDelete", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
+	//~ activateAction( "actionSelectAll", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
 
 // developer menu: debug terminal
 	//~ if( m_debugTerminalAction )
@@ -1061,35 +1062,37 @@ void MainWindow::updateMenusAndToolbars( )
 
 void MainWindow::on_actionLogin_triggered( )
 {
-	QString	username;
-//	QString	password;
-	QString	connName;
-
-	if ( settings.saveUsername )	{
-		username = settings.lastUsername;
-		connName = settings.lastConnection;
-	}
-
-	LoginDialog* loginDlg = new LoginDialog( username, connName,
-						 settings.connectionParams );
-	if( loginDlg->exec( ) == QDialog::Accepted ) {
-// optionally remember old login data
-		if( settings.saveUsername ) {
-			settings.lastUsername = loginDlg->username( );
-			settings.lastConnection = loginDlg->selectedConnection( ).name;
-		}
-
-		m_selectedConnection = loginDlg->selectedConnection( );
-
-// no SSL compiled in and the user picks a secure connection, warn him,
-// don't blindly connect
-	if( !WolframeClient::SSLsupported( ) && m_selectedConnection.SSL ) {
-		QMessageBox::critical( this, tr( "Parameters error"),
-			"No SSL support is compiled in, can't open a secure connection" );
-		delete loginDlg;
-		return;
-	}
-
+	//~ QString	username;
+//~ //	QString	password;
+	//~ QString	connName;
+//~ 
+	//~ if ( settings.saveUsername )	{
+		//~ username = settings.lastUsername;
+		//~ connName = settings.lastConnection;
+	//~ }
+	//~ 
+	//~ 
+//~ 
+	//~ LoginDialog* loginDlg = new LoginDialog( username, connName,
+						 //~ settings.connectionParams );
+	//~ if( loginDlg->exec( ) == QDialog::Accepted ) {
+//~ // optionally remember old login data
+		//~ if( settings.saveUsername ) {
+			//~ settings.lastUsername = loginDlg->username( );
+			//~ settings.lastConnection = loginDlg->selectedConnection( ).name;
+		//~ }
+//~ 
+		//~ m_selectedConnection = loginDlg->selectedConnection( );
+//~ 
+//~ // no SSL compiled in and the user picks a secure connection, warn him,
+//~ // don't blindly connect
+	//~ if( !WolframeClient::SSLsupported( ) && m_selectedConnection.SSL ) {
+		//~ QMessageBox::critical( this, tr( "Parameters error"),
+			//~ "No SSL support is compiled in, can't open a secure connection" );
+		//~ delete loginDlg;
+		//~ return;
+	//~ }
+//~ 
 // create a Wolframe protocol client
 		m_wolframeClient = new WolframeClient( m_selectedConnection );
 
@@ -1106,22 +1109,22 @@ void MainWindow::on_actionLogin_triggered( )
 	//~ }
 
 // catch signals from the network layer
-		connect( m_wolframeClient, SIGNAL( error( QString ) ),
-			this, SLOT( wolframeError( QString ) ) );
-		connect( m_wolframeClient, SIGNAL( connected( ) ),
-			this, SLOT( connected( ) ) );
-		connect( m_wolframeClient, SIGNAL( disconnected( ) ),
-			this, SLOT( disconnected( ) ) );
-		connect( m_wolframeClient, SIGNAL( authOk( ) ),
-			this, SLOT( authOk( ) ) );
-		connect( m_wolframeClient, SIGNAL( authFailed( ) ),
-			this, SLOT( authFailed( ) ) );
-
+		//~ connect( m_wolframeClient, SIGNAL( error( QString ) ),
+			//~ this, SLOT( wolframeError( QString ) ) );
+		//~ connect( m_wolframeClient, SIGNAL( connected( ) ),
+			//~ this, SLOT( connected( ) ) );
+		//~ connect( m_wolframeClient, SIGNAL( disconnected( ) ),
+			//~ this, SLOT( disconnected( ) ) );
+		//~ connect( m_wolframeClient, SIGNAL( authOk( ) ),
+			//~ this, SLOT( authOk( ) ) );
+		//~ connect( m_wolframeClient, SIGNAL( authFailed( ) ),
+			//~ this, SLOT( authFailed( ) ) );
+//~ 
 // initiate connect
-		m_wolframeClient->connect( );
-	}
+		//~ m_wolframeClient->connect( );
+	//~ }
 
-	delete loginDlg;
+	//~ delete loginDlg;
 }
 
 void MainWindow::on_actionLogout_triggered( )
@@ -1129,22 +1132,22 @@ void MainWindow::on_actionLogout_triggered( )
 	storeStateAndPositions( );
 	storeSettings( );
 
-	if( settings.mdi ) {
-		m_mdiArea->closeAllSubWindows( );
-	} /*else {
-		delete m_formWidget;
-		m_formWidget = 0;
-	}*/
+	//~ if( settings.mdi ) {
+		//~ m_mdiArea->closeAllSubWindows( );
+	//~ } /*else {
+		//~ delete m_formWidget;
+		//~ m_formWidget = 0;
+	//~ }*/
 
 	m_wolframeClient->disconnect( );
 }
 
 void MainWindow::on_actionManageServers_triggered( )
 {
-	ManageServersDialog* serversDlg = new ManageServersDialog( settings.connectionParams );
-	serversDlg->exec( );
-
-	delete serversDlg;
+	//~ ManageServersDialog* serversDlg = new ManageServersDialog( settings.connectionParams );
+	//~ serversDlg->exec( );
+//~ 
+	//~ delete serversDlg;
 }
 
 // -- developer stuff
