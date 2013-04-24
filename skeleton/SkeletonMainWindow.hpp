@@ -56,13 +56,18 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		void addStatusBarIndicators( );
 		void activateAction( const QString name, bool enabled );		
 		virtual void initializeUi( );
-		virtual void deleteUi( );
+		virtual void deleteUi( );		
+		virtual void updateMenusAndToolbars( );
+		virtual void afterLogin( );
+		virtual void beforeLogout( );
+		virtual void afterAuthOk( );
+		virtual void beforeDisconnect( );
+		
 		QString lastUsername( ) const;
 		void setLastUsername( QString &username );
 		QString lastConnName( ) const;
 		void setLastConnName( QString &connName );
 		void setRememberLogin( bool enable );
-		virtual void updateMenusAndToolbars( );
 	
 	private:
 		bool m_rememberLogin;

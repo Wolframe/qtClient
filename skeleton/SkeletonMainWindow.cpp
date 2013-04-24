@@ -115,9 +115,27 @@ void SkeletonMainWindow::updateMenusAndToolbars( )
 	activateAction( "actionLogout", m_wolframeClient && m_wolframeClient->isConnected( ) );
 }
 
+void SkeletonMainWindow::afterLogin( )
+{
+}
+
+void SkeletonMainWindow::beforeLogout( )
+{
+}
+
+void SkeletonMainWindow::afterAuthOk( )
+{
+}
+
+void SkeletonMainWindow::beforeDisconnect( )
+{
+}
+
 void SkeletonMainWindow::error( QString error )
 {
 	QMessageBox::warning( this, tr( "Server error" ), error, QMessageBox::Ok );
+
+	updateMenusAndToolbars( );
 }
 
 void SkeletonMainWindow::connected( )
@@ -128,7 +146,11 @@ void SkeletonMainWindow::connected( )
 
 void SkeletonMainWindow::disconnected( )
 {
+	beforeDisconnect( );
+	
 	qDebug( ) << "Disconnected from server";
+
+	statusBar( )->showMessage( tr( "Terminated" ) );
 
 	if( m_wolframeClient ) {
 		m_wolframeClient->deleteLater( );
@@ -145,8 +167,10 @@ void SkeletonMainWindow::authOk( )
 
 	statusBar( )->showMessage( tr( "Ready" ) );
 
+	afterAuthOk( );
+
 // update status of menus and toolbars
-	updateMenusAndToolbars( );
+	updateMenusAndToolbars( );	
 }
 
 void SkeletonMainWindow::authFailed( )
@@ -257,7 +281,10 @@ void SkeletonMainWindow::on_actionLogin_triggered( )
 			this, SLOT( authFailed( ) ) );
 		
 		qDebug( ) << "Connecting to " << selectedConnection.toString( );
-	
+
+// do custom stuff after login
+		afterLogin( );
+		
 // initiate connect
 		m_wolframeClient->connect( );
 	}
@@ -265,6 +292,9 @@ void SkeletonMainWindow::on_actionLogin_triggered( )
 
 void SkeletonMainWindow::on_actionLogout_triggered( )
 {
+// do custom stuff before logging out
+	beforeLogout( );
+	
 	m_wolframeClient->disconnect( );
 }
 

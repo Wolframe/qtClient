@@ -263,7 +263,6 @@
   <zorder>testBttn</zorder>
   <zorder>timeoutSpinBox</zorder>
   <zorder>timeoutLbl</zorder>
-  <zorder>horizontalSpacer</zorder>
  </widget>
  <tabstops>
   <tabstop>nameEdit</tabstop>

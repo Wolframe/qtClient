@@ -52,8 +52,8 @@ WolframeClient::WolframeClient( const ConnectionParameters _connParams,	QWidget 
 	m_state( Disconnected ),
 	m_socket( 0 ),
 	m_hasErrors( false ),
-	m_initializedSsl( false ),
-	m_protocol( 0 )
+	m_protocol( 0 ),
+	m_initializedSsl( false )
 {
 #ifdef WITH_SSL
 	m_socket = new QSslSocket( this );

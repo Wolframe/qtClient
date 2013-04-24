@@ -113,6 +113,12 @@ void MainWindow::readSettings( )
 	}
 
 	m_connections = settings.connectionParams;
+
+// set remember username and connection for the login dialog
+	if( settings.saveUsername ) {
+		setLastUsername( settings.lastUsername );
+		setLastConnName( settings.lastConnection );
+	}
 }
 
 #if QT_VERSION >= 0x050000
@@ -417,9 +423,7 @@ void MainWindow::updateActionShortcuts( )
 
 // --- handling protocol changes (connection states and errors)
 
-// TODO: where to put this? How should the skeleton do this?
-// virtual method hooks or signals?
-void MainWindow::disconnected( )
+void MainWindow::beforeDisconnect( )
 {
 	if( m_debugTerminal ) {
 		m_debugTerminalAction->setChecked( false );
@@ -437,23 +441,13 @@ void MainWindow::disconnected( )
 		delete m_dataLoader;
 		m_dataLoader = 0;
 	}
-
-	statusBar( )->showMessage( tr( "Terminated" ) );
-
+	
 	if( m_terminating ) {
 		close( );
 	}
 }
 
-void MainWindow::wolframeError( QString error )
-{
-	QMessageBox::warning( this, tr( "Server error" ), error, QMessageBox::Ok );
-
-	updateMenusAndToolbars( );
-}
-
-// TODO: dito, see above
-void MainWindow::authOk( )
+void MainWindow::afterAuthOk( )
 {
 // create network based form ...
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
@@ -793,6 +787,12 @@ void MainWindow::storeStateAndPositions( )
 		settings.mainWindowSize = size( );
 	}
 
+// optionally remember last connection and username
+	if( settings.saveUsername ) {
+		settings.lastUsername = lastUsername( );
+		settings.lastConnection = lastConnName( );
+	}
+
 // save position/size and state of subwindows (if wished)
 	if( settings.saveRestoreState ) {
 		settings.states.clear( );
@@ -1066,40 +1066,8 @@ void MainWindow::updateMenusAndToolbars( )
 
 // -- logins/logouts/connections
 
-void MainWindow::on_actionLogin_triggered( )
+void MainWindow::afterLogin( )
 {
-	QString	username;
-//	QString	password;
-	QString	connName;
-
-	if ( settings.saveUsername )	{
-		username = settings.lastUsername;
-		connName = settings.lastConnection;
-	}
-
-	LoginDialog* loginDlg = new LoginDialog( username, connName,
-						 settings.connectionParams );
-	if( loginDlg->exec( ) == QDialog::Accepted ) {
-// optionally remember old login data
-		if( settings.saveUsername ) {
-			settings.lastUsername = loginDlg->username( );
-			settings.lastConnection = loginDlg->selectedConnection( ).name;
-		}
-
-		m_selectedConnection = loginDlg->selectedConnection( );
-
-// no SSL compiled in and the user picks a secure connection, warn him,
-// don't blindly connect
-	if( !WolframeClient::SSLsupported( ) && m_selectedConnection.SSL ) {
-		QMessageBox::critical( this, tr( "Parameters error"),
-			"No SSL support is compiled in, can't open a secure connection" );
-		delete loginDlg;
-		return;
-	}
-
-// create a Wolframe protocol client
-		m_wolframeClient = new WolframeClient( m_selectedConnection );
-
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
 		m_debugTerminal = new DebugTerminal( m_wolframeClient, this );
@@ -1111,27 +1079,9 @@ void MainWindow::on_actionLogin_triggered( )
 			this, SLOT( removeDebugToggle( ) ) );
 		qDebug( ) << "Debug window initialized";
 	}
-
-// catch signals from the network layer
-		connect( m_wolframeClient, SIGNAL( error( QString ) ),
-			this, SLOT( wolframeError( QString ) ) );
-		connect( m_wolframeClient, SIGNAL( connected( ) ),
-			this, SLOT( connected( ) ) );
-		connect( m_wolframeClient, SIGNAL( disconnected( ) ),
-			this, SLOT( disconnected( ) ) );
-		connect( m_wolframeClient, SIGNAL( authOk( ) ),
-			this, SLOT( authOk( ) ) );
-		connect( m_wolframeClient, SIGNAL( authFailed( ) ),
-			this, SLOT( authFailed( ) ) );
-
-// initiate connect
-		m_wolframeClient->connect( );
-	}
-
-	delete loginDlg;
 }
 
-void MainWindow::on_actionLogout_triggered( )
+void MainWindow::beforeLogout( )
 {
 	storeStateAndPositions( );
 	storeSettings( );
@@ -1142,8 +1092,6 @@ void MainWindow::on_actionLogout_triggered( )
 		delete m_formWidget;
 		m_formWidget = 0;
 	}
-
-	m_wolframeClient->disconnect( );
 }
 
 void MainWindow::on_actionManageServers_triggered( )

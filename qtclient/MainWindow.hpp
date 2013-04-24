@@ -48,7 +48,6 @@
 #include "FormLoader.hpp"
 #include "WolframeClient.hpp"
 #include "FormWidget.hpp"
-#include "loginDialog.hpp"
 #include "LoadMode.hpp"
 #include "ui_MainWindow.h"
 #include "settings.hpp"
@@ -69,6 +68,10 @@ class MainWindow : public SkeletonMainWindow
 		virtual void initializeUi( );
 		virtual void deleteUi( );
 		virtual void retranslateUi( );
+		virtual void afterLogin( );
+		virtual void beforeLogout( );
+		virtual void afterAuthOk( );
+		virtual void beforeDisconnect( );
 
 	private:
 		QTranslator m_translatorApp;	// contains the translations for this application
@@ -89,8 +92,6 @@ class MainWindow : public SkeletonMainWindow
 		ApplicationSettings settings;	// Application settings
 		ConnectionParameters m_selectedConnection; // lastly selected connection
 		bool m_terminating;
-		QLabel *m_statusBarConn;
-		QLabel *m_statusBarSSL;
 		DebugTerminal *m_debugTerminal;
 		QAction *m_debugTerminalAction;
 		QDialog *m_modalDialog;
@@ -122,11 +123,6 @@ class MainWindow : public SkeletonMainWindow
 		void addDeveloperMenu( );
 
 	private slots:
-// slots for the wolframe client
-		void wolframeError( QString error );
-		void disconnected( );
-		void authOk( );
-
 // menu slots
 		void languageSelected( QAction *action );
 
@@ -165,8 +161,6 @@ class MainWindow : public SkeletonMainWindow
 		void on_actionPreviousWindow_triggered( );
 		void on_actionClose_triggered( );
 		void on_actionCloseAll_triggered( );
-		void on_actionLogin_triggered( );
-		void on_actionLogout_triggered( );
 		void on_actionManageServers_triggered( );
 };
 

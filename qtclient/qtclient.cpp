@@ -53,6 +53,6 @@ int main( int argc, char* argv[] ) {
 		mainWindow.show( );
 		code = app.exec( );
 	} while( code == RESTART_CODE );
-	
+
 	return code;
 }
