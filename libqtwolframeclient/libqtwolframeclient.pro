@@ -23,5 +23,5 @@ SOURCES += \
 HEADERS += \
 	connection.hpp \
 	WolframeClient.hpp \
-	WolframeClientProtocolBase.hpp \
-	WolframeClientProtocol.hpp
+	private/WolframeClientProtocolBase.hpp \
+	private/WolframeClientProtocol.hpp
