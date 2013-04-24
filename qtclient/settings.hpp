@@ -65,7 +65,6 @@ struct ApplicationSettings
 
 	bool mdi;				///< MDI mode with many forms
 	bool debug;				///< debug output
-	bool autoLogin;				///< develop only: easier to write interface with autologin
 	QString locale;				///< startup locale
 	LoadMode::Mode uiLoadMode;		///< developer UI file load mode or network mode
 	LoadMode::Mode dataLoadMode;		///< data forms to network or local stubs in XML files
