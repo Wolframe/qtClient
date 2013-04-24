@@ -20,14 +20,10 @@ QT += core gui network
 
 SOURCES += \
 	MainWindow.cpp \
-	settings.cpp \
-	LoadMode.cpp \
 	qtSkeleton.cpp
 
 HEADERS += \
-	MainWindow.hpp \
-	settings.hpp \
-	LoadMode.hpp
+	MainWindow.hpp
 
 RESOURCES = \
 	qtSkeleton.qrc
