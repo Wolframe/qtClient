@@ -11,7 +11,6 @@ example/Makefile
 example/example
 moc_*.cpp
 ui_*.h
-*.qm
 Makefile
 Makefile.Shared
 Makefile.Static
@@ -20,7 +19,7 @@ qrc_*.cpp
 qtclient/qtclient
 skeleton/skeleton
 tests/functions/testDataTree
-tests/skeleton/skeletonTest
+tests/skeleton/skeleton
 libqtwolframeclient/libqtwolframeclient.pro.user*
 qtClient.pro.user*
 skeleton/skeleton.pro.user*
