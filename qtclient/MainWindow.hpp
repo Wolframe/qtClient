@@ -78,7 +78,6 @@ class MainWindow : public SkeletonMainWindow
 		FormLoader *m_formLoader;	// form loader (visible form)
 		DataLoader *m_dataLoader;	// load and saves data (data form)
 		QHash<QString,QVariant> m_globals;// global form variables
-		WolframeClient *m_wolframeClient; // the client protocol class
 		QString m_settings;		// file to read settings from
 		QStringList m_languages;	// available interface translations
 		QString m_language;		// the current language of the interface
@@ -117,7 +116,6 @@ class MainWindow : public SkeletonMainWindow
 		QString composeWindowListTitle( const int idx, const QString title );
 		QKeySequence::StandardKey defaultKeySequenceFromString( const QString s );
 		void updateActionShortcuts( );
-		void addStatusBarIndicators( );
 		void storeSettings( );
 		void storeStateAndPositions( );
 		void restoreStateAndPositions( );
@@ -126,10 +124,8 @@ class MainWindow : public SkeletonMainWindow
 	private slots:
 // slots for the wolframe client
 		void wolframeError( QString error );
-		void connected( );
 		void disconnected( );
 		void authOk( );
-		void authFailed( );
 
 // menu slots
 		void languageSelected( QAction *action );

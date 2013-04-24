@@ -62,6 +62,7 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		QString lastConnName( ) const;
 		void setLastConnName( QString &connName );
 		void setRememberLogin( bool enable );
+		virtual void updateMenusAndToolbars( );
 	
 	private:
 		bool m_rememberLogin;
@@ -74,7 +75,6 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		void *m_ui;
 		WolframeClient *m_wolframeClient;
 		QVector<ConnectionParameters> m_connections;
-		void updateMenusAndToolbars( );
 
 	private slots:
 // slots for the wolframe client

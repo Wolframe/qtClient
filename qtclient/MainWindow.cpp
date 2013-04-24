@@ -54,7 +54,7 @@
 // built-in defaults
 MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_formWidget( 0 ), m_uiLoader( 0 ), m_formLoader( 0 ),
-	m_dataLoader( 0 ), m_wolframeClient( 0 ), m_settings( ),
+	m_dataLoader( 0 ), m_settings( ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
 	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
@@ -70,6 +70,9 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	if( !initialize( ) ) {
 		QApplication::instance( )->exit( 1 );
 	}
+
+// enable login remember mechanism
+	setRememberLogin( true );
 }
 
 void MainWindow::initializeUi( )
@@ -108,6 +111,8 @@ void MainWindow::readSettings( )
 	} else {
 		m_language = settings.locale;
 	}
+
+	m_connections = settings.connectionParams;
 }
 
 #if QT_VERSION >= 0x050000
@@ -180,10 +185,6 @@ MainWindow::~MainWindow( )
 			delete m_formWidget;
 			m_formWidget = 0;
 		}
-	}
-	if( m_wolframeClient ) {
-		delete m_wolframeClient;
-		m_wolframeClient = 0;
 	}
 	if( m_debugTerminal ) {
 		delete m_debugTerminal;
@@ -317,12 +318,6 @@ bool MainWindow::initialize( )
 // update shortcuts to standard ones
 	updateActionShortcuts( );
 
-// add connection and encryption state indicators to status bar
-	addStatusBarIndicators( );
-
-// update menus and toolbars
-	updateMenusAndToolbars( );
-
 // now that we have a menu where we can add things, we start the form list loading
 	m_formLoader->initiateListLoad( );
 
@@ -420,35 +415,12 @@ void MainWindow::updateActionShortcuts( )
 	}
 }
 
-void MainWindow::addStatusBarIndicators( )
-{
-	m_statusBarConn = new QLabel( this );
-	m_statusBarConn->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-	statusBar( )->addPermanentWidget( m_statusBarConn );
-	m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/disconnected.png" ) );
-	m_statusBarConn->setToolTip( tr( "Status: offline" ) );
-	m_statusBarConn->setEnabled( false );
-
-	m_statusBarSSL = new QLabel( this );
-	m_statusBarSSL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-	statusBar( )->addPermanentWidget( m_statusBarSSL );
-	m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/unencrypted.png" ) );
-	m_statusBarSSL->setToolTip( tr( "Encryption: N/A" ) );
-	m_statusBarSSL->setEnabled( false );
-}
-
 // --- handling protocol changes (connection states and errors)
 
-void MainWindow::connected( )
-{
-	m_wolframeClient->auth( );
-}
-
+// TODO: where to put this? How should the skeleton do this?
+// virtual method hooks or signals?
 void MainWindow::disconnected( )
 {
-	m_wolframeClient->deleteLater( );
-	m_wolframeClient = 0;
-
 	if( m_debugTerminal ) {
 		m_debugTerminalAction->setChecked( false );
 		m_debugTerminal->deleteLater( );
@@ -466,8 +438,6 @@ void MainWindow::disconnected( )
 		m_dataLoader = 0;
 	}
 
-	updateMenusAndToolbars( );
-
 	statusBar( )->showMessage( tr( "Terminated" ) );
 
 	if( m_terminating ) {
@@ -482,12 +452,9 @@ void MainWindow::wolframeError( QString error )
 	updateMenusAndToolbars( );
 }
 
+// TODO: dito, see above
 void MainWindow::authOk( )
 {
-	qDebug( ) << "authentication succeeded";
-
-	statusBar( )->showMessage( tr( "Ready" ) );
-
 // create network based form ...
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
 		m_formLoader = new NetworkFormLoader( m_wolframeClient );
@@ -499,14 +466,6 @@ void MainWindow::authOk( )
 	}
 
 	restoreStateAndPositions( );
-
-// update status of menus and toolbars
-	updateMenusAndToolbars( );
-}
-
-void MainWindow::authFailed( )
-{
-	qDebug( ) << "authentication failed";
 }
 
 void MainWindow::loadLanguages( )
@@ -1070,26 +1029,7 @@ void MainWindow::updateMdiMenusAndToolbars( )
 
 void MainWindow::updateMenusAndToolbars( )
 {
-// connection status
-	if( m_wolframeClient && m_wolframeClient->isConnected( ) ) {
-		m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/connected.png" ) );
-//		m_statusBarConn->setToolTip( tr( "Status: online" ) );
-		m_statusBarConn->setToolTip( tr( "Status: connected to server %1" ).arg( m_wolframeClient->serverName()) );
-		m_statusBarConn->setEnabled( true );
-	} else {
-		m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/disconnected.png" ) );
-		m_statusBarConn->setToolTip( tr( "Status: offline" ) );
-		m_statusBarConn->setEnabled( false );
-	}
-	if( m_wolframeClient && m_wolframeClient->isEncrypted( ) ) {
-		m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/encrypted.png" ) );
-		m_statusBarSSL->setToolTip( tr( "Encryption: %1" ).arg( m_wolframeClient->encryptionName()) );
-		m_statusBarSSL->setEnabled( true );
-	} else {
-		m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/unencrypted.png" ) );
-		m_statusBarSSL->setToolTip( tr( "Encryption: N/A" ) );
-		m_statusBarSSL->setEnabled( false );
-	}
+	SkeletonMainWindow::updateMenusAndToolbars( );
 
 // logged in or logged out?
 	activateAction( "actionOpenForm",
