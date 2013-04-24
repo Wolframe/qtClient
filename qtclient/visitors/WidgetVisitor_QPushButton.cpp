@@ -30,51 +30,49 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "WidgetVisitor_QLabel.hpp"
+#include "WidgetVisitor_QPushButton.hpp"
 #include "WidgetListener.hpp"
 #include "WidgetEnabler.hpp"
 #include <QDebug>
 
-WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
+WidgetVisitorState_QPushButton::WidgetVisitorState_QPushButton( QWidget* widget_)
 	:WidgetVisitor::State(widget_)
-	,m_label(qobject_cast<QLabel*>(widget_)){}
+	,m_pushButton(qobject_cast<QPushButton*>(widget_)){}
 
-void WidgetVisitorState_QLabel::clear()
-{
-	m_label->clear();
-}
+void WidgetVisitorState_QPushButton::clear()
+{}
 
-QVariant WidgetVisitorState_QLabel::property( const QString& name)
+QVariant WidgetVisitorState_QPushButton::property( const QString& /*name*/)
 {
-	if (name.isEmpty())
-	{
-		return QVariant( m_label->text());
-	}
 	return QVariant();
 }
 
-bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant& data)
+bool WidgetVisitorState_QPushButton::setProperty( const QString& /*name*/, const QVariant& /*data*/)
 {
-	if (name.isEmpty())
-	{
-		m_label->setText( data.toString());
-		return true;
-	}
 	return false;
 }
 
-void WidgetVisitorState_QLabel::setState( const QVariant& state)
+void WidgetVisitorState_QPushButton::setState( const QVariant& state)
 {
-	qDebug() << "Restoring tree state for label" << m_label->objectName();
-	if (state.isValid()) m_label->setText( state.toString());
+	qDebug() << "Restoring tree state for push button" << m_pushButton->objectName();
+	int stateval = state.toInt();
+	m_pushButton->setEnabled( ((stateval & 1) != 0));
+	m_pushButton->setDown( ((stateval & 2) != 0));
 }
 
-QVariant WidgetVisitorState_QLabel::getState() const
+QVariant WidgetVisitorState_QPushButton::getState() const
 {
-	return QVariant( m_label->text());
+	int state = 0;
+	if (m_pushButton->isEnabled()) state |= 1;
+	if (m_pushButton->isDown()) state |= 2;
+	return QVariant( state);
 }
 
-void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)
+void WidgetVisitorState_QPushButton::connectWidgetEnabler( WidgetEnabler& enabler)
 {
+	QObject::connect( m_pushButton, SIGNAL( clicked( bool)), &enabler, SLOT( changed()), Qt::UniqueConnection);
+	QObject::connect( m_pushButton, SIGNAL( released()), &enabler, SLOT( changed()), Qt::UniqueConnection);
+	QObject::connect( m_pushButton, SIGNAL( toggled( bool)), &enabler, SLOT( changed()), Qt::UniqueConnection);
+	QObject::connect( m_pushButton, SIGNAL( pressed()), &enabler, SLOT( changed()), Qt::UniqueConnection);
 }
 
