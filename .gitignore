@@ -19,7 +19,7 @@ qrc_*.cpp
 qtclient/qtclient
 skeleton/skeleton
 tests/functions/testDataTree
-tests/skeleton/skeleton
+tests/skeleton/skeletonTest
 libqtwolframeclient/libqtwolframeclient.pro.user*
 qtClient.pro.user*
 skeleton/skeleton.pro.user*
