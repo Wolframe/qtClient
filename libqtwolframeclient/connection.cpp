@@ -64,14 +64,14 @@ QString ConnectionParameters::toString() const
 		str = QString( "Host: %1\nPort: %2\n" ).arg( host ).arg( port );
 
 		if ( SSL )	{
-			str += "SSL on";
+			str += "SSL: on";
 			if ( clientCertificate )
 				str += "\n    - send client certificate";
 			if ( SSLverify )
 				str += "\n    - verify server certificate";
 		}
 		else
-			str += "SSL off";
+			str += "SSL: off";
 
 		return str;
 	}
