@@ -43,6 +43,7 @@
 #include <QLabel>
 
 SkeletonMainWindow::SkeletonMainWindow( QWidget *_parent ) : QMainWindow( _parent ),
+	m_rememberLogin( false ),
 	m_wolframeClient( 0 )
 {
 }
@@ -173,27 +174,59 @@ void SkeletonMainWindow::on_actionExit_triggered( )
 	close( );
 }
 
+QString SkeletonMainWindow::lastUsername( ) const
+{
+	return m_lastUsername;
+}
+
+void SkeletonMainWindow::setLastUsername( QString &lastUsername )
+{
+	m_lastUsername = lastUsername;
+}
+
+QString SkeletonMainWindow::lastConnName( ) const
+{
+	return m_lastConnName;
+}
+
+void SkeletonMainWindow::setLastConnName( QString &lastConnName )
+{
+	m_lastConnName = lastConnName;
+}
+
+void SkeletonMainWindow::setRememberLogin( bool enable )
+{
+	m_rememberLogin = enable;
+}
+
 void SkeletonMainWindow::on_actionLogin_triggered( )
 {
-	QString	username;
-//	QString	password;
-	QString	connName;
-
-// TODO: where to put this?
-	//~ if ( settings.saveUsername )	{
-		//~ username = settings.lastUsername;
-		//~ connName = settings.lastConnection;
-	//~ }
-
-	LoginDialog* loginDlg = new LoginDialog( username, connName,
+	QString username;
+	QString lastConn;
+	
+	if( m_rememberLogin ) {
+		username = m_lastUsername;
+		lastConn = m_lastConnName;
+	}
+	
+	LoginDialog* loginDlg = new LoginDialog( username, lastConn,
 						 m_connections );
+						 
 	if( loginDlg->exec( ) == QDialog::Accepted ) {
-// optionally remember old login data
-		//~ if( settings.saveUsername ) {
-			//~ settings.lastUsername = loginDlg->username( );
-			//~ settings.lastConnection = loginDlg->selectedConnection( ).name;
-		//~ }
+// user choose nothing, bail out
+		if( !loginDlg->hasSelectedConnection( ) ) {
+			QMessageBox::critical( this, tr( "Parameters error"),
+				"You didn't select any connection!" );
+			delete loginDlg;
+			return;
+		}
 
+// optionally remember old login data
+		if( m_rememberLogin ) {
+			m_lastUsername = loginDlg->username( );
+			m_lastConnName = loginDlg->selectedConnection( ).name;
+		}
+			
 		ConnectionParameters selectedConnection = loginDlg->selectedConnection( );
 
 // no SSL compiled in and the user picks a secure connection, warn him,

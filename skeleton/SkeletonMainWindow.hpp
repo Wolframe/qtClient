@@ -36,6 +36,7 @@
 
 #include <QMainWindow>
 #include <QVector>
+#include <QString>
 
 #include "connection.hpp"
 
@@ -56,10 +57,18 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		void activateAction( const QString name, bool enabled );		
 		virtual void initializeUi( );
 		virtual void deleteUi( );
+		QString lastUsername( ) const;
+		void setLastUsername( QString &username );
+		QString lastConnName( ) const;
+		void setLastConnName( QString &connName );
+		void setRememberLogin( bool enable );
 	
 	private:
+		bool m_rememberLogin;
 		QLabel *m_statusBarConn;
 		QLabel *m_statusBarSSL;
+		QString	m_lastUsername;
+		QString	m_lastConnName;
 	
 	protected:
 		void *m_ui;

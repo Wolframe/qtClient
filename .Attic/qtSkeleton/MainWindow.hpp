@@ -48,9 +48,9 @@
 #include "global.hpp"
 #include "WolframeClient.hpp"
 #include "loginDialog.hpp"
-#include "LoadMode.hpp"
+//~ #include "LoadMode.hpp"
 #include "ui_MainWindow.h"
-#include "settings.hpp"
+//~ #include "settings.hpp"
 #include "connection.hpp"
 //~ #include "DebugTerminal.hpp"
 
@@ -76,7 +76,7 @@ class MainWindow : public QMainWindow
 		QActionGroup *m_subWinGroup;	// group holding list of currently opened MDI subwindows
 		QMap<QAction *, QMdiSubWindow *> m_subWinMap; // maps actions to MDI subwindows
 		QMap<QMdiSubWindow *, QAction *> m_revSubWinMap; // reverse map (the above is actually a bimap)
-		ApplicationSettings settings;	// Application settings
+		//~ ApplicationSettings settings;	// Application settings
 		ConnectionParameters m_selectedConnection; // lastly selected connection
 		bool m_terminating;
 		QLabel *m_statusBarConn;

@@ -31,7 +31,7 @@
 
 ************************************************************************/
 
-#include "WolframeClientProtocol.hpp"
+#include "private/WolframeClientProtocol.hpp"
 #undef WOLFRAME_LOWLEVEL_DEBUG
 
 const QString* WolframeClientProtocol::getLastError() const

@@ -47,6 +47,8 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent )
 	connection.port = 7661;
 
 	m_connections.append( connection );
+	
+	setRememberLogin( true );
 }
 
 MainWindow::~MainWindow( )

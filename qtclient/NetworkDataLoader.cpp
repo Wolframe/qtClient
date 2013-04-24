@@ -32,7 +32,6 @@
 ************************************************************************/
 
 #include "NetworkDataLoader.hpp"
-#include "WolframeClientProtocol.hpp"
 #include <QDebug>
 #include <QByteArray>
 #include <QXmlStreamWriter>

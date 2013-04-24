@@ -41,12 +41,12 @@
 #include <QQueue>
 #include <QStringList>
 #include <QTimer>
+#include <QSslSocket>
+#include <QSslCertificate>
 
-#include "WolframeClientProtocol.hpp"
 #include "connection.hpp"
 
-class QSslError;
-class QSslCertificate;
+class WolframeClientProtocol;
 
 class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 {
@@ -76,7 +76,7 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 		State m_state;
 		QAbstractSocket *m_socket;
 		bool m_hasErrors;
-		WolframeClientProtocol m_protocol;
+		WolframeClientProtocol *m_protocol;
 		QTimer *m_timeoutTimer;
 
 	public:

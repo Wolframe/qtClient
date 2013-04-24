@@ -44,20 +44,24 @@
 #include <QSslCertificate>
 #endif
 
+#include "private/WolframeClientProtocol.hpp"
+
 WolframeClient::WolframeClient( const ConnectionParameters _connParams,	QWidget *_parent )
 	: QObject( _parent ),
 	m_connParams( _connParams ),
 	m_state( Disconnected ),
 	m_socket( 0 ),
-	m_hasErrors( false )
-	,m_initializedSsl( false )
+	m_hasErrors( false ),
+	m_protocol( 0 ),
+	m_initializedSsl( false )
 {
 #ifdef WITH_SSL
 	m_socket = new QSslSocket( this );
 #else
 	m_socket = new QTcpSocket( this );
 #endif
-	m_protocol.initSocket( m_socket);
+	m_protocol = new WolframeClientProtocol( );
+	m_protocol->initSocket( m_socket);
 	m_timeoutTimer = new QTimer( this );
 
 	QObject::connect( m_timeoutTimer, SIGNAL( timeout( ) ),
@@ -204,6 +208,7 @@ void WolframeClient::encrypted( )
 
 WolframeClient::~WolframeClient( )
 {
+	if( m_protocol ) delete m_protocol;
 	if( m_socket ) delete m_socket;
 }
 
@@ -267,13 +272,13 @@ void WolframeClient::disconnect( )
 			break;
 
 		case Data:
-			m_protocol.quit();
+			m_protocol->quit();
 			processProtocol();
 			m_state = AboutToDisconnect;
 			break;
 
 		case Connected:
-			m_protocol.quit();
+			m_protocol->quit();
 			processProtocol();
 			m_state = AboutToDisconnect;
 			break;
@@ -378,35 +383,35 @@ void WolframeClient::privateDisconnected( )
 
 void WolframeClient::processProtocol()
 {
-	bool prt_isAuthorized = m_protocol.isAuthorized();
-	bool prt_isConnected = m_protocol.isConnected();
-	bool success = m_protocol.process();
+	bool prt_isAuthorized = m_protocol->isAuthorized();
+	bool prt_isConnected = m_protocol->isConnected();
+	bool success = m_protocol->process();
 
-	if (!prt_isAuthorized && m_protocol.isAuthorized())
+	if (!prt_isAuthorized && m_protocol->isAuthorized())
 	{
 		emit authOk();
 	}
-	if (!prt_isConnected && m_protocol.isConnected())
+	if (!prt_isConnected && m_protocol->isConnected())
 	{
 		emit connected();
 	}
-	if (m_protocol.getAnswerTag())
+	if (m_protocol->getAnswerTag())
 	{
 		emit resultReceived();
 	}
 	if (success)
 	{
-		if (m_protocol.isDisconnected())
+		if (m_protocol->isDisconnected())
 		{
 			emit disconnected();
 		}
 	}
 	else
 	{
-		if (m_protocol.getLastError())
+		if (m_protocol->getLastError())
 		{
-			qCritical() << *m_protocol.getLastError();
-			emit error( tr( "error in protocol: %1").arg( *m_protocol.getLastError()));
+			qCritical() << *m_protocol->getLastError();
+			emit error( tr( "error in protocol: %1").arg( *m_protocol->getLastError()));
 		}
 	}
 }
@@ -434,7 +439,7 @@ void WolframeClient::dataAvailable( )
 // high-level
 void WolframeClient::request( const QString& tag, const QByteArray& content )
 {
-	m_protocol.pushRequest( tag, content);
+	m_protocol->pushRequest( tag, content);
 }
 
 void WolframeClient::handleResult( )
@@ -442,21 +447,21 @@ void WolframeClient::handleResult( )
 	m_state = Connected;
 
 	const QString* tag;
-	while ((tag=m_protocol.getAnswerTag()) != 0)
+	while ((tag=m_protocol->getAnswerTag()) != 0)
 	{
-		bool success = m_protocol.getAnswerSuccess();
-		const QByteArray* content = m_protocol.getAnswerContent();
+		bool success = m_protocol->getAnswerSuccess();
+		const QByteArray* content = m_protocol->getAnswerContent();
 
 		qDebug( ) << "handle result of command" << *tag;
 		emit answerReceived( success, *tag, *content);
-		m_protocol.removeAnswer();
+		m_protocol->removeAnswer();
 		emit resultHandled();
 	}
 }
 
 void WolframeClient::auth()
 {
-	m_protocol.authorize();
+	m_protocol->authorize();
 	processProtocol();
 }
 

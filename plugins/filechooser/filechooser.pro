@@ -8,11 +8,11 @@ DEFINES += X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
 
 QT += 
 
-contains(QT_VERSION,^5\\..*) {
-QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += widgets
 }
 
-contains(QT_VERSION,^5\\..*) {
+greaterThan(QT_MAJOR_VERSION, 4) {
 	QT += designer
 } else {
 	CONFIG += designer
