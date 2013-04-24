@@ -180,7 +180,6 @@ void PreferencesDialog::loadSettings( )
 
 	m_developer->debug->setChecked( m_settings.debug );
 	m_developer->developer->setChecked( m_settings.developEnabled );
-	m_developer->autoLogin->setChecked( m_settings.autoLogin );
 
 //	m_developer->uiFormsDir->setFileName( m_settings.uiFormsDir );
 //	m_developer->uiFormTranslationsDir->setFileName( m_settings.uiFormTranslationsDir );
@@ -220,11 +219,14 @@ void PreferencesDialog::apply( )
 	}
 	m_settings.debug = m_developer->debug->isChecked( );
 	m_settings.developEnabled = m_developer->developer->isChecked( );
-	m_settings.autoLogin = m_developer->autoLogin->isChecked( );
 //	m_settings.uiFormsDir = m_developer->uiFormsDir->fileName( );
 //	m_settings.uiFormTranslationsDir = m_developer->uiFormTranslationsDir->fileName( );
 //	m_settings.uiFormResourcesDir = m_developer->uiFormResourcesDir->fileName( );
 //	m_settings.dataLoaderDir = m_developer->dataLoaderDir->fileName( );
+	m_settings.uiFormsDir = m_developer->uiFormsDir->fileName( );
+	m_settings.uiFormTranslationsDir = m_developer->uiFormTranslationsDir->fileName( );
+	m_settings.uiFormResourcesDir = m_developer->uiFormResourcesDir->fileName( );
+	m_settings.dataLoaderDir = m_developer->dataLoaderDir->fileName( );
 
 	accept( );
 }
