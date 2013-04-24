@@ -52,7 +52,7 @@
 #include <QDebug>
 
 // built-in defaults
-MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
+MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_formWidget( 0 ), m_uiLoader( 0 ), m_formLoader( 0 ),
 	m_dataLoader( 0 ), m_wolframeClient( 0 ), m_settings( ),
 	m_languages( ), m_language( ),
@@ -60,9 +60,6 @@ MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
 	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
 	m_modalDialog( 0 )
 {
-// setup designer UI
-	m_ui.setupUi( this );
-
 // read parameters, first and only one is the optional configurartion files
 // containint the settings
 	parseArgs( );
@@ -73,6 +70,22 @@ MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
 	if( !initialize( ) ) {
 		QApplication::instance( )->exit( 1 );
 	}
+}
+
+void MainWindow::initializeUi( )
+{
+	m_ui = new Ui::MainWindow( );
+	static_cast<Ui::MainWindow *>( m_ui )->setupUi( this );
+}
+
+void MainWindow::deleteUi( )
+{
+	delete static_cast<Ui::MainWindow *>( m_ui );
+}
+
+void MainWindow::retranslateUi( )
+{
+	static_cast<Ui::MainWindow *>( m_ui )->retranslateUi( this );
 }
 
 static bool _debug = false;
@@ -596,7 +609,7 @@ void MainWindow::changeEvent( QEvent* _event )
 {
 	if( _event )	{
 		if ( _event->type() == QEvent::LanguageChange )
-			m_ui.retranslateUi( this );
+			retranslateUi( );
 		else if ( _event->type() == QEvent::LocaleChange )	{
 			QString locale = QLocale::system( ).name( );
 			locale.truncate( locale.lastIndexOf( '_' ) );

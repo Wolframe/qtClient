@@ -49,6 +49,7 @@ int main( int argc, char* argv[] ) {
 	int code;
 	do {
 		MainWindow mainWindow;		
+		mainWindow.create( );	
 		mainWindow.show( );
 		code = app.exec( );
 	} while( code == RESTART_CODE );

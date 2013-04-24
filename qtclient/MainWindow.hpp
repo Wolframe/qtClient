@@ -55,7 +55,9 @@
 #include "connection.hpp"
 #include "DebugTerminal.hpp"
 
-class MainWindow : public QMainWindow
+#include "SkeletonMainWindow.hpp"
+
+class MainWindow : public SkeletonMainWindow
 {
 	Q_OBJECT
 
@@ -63,8 +65,12 @@ class MainWindow : public QMainWindow
 		MainWindow( QWidget *_parent = 0 );
 		virtual ~MainWindow( );
 
+	protected:
+		virtual void initializeUi( );
+		virtual void deleteUi( );
+		virtual void retranslateUi( );
+
 	private:
-		Ui::MainWindow m_ui;		// ui definition from designer
 		QTranslator m_translatorApp;	// contains the translations for this application
 		QTranslator m_translatorQt; 	// contains the translations for qt
 		FormWidget *m_formWidget;	// current active form
