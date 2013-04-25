@@ -3,9 +3,6 @@ Aba:
   - picture chooser plugin
   - plugins using visitors, how to respect plugin interface there?
   - re-add deployment, Wix
-  - skeleton
-    - qtclient should use skeleton to store connections, so far
-      keep the skeleton at a minimal set of functionality
   - questions:
     - Q_EXPORT_PLUGIN2(qgif, QGifPlugin) and TARGET = $$qtLibraryTarget($$TARGET)
 

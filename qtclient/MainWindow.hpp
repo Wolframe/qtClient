@@ -48,23 +48,35 @@
 #include "FormLoader.hpp"
 #include "WolframeClient.hpp"
 #include "FormWidget.hpp"
-#include "loginDialog.hpp"
 #include "LoadMode.hpp"
 #include "ui_MainWindow.h"
 #include "settings.hpp"
 #include "connection.hpp"
 #include "DebugTerminal.hpp"
 
-class MainWindow : public QMainWindow
+#include "SkeletonMainWindow.hpp"
+
+class MainWindow : public SkeletonMainWindow
 {
 	Q_OBJECT
 
 	public:
 		MainWindow( QWidget *_parent = 0 );
 		virtual ~MainWindow( );
+		virtual void create( );
+
+	protected:
+		virtual void initializeUi( );
+		virtual void deleteUi( );
+		virtual void retranslateUi( );
+
+	protected slots:
+		virtual void disconnected( );
+		virtual void authOk( );
+		virtual void login( );
+		virtual void logout( );
 
 	private:
-		Ui::MainWindow m_ui;		// ui definition from designer
 		QTranslator m_translatorApp;	// contains the translations for this application
 		QTranslator m_translatorQt; 	// contains the translations for qt
 		FormWidget *m_formWidget;	// current active form
@@ -72,7 +84,6 @@ class MainWindow : public QMainWindow
 		FormLoader *m_formLoader;	// form loader (visible form)
 		DataLoader *m_dataLoader;	// load and saves data (data form)
 		QHash<QString,QVariant> m_globals;// global form variables
-		WolframeClient *m_wolframeClient; // the client protocol class
 		QString m_settings;		// file to read settings from
 		QStringList m_languages;	// available interface translations
 		QString m_language;		// the current language of the interface
@@ -84,8 +95,6 @@ class MainWindow : public QMainWindow
 		ApplicationSettings settings;	// Application settings
 		ConnectionParameters m_selectedConnection; // lastly selected connection
 		bool m_terminating;
-		QLabel *m_statusBarConn;
-		QLabel *m_statusBarSSL;
 		DebugTerminal *m_debugTerminal;
 		QAction *m_debugTerminalAction;
 		QDialog *m_modalDialog;
@@ -93,7 +102,6 @@ class MainWindow : public QMainWindow
 	public slots:
 		void readSettings( );
 		void parseArgs( );
-		bool initialize( );
 		void loadLanguages( );
 		void loadForm( QString formName );
 		void loadLanguage( QString language );
@@ -111,20 +119,12 @@ class MainWindow : public QMainWindow
 		QString composeWindowListTitle( const int idx, const QString title );
 		QKeySequence::StandardKey defaultKeySequenceFromString( const QString s );
 		void updateActionShortcuts( );
-		void addStatusBarIndicators( );
 		void storeSettings( );
 		void storeStateAndPositions( );
 		void restoreStateAndPositions( );
 		void addDeveloperMenu( );
 
 	private slots:
-// slots for the wolframe client
-		void wolframeError( QString error );
-		void connected( );
-		void disconnected( );
-		void authOk( );
-		void authFailed( );
-
 // menu slots
 		void languageSelected( QAction *action );
 
@@ -163,9 +163,6 @@ class MainWindow : public QMainWindow
 		void on_actionPreviousWindow_triggered( );
 		void on_actionClose_triggered( );
 		void on_actionCloseAll_triggered( );
-		void on_actionLogin_triggered( );
-		void on_actionLogout_triggered( );
-		void on_actionManageServers_triggered( );
 };
 
 #endif // _MAIN_WINDOW_HPP_INCLUDED

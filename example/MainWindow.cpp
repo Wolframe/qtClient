@@ -66,6 +66,20 @@ void MainWindow::deleteUi( )
 	delete static_cast<Ui::MainWindow *>( m_ui );
 }
 
+void MainWindow::authOk( )
+{	
+	SkeletonMainWindow::authOk( );
+
+	QMessageBox::warning( this, tr( "Authentication" ), tr( "authentication succeeded.." ), QMessageBox::Ok );
+}
+
+void MainWindow::login( )
+{
+	QMessageBox::warning( this, tr( "Authentication" ), tr( "logging in.." ), QMessageBox::Ok );
+
+	SkeletonMainWindow::login( );	
+}
+
 void MainWindow::on_actionDoSomething_triggered( )
 {
 	QMessageBox::warning( this, tr( "Do something" ), tr( "doing nice things here.." ), QMessageBox::Ok );

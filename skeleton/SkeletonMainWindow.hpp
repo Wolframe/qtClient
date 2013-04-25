@@ -55,8 +55,11 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 	protected:
 		void addStatusBarIndicators( );
 		void activateAction( const QString name, bool enabled );		
+
 		virtual void initializeUi( );
-		virtual void deleteUi( );
+		virtual void deleteUi( );		
+		virtual void updateMenusAndToolbars( );
+		
 		QString lastUsername( ) const;
 		void setLastUsername( QString &username );
 		QString lastConnName( ) const;
@@ -74,16 +77,18 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		void *m_ui;
 		WolframeClient *m_wolframeClient;
 		QVector<ConnectionParameters> m_connections;
-		void updateMenusAndToolbars( );
+
+	protected slots:
+// slots for the wolframe client
+		virtual void error( QString error );
+		virtual void connected( );
+		virtual void disconnected( );
+		virtual void authOk( );
+		virtual void authFailed( );
+		virtual void login( );
+		virtual void logout( );
 
 	private slots:
-// slots for the wolframe client
-		void error( QString error );
-		void connected( );
-		void disconnected( );
-		void authOk( );
-		void authFailed( );
-
 // auto-wired slots for the menu
 		void on_actionExit_triggered( );
 		void on_actionLogin_triggered( );

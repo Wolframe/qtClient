@@ -2,7 +2,7 @@ TEMPLATE = app
 
 TARGET = qtclient
 
-CONFIG += thread qt uitools designer debug
+CONFIG += thread qt debug
 
 DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT SKELETON_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT
 
@@ -18,8 +18,14 @@ macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0
 
 QT += core gui network
 
-contains(QT_VERSION,^5\\..*) {
-QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += widgets
+}
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += uitools designer
+} else {
+	CONFIG += uitools designer
 }
 
 SOURCES += \	

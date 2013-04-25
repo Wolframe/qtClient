@@ -52,17 +52,14 @@
 #include <QDebug>
 
 // built-in defaults
-MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
+MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_formWidget( 0 ), m_uiLoader( 0 ), m_formLoader( 0 ),
-	m_dataLoader( 0 ), m_wolframeClient( 0 ), m_settings( ),
+	m_dataLoader( 0 ), m_settings( ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
 	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
 	m_modalDialog( 0 )
 {
-// setup designer UI
-	m_ui.setupUi( this );
-
 // read parameters, first and only one is the optional configurartion files
 // containint the settings
 	parseArgs( );
@@ -70,9 +67,29 @@ MainWindow::MainWindow( QWidget *_parent ) : QMainWindow( _parent ),
 // settings override built-in defaults
 	readSettings( );
 
-	if( !initialize( ) ) {
-		QApplication::instance( )->exit( 1 );
+// enable login remember mechanism
+	setRememberLogin( true );
+}
+
+void MainWindow::initializeUi( )
+{
+	m_ui = new Ui::MainWindow( );
+	static_cast<Ui::MainWindow *>( m_ui )->setupUi( this );
+
+// add the menu entries for the developer mode
+	if( settings.developEnabled ) {
+		addDeveloperMenu( );
 	}
+}
+
+void MainWindow::deleteUi( )
+{
+	delete static_cast<Ui::MainWindow *>( m_ui );
+}
+
+void MainWindow::retranslateUi( )
+{
+	static_cast<Ui::MainWindow *>( m_ui )->retranslateUi( this );
 }
 
 static bool _debug = false;
@@ -94,6 +111,14 @@ void MainWindow::readSettings( )
 		m_language = QLocale::system( ).name( );
 	} else {
 		m_language = settings.locale;
+	}
+
+	m_connections = settings.connectionParams;
+
+// set remember username and connection for the login dialog
+	if( settings.saveUsername ) {
+		setLastUsername( settings.lastUsername );
+		setLastConnName( settings.lastConnection );
 	}
 }
 
@@ -168,10 +193,6 @@ MainWindow::~MainWindow( )
 			m_formWidget = 0;
 		}
 	}
-	if( m_wolframeClient ) {
-		delete m_wolframeClient;
-		m_wolframeClient = 0;
-	}
 	if( m_debugTerminal ) {
 		delete m_debugTerminal;
 		m_debugTerminal = 0;
@@ -206,8 +227,10 @@ void MainWindow::parseArgs( )
 
 // -- initialization
 
-bool MainWindow::initialize( )
+void MainWindow::create( )
 {
+	SkeletonMainWindow::create( );
+	
 // install custom output handler (mainly for Unix debugging)
 #if QT_VERSION >= 0x050000
 	qInstallMessageHandler( &myMessageOutput );
@@ -236,7 +259,7 @@ bool MainWindow::initialize( )
 
 		case LoadMode::UNDEFINED:
 			QMessageBox::critical( this, tr( "Configuration error" ), "Unknown value for UI load mode in the configuration", QMessageBox::Ok );
-			return false;
+			break;
 	}
 
 // ..same for the data loader
@@ -251,7 +274,7 @@ bool MainWindow::initialize( )
 
 		case LoadMode::UNDEFINED:
 			QMessageBox::critical( this, tr( "Configuration error" ), "Unknown value for data load mode in the configuration", QMessageBox::Ok );
-			return false;
+			break;
 	}
 
 // link the form loader for form loader notifications needed by the main window
@@ -296,19 +319,8 @@ bool MainWindow::initialize( )
 		restoreStateAndPositions( );
 	}
 
-// add the menu entries for the developer mode
-	if( settings.developEnabled ) {
-		addDeveloperMenu( );
-	}
-
 // update shortcuts to standard ones
 	updateActionShortcuts( );
-
-// add connection and encryption state indicators to status bar
-	addStatusBarIndicators( );
-
-// update menus and toolbars
-	updateMenusAndToolbars( );
 
 // now that we have a menu where we can add things, we start the form list loading
 	m_formLoader->initiateListLoad( );
@@ -317,9 +329,7 @@ bool MainWindow::initialize( )
 	loadLanguages( );
 
 // load language resources, repaints the whole interface if necessary
-	loadLanguage( m_language );
-	
-	return true;
+	loadLanguage( m_language );	
 }
 
 void MainWindow::CreateFormWidget( const QString &name )
@@ -407,35 +417,10 @@ void MainWindow::updateActionShortcuts( )
 	}
 }
 
-void MainWindow::addStatusBarIndicators( )
-{
-	m_statusBarConn = new QLabel( this );
-	m_statusBarConn->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-	statusBar( )->addPermanentWidget( m_statusBarConn );
-	m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/disconnected.png" ) );
-	m_statusBarConn->setToolTip( tr( "Status: offline" ) );
-	m_statusBarConn->setEnabled( false );
-
-	m_statusBarSSL = new QLabel( this );
-	m_statusBarSSL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-	statusBar( )->addPermanentWidget( m_statusBarSSL );
-	m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/unencrypted.png" ) );
-	m_statusBarSSL->setToolTip( tr( "Encryption: N/A" ) );
-	m_statusBarSSL->setEnabled( false );
-}
-
 // --- handling protocol changes (connection states and errors)
-
-void MainWindow::connected( )
-{
-	m_wolframeClient->auth( );
-}
 
 void MainWindow::disconnected( )
 {
-	m_wolframeClient->deleteLater( );
-	m_wolframeClient = 0;
-
 	if( m_debugTerminal ) {
 		m_debugTerminalAction->setChecked( false );
 		m_debugTerminal->deleteLater( );
@@ -452,29 +437,18 @@ void MainWindow::disconnected( )
 		delete m_dataLoader;
 		m_dataLoader = 0;
 	}
-
-	updateMenusAndToolbars( );
-
-	statusBar( )->showMessage( tr( "Terminated" ) );
-
+	
 	if( m_terminating ) {
 		close( );
 	}
-}
-
-void MainWindow::wolframeError( QString error )
-{
-	QMessageBox::warning( this, tr( "Server error" ), error, QMessageBox::Ok );
-
-	updateMenusAndToolbars( );
+	
+	SkeletonMainWindow::disconnected( );
 }
 
 void MainWindow::authOk( )
 {
-	qDebug( ) << "authentication succeeded";
-
-	statusBar( )->showMessage( tr( "Ready" ) );
-
+	SkeletonMainWindow::authOk( );
+	
 // create network based form ...
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
 		m_formLoader = new NetworkFormLoader( m_wolframeClient );
@@ -486,14 +460,6 @@ void MainWindow::authOk( )
 	}
 
 	restoreStateAndPositions( );
-
-// update status of menus and toolbars
-	updateMenusAndToolbars( );
-}
-
-void MainWindow::authFailed( )
-{
-	qDebug( ) << "authentication failed";
 }
 
 void MainWindow::loadLanguages( )
@@ -596,7 +562,7 @@ void MainWindow::changeEvent( QEvent* _event )
 {
 	if( _event )	{
 		if ( _event->type() == QEvent::LanguageChange )
-			m_ui.retranslateUi( this );
+			retranslateUi( );
 		else if ( _event->type() == QEvent::LocaleChange )	{
 			QString locale = QLocale::system( ).name( );
 			locale.truncate( locale.lastIndexOf( '_' ) );
@@ -821,6 +787,12 @@ void MainWindow::storeStateAndPositions( )
 		settings.mainWindowSize = size( );
 	}
 
+// optionally remember last connection and username
+	if( settings.saveUsername ) {
+		settings.lastUsername = lastUsername( );
+		settings.lastConnection = lastConnName( );
+	}
+
 // save position/size and state of subwindows (if wished)
 	if( settings.saveRestoreState ) {
 		settings.states.clear( );
@@ -998,6 +970,8 @@ int MainWindow::nofSubWindows( ) const
 
 void MainWindow::updateMdiMenusAndToolbars( )
 {
+	if( !m_mdiArea ) return;
+	
 // present new form menu entry if logged in
 	activateAction( "actionOpenFormNewWindow",
 		( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) ||
@@ -1057,26 +1031,7 @@ void MainWindow::updateMdiMenusAndToolbars( )
 
 void MainWindow::updateMenusAndToolbars( )
 {
-// connection status
-	if( m_wolframeClient && m_wolframeClient->isConnected( ) ) {
-		m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/connected.png" ) );
-//		m_statusBarConn->setToolTip( tr( "Status: online" ) );
-		m_statusBarConn->setToolTip( tr( "Status: connected to server %1" ).arg( m_wolframeClient->serverName()) );
-		m_statusBarConn->setEnabled( true );
-	} else {
-		m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/disconnected.png" ) );
-		m_statusBarConn->setToolTip( tr( "Status: offline" ) );
-		m_statusBarConn->setEnabled( false );
-	}
-	if( m_wolframeClient && m_wolframeClient->isEncrypted( ) ) {
-		m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/encrypted.png" ) );
-		m_statusBarSSL->setToolTip( tr( "Encryption: %1" ).arg( m_wolframeClient->encryptionName()) );
-		m_statusBarSSL->setEnabled( true );
-	} else {
-		m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/unencrypted.png" ) );
-		m_statusBarSSL->setToolTip( tr( "Encryption: N/A" ) );
-		m_statusBarSSL->setEnabled( false );
-	}
+	SkeletonMainWindow::updateMenusAndToolbars( );
 
 // logged in or logged out?
 	activateAction( "actionOpenForm",
@@ -1113,40 +1068,10 @@ void MainWindow::updateMenusAndToolbars( )
 
 // -- logins/logouts/connections
 
-void MainWindow::on_actionLogin_triggered( )
+void MainWindow::login( )
 {
-	QString	username;
-//	QString	password;
-	QString	connName;
-
-	if ( settings.saveUsername )	{
-		username = settings.lastUsername;
-		connName = settings.lastConnection;
-	}
-
-	LoginDialog* loginDlg = new LoginDialog( username, connName,
-						 settings.connectionParams );
-	if( loginDlg->exec( ) == QDialog::Accepted ) {
-// optionally remember old login data
-		if( settings.saveUsername ) {
-			settings.lastUsername = loginDlg->username( );
-			settings.lastConnection = loginDlg->selectedConnection( ).name;
-		}
-
-		m_selectedConnection = loginDlg->selectedConnection( );
-
-// no SSL compiled in and the user picks a secure connection, warn him,
-// don't blindly connect
-	if( !WolframeClient::SSLsupported( ) && m_selectedConnection.SSL ) {
-		QMessageBox::critical( this, tr( "Parameters error"),
-			"No SSL support is compiled in, can't open a secure connection" );
-		delete loginDlg;
-		return;
-	}
-
-// create a Wolframe protocol client
-		m_wolframeClient = new WolframeClient( m_selectedConnection );
-
+	SkeletonMainWindow::login( );
+	
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
 		m_debugTerminal = new DebugTerminal( m_wolframeClient, this );
@@ -1158,27 +1083,9 @@ void MainWindow::on_actionLogin_triggered( )
 			this, SLOT( removeDebugToggle( ) ) );
 		qDebug( ) << "Debug window initialized";
 	}
-
-// catch signals from the network layer
-		connect( m_wolframeClient, SIGNAL( error( QString ) ),
-			this, SLOT( wolframeError( QString ) ) );
-		connect( m_wolframeClient, SIGNAL( connected( ) ),
-			this, SLOT( connected( ) ) );
-		connect( m_wolframeClient, SIGNAL( disconnected( ) ),
-			this, SLOT( disconnected( ) ) );
-		connect( m_wolframeClient, SIGNAL( authOk( ) ),
-			this, SLOT( authOk( ) ) );
-		connect( m_wolframeClient, SIGNAL( authFailed( ) ),
-			this, SLOT( authFailed( ) ) );
-
-// initiate connect
-		m_wolframeClient->connect( );
-	}
-
-	delete loginDlg;
 }
 
-void MainWindow::on_actionLogout_triggered( )
+void MainWindow::logout( )
 {
 	storeStateAndPositions( );
 	storeSettings( );
@@ -1189,16 +1096,8 @@ void MainWindow::on_actionLogout_triggered( )
 		delete m_formWidget;
 		m_formWidget = 0;
 	}
-
-	m_wolframeClient->disconnect( );
-}
-
-void MainWindow::on_actionManageServers_triggered( )
-{
-	ManageServersDialog* serversDlg = new ManageServersDialog( settings.connectionParams );
-	serversDlg->exec( );
-
-	delete serversDlg;
+	
+	SkeletonMainWindow::logout( );
 }
 
 // -- developer stuff

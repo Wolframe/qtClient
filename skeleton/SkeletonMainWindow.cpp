@@ -93,6 +93,7 @@ void SkeletonMainWindow::updateMenusAndToolbars( )
 // connection status
 	if( m_wolframeClient && m_wolframeClient->isConnected( ) ) {
 		m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/connected.png" ) );
+//		m_statusBarConn->setToolTip( tr( "Status: online" ) );
 		m_statusBarConn->setToolTip( tr( "Status: connected to server %1" ).arg( m_wolframeClient->serverName()) );
 		m_statusBarConn->setEnabled( true );
 	} else {
@@ -117,17 +118,22 @@ void SkeletonMainWindow::updateMenusAndToolbars( )
 void SkeletonMainWindow::error( QString error )
 {
 	QMessageBox::warning( this, tr( "Server error" ), error, QMessageBox::Ok );
+
+	updateMenusAndToolbars( );
 }
 
 void SkeletonMainWindow::connected( )
 {
 	qDebug( ) << "Connected to server";
+	
 	m_wolframeClient->auth( );
 }
 
 void SkeletonMainWindow::disconnected( )
-{
+{	
 	qDebug( ) << "Disconnected from server";
+
+	statusBar( )->showMessage( tr( "Terminated" ) );
 
 	if( m_wolframeClient ) {
 		m_wolframeClient->deleteLater( );
@@ -142,8 +148,10 @@ void SkeletonMainWindow::authOk( )
 {
 	qDebug( ) << "Authentication succeeded";
 
+	statusBar( )->showMessage( tr( "Ready" ) );
+
 // update status of menus and toolbars
-	updateMenusAndToolbars( );
+	updateMenusAndToolbars( );	
 }
 
 void SkeletonMainWindow::authFailed( )
@@ -201,6 +209,11 @@ void SkeletonMainWindow::setRememberLogin( bool enable )
 
 void SkeletonMainWindow::on_actionLogin_triggered( )
 {
+	login( );
+}
+
+void SkeletonMainWindow::login( )
+{
 	QString username;
 	QString lastConn;
 	
@@ -254,13 +267,18 @@ void SkeletonMainWindow::on_actionLogin_triggered( )
 			this, SLOT( authFailed( ) ) );
 		
 		qDebug( ) << "Connecting to " << selectedConnection.toString( );
-	
+		
 // initiate connect
 		m_wolframeClient->connect( );
 	}
 }
 
 void SkeletonMainWindow::on_actionLogout_triggered( )
+{
+	logout( );
+}
+
+void SkeletonMainWindow::logout( )
 {
 	m_wolframeClient->disconnect( );
 }
