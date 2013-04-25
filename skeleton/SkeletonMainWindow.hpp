@@ -58,10 +58,6 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		virtual void initializeUi( );
 		virtual void deleteUi( );		
 		virtual void updateMenusAndToolbars( );
-		virtual void afterLogin( );
-		virtual void beforeLogout( );
-		virtual void afterAuthOk( );
-		virtual void beforeDisconnect( );
 		
 		QString lastUsername( ) const;
 		void setLastUsername( QString &username );
@@ -81,19 +77,19 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		WolframeClient *m_wolframeClient;
 		QVector<ConnectionParameters> m_connections;
 
-	private slots:
+	protected slots:
 // slots for the wolframe client
-		void error( QString error );
-		void connected( );
-		void disconnected( );
-		void authOk( );
-		void authFailed( );
+		virtual void error( QString error );
+		virtual void connected( );
+		virtual void disconnected( );
+		virtual void authOk( );
+		virtual void authFailed( );
 
 // auto-wired slots for the menu
-		void on_actionExit_triggered( );
-		void on_actionLogin_triggered( );
-		void on_actionLogout_triggered( );
-		void on_actionManageServers_triggered( );
+		virtual void on_actionExit_triggered( );
+		virtual void on_actionLogin_triggered( );
+		virtual void on_actionLogout_triggered( );
+		virtual void on_actionManageServers_triggered( );
 };
 
 #endif // _SKELETON_MAIN_WINDOW_HPP_INCLUDED

@@ -47,6 +47,9 @@ class MainWindow : public SkeletonMainWindow
 	protected:
 		virtual void initializeUi( );
 		virtual void deleteUi( );
+
+	protected slots:
+		virtual void authOk( );
 	
 	private slots:
 		void on_actionDoSomething_triggered( );

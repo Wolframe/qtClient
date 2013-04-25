@@ -423,7 +423,7 @@ void MainWindow::updateActionShortcuts( )
 
 // --- handling protocol changes (connection states and errors)
 
-void MainWindow::beforeDisconnect( )
+void MainWindow::disconnected( )
 {
 	if( m_debugTerminal ) {
 		m_debugTerminalAction->setChecked( false );
@@ -445,10 +445,14 @@ void MainWindow::beforeDisconnect( )
 	if( m_terminating ) {
 		close( );
 	}
+	
+	SkeletonMainWindow::disconnected( );
 }
 
-void MainWindow::afterAuthOk( )
+void MainWindow::authOk( )
 {
+	SkeletonMainWindow::authOk( );
+	
 // create network based form ...
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
 		m_formLoader = new NetworkFormLoader( m_wolframeClient );
@@ -1066,8 +1070,10 @@ void MainWindow::updateMenusAndToolbars( )
 
 // -- logins/logouts/connections
 
-void MainWindow::afterLogin( )
+void MainWindow::on_actionLogin_triggered( )
 {
+	SkeletonMainWindow::on_actionLogin_triggered( );
+	
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
 		m_debugTerminal = new DebugTerminal( m_wolframeClient, this );
@@ -1081,7 +1087,7 @@ void MainWindow::afterLogin( )
 	}
 }
 
-void MainWindow::beforeLogout( )
+void MainWindow::on_actionLogout_triggered( )
 {
 	storeStateAndPositions( );
 	storeSettings( );
@@ -1092,6 +1098,8 @@ void MainWindow::beforeLogout( )
 		delete m_formWidget;
 		m_formWidget = 0;
 	}
+	
+	SkeletonMainWindow::on_actionLogout_triggered( );
 }
 
 void MainWindow::on_actionManageServers_triggered( )

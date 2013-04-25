@@ -68,10 +68,12 @@ class MainWindow : public SkeletonMainWindow
 		virtual void initializeUi( );
 		virtual void deleteUi( );
 		virtual void retranslateUi( );
-		virtual void afterLogin( );
-		virtual void beforeLogout( );
-		virtual void afterAuthOk( );
-		virtual void beforeDisconnect( );
+
+	protected slots:
+		virtual void disconnected( );
+		virtual void authOk( );
+		virtual void on_actionLogin_triggered( );
+		virtual void on_actionLogout_triggered( );
 
 	private:
 		QTranslator m_translatorApp;	// contains the translations for this application
