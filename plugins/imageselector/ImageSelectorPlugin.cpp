@@ -31,35 +31,35 @@
 
 ************************************************************************/
 
-#include "PictureSelectorPlugin.hpp"
-#include "PictureSelector.hpp"
+#include "ImageSelectorPlugin.hpp"
+#include "ImageSelector.hpp"
 
 #include <QtPlugin>
- 
-PictureSelectorPlugin::PictureSelectorPlugin( QObject *_parent )
+
+ImageSelectorPlugin::ImageSelectorPlugin( QObject *_parent )
 	: QObject( _parent ), m_initialized( false )
 {
 }
 
-bool PictureSelectorPlugin::isContainer( ) const
+bool ImageSelectorPlugin::isContainer( ) const
 {
 	return false;
 }
 
-bool PictureSelectorPlugin::isInitialized( ) const
+bool ImageSelectorPlugin::isInitialized( ) const
 {
 	return m_initialized;
 }
 
-QIcon PictureSelectorPlugin::icon( ) const
+QIcon ImageSelectorPlugin::icon( ) const
 {
 	return QIcon( );
 }
 
-QString PictureSelectorPlugin::domXml( ) const
+QString ImageSelectorPlugin::domXml( ) const
 {
 	return 	"<ui language=\"c++\">\n"
-		" <widget class=\"PictureSelector\" name=\"pictureSelector\">\n"
+		" <widget class=\"ImageSelector\" name=\"imageSelector\">\n"
 		"  <property name=\"geometry\">\n"
 		"   <rect>\n"
 		"    <x>0</x>\n"
@@ -72,44 +72,44 @@ QString PictureSelectorPlugin::domXml( ) const
 		"</ui>\n";
 }
 
-QString PictureSelectorPlugin::group( ) const
+QString ImageSelectorPlugin::group( ) const
 {
 	return "Wolframe Widgets";
 }
 
-QString PictureSelectorPlugin::includeFile( ) const
+QString ImageSelectorPlugin::includeFile( ) const
 {
-	return "PictureSelector.hpp";
-}
- 
-QString PictureSelectorPlugin::name( ) const
-{
-	return "PictureSelector";
+	return "ImageSelector.hpp";
 }
 
-QString PictureSelectorPlugin::toolTip( ) const
+QString ImageSelectorPlugin::name( ) const
+{
+	return "ImageSelector";
+}
+
+QString ImageSelectorPlugin::toolTip( ) const
 {
 	return "";
 }
 
-QString PictureSelectorPlugin::whatsThis( ) const
+QString ImageSelectorPlugin::whatsThis( ) const
 {
 	return "";
 }
 
-QWidget *PictureSelectorPlugin::createWidget( QWidget *_parent )
+QWidget *ImageSelectorPlugin::createWidget( QWidget *_parent )
 {
 	// is overridden by property
-	return new PictureSelector( _parent );
+	return new ImageSelector( _parent );
 }
 
-void PictureSelectorPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
+void ImageSelectorPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
 {
 	if( m_initialized ) return;
-	
+
 	m_initialized = true;
 }
 
 #if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2( picturechooser, PictureSelectorPlugin )
+Q_EXPORT_PLUGIN2( imageselector, ImageSelectorPlugin )
 #endif // QT_VERSION < 0x050000

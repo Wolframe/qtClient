@@ -31,27 +31,35 @@
 
 ************************************************************************/
 
-#ifndef _PICTURESELECTOR_HPP_INCLUDED
-#define _PICTURESELECTOR_HPP_INCLUDED
+#ifndef _IMAGE_SELECTOR_PLUGIN_HPP_INCLUDED
+#define _IMAGE_SELECTOR_PLUGIN_HPP_INCLUDED
 
-#include <QWidget>
+#include <QDesignerCustomWidgetInterface>
 
-#ifdef BUILD_AS_PLUGIN
-#include <QDesignerExportWidget>
-#define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
-#else
-#define EXPORT_AS_PLUGIN X_EXPORT
-#endif
-
-class EXPORT_AS_PLUGIN PictureSelector : public QWidget
+class ImageSelectorPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
 	Q_OBJECT
-		
+	Q_INTERFACES( QDesignerCustomWidgetInterface )
+#if QT_VERSION >= 0x050000
+	Q_PLUGIN_METADATA( IID "org.qt-project.Qt.QDesignerCustomWidgetInterface" )
+#endif // QT_VERSION >= 0x050000
+
 	public:
-		PictureSelector( QWidget *_parent = 0 );
+		ImageSelectorPlugin( QObject *_parent = 0 );
+		bool isContainer( ) const;
+		bool isInitialized( ) const;
+		QIcon icon( ) const;
+		QString domXml( ) const;
+		QString group( ) const;
+		QString includeFile( ) const;
+		QString name( ) const;
+		QString toolTip( ) const;
+		QString whatsThis( ) const;
+		QWidget *createWidget( QWidget *_parent );
+		void initialize( QDesignerFormEditorInterface *_core );
 
 	private:
-		void initialize( );
+		bool m_initialized;
 };
 
-#endif // _PICTURESELECTOR_HPP_INCLUDED
+#endif // _IMAGE_SELECTOR_PLUGIN_HPP_INCLUDED
