@@ -17,7 +17,7 @@
    <string>Connection Parameters</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../qtclient/qtclient.qrc">
     <normaloff>:/images/world.png</normaloff>:/images/world.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_5">
@@ -98,7 +98,7 @@
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::Preferred</enum>
+        <enum>QSizePolicy::Expanding</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -252,17 +252,6 @@
     </layout>
    </item>
   </layout>
-  <zorder>SSLframe</zorder>
-  <zorder>buttonBox</zorder>
-  <zorder>nameLbl</zorder>
-  <zorder>hostLbl</zorder>
-  <zorder>portLbl</zorder>
-  <zorder>portSpinBox</zorder>
-  <zorder>nameEdit</zorder>
-  <zorder>hostEdit</zorder>
-  <zorder>testBttn</zorder>
-  <zorder>timeoutSpinBox</zorder>
-  <zorder>timeoutLbl</zorder>
  </widget>
  <tabstops>
   <tabstop>nameEdit</tabstop>
@@ -281,7 +270,9 @@
   <tabstop>testBttn</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../qtclient/qtclient.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
