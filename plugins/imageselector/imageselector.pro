@@ -8,7 +8,7 @@ DEFINES += X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
 
 INCLUDEPATH += .
 
-QT += 
+QT += concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 	QT += widgets
