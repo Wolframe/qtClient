@@ -30,51 +30,27 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "WidgetVisitor_QLabel.hpp"
-#include "WidgetListener.hpp"
-#include "WidgetEnabler.hpp"
-#include <QDebug>
 
-WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
-	,m_label(qobject_cast<QLabel*>(widget_)){}
+#ifndef _WIDGET_VISIOR_QPushButton_HPP_INCLUDED
+#define _WIDGET_VISIOR_QPushButton_HPP_INCLUDED
+#include "WidgetVisitor.hpp"
+#include <QPushButton>
 
-void WidgetVisitorState_QLabel::clear()
+class WidgetVisitorState_QPushButton
+	:public WidgetVisitor::State
 {
-	m_label->clear();
-}
+public:
+	WidgetVisitorState_QPushButton( QWidget* widget_);
 
-QVariant WidgetVisitorState_QLabel::property( const QString& name)
-{
-	if (name.isEmpty())
-	{
-		return QVariant( m_label->text());
-	}
-	return QVariant();
-}
+	virtual void clear();
+	virtual QVariant property( const QString& name);
+	virtual bool setProperty( const QString& name, const QVariant& data);
+	virtual void setState( const QVariant& state);
+	virtual QVariant getState() const;
+	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
-bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant& data)
-{
-	if (name.isEmpty())
-	{
-		m_label->setText( data.toString());
-		return true;
-	}
-	return false;
-}
+private:
+	QPushButton* m_pushButton;
+};
 
-void WidgetVisitorState_QLabel::setState( const QVariant& state)
-{
-	qDebug() << "Restoring tree state for label" << m_label->objectName();
-	if (state.isValid()) m_label->setText( state.toString());
-}
-
-QVariant WidgetVisitorState_QLabel::getState() const
-{
-	return QVariant( m_label->text());
-}
-
-void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)
-{
-}
-
+#endif

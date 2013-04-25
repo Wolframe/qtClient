@@ -30,51 +30,28 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "WidgetVisitor_QLabel.hpp"
-#include "WidgetListener.hpp"
-#include "WidgetEnabler.hpp"
-#include <QDebug>
 
-WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
-	,m_label(qobject_cast<QLabel*>(widget_)){}
+#ifndef _PICTURESELECTOR_HPP_INCLUDED
+#define _PICTURESELECTOR_HPP_INCLUDED
 
-void WidgetVisitorState_QLabel::clear()
+#include <QWidget>
+
+#ifdef BUILD_AS_PLUGIN
+#include <QDesignerExportWidget>
+#define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
+#else
+#define EXPORT_AS_PLUGIN X_EXPORT
+#endif
+
+class EXPORT_AS_PLUGIN PictureSelector : public QWidget
 {
-	m_label->clear();
-}
+	Q_OBJECT
+		
+	public:
+		PictureSelector( QWidget *_parent = 0 );
 
-QVariant WidgetVisitorState_QLabel::property( const QString& name)
-{
-	if (name.isEmpty())
-	{
-		return QVariant( m_label->text());
-	}
-	return QVariant();
-}
+	private:
+		void initialize( );
+};
 
-bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant& data)
-{
-	if (name.isEmpty())
-	{
-		m_label->setText( data.toString());
-		return true;
-	}
-	return false;
-}
-
-void WidgetVisitorState_QLabel::setState( const QVariant& state)
-{
-	qDebug() << "Restoring tree state for label" << m_label->objectName();
-	if (state.isValid()) m_label->setText( state.toString());
-}
-
-QVariant WidgetVisitorState_QLabel::getState() const
-{
-	return QVariant( m_label->text());
-}
-
-void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)
-{
-}
-
+#endif // _PICTURESELECTOR_HPP_INCLUDED

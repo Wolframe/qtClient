@@ -30,51 +30,36 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "WidgetVisitor_QLabel.hpp"
-#include "WidgetListener.hpp"
-#include "WidgetEnabler.hpp"
-#include <QDebug>
 
-WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
-	,m_label(qobject_cast<QLabel*>(widget_)){}
+#ifndef _PICTURESELECTORPLUGIN_HPP_INCLUDED
+#define _PICTURESELECTORPLUGIN_HPP_INCLUDED
 
-void WidgetVisitorState_QLabel::clear()
+#include <QDesignerCustomWidgetInterface>
+
+class PictureSelectorPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
-	m_label->clear();
-}
+	Q_OBJECT
+	Q_INTERFACES( QDesignerCustomWidgetInterface )
+#if QT_VERSION >= 0x050000
+	Q_PLUGIN_METADATA( IID "org.qt-project.Qt.QDesignerCustomWidgetInterface" )
+#endif // QT_VERSION >= 0x050000
+	
+	public:
+		PictureSelectorPlugin( QObject *_parent = 0 );
+		bool isContainer( ) const;
+		bool isInitialized( ) const;
+		QIcon icon( ) const;
+		QString domXml( ) const;
+		QString group( ) const;
+		QString includeFile( ) const;
+		QString name( ) const;
+		QString toolTip( ) const;
+		QString whatsThis( ) const;
+		QWidget *createWidget( QWidget *_parent );
+		void initialize( QDesignerFormEditorInterface *_core );
+		
+	private:
+		bool m_initialized;
+};
 
-QVariant WidgetVisitorState_QLabel::property( const QString& name)
-{
-	if (name.isEmpty())
-	{
-		return QVariant( m_label->text());
-	}
-	return QVariant();
-}
-
-bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant& data)
-{
-	if (name.isEmpty())
-	{
-		m_label->setText( data.toString());
-		return true;
-	}
-	return false;
-}
-
-void WidgetVisitorState_QLabel::setState( const QVariant& state)
-{
-	qDebug() << "Restoring tree state for label" << m_label->objectName();
-	if (state.isValid()) m_label->setText( state.toString());
-}
-
-QVariant WidgetVisitorState_QLabel::getState() const
-{
-	return QVariant( m_label->text());
-}
-
-void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)
-{
-}
-
+#endif // _PICTURESELECTORPLUGIN_HPP_INCLUDED

@@ -5,6 +5,7 @@
 #include "visitors/WidgetVisitor_QGroupBox.hpp"
 #include "visitors/WidgetVisitor_QButtonGroup.hpp"
 #include "visitors/WidgetVisitor_QRadioButton.hpp"
+#include "visitors/WidgetVisitor_QPushButton.hpp"
 #include "visitors/WidgetVisitor_QSpinBox.hpp"
 #include "visitors/WidgetVisitor_QDoubleSpinBox.hpp"
 #include "visitors/WidgetVisitor_QListWidget.hpp"
@@ -43,6 +44,7 @@ struct WidgetVisitorTypeMap :QHash<QString,StateConstructor>
 		ADD_WidgetVisitorType( QGroupBox)
 		ADD_WidgetVisitorType( QButtonGroup)
 		ADD_WidgetVisitorType( QRadioButton)
+		ADD_WidgetVisitorType( QPushButton)
 		ADD_WidgetVisitorType( QSpinBox)
 		ADD_WidgetVisitorType( QDoubleSpinBox)
 		ADD_WidgetVisitorType( QListWidget)

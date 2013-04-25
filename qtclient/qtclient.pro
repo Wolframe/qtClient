@@ -42,6 +42,7 @@ SOURCES += \
 	visitors/WidgetVisitor_QGroupBox.cpp \
 	visitors/WidgetVisitor_QButtonGroup.cpp \
 	visitors/WidgetVisitor_QRadioButton.cpp \
+	visitors/WidgetVisitor_QPushButton.cpp \
 	visitors/WidgetVisitor_QSpinBox.cpp \
 	visitors/WidgetVisitor_QDoubleSpinBox.cpp \
 	visitors/WidgetVisitor_QListWidget.cpp \
@@ -89,6 +90,7 @@ HEADERS += \
 	visitors/WidgetVisitor_QGroupBox.hpp \
 	visitors/WidgetVisitor_QButtonGroup.hpp \
 	visitors/WidgetVisitor_QRadioButton.hpp \
+	visitors/WidgetVisitor_QPushButton.hpp \
 	visitors/WidgetVisitor_QSpinBox.hpp \
 	visitors/WidgetVisitor_QDoubleSpinBox.hpp \
 	visitors/WidgetVisitor_QListWidget.hpp \

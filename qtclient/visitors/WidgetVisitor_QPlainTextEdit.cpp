@@ -64,8 +64,6 @@ void WidgetVisitorState_QPlainTextEdit::connectDataSignals( WidgetVisitor::DataS
 
 void WidgetVisitorState_QPlainTextEdit::connectWidgetEnabler( WidgetEnabler& enabler)
 {
-	QObject::connect( m_plainTextEdit, SIGNAL( blockCountChanged( int)), &enabler, SLOT( changed()), Qt::UniqueConnection);
-	QObject::connect( m_plainTextEdit, SIGNAL( cursorPositionChanged()), &enabler, SLOT( changed()), Qt::UniqueConnection);
 	QObject::connect( m_plainTextEdit, SIGNAL( modificationChanged( bool)), &enabler, SLOT( changed()), Qt::UniqueConnection);
 	QObject::connect( m_plainTextEdit, SIGNAL( selectionChanged()), &enabler, SLOT( changed()), Qt::UniqueConnection);
 	QObject::connect( m_plainTextEdit, SIGNAL( textChanged()), &enabler, SLOT( changed()), Qt::UniqueConnection);

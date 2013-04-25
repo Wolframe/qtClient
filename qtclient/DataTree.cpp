@@ -472,6 +472,7 @@ static QList<QString> getConditionProperties( const QString& str)
 		}
 		else if (*itr == '=')
 		{
+			start = end;
 			isValue = true;
 		}
 	}

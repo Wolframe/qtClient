@@ -88,6 +88,10 @@ static void mapValue( QList<DataSerializeItem>& rt, WidgetVisitor& visitor, QLis
 			rt.push_back( DataSerializeItem( DataSerializeItem::Value, resolved.toString()));
 		}
 	}
+	else
+	{
+		rt.push_back( DataSerializeItem( DataSerializeItem::Value, value));
+	}
 }
 
 static int calcArraySize( const QSharedPointer<DataTree>& dt)

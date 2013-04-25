@@ -30,51 +30,34 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "WidgetVisitor_QLabel.hpp"
-#include "WidgetListener.hpp"
-#include "WidgetEnabler.hpp"
-#include <QDebug>
 
-WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
-	,m_label(qobject_cast<QLabel*>(widget_)){}
+#ifndef _IMAGE_SELECTION_DIALOG_HPP_INCLUDED
+#define _IMAGE_SELECTION_DIALOG_HPP_INCLUDED
 
-void WidgetVisitorState_QLabel::clear()
+#include <QWidget>
+#include <QFutureWatcher>
+#include <QListView>
+#include <QStandardItemModel>
+
+class ImageSelectionDialog : public QWidget
 {
-	m_label->clear();
-}
+	Q_OBJECT
 
-QVariant WidgetVisitorState_QLabel::property( const QString& name)
-{
-	if (name.isEmpty())
-	{
-		return QVariant( m_label->text());
-	}
-	return QVariant();
-}
+public:
+	explicit ImageSelectionDialog( QStringList imageNamesList, QWidget *parent = 0 );
+	~ImageSelectionDialog();
 
-bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant& data)
-{
-	if (name.isEmpty())
-	{
-		m_label->setText( data.toString());
-		return true;
-	}
-	return false;
-}
+public Q_SLOTS:
+	void showImage(int num);
+	void finished();
 
-void WidgetVisitorState_QLabel::setState( const QVariant& state)
-{
-	qDebug() << "Restoring tree state for label" << m_label->objectName();
-	if (state.isValid()) m_label->setText( state.toString());
-}
+	void imageClicked(QModelIndex);
 
-QVariant WidgetVisitorState_QLabel::getState() const
-{
-	return QVariant( m_label->text());
-}
+private:
+	QStringList m_imageNamesList;
+	QFutureWatcher<QImage>*     m_imageScaler;
+	QListView*                  m_imageListView;
+	QStandardItemModel*         m_standardModel;
+};
 
-void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)
-{
-}
-
+#endif // _IMAGE_SELECTION_DIALOG_HPP_INCLUDED

@@ -63,6 +63,7 @@ void WidgetVisitorState_QTreeWidget::clear()
 
 bool WidgetVisitorState_QTreeWidget::enter( const QString& name, bool writemode)
 {
+	/*[-]*/qDebug() << "WidgetVisitorState_QTreeWidget::enter" << name << writemode;
 	static const QString item_str( "item");
 	if (m_mode != List && name == item_str)
 	{
