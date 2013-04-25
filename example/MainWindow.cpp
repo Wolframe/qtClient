@@ -73,11 +73,11 @@ void MainWindow::authOk( )
 	QMessageBox::warning( this, tr( "Authentication" ), tr( "authentication succeeded.." ), QMessageBox::Ok );
 }
 
-void MainWindow::on_actionLogin_triggered( )
+void MainWindow::login( )
 {
 	QMessageBox::warning( this, tr( "Authentication" ), tr( "logging in.." ), QMessageBox::Ok );
 
-	SkeletonMainWindow::on_actionLogin_triggered( );	
+	SkeletonMainWindow::login( );	
 }
 
 void MainWindow::on_actionDoSomething_triggered( )

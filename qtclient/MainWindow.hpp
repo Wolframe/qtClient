@@ -63,6 +63,7 @@ class MainWindow : public SkeletonMainWindow
 	public:
 		MainWindow( QWidget *_parent = 0 );
 		virtual ~MainWindow( );
+		virtual void create( );
 
 	protected:
 		virtual void initializeUi( );
@@ -72,8 +73,8 @@ class MainWindow : public SkeletonMainWindow
 	protected slots:
 		virtual void disconnected( );
 		virtual void authOk( );
-		virtual void on_actionLogin_triggered( );
-		virtual void on_actionLogout_triggered( );
+		virtual void login( );
+		virtual void logout( );
 
 	private:
 		QTranslator m_translatorApp;	// contains the translations for this application
@@ -101,7 +102,6 @@ class MainWindow : public SkeletonMainWindow
 	public slots:
 		void readSettings( );
 		void parseArgs( );
-		bool initialize( );
 		void loadLanguages( );
 		void loadForm( QString formName );
 		void loadLanguage( QString language );
@@ -163,7 +163,6 @@ class MainWindow : public SkeletonMainWindow
 		void on_actionPreviousWindow_triggered( );
 		void on_actionClose_triggered( );
 		void on_actionCloseAll_triggered( );
-		void on_actionManageServers_triggered( );
 };
 
 #endif // _MAIN_WINDOW_HPP_INCLUDED

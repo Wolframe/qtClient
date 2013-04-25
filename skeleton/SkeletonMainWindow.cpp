@@ -209,6 +209,11 @@ void SkeletonMainWindow::setRememberLogin( bool enable )
 
 void SkeletonMainWindow::on_actionLogin_triggered( )
 {
+	login( );
+}
+
+void SkeletonMainWindow::login( )
+{
 	QString username;
 	QString lastConn;
 	
@@ -269,6 +274,11 @@ void SkeletonMainWindow::on_actionLogin_triggered( )
 }
 
 void SkeletonMainWindow::on_actionLogout_triggered( )
+{
+	logout( );
+}
+
+void SkeletonMainWindow::logout( )
 {
 	m_wolframeClient->disconnect( );
 }

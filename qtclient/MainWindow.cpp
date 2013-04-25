@@ -67,10 +67,6 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 // settings override built-in defaults
 	readSettings( );
 
-	if( !initialize( ) ) {
-		QApplication::instance( )->exit( 1 );
-	}
-
 // enable login remember mechanism
 	setRememberLogin( true );
 }
@@ -79,6 +75,11 @@ void MainWindow::initializeUi( )
 {
 	m_ui = new Ui::MainWindow( );
 	static_cast<Ui::MainWindow *>( m_ui )->setupUi( this );
+
+// add the menu entries for the developer mode
+	if( settings.developEnabled ) {
+		addDeveloperMenu( );
+	}
 }
 
 void MainWindow::deleteUi( )
@@ -226,8 +227,10 @@ void MainWindow::parseArgs( )
 
 // -- initialization
 
-bool MainWindow::initialize( )
+void MainWindow::create( )
 {
+	SkeletonMainWindow::create( );
+	
 // install custom output handler (mainly for Unix debugging)
 #if QT_VERSION >= 0x050000
 	qInstallMessageHandler( &myMessageOutput );
@@ -256,7 +259,7 @@ bool MainWindow::initialize( )
 
 		case LoadMode::UNDEFINED:
 			QMessageBox::critical( this, tr( "Configuration error" ), "Unknown value for UI load mode in the configuration", QMessageBox::Ok );
-			return false;
+			break;
 	}
 
 // ..same for the data loader
@@ -271,7 +274,7 @@ bool MainWindow::initialize( )
 
 		case LoadMode::UNDEFINED:
 			QMessageBox::critical( this, tr( "Configuration error" ), "Unknown value for data load mode in the configuration", QMessageBox::Ok );
-			return false;
+			break;
 	}
 
 // link the form loader for form loader notifications needed by the main window
@@ -316,11 +319,6 @@ bool MainWindow::initialize( )
 		restoreStateAndPositions( );
 	}
 
-// add the menu entries for the developer mode
-	if( settings.developEnabled ) {
-		addDeveloperMenu( );
-	}
-
 // update shortcuts to standard ones
 	updateActionShortcuts( );
 
@@ -331,9 +329,7 @@ bool MainWindow::initialize( )
 	loadLanguages( );
 
 // load language resources, repaints the whole interface if necessary
-	loadLanguage( m_language );
-	
-	return true;
+	loadLanguage( m_language );	
 }
 
 void MainWindow::CreateFormWidget( const QString &name )
@@ -974,6 +970,8 @@ int MainWindow::nofSubWindows( ) const
 
 void MainWindow::updateMdiMenusAndToolbars( )
 {
+	if( !m_mdiArea ) return;
+	
 // present new form menu entry if logged in
 	activateAction( "actionOpenFormNewWindow",
 		( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) ||
@@ -1070,9 +1068,9 @@ void MainWindow::updateMenusAndToolbars( )
 
 // -- logins/logouts/connections
 
-void MainWindow::on_actionLogin_triggered( )
+void MainWindow::login( )
 {
-	SkeletonMainWindow::on_actionLogin_triggered( );
+	SkeletonMainWindow::login( );
 	
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
@@ -1087,7 +1085,7 @@ void MainWindow::on_actionLogin_triggered( )
 	}
 }
 
-void MainWindow::on_actionLogout_triggered( )
+void MainWindow::logout( )
 {
 	storeStateAndPositions( );
 	storeSettings( );
@@ -1099,15 +1097,7 @@ void MainWindow::on_actionLogout_triggered( )
 		m_formWidget = 0;
 	}
 	
-	SkeletonMainWindow::on_actionLogout_triggered( );
-}
-
-void MainWindow::on_actionManageServers_triggered( )
-{
-	ManageServersDialog* serversDlg = new ManageServersDialog( settings.connectionParams );
-	serversDlg->exec( );
-
-	delete serversDlg;
+	SkeletonMainWindow::logout( );
 }
 
 // -- developer stuff

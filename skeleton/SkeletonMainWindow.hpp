@@ -55,6 +55,7 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 	protected:
 		void addStatusBarIndicators( );
 		void activateAction( const QString name, bool enabled );		
+
 		virtual void initializeUi( );
 		virtual void deleteUi( );		
 		virtual void updateMenusAndToolbars( );
@@ -84,12 +85,15 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		virtual void disconnected( );
 		virtual void authOk( );
 		virtual void authFailed( );
+		virtual void login( );
+		virtual void logout( );
 
+	private slots:
 // auto-wired slots for the menu
-		virtual void on_actionExit_triggered( );
-		virtual void on_actionLogin_triggered( );
-		virtual void on_actionLogout_triggered( );
-		virtual void on_actionManageServers_triggered( );
+		void on_actionExit_triggered( );
+		void on_actionLogin_triggered( );
+		void on_actionLogout_triggered( );
+		void on_actionManageServers_triggered( );
 };
 
 #endif // _SKELETON_MAIN_WINDOW_HPP_INCLUDED
