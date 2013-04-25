@@ -71,7 +71,7 @@
         <string>UpdateCustomerRelation relation {employeeid={relation.employeeid},customerid={relation.customerid},description{{relation.description}}}</string>
        </property>
        <property name="form" stdset="0">
-        <string notr="true">relationCustomerEmployee?customer.selected={relation.customerid}</string>
+        <string notr="true">_CLOSE_</string>
        </property>
        <property name="datasignal:clicked" stdset="0">
         <string>listCustomerEmployeeRelation</string>
@@ -84,7 +84,7 @@
         <string>Cancel</string>
        </property>
        <property name="form" stdset="0">
-        <string notr="true">relationCustomerEmployee?customer.selected={relation.customerid}</string>
+        <string notr="true">_CLOSE_</string>
        </property>
       </widget>
      </item>
