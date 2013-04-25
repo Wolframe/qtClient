@@ -24,3 +24,4 @@ tests/skeleton/skeletonTest
 libqtwolframeclient/libqtwolframeclient.pro.user*
 qtClient.pro.user*
 skeleton/skeleton.pro.user*
+tests/imageSelector/imageSelector.pro.user

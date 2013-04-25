@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 
-SUBDIRS = functions skeleton
+SUBDIRS = functions skeleton \
+#	imageSelector
