@@ -50,6 +50,7 @@ class MainWindow : public SkeletonMainWindow
 
 	protected slots:
 		virtual void authOk( );
+		virtual void on_actionLogin_triggered( );
 	
 	private slots:
 		void on_actionDoSomething_triggered( );
