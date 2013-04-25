@@ -31,35 +31,14 @@
 
 ************************************************************************/
 
-#ifndef _PICTURESELECTORPLUGIN_HPP_INCLUDED
-#define _PICTURESELECTORPLUGIN_HPP_INCLUDED
+#include "ImageSelector.hpp"
 
-#include <QDesignerCustomWidgetInterface>
-
-class PictureSelectorPlugin : public QObject, public QDesignerCustomWidgetInterface
+ImageSelector::ImageSelector( QWidget *_parent )
+	: QWidget( _parent )
 {
-	Q_OBJECT
-	Q_INTERFACES( QDesignerCustomWidgetInterface )
-#if QT_VERSION >= 0x050000
-	Q_PLUGIN_METADATA( IID "org.qt-project.Qt.QDesignerCustomWidgetInterface" )
-#endif // QT_VERSION >= 0x050000
-	
-	public:
-		PictureSelectorPlugin( QObject *_parent = 0 );
-		bool isContainer( ) const;
-		bool isInitialized( ) const;
-		QIcon icon( ) const;
-		QString domXml( ) const;
-		QString group( ) const;
-		QString includeFile( ) const;
-		QString name( ) const;
-		QString toolTip( ) const;
-		QString whatsThis( ) const;
-		QWidget *createWidget( QWidget *_parent );
-		void initialize( QDesignerFormEditorInterface *_core );
-		
-	private:
-		bool m_initialized;
-};
+	initialize( );
+}
 
-#endif // _PICTURESELECTORPLUGIN_HPP_INCLUDED
+void ImageSelector::initialize( )
+{
+}

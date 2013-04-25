@@ -31,14 +31,27 @@
 
 ************************************************************************/
 
-#include "PictureSelector.hpp"
+#ifndef _IMAGE_SELECTOR_HPP_INCLUDED
+#define _IMAGE_SELECTOR_HPP_INCLUDED
 
-PictureSelector::PictureSelector( QWidget *_parent )
-	: QWidget( _parent )
+#include <QWidget>
+
+#ifdef BUILD_AS_PLUGIN
+#include <QDesignerExportWidget>
+#define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
+#else
+#define EXPORT_AS_PLUGIN X_EXPORT
+#endif
+
+class EXPORT_AS_PLUGIN ImageSelector : public QWidget
 {
-	initialize( );
-}
+	Q_OBJECT
 
-void PictureSelector::initialize( )
-{	
-}
+	public:
+		ImageSelector( QWidget *_parent = 0 );
+
+	private:
+		void initialize( );
+};
+
+#endif // _IMAGE_SELECTOR_HPP_INCLUDED
