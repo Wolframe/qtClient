@@ -46,7 +46,7 @@ void FileDataLoader::datarequest( const QString& tag, const QByteArray& content)
 	qDebug( ) << "datarequest, tag" << tag << "\n" << content;
 }
 
-void FileDataLoader::gotAnswer( bool success, const QString& tag, const QByteArray& content)
+void FileDataLoader::gotAnswer( bool /*success*/, const QString& /*tag*/, const QByteArray& /*content*/)
 {
 	// skip, answer signal is emitted above, we don't wait for network
 	// signals here
@@ -110,7 +110,7 @@ void FileDataLoader::handleUpdate( QString name, QByteArray xml, QHash<QString, 
 void FileDataLoader::handleDelete( QString name, QHash<QString, QString> *props )
 {
 	QFile file( m_dir + "/" + name + ".xml" );
-	file.remove( );	
+	file.remove( );
 	emit answer( (*props)[ "widgetid"], QByteArray( ) );
 }
 
