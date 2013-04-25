@@ -35,7 +35,11 @@ build_all:!build_pass {
 
 # Input
 SOURCES += \
+	PictureSelectorPlugin.cpp \
+	PictureSelector.cpp \
 	ImageSelectionDialog.cpp
 
 HEADERS += \
+	PictureSelectorPlugin.hpp \
+	PictureSelector.hpp \
 	ImageSelectionDialog.hpp
