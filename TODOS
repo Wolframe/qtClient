@@ -2,6 +2,9 @@ Aba:
 - qtclient:
   - picture chooser plugin
   - plugins using visitors, how to respect plugin interface there?
+  - generic plugin interface for form request (as needed for the
+    'configurator' dialog)
+  - menu resources instead of 'index.txt', replacing new/open form menus
 
 unsorted from here:
 
