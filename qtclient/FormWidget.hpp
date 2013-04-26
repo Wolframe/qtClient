@@ -54,7 +54,7 @@ class FormWidget : public QWidget
 	Q_OBJECT
 
 	public:		
-		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, bool _mdi);
+		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug);
 		virtual ~FormWidget( );
 
 		void loadForm( QString name, bool modal = false );
@@ -88,7 +88,6 @@ class FormWidget : public QWidget
 		QHash<QString,QVariant> m_formstatemap;
 		bool m_debug;
 		bool m_modal;
-		bool m_mdi;
 
 	private:
 		void initialize( );
