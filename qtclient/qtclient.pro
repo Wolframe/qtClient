@@ -28,7 +28,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 	CONFIG += uitools designer
 }
 
-SOURCES += \	
+SOURCES += \
 	MainWindow.cpp \
 	FormLoader.cpp \
 	FileFormLoader.cpp \
@@ -83,7 +83,7 @@ HEADERS += \
 	NetworkFormLoader.hpp \
 	DataLoader.hpp \
 	FileDataLoader.hpp \
-	NetworkDataLoader.hpp \	
+	NetworkDataLoader.hpp \
 	WidgetVisitor.hpp \
 	WidgetEnabler.hpp \
 	WidgetListener.hpp \
@@ -137,7 +137,7 @@ TRANSLATIONS += \
 	i18n/qtclient.ro_RO.ts
 
 isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
+    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
     else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 }
 updateqm.input = TRANSLATIONS
