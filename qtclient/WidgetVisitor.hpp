@@ -363,10 +363,6 @@ class WidgetVisitor
 		QVariant getState();
 		///\brief Set the current widget state
 		void setState( const QVariant& state);
-		///\brief Backup state description in a dynamic property and reset widget state
-		void resetState();
-		///\brief Restore the state from its description backup (resetState)
-		void restoreState();
 		///\brief Declare end of data feed
 		void endofDataFeed();
 

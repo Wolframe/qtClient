@@ -620,31 +620,6 @@ void WidgetVisitor::setState( const QVariant& state)
 	}
 }
 
-void WidgetVisitor::resetState()
-{
-	if (!m_stk.isEmpty())
-	{
-		QVariant state = m_stk.top()->getState();
-		m_stk.top()->clear();
-		if (state.isValid())
-		{
-			m_stk.top()->m_widget->setProperty( "_w_state", state);
-		}
-	}
-}
-
-void WidgetVisitor::restoreState()
-{
-	if (!m_stk.isEmpty())
-	{
-		QVariant state = m_stk.top()->m_widget->property( "_w_state");
-		m_stk.top()->setState( state);
-
-		QVariant initialFocus = m_stk.top()->m_widget->property( "initialFocus");
-		if (initialFocus.toBool()) widget()->setFocus();
-	}
-}
-
 void WidgetVisitor::endofDataFeed()
 {
 	if (!m_stk.isEmpty()) m_stk.top()->endofDataFeed();

@@ -170,10 +170,6 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		QString nextForm = formlink.toString();
 		if (nextForm == "_CLOSE_")
 		{
-			//[-]PF:if (m_mdi || m_ui->property( "pwidgetid").isValid())
-			//[-]PF:{
-			//[-]PF:	emit closed( );
-			//[-]PF:}
 			if (m_modal)
 			{
 				emit closed( );
@@ -425,12 +421,12 @@ QVariant FormWidget::getWidgetStates() const
 			if (state.isValid())
 			{
 				rt.push_back( visitor.objectName());
-				rt.push_back( visitor.getState());
+				rt.push_back( state);
 			}
 		}
 	}
 	if (rt.isEmpty()) return QVariant();
-	return rt;
+	return QVariant(rt);
 }
 
 void FormWidget::setWidgetStates( const QVariant& state)
@@ -446,7 +442,16 @@ void FormWidget::setWidgetStates( const QVariant& state)
 			++itr;
 			if (itr != statelist.end())
 			{
-				visitor.setState( *itr);
+				if (visitor.property( "action").isValid())
+				{
+					widget->setProperty( "_w_state", *itr);
+				}
+				else
+				{
+					visitor.setState( *itr);
+					QVariant initialFocus = widget->property( "initialFocus");
+					if (initialFocus.toBool()) widget->setFocus();
+				}
 				++itr;
 			}
 		}
@@ -504,7 +509,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 // initialize the form variables given by assignments
 	visitor.do_readAssignments();
 
-// restore widget states if widget was opened with a '_CLOSE_'
+	// restore widget states if widget was opened with a '_CLOSE_'
 	QVariant formstate = m_formstatemap[ m_form];
 	if (formstate.isValid())
 	{
@@ -539,14 +544,6 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 	qDebug( ) << "set window title" << m_ui->windowTitle( );
 	setWindowTitle( m_ui->windowTitle( ) );
-
-	//[-]PF:bool explicit_close = false;
-	//[-]PF:if (m_mdi || visitor.property( "pwidgetid").isValid())
-	//[-]PF:{
-	//[-]PF:	... if a parent link is given then we act as in
-	//[-]PF:	    MDI mode and we close the predecessor window only explicitely to pass parameters back)
-	//[-]PF:	explicit_close = true;
-	//[-]PF:}
 
 	if ( oldUi ) {
 		m_ui->move( oldUi->pos( ) );
@@ -660,6 +657,10 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 				{
 					qCritical() << "Failed assign request answer tag:" << tag_ << "data:" << data_;
 				}
+				rcpvisitor.setState( rcp->property( "_w_state"));
+				QVariant initialFocus = rcp->property( "initialFocus");
+				if (initialFocus.toBool()) rcp->setFocus();
+
 				enablePushButtonEnablers( rcp);
 
 				WidgetListener* listener = rcpvisitor.createListener( m_dataLoader);
@@ -681,6 +682,10 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 				{
 					qCritical() << "Failed assign request answer tag:" << tag_ << "data:" << data_;
 				}
+				rcpvisitor.setState( rcp->property( "_w_state"));
+				QVariant initialFocus = rcp->property( "initialFocus");
+				if (initialFocus.toBool()) rcp->setFocus();
+
 				enablePushButtonEnablers( rcp);
 			}
 		}

@@ -63,7 +63,6 @@ void WidgetVisitorState_QTreeWidget::clear()
 
 bool WidgetVisitorState_QTreeWidget::enter( const QString& name, bool writemode)
 {
-	/*[-]*/qDebug() << "WidgetVisitorState_QTreeWidget::enter" << name << writemode;
 	static const QString item_str( "item");
 	if (m_mode != List && name == item_str)
 	{
@@ -179,6 +178,11 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 }
 
 enum StateTag {None,Open,Close,Expand,Select,ExpandSelect};
+static const char* stateTagName( StateTag i)
+{
+	static const char* ar[] = {"None","Open","Close","Expand","Select","ExpandSelect"};
+	return ar[i];
+}
 static const char g_tagchr[] = "_ocES*";
 
 static QVariant getStateElementKey( StateTag tag, const QVariant& elem)
@@ -232,6 +236,57 @@ static QTreeWidgetItem* findchild( const QTreeWidgetItem* item, int keyidx, cons
 	return 0;
 }
 
+static void setElementState( QList<QVariant>::const_iterator& itr, const QList<QVariant>::const_iterator& end, int keyidx, QTreeWidgetItem* item)
+{
+	QTreeWidgetItem* chld;
+	while (itr != end)
+	{
+		StateTag st = stateElementTag(*itr);
+		switch (st)
+		{
+			case Open:
+				chld = findchild( item, keyidx, stateElementValue( *itr));
+				if (!chld)
+				{
+					skipTag( itr, end);
+				}
+				else
+				{
+					++itr;
+					setElementState( itr, end, keyidx, chld);
+				}
+				break;
+			case Close:
+				++itr;
+				return;
+			case None:
+				++itr;
+				break;
+			case Expand:
+				chld = findchild( item, keyidx, stateElementValue( *itr));
+				if (chld) chld->setExpanded( true);
+				++itr;
+				break;
+			case Select:
+				chld = findchild( item, keyidx, stateElementValue( *itr));
+				if (chld) chld->setSelected( true);
+				++itr;
+				break;
+			case ExpandSelect:
+				chld = findchild( item, keyidx, stateElementValue( *itr));
+				if (chld)
+				{
+					chld->setExpanded( true);
+					chld->setSelected( true);
+				}
+				++itr;
+				break;
+			default:
+				++itr;
+		}
+	}
+}
+
 void WidgetVisitorState_QTreeWidget::setState( const QVariant& state)
 {
 	qDebug() << "set state for tree widget" << m_treeWidget->objectName();
@@ -240,54 +295,56 @@ void WidgetVisitorState_QTreeWidget::setState( const QVariant& state)
 	int keyidx = m_headers.indexOf( id_str);
 	if (keyidx < 0) keyidx = 0; //... first element is key if "id" not defined
 
-	stk.push_back( m_treeWidget->invisibleRootItem());
-
-	QList<QVariant> statelist = state.toList();
-	QList<QVariant>::const_iterator stateitr = statelist.begin();
-	QTreeWidgetItem* chld;
-
-	for (; !stk.isEmpty() && stateitr != statelist.end(); ++stateitr)
+	if (state.isValid())
 	{
-		switch (stateElementTag(*stateitr))
+		QList<QVariant> statelist = state.toList();
+		QList<QVariant>::const_iterator itr = statelist.begin();
+		setElementState( itr, statelist.end(), keyidx, m_treeWidget->invisibleRootItem());
+
+		if (m_mode == List)
 		{
-			case Open:
-				chld = findchild( stk.top().item, keyidx, stateElementValue( *stateitr));
-				if (chld)
-				{
-					stk.push_back( chld);
-				}
-				else
-				{
-					skipTag( stateitr, statelist.end());
-				}
-				break;
-			case Close:
-				stk.pop_back();
-				break;
-			case None:
-				break;
-			case Expand:
-				stk.top().item->setExpanded( true);
-				break;
-			case Select:
-				stk.top().item->setSelected( true);
-				// better than nothing, scroll to the position of the last selection (usually one)
-				m_treeWidget->scrollToItem( stk.top().item);
-				break;
-			case ExpandSelect:
-				stk.top().item->setExpanded( true);
-				stk.top().item->setSelected( true);
-				// better than nothing, scroll to the position of the last selection (usually one)
-				m_treeWidget->scrollToItem( stk.top().item);
-				stk.top().item->setExpanded( true);
-				break;
+			for( int ii = 0; ii < m_headers.size(); ii++)
+			{
+				m_treeWidget->resizeColumnToContents( ii);
+			}
 		}
 	}
-	if (m_mode == List)
+}
+
+static StateTag itemStateTag( const QTreeWidgetItem* item)
+{
+	StateTag rt = None;
+	if (item->isExpanded())
 	{
-		for( int ii = 0; ii < m_headers.size(); ii++)
+		rt = item->isSelected()?ExpandSelect:Expand;
+	}
+	else if (item->isSelected())
+	{
+		rt = Select;
+	}
+	return rt;
+}
+
+static void getElementState( QList<QVariant>& rt, int keyidx, QTreeWidgetItem* root)
+{
+	int readpos = 0;
+	for (; readpos<root->childCount(); ++readpos)
+	{
+		QTreeWidgetItem* item = root->child( readpos);
+		if (item->isExpanded() || item->isSelected())
 		{
-			m_treeWidget->resizeColumnToContents( ii);
+			rt.push_back( getStateElementKey( itemStateTag( item), item->data( keyidx, Qt::UserRole)));
+		}
+		int oldsize = rt.size();
+		rt.push_back( getStateElementKey( Open, item->data( keyidx, Qt::UserRole)));
+		getElementState( rt, keyidx, item);
+		if (oldsize+1 == rt.size())
+		{
+			rt.pop_back();
+		}
+		else
+		{
+			rt.push_back( getStateElementKey( Close, QVariant()));
 		}
 	}
 }
@@ -295,43 +352,11 @@ void WidgetVisitorState_QTreeWidget::setState( const QVariant& state)
 QVariant WidgetVisitorState_QTreeWidget::getState() const
 {
 	QList<QVariant> rt;
-	QStack<StackElement> stk;
 	static const QString id_str( "id");
 	int keyidx = m_headers.indexOf( id_str);
 	if (keyidx < 0) keyidx = 0; //... first element is key if "id" not defined
 
-	stk.push_back( m_treeWidget->invisibleRootItem());
-	while (!stk.isEmpty())
-	{
-		StateTag stateTag = None;
-		if (stk.top().item->isExpanded())
-		{
-			stateTag = stk.top().item->isSelected()?ExpandSelect:Expand;
-		}
-		else if (stk.top().item->isSelected())
-		{
-			stateTag = Select;
-		}
-		if (stateTag != None)
-		{
-			rt.push_back( getStateElementKey( stateTag, stk.top().item->data( 0, Qt::UserRole)));
-		}
-		if (stk.top().readpos >= stk.top().item->childCount())
-		{
-			rt.push_back( getStateElementKey( Close, QVariant()));
-			stk.pop_back();
-			continue;
-		}
-		else if (stk.size() == 1 || stk.top().item->isExpanded())
-		{
-			rt.push_back( getStateElementKey( Open, stk.top().item->data( 0, Qt::UserRole)));
-			stk.push_back( stk.top().item->child( stk.top().readpos++));
-		}
-		else
-		{
-			stk.top().readpos++;
-		}
-	}
+	getElementState( rt, keyidx, m_treeWidget->invisibleRootItem());
 	return QVariant(rt);
 }
 

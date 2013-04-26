@@ -37,7 +37,7 @@
 #include "DataTreeSerialize.hpp"
 #include <QXmlStreamWriter>
 #include <QVariant>
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "widget answer XML " << (TITLE) << (VALUE);
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "widget answer XML " << (TITLE) << (NAME) << "=" << (VALUE);
@@ -320,8 +320,8 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 	QList<WidgetAnswerStackElement> stk;
 	QXmlStreamReader xml( answer);
 	int taglevel = 0;
-	visitor.resetState();
 
+	visitor.clear();
 	qDebug() << "feeding widget " << visitor.objectName() << "with XML";
 
 	for (xml.readNext(); !xml.atEnd(); xml.readNext())
@@ -350,7 +350,6 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 			QXmlStreamAttributes attributes = xml.attributes();
 			if (istag)
 			{
-				if (ischild) visitor.resetState();
 				setAttributes( visitor, stk, xml, attributes);
 			}
 			else
@@ -388,7 +387,6 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 				if (stk.last().ischild)
 				{
 					visitor.endofDataFeed();
-					visitor.restoreState();
 				}
 				visitor.leave( true);
 			}
@@ -418,7 +416,6 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 		}
 	}
 	visitor.endofDataFeed();
-	visitor.restoreState();
 	return true;
 }
 
