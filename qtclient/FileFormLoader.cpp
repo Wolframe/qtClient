@@ -41,6 +41,9 @@
 
 #include <QDebug>
 
+#include <QPluginLoader>
+#include <QApplication>
+#include "FormPluginInterface.hpp"
 
 FileFormLoader::FileFormLoader( QString formDir, QString localeDir, QString resourcesDir )
 	: m_formDir( formDir ), m_localeDir( localeDir ), m_resourcesDir( resourcesDir )
@@ -67,27 +70,48 @@ void FileFormLoader::initialize( )
 
 void FileFormLoader::initiateListLoad( )
 {
+	QStringList forms;
+	
 	QFile indexFile( m_formDir + "/" + "index.txt" );
 	if( indexFile.open( QIODevice::ReadOnly ) ) {
 // explicit index file listing uis to load
-		QStringList forms;
 		QTextStream in( &indexFile );
 		while( !in.atEnd( ) ) {
 			QString line = in.readLine( );
 			forms << line;
 		}
 		indexFile.close( );
-		emit formListLoaded( forms );
 	} else {
 // implicit, fetch all ui files from the given directory
 		QDir formsDir( m_formDir );
 		QStringList filters;
 		filters << "*.ui";
 		formsDir.setNameFilters( filters );
-		QStringList forms = formsDir.entryList( QDir::Files | QDir::NoDotAndDotDot, QDir::Name )
+		forms = formsDir.entryList( QDir::Files | QDir::NoDotAndDotDot, QDir::Name )
 			.replaceInStrings( ".ui", "" );
-		emit formListLoaded( forms );
 	}
+
+// load form plugin code (EXPERMINTAL!)
+	QDir pluginDir( m_formDir );
+	foreach( QString filename, pluginDir.entryList( QDir::Files ) ) {
+		if( !QLibrary::isLibrary( filename ) ) continue;
+		QPluginLoader loader( pluginDir.absoluteFilePath( filename ) );
+		QObject *object = loader.instance( );
+		if( object ) {
+			if( qobject_cast<FormPluginInterface *>( object ) ) {
+				FormPluginInterface *plugin = qobject_cast<FormPluginInterface *>( object );
+				QString name = plugin->name( );
+				qDebug( ) << "PLUGIN: Loaded form plugin" << name;
+				forms << name;
+			} else {
+				qDebug( ) << "PLUGIN:" << filename << "is not a form plugin, ignoring it";
+			}
+		} else {
+			qWarning( ) << "PLUGIN: Loading" << filename << "failed:", loader.errorString( );
+		}
+	}
+
+	emit formListLoaded( forms );
 }
 
 QByteArray FileFormLoader::readFile( QString name )
