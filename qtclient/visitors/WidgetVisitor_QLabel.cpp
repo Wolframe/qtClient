@@ -63,15 +63,14 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 	return false;
 }
 
-void WidgetVisitorState_QLabel::setState( const QVariant& state)
+void WidgetVisitorState_QLabel::setState( const QVariant& /*state*/)
 {
-	qDebug() << "Restoring tree state for label" << m_label->objectName();
-	if (state.isValid()) m_label->setText( state.toString());
+	qDebug() << "set state for label" << m_label->objectName();
 }
 
 QVariant WidgetVisitorState_QLabel::getState() const
 {
-	return QVariant( m_label->text());
+	return QVariant();
 }
 
 void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)

@@ -54,7 +54,7 @@ bool WidgetVisitorState_QPushButton::setProperty( const QString& /*name*/, const
 
 void WidgetVisitorState_QPushButton::setState( const QVariant& state)
 {
-	qDebug() << "Restoring tree state for push button" << m_pushButton->objectName();
+	qDebug() << "set state for push button" << m_pushButton->objectName();
 	int stateval = state.toInt();
 	m_pushButton->setEnabled( ((stateval & 1) != 0));
 	m_pushButton->setDown( ((stateval & 2) != 0));

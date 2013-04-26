@@ -469,6 +469,7 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 
 void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 {
+	qDebug() << "set state for table" << m_tableWidget->objectName();
 	QTableWidgetSelectionRange all( 0, 0, m_tableWidget->rowCount(), m_tableWidget->columnCount());
 	m_tableWidget->setRangeSelected( all, false);
 

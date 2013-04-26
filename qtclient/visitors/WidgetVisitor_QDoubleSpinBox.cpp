@@ -47,14 +47,13 @@ bool WidgetVisitorState_QDoubleSpinBox::setProperty( const QString& name, const 
 	return false;
 }
 
-void WidgetVisitorState_QDoubleSpinBox::setState( const QVariant& state)
+void WidgetVisitorState_QDoubleSpinBox::setState( const QVariant& /*state*/)
 {
-	if (state.isValid()) m_doubleSpinBox->setValue( state.toDouble());
 }
 
 QVariant WidgetVisitorState_QDoubleSpinBox::getState() const
 {
-	return QVariant( m_doubleSpinBox->value());
+	return QVariant();
 }
 
 void WidgetVisitorState_QDoubleSpinBox::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)

@@ -49,12 +49,13 @@ bool WidgetVisitorState_QDateEdit::setProperty( const QString& name, const QVari
 
 void WidgetVisitorState_QDateEdit::setState( const QVariant& state)
 {
+	qDebug() << "set state for date edit" << m_dateEdit->objectName();
 	if (state.isValid()) m_dateEdit->setDate( state.toDate());
 }
 
 QVariant WidgetVisitorState_QDateEdit::getState() const
 {
-	return QVariant( m_dateEdit->date());
+	return m_dateEdit->date().isValid()?QVariant( m_dateEdit->date()):QVariant();
 }
 
 void WidgetVisitorState_QDateEdit::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)

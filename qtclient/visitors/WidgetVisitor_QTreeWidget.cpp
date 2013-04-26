@@ -234,6 +234,7 @@ static QTreeWidgetItem* findchild( const QTreeWidgetItem* item, int keyidx, cons
 
 void WidgetVisitorState_QTreeWidget::setState( const QVariant& state)
 {
+	qDebug() << "set state for tree widget" << m_treeWidget->objectName();
 	static const QString id_str( "id");
 	QStack<StackElement> stk;
 	int keyidx = m_headers.indexOf( id_str);

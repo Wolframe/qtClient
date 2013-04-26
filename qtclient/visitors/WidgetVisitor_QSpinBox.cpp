@@ -49,12 +49,13 @@ bool WidgetVisitorState_QSpinBox::setProperty( const QString& name, const QVaria
 
 void WidgetVisitorState_QSpinBox::setState( const QVariant& state)
 {
+	qDebug() << "set state for spin box" << m_spinBox->objectName();
 	if (state.isValid()) m_spinBox->setValue( state.toDouble());
 }
 
 QVariant WidgetVisitorState_QSpinBox::getState() const
 {
-	return QVariant( m_spinBox->value());
+	return (m_spinBox->value() != 0 && m_spinBox->value() != m_spinBox->minimum()) ?QVariant( m_spinBox->value()):QVariant();
 }
 
 void WidgetVisitorState_QSpinBox::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)

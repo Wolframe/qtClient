@@ -65,13 +65,28 @@ bool WidgetVisitorState_QLineEdit::setProperty( const QString& name, const QVari
 
 void WidgetVisitorState_QLineEdit::setState( const QVariant& state)
 {
-	qDebug() << "Restoring tree state for line edit" << m_lineEdit->objectName();
-	if (state.isValid()) m_lineEdit->setText( state.toString());
+	qDebug() << "set state for line edit" << m_lineEdit->objectName();
+	if (state.isValid())
+	{
+		QList<QVariant> stateval = state.toList();
+		if (stateval.size() > 0) m_lineEdit->setText( stateval.at(0).toString());
+		if (stateval.size() > 1) m_lineEdit->setCursorPosition( stateval.at(1).toInt());
+	}
 }
 
 QVariant WidgetVisitorState_QLineEdit::getState() const
 {
-	return QVariant( m_lineEdit->text());
+	if (m_lineEdit->isModified())
+	{
+		QList<QVariant> stateval;
+		stateval.push_back( QVariant( m_lineEdit->text()));
+		stateval.push_back( QVariant( m_lineEdit->cursorPosition()));
+		return QVariant( stateval);
+	}
+	else
+	{
+		return QVariant();
+	}
 }
 
 void WidgetVisitorState_QLineEdit::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)

@@ -26,7 +26,7 @@ bool WidgetVisitorState_QPlainTextEdit::setProperty( const QString& name, const 
 {
 	if (name.isEmpty())
 	{
-		m_plainTextEdit->setPlainText( data.toString());
+		m_plainTextEdit->setPlainText( m_textLoaded = data.toString());
 		return true;
 	}
 	return false;
@@ -34,12 +34,22 @@ bool WidgetVisitorState_QPlainTextEdit::setProperty( const QString& name, const 
 
 void WidgetVisitorState_QPlainTextEdit::setState( const QVariant& state)
 {
-	if (state.isValid()) m_plainTextEdit->setPlainText( state.toString());
+	qDebug() << "set state for plain text edit" << m_plainTextEdit->objectName();
+	if (state.isValid())
+	{
+		QList<QVariant> stateval = state.toList();
+		if (stateval.size() >= 1)
+		{
+			m_plainTextEdit->setPlainText( stateval.at(0).toString());
+		}
+	}
 }
 
 QVariant WidgetVisitorState_QPlainTextEdit::getState() const
 {
-	return QVariant( m_plainTextEdit->toPlainText());
+	QList<QVariant> stateval;
+	stateval.push_back( QString( m_plainTextEdit->toPlainText()));
+	return (m_textLoaded != stateval.at(0).toString())?QVariant( stateval):QVariant();
 }
 
 void WidgetVisitorState_QPlainTextEdit::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)

@@ -52,6 +52,7 @@ public:
 
 private:
 	QPlainTextEdit* m_plainTextEdit;
+	QString m_textLoaded;
 };
 
 #endif

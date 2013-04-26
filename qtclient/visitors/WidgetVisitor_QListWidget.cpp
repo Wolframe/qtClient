@@ -82,7 +82,7 @@ bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVa
 
 void WidgetVisitorState_QListWidget::setState( const QVariant& state)
 {
-	qDebug() << "Restoring tree state for list widget" << m_listWidget->objectName();
+	qDebug() << "set state for list widget" << m_listWidget->objectName();
 	for( int i = 0; i < m_listWidget->count( ); i++ )
 	{
 		QListWidgetItem *item = m_listWidget->item( i );

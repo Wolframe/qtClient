@@ -62,11 +62,13 @@ bool WidgetVisitorState_QTextEdit::setProperty( const QString& name, const QVari
 	if (name == "text")
 	{
 		m_textEdit->setPlainText( data.toString());
+		m_textLoaded = m_textEdit->toHtml();
 		return true;
 	}
 	if (name == "html")
 	{
 		m_textEdit->setHtml( data.toString());
+		m_textLoaded = m_textEdit->toHtml();
 		return true;
 	}
 	return false;
@@ -74,12 +76,14 @@ bool WidgetVisitorState_QTextEdit::setProperty( const QString& name, const QVari
 
 void WidgetVisitorState_QTextEdit::setState( const QVariant& state)
 {
+	qDebug() << "set state for text edit" << m_textEdit->objectName();
 	if (state.isValid()) m_textEdit->setHtml( state.toString());
 }
 
 QVariant WidgetVisitorState_QTextEdit::getState() const
 {
-	return QVariant( m_textEdit->toHtml());
+	QString content = m_textEdit->toHtml();
+	return (content != m_textLoaded)?QVariant( content):QVariant();
 }
 
 void WidgetVisitorState_QTextEdit::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)

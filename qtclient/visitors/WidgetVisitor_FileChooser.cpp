@@ -106,13 +106,17 @@ bool WidgetVisitorState_FileChooser::isArrayElement( const QString& name)
 	return false;
 }
 
-void WidgetVisitorState_FileChooser::setState( const QVariant& /*state*/)
+void WidgetVisitorState_FileChooser::setState( const QVariant& state)
 {
+	if (state.isValid())
+	{
+		m_fileChooser->setFileName( state.toString());
+	}
 }
 
 QVariant WidgetVisitorState_FileChooser::getState() const
 {
-	return QVariant();
+	return QVariant( QVariant( m_fileChooser->fileName()));
 }
 
 void WidgetVisitorState_FileChooser::connectWidgetEnabler( WidgetEnabler& enabler)

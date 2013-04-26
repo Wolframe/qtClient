@@ -47,14 +47,14 @@ bool WidgetVisitorState_QSlider::setProperty( const QString& name, const QVarian
 	return false;
 }
 
-void WidgetVisitorState_QSlider::setState( const QVariant& state)
+void WidgetVisitorState_QSlider::setState( const QVariant& /*state*/)
 {
-	if (state.isValid()) m_slider->setValue( state.toDouble());
+	qDebug() << "set state for slider" << m_slider->objectName();
 }
 
 QVariant WidgetVisitorState_QSlider::getState() const
 {
-	return QVariant( m_slider->value());
+	return QVariant();
 }
 
 void WidgetVisitorState_QSlider::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)

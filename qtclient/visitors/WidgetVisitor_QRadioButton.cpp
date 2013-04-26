@@ -45,6 +45,7 @@ bool WidgetVisitorState_QRadioButton::setProperty( const QString& name, const QV
 
 void WidgetVisitorState_QRadioButton::setState( const QVariant& state)
 {
+	qDebug() << "set state for radio button" << m_radioButton->objectName();
 	if (state.isValid()) m_radioButton->setChecked( state.toBool());
 }
 
