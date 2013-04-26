@@ -46,23 +46,22 @@ class SKELETON_VISIBILITY ManageServersDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit ManageServersDialog( QVector< ConnectionParameters >& params, QWidget *parent = 0 );
+	explicit ManageServersDialog( QVector< ServerDefinition >& params, QWidget *parent = 0 );
 	~ManageServersDialog();
 
 private slots:
 	void done( int retCode );
 
-	void newConnection();
-	void editConnection();
-	void delConnection();
+	void newServerDefinition();
+	void editServerDefinition();
+	void delServerDefinition();
 
-	void updateButtons();
-	void connectionBrief() const;
+	void updateUIstate();
 
 private:
 	Ui::ManageServersDialog			*ui;
-	QVector< ConnectionParameters >		m_localParams;
-	QVector< ConnectionParameters >&	m_globalParams;
+	QVector< ServerDefinition >		m_localParams;
+	QVector< ServerDefinition >&	m_globalParams;
 };
 
 #endif // _MANAGE_SERVERS_DIALOG_HPP_INCLUDED

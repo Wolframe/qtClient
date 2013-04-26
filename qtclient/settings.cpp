@@ -147,7 +147,7 @@ void ApplicationSettings::read( QSettings &settings )
 	for ( int i = 0; i < size; ++i )	{
 		settings.setArrayIndex( i );
 
-		ConnectionParameters	params;
+		ServerDefinition	params;
 		params.name = settings.value( "name" ).toString();
 		params.host = settings.value( "host" ).toString();
 		params.port = settings.value( "port" ).toUInt();

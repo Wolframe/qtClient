@@ -41,7 +41,7 @@
 
 #include "serverDefinitionDialog.hpp"
 
-ManageServersDialog::ManageServersDialog( QVector<ConnectionParameters>& params,
+ManageServersDialog::ManageServersDialog( QVector<ServerDefinition>& params,
 					  QWidget *parent ) :
 	QDialog( parent ), ui( new Ui::ManageServersDialog ),
 	m_globalParams( params )
@@ -50,16 +50,15 @@ ManageServersDialog::ManageServersDialog( QVector<ConnectionParameters>& params,
 	ui->setupUi( this );
 	ui->connectionList->sortItems();
 	ui->connectionList->setSelectionMode( QAbstractItemView::SingleSelection );
-	for ( QVector<ConnectionParameters>::const_iterator it = m_localParams.begin();
+	for ( QVector<ServerDefinition>::const_iterator it = m_localParams.begin();
 							it != m_localParams.end(); it++ )
 		ui->connectionList->addItem( it->name );
-	connect( ui->newConnBttn, SIGNAL( clicked() ), this, SLOT( newConnection() ));
-	connect( ui->editConBttn, SIGNAL( clicked() ), this, SLOT( editConnection() ));
-	connect( ui->delConnBttn, SIGNAL( clicked() ), this, SLOT( delConnection() ));
-	connect( ui->connectionList, SIGNAL( itemSelectionChanged() ), this, SLOT( updateButtons() ));
-	connect( ui->connectionList, SIGNAL( itemSelectionChanged() ), this, SLOT( connectionBrief() ));
+	connect( ui->newServerBttn, SIGNAL( clicked() ), this, SLOT( newServerDefinition() ));
+	connect( ui->editServerBttn, SIGNAL( clicked() ), this, SLOT( editServerDefinition() ));
+	connect( ui->delServerBttn, SIGNAL( clicked() ), this, SLOT( delServerDefinition() ));
+	connect( ui->connectionList, SIGNAL( itemSelectionChanged() ), this, SLOT( updateUIstate() ));
 
-	updateButtons();
+	updateUIstate();
 }
 
 ManageServersDialog::~ManageServersDialog()
@@ -78,9 +77,9 @@ void ManageServersDialog::done( int retCode )
 		QDialog::done( retCode );
 }
 
-void ManageServersDialog::newConnection()
+void ManageServersDialog::newServerDefinition()
 {
-	ConnectionParameters conn;
+	ServerDefinition conn;
 	ServerDefinitionDialog* newConn = new ServerDefinitionDialog( conn, this );
 	newConn->windowTitle() = tr( "New connection parameters" );
 
@@ -108,13 +107,13 @@ void ManageServersDialog::newConnection()
 	delete newConn;
 }
 
-void ManageServersDialog::editConnection()
+void ManageServersDialog::editServerDefinition()
 {
 	QList< QListWidgetItem* > items = ui->connectionList->selectedItems();
 	assert( items.size() == 1 );
 
 	int	pos;
-	ConnectionParameters conn;
+	ServerDefinition conn;
 	QString name = items.first()->data( 0 ).toString();
 	for ( pos = 0; pos < m_localParams.size(); pos++ )	{
 		if ( m_localParams[ pos ].name.compare( name, Qt::CaseInsensitive ) == 0 )	{
@@ -124,13 +123,13 @@ void ManageServersDialog::editConnection()
 	}
 	assert( pos >= 0 && pos < m_localParams.size() );
 
-	ServerDefinitionDialog* editConn = new ServerDefinitionDialog( conn, this );
-	editConn->windowTitle() = tr( "Edit connection parameters" );
+	ServerDefinitionDialog* editServer = new ServerDefinitionDialog( conn, this );
+	editServer->windowTitle() = tr( "Edit connection parameters" );
 
 	bool duplicate;
 	do	{
 		duplicate = false;
-		if ( editConn->exec() )	{
+		if ( editServer->exec() )	{
 			for ( int i = 0; i < m_localParams.size(); i++ )	{
 				if ( m_localParams[ i ].name.compare( conn.name, Qt::CaseInsensitive ) == 0 && i != pos )	{
 					duplicate = true;
@@ -148,10 +147,10 @@ void ManageServersDialog::editConnection()
 		}
 	} while( duplicate );
 
-	delete editConn;
+	delete editServer;
 }
 
-void ManageServersDialog::delConnection()
+void ManageServersDialog::delServerDefinition()
 {
 	QList< QListWidgetItem* > items = ui->connectionList->selectedItems();
 	assert( items.size() == 1 );
@@ -173,26 +172,25 @@ void ManageServersDialog::delConnection()
 	}
 }
 
-void ManageServersDialog::updateButtons()
+void ManageServersDialog::updateUIstate()
 {
+	// Update the states of the buttons
 	QList< QListWidgetItem* > items = ui->connectionList->selectedItems();
 	if ( items.empty() )	{
-		ui->newConnBttn->setEnabled( true );
-		ui->editConBttn->setEnabled( false );
-		ui->delConnBttn->setEnabled( false );
+		ui->newServerBttn->setEnabled( true );
+		ui->editServerBttn->setEnabled( false );
+		ui->delServerBttn->setEnabled( false );
 	}
 	else	{
-		ui->newConnBttn->setEnabled( true );
-		ui->editConBttn->setEnabled( true );
-		ui->delConnBttn->setEnabled( true );
+		ui->newServerBttn->setEnabled( true );
+		ui->editServerBttn->setEnabled( true );
+		ui->delServerBttn->setEnabled( true );
 	}
-}
 
-void ManageServersDialog::connectionBrief() const
-{
-	if ( ui->connectionList->currentItem() )	{
+	// Update the brief of the selected definition
+	if ( ui->connectionList->count() && ui->connectionList->currentItem() )	{
 		QString name = ui->connectionList->currentItem()->text();
-		for ( QVector< ConnectionParameters >::const_iterator it = m_localParams.begin();
+		for ( QVector< ServerDefinition >::const_iterator it = m_localParams.begin();
 									it != m_localParams.end(); it++ )	{
 			if ( it->name.compare( name, Qt::CaseInsensitive ) == 0 )	{
 				ui->parametersLbl->setText( it->toString() );
@@ -201,5 +199,5 @@ void ManageServersDialog::connectionBrief() const
 		}
 	}
 	else
-		ui->parametersLbl->setText( tr( "N/A" ) );
+		ui->parametersLbl->setText( tr( "No definition selected." ) );
 }

@@ -38,7 +38,7 @@
 
 #include "connection.hpp"
 
-ConnectionParameters::ConnectionParameters()
+ServerDefinition::ServerDefinition()
 {
 //	name and host should be empty
 	port = 0;
@@ -49,7 +49,7 @@ ConnectionParameters::ConnectionParameters()
 	timeout = 0;
 }
 
-bool ConnectionParameters::isEmpty() const
+bool ServerDefinition::isEmpty() const
 {
 	if ( name.isEmpty() )
 		return true;
@@ -57,7 +57,7 @@ bool ConnectionParameters::isEmpty() const
 		return false;
 }
 
-QString ConnectionParameters::toString() const
+QString ServerDefinition::toString() const
 {
 	if ( !name.isEmpty() )	{
 		QString str;
@@ -79,7 +79,7 @@ QString ConnectionParameters::toString() const
 		return QString();
 }
 
-bool ConnectionParameters::check( QString& error ) const
+bool ServerDefinition::check( QString& error ) const
 {
 	bool ret = true;
 	if ( name.isEmpty() )	{
@@ -125,10 +125,5 @@ bool ConnectionParameters::check( QString& error ) const
 	return ret;
 }
 
-bool ConnectionParameters::test( QString& error ) const
-{
-	error = QObject::tr( "Connection testing is not yet implemented" );
-	return false;
-}
 
 

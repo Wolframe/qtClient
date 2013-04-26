@@ -41,7 +41,7 @@
 #include "connection.hpp"
 #include "WolframeClient.hpp"
 
-ServerDefinitionDialog::ServerDefinitionDialog( ConnectionParameters& params, QWidget *_parent ) :
+ServerDefinitionDialog::ServerDefinitionDialog( ServerDefinition& params, QWidget *_parent ) :
 	QDialog( _parent ), ui( new Ui::ServerDefinitionDialog ), m_params( params )
 {
 	ui->setupUi( this );
@@ -172,7 +172,7 @@ void ServerDefinitionDialog::updateButtons()
 	}
 }
 
-void ServerDefinitionDialog::buildParams( ConnectionParameters& params )
+void ServerDefinitionDialog::buildParams( ServerDefinition& params )
 {
 	params.name = ui->nameEdit->text().simplified();
 	params.host = ui->hostEdit->text().simplified();
@@ -290,7 +290,7 @@ void ServerDefinitionDialog::testConnection()
 
 	ui->testBttn->setEnabled( false );
 
-	ConnectionParameters testParms;
+	ServerDefinition testParms;
 	buildParams( testParms );
 
 	m_client = new WolframeClient( testParms );

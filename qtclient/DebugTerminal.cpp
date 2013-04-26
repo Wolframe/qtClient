@@ -118,7 +118,7 @@ void DebugTerminal::lineEntered( QString line )
 		QRegExp rx( "^s?connect\\s+([^:]+):(\\d+)$", Qt::CaseInsensitive );
 		QStringList m;
 		if( rx.indexIn( line ) != -1 ) {
-			ConnectionParameters connParams;
+			ServerDefinition connParams;
 			connParams.name = "debug";
 			connParams.host = rx.cap( 1 );
 			connParams.port = rx.cap( 2 ).toUShort( );

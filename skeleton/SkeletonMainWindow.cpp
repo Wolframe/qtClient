@@ -227,7 +227,7 @@ void SkeletonMainWindow::login( )
 						 
 	if( loginDlg->exec( ) == QDialog::Accepted ) {
 // user choose nothing, bail out
-		if( !loginDlg->hasSelectedConnection( ) ) {
+		if( !loginDlg->hasSelectedserver( ) ) {
 			QMessageBox::critical( this, tr( "Parameters error"),
 				"You didn't select any connection!" );
 			delete loginDlg;
@@ -237,10 +237,10 @@ void SkeletonMainWindow::login( )
 // optionally remember old login data
 		if( m_rememberLogin ) {
 			m_lastUsername = loginDlg->username( );
-			m_lastConnName = loginDlg->selectedConnection( ).name;
+			m_lastConnName = loginDlg->selectedServer( ).name;
 		}
 			
-		ConnectionParameters selectedConnection = loginDlg->selectedConnection( );
+		ServerDefinition selectedConnection = loginDlg->selectedServer( );
 
 // no SSL compiled in and the user picks a secure connection, warn him,
 // don't blindly connect

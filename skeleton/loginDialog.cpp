@@ -40,7 +40,7 @@
 #include "manageServersDialog.hpp"
 
 LoginDialog::LoginDialog( const QString& username,
-			      const QString& connName, QVector< ConnectionParameters >& connParams,
+			      const QString& connName, QVector< ServerDefinition >& connParams,
 			      QWidget *parent ) :
 	QDialog( parent ), m_connParams( connParams ), ui( new Ui::LoginDialog )
 {
@@ -52,12 +52,12 @@ LoginDialog::LoginDialog( const QString& username,
 	int index = ui->serverCombo->findText( connName );
 	ui->serverCombo->setCurrentIndex( index );
 
-	connect( ui->serverManageButton, SIGNAL( clicked() ), this, SLOT( manageConnections() ));
+	connect( ui->serverManageButton, SIGNAL( clicked() ), this, SLOT( manageServers() ));
 
 	if ( m_connParams.size() == 0 )	{
 		QMessageBox::information( this, tr( "Login" ),
 					  tr( "There are no servers defined.\nPlease define a server." ));
-		manageConnections();
+		manageServers();
 	}
 }
 
@@ -66,7 +66,7 @@ LoginDialog::~LoginDialog()
 	delete ui;
 }
 
-void LoginDialog::manageConnections()
+void LoginDialog::manageServers()
 {
 	ManageServersDialog* manageDlg = new ManageServersDialog( m_connParams );
 	if ( manageDlg->exec() )	{
@@ -83,13 +83,13 @@ void LoginDialog::manageConnections()
 	delete manageDlg;
 }
 
-bool LoginDialog::hasSelectedConnection( )
+bool LoginDialog::hasSelectedserver( )
 {
 	return( ui->serverCombo->currentIndex( ) >= 0 &&
 		ui->serverCombo->currentIndex( ) < m_connParams.size( ) );
 }
 
-ConnectionParameters LoginDialog::selectedConnection( )
+ServerDefinition LoginDialog::selectedServer( )
 {
 	return m_connParams[ ui->serverCombo->currentIndex( ) ];
 }

@@ -61,7 +61,7 @@ struct ApplicationSettings
 	QString		lastUsername;		///< last username in case of persisting it
 	QString		lastConnection;		///< name of the last used connection
 
-	QVector< ConnectionParameters >	connectionParams; ///< defined connections parameters
+	QVector< ServerDefinition >	connectionParams; ///< defined connections parameters
 
 	bool mdi;				///< MDI mode with many forms
 	bool debug;				///< debug output
