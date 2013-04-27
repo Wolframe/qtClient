@@ -40,7 +40,7 @@
 MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent )
 {
 // a demo connection, goes away later
-	ConnectionParameters connection;
+	ServerDefinition connection;
 	
 	connection.name = "example";
 	connection.host = "localhost";

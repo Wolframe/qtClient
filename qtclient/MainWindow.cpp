@@ -334,7 +334,7 @@ void MainWindow::create( )
 
 void MainWindow::CreateFormWidget( const QString &name )
 {
-	m_formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.mdi );
+	m_formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.uiFormsDir );
 
 	connect( m_formWidget, SIGNAL( formLoaded( QString ) ),
 		this, SLOT( formLoaded( QString ) ) );
@@ -624,7 +624,7 @@ void MainWindow::formModal( QString name )
 {
 	m_modalDialog = new QDialog( this );
 
-	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, m_modalDialog, settings.debug, settings.mdi );
+	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, m_modalDialog, settings.debug, settings.uiFormsDir );
 
 	connect( formWidget, SIGNAL( formLoaded( QString ) ),
 		this, SLOT( formLoaded( QString ) ) );
@@ -879,7 +879,7 @@ void MainWindow::on_actionReload_triggered( )
 
 QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form )
 {
-	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.mdi );
+	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.uiFormsDir );
 
 	connect( formWidget, SIGNAL( formLoaded( QString ) ),
 		this, SLOT( formLoaded( QString ) ) );

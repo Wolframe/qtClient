@@ -14,10 +14,10 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Manage Connections</string>
+   <string>Manage Server Definitions</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../qtclient/qtclient.qrc">
     <normaloff>:/images/world-setup.png</normaloff>:/images/world-setup.png</iconset>
   </property>
   <property name="modal">
@@ -25,11 +25,11 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="vLayoutLeft">
      <item>
       <widget class="QLabel" name="connectionLbl">
        <property name="text">
-        <string>Configured Connections:</string>
+        <string>Configured Servers:</string>
        </property>
       </widget>
      </item>
@@ -46,7 +46,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="vLayoutRight">
      <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
@@ -74,23 +74,23 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="newConnBttn">
+      <widget class="QPushButton" name="newServerBttn">
        <property name="text">
-        <string>&amp;New Connection ...</string>
+        <string>&amp;New Definition ...</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="editConBttn">
+      <widget class="QPushButton" name="editServerBttn">
        <property name="text">
-        <string>&amp;Edit Connection ...</string>
+        <string>&amp;Edit Definition ...</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="delConnBttn">
+      <widget class="QPushButton" name="delServerBttn">
        <property name="text">
-        <string>&amp;Delete Connection</string>
+        <string>&amp;Delete Definition</string>
        </property>
       </widget>
      </item>
@@ -107,12 +107,12 @@
  </widget>
  <tabstops>
   <tabstop>connectionList</tabstop>
-  <tabstop>newConnBttn</tabstop>
-  <tabstop>editConBttn</tabstop>
-  <tabstop>delConnBttn</tabstop>
+  <tabstop>newServerBttn</tabstop>
+  <tabstop>editServerBttn</tabstop>
+  <tabstop>delServerBttn</tabstop>
  </tabstops>
  <resources>
-  <include location="skeleton.qrc"/>
+  <include location="../qtclient/qtclient.qrc"/>
  </resources>
  <connections>
   <connection>

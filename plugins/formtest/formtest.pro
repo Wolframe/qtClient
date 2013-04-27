@@ -1,12 +1,12 @@
 TEMPLATE = lib
 
-TARGET = imageselector
+TARGET = formtest
 
 CONFIG += qt warn_on plugin
 
 DEFINES += X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
 
-INCLUDEPATH += .
+INCLUDEPATH += ../../qtclient
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 	QT += widgets concurrent
@@ -33,11 +33,7 @@ build_all:!build_pass {
 
 # Input
 SOURCES += \
-    ImageSelectionDialog.cpp \
-    ImageSelector.cpp \
-    ImageSelectorPlugin.cpp
+    FormTestPlugin.cpp
 
 HEADERS += \
-    ImageSelectionDialog.hpp \
-    ImageSelector.hpp \
-    ImageSelectorPlugin.hpp
+    FormTestPlugin.hpp

@@ -49,7 +49,7 @@ class SKELETON_VISIBILITY ServerDefinitionDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit ServerDefinitionDialog( ConnectionParameters& params, QWidget *_parent = 0 );
+	explicit ServerDefinitionDialog( ServerDefinition& params, QWidget *_parent = 0 );
 	~ServerDefinitionDialog();
 
 private slots:
@@ -69,11 +69,11 @@ private slots:
 	void disconnected( );
 
 private:
-	void buildParams( ConnectionParameters& params );
+	void buildParams( ServerDefinition& params );
 
 private:
 	Ui::ServerDefinitionDialog	*ui;
-	ConnectionParameters&		m_params;
+	ServerDefinition&		m_params;
 	QString				m_currentDir;
 	WolframeClient *m_client;
 

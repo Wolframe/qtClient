@@ -47,19 +47,19 @@ class SKELETON_VISIBILITY LoginDialog : public QDialog
 
 public:
 	explicit LoginDialog( const QString& username,
-				const QString& connName, QVector< ConnectionParameters >& connParams,
-				QWidget *parent = 0 );
+			      const QString& connName, QVector< ServerDefinition >& connParams,
+			      QWidget *parent = 0 );
 	~LoginDialog();
 
-	bool hasSelectedConnection( );
-	ConnectionParameters selectedConnection( );
-	QString username( );
-	
+	bool hasSelectedserver();
+	ServerDefinition selectedServer();
+	QString username();
+
 private slots:
-	void manageConnections();
+	void manageServers();
 
 private:
-	QVector< ConnectionParameters >& m_connParams;
+	QVector< ServerDefinition >& m_connParams;
 	Ui::LoginDialog	*ui;
 	QString			m_username;
 	QString			m_password;

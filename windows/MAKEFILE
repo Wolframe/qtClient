@@ -1,0 +1,88 @@
+# configuration, adapt before building
+
+# base installation dir of WIX
+WIX_DIR = C:\Program Files\Windows Installer XML v3.5
+
+# where is Qt installed
+QT_DIR = C:\Qt\4.8.1
+
+# where is OpenSSL installed
+OPENSSL_DIR = C:\OpenSSL\openssl-1.0.1-win32-debug
+
+# libraries to link into the installer
+WIX_LIBS = dutil_2008.lib wcautil_2008.lib
+#WIX_LIBS = dutil_2008_x64.lib wcautil_2008_x64.lib
+
+# architecture of resulting msi
+WIX_ARCH = x86
+#WIX_ARCH = x64
+
+# define if you want to deploy the debug version
+DEBUG = 1
+
+# deinfe for SSL support
+WITH_SSL = 1
+
+# end configuration
+
+CANDLE = "$(WIX_DIR)\bin\candle.exe"
+LIGHT = "$(WIX_DIR)\bin\light.exe"
+LIT = "$(WIX_DIR)\bin\lit.exe"
+SMOKE = "$(WIX_DIR)\bin\smoke.exe"
+SETUPBLD = "$(WIX_DIR)\bin\setupbld.exe"
+
+WIX_FLAGS = \
+	-dqt_dir=$(QT_DIR)
+	
+!IFDEF DEBUG
+WIX_FLAGS = $(WIX_FLAGS) \
+	-ddebug=1 -dbuilddir=debug
+!ELSE
+WIX_FLAGS = $(WIX_FLAGS) \
+	-dbuilddir=release
+!ENDIF
+
+!IFDEF WITH_SSL
+WIX_FLAGS = $(WIX_FLAGS) \
+	-dwith_ssl=1 \
+	-dopenssl_dir=$(OPENSSL_DIR)
+!ENDIF
+
+WIX_EXTENSIONS = \
+	-ext WixUIExtension -ext WixUtilExtension
+	
+WIX_OBJS = \
+	qtClient.wixobj \
+	WixUI_qtClient.wixobj
+
+WIX_LOCALES = \
+	-cultures:en-us -loc "i18n\en_us-qtClient.wxl"
+	
+.SUFFIXES: .wxs .wixobj
+
+.wxs.wixobj:
+	$(CANDLE) /nologo -o $@ -arch $(WIX_ARCH) $(WIX_FLAGS) $(WIX_EXTENSIONS) $<
+
+all: qtClient.msi
+
+qtClient.msi: $(WIX_OBJS)
+	$(LIGHT) /nologo -o $@ $(WIX_FLAGS) $(WIX_EXTENSIONS) $(WIX_LOCALES) $**
+
+setup.exe: qtClient.msi
+	$(SETUPBLD) -out setup.exe -ms qtClient.msi -setup "$(WIX_DIR)\bin\setup.exe"
+
+clean:
+	@-erase *.wixobj qtClient.wixpdb qtClient.msi setup.exe *.log 2>NUL
+
+distclean:
+
+test: qtClient.msi
+	$(SMOKE) qtClient.msi
+
+test_install:
+	-del install.log
+	-msiexec /lieva install.log /i qtClient.msi
+
+test_uninstall:
+	-del uninstall.log
+	-msiexec /lieva uninstall.log /x {f0620f88-b93f-4699-a55b-44bf2b30cfca}

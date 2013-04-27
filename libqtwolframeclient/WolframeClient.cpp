@@ -46,7 +46,7 @@
 
 #include "private/WolframeClientProtocol.hpp"
 
-WolframeClient::WolframeClient( const ConnectionParameters _connParams,	QWidget *_parent )
+WolframeClient::WolframeClient( const ServerDefinition _connParams,	QWidget *_parent )
 	: QObject( _parent ),
 	m_connParams( _connParams ),
 	m_state( Disconnected ),
@@ -91,7 +91,7 @@ WolframeClient::WolframeClient( const ConnectionParameters _connParams,	QWidget 
 		this, SLOT( handleResult( ) ) );
 }
 
-void WolframeClient::setConnectionParameters( const ConnectionParameters _connParams )
+void WolframeClient::setConnectionParameters( const ServerDefinition _connParams )
 {
 	m_connParams = _connParams;
 }

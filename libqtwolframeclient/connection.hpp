@@ -36,7 +36,7 @@
 
 #include <QString>
 
-struct LIBWOLFRAMECLIENT_VISIBILITY ConnectionParameters	{
+struct LIBWOLFRAMECLIENT_VISIBILITY ServerDefinition	{
 	QString		name;
 	QString		host;
 	unsigned short	port;
@@ -49,21 +49,17 @@ struct LIBWOLFRAMECLIENT_VISIBILITY ConnectionParameters	{
 	unsigned short	timeout;
 
 public:
-	ConnectionParameters();
+	ServerDefinition();
 
-	// true if the connection is undefined
+	// true if the server is undefined
 	bool isEmpty() const;
 
-	// Return a description of the connection
+	// Return a description of the server
 	QString toString() const;
 
-	// Check if the connection parameters are ok
+	// Check if the server parameters are ok
 	// Fills in the error string in case of an error
 	bool check( QString& error ) const;
-
-	// Check if the connection can be made
-	// Fills in the error string in case of an error
-	bool test( QString& error ) const;
 };
 
 #endif // _CONNECTION_HPP_INCLUDED

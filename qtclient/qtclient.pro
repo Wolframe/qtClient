@@ -123,6 +123,8 @@ HEADERS += \
 	DebugTerminal.hpp \
 	HistoryLineEdit.hpp
 
+win32:RC_FILE=qtclient.rc
+
 RESOURCES = \
 	qtclient.qrc
 

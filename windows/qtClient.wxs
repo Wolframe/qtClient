@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+Copyright (C) 2013 Project Wolframe.
+All rights reserved.
+
+This file is part of Project Wolframe.
+
+Commercial Usage
+   Licensees holding valid Project Wolframe Commercial licenses may
+   use this file in accordance with the Project Wolframe
+   Commercial License Agreement provided with the Software or,
+   alternatively, in accordance with the terms contained
+   in a written agreement between the licensee and Project Wolframe.
+
+GNU General Public License Usage
+   Alternatively, you can redistribute this file and/or modify it
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Wolframe is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with Wolframe.  If not, see <http://www.gnu.org/licenses/>.
+
+If you have questions regarding the use of this file, please contact
+Project Wolframe.
+
+-->
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
+     xmlns:firewall="http://schemas.microsoft.com/wix/FirewallExtension"
+	 xmlns:contrib="http://wixtoolset.org/wixcontrib/2008">
+
+	<?define ProductVersion = "0.0.1" ?>
+	<?define ProductCode = "{f0620f88-b93f-4699-a55b-44bf2b30cfca}" ?>
+	<?define ProductUpgradeCode = "{7d357caf-4e95-4913-aaa4-e8102a085919}" ?>
+	
+	<?if $(sys.BUILDARCH) = "x64" ?>
+		<?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+		<?ifdef var.debug?>
+			<?define ProductName = "qtClient (64-bit, debug version)" ?>
+		<?else?>
+			<?define ProductName = "qtClient (64-bit)" ?>
+		<?endif?>
+	<?elseif $(sys.BUILDARCH) = "x86" ?>
+		<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+		<?ifdef var.debug?>
+			<?define ProductName = "qtClient (32-bit, debug version)" ?>
+		<?else?>
+			<?define ProductName = "qtClient (32-bit)" ?>
+		<?endif?>
+	<?endif?>
+	
+	<Product Name="$(var.ProductName)" Version="$(var.ProductVersion)" Manufacturer="Wolframe Team"
+	         Language="1033" Codepage="1252"
+	         Id="$(var.ProductCode)" 
+	         UpgradeCode="$(var.ProductUpgradeCode)" >
+		 
+		<Package Description="Wolframe qtClient Windows Installer Package"
+		         Comments="The Wolframe Qt client"
+		         Manufacturer="Wolframe Team" InstallerVersion="300" Compressed="yes"/>
+
+		<Media Id="1" Cabinet="qtClient.cab" EmbedCab="yes"/>
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="$(var.PlatformProgramFilesFolder)" Name="PFiles">
+				<Directory Id="WolframeGroup" Name="Wolframe Group">
+					<Directory Id="INSTALLDIR" Name="Wolframe Qt Client">
+						<Directory Id="BinDir" Name="bin">
+							<Component Id="WolframeQtClient" Guid="{8a59aae0-ee9f-4a97-a9d7-b01d809fb185}">
+								<File Id="qtclient.exe" Name="qtclient.exe" DiskId="1" Source="..\qtclient\$(var.builddir)\qtclient.exe"/>
+							</Component>
+							<Component Id="WolframeQtDlls" Guid="{c1c6449f-b745-4885-903a-cb28638289ab}">
+								<File Id="skeleton0.dll" Name="skeleton0.dll" DiskId="1" Source="..\skeleton\$(var.builddir)\skeleton0.dll"/>
+								<File Id="qtwolframeclient0.dll" Name="qtwolframeclient0.dll" DiskId="1" Source="..\libqtwolframeclient\$(var.builddir)\qtwolframeclient0.dll"/>
+							</Component>
+							
+							<?ifdef var.with_ssl?>				
+							<Component Id="OpenSSL" Guid="{b8aed823-0cad-4713-ae33-29fb3d53a8e6}">
+								<File Id="ssleay32.dll" Name="ssleay32.dll" DiskId="1" Source="$(var.openssl_dir)\bin\ssleay32.dll"/> 
+								<File Id="libeay32.dll" Name="libeay32.dll" DiskId="1" Source="$(var.openssl_dir)\bin\libeay32.dll"/> 
+							</Component>
+							<?endif?>
+
+							<Component Id="WolframeQtPlugins" Guid="{c56a06a0-4437-4a27-b347-63e61c38c26c}">
+								<?ifdef var.debug?>
+									<File Id="filechooserd.dll" Name="filechooserd.dll" DiskId="1" Source="..\plugins\filechooser\$(var.builddir)\filechooserd.dll"/>
+									<File Id="picturechooserd.dll" Name="picturechooserd.dll" DiskId="1" Source="..\plugins\picturechooser\$(var.builddir)\picturechooserd.dll"/>
+									<File Id="imageselectord.dll" Name="imageselectord.dll" DiskId="1" Source="..\plugins\imageselector\$(var.builddir)\imageselectord.dll"/>
+								<?else?>
+									<File Id="filechooser.dll" Name="filechooser.dll" DiskId="1" Source="..\plugins\filechooser\$(var.builddir)\filechooser.dll"/>
+									<File Id="filechooser.dll" Name="picturechhoser.dll" DiskId="1" Source="..\plugins\picturechhoser\$(var.builddir)\picturechhoser.dll"/>
+									<File Id="imageselector.dll" Name="imageselector.dll" DiskId="1" Source="..\plugins\imageselector\$(var.builddir)\imageselector.dll"/>
+								<?endif?>
+							</Component>
+							
+							<Component Id="QtDlls" Guid="{dd8be206-3e1d-4871-a1f7-8a5835026a7a}">
+								<?ifdef var.debug?>
+									<File Id="QtCored4.dll" Name="QtCored4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtCored4.dll"/>
+									<File Id="QtGuid4.dll" Name="QtGuid4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtGuid4.dll"/>
+									<File Id="QtNetworkd4.dll" Name="QtNetworkd4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtNetworkd4.dll"/>
+									<File Id="QtXmld4.dll" Name="QtXmld4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtXmld4.dll"/>
+								<?else?>
+									<File Id="QtCore4.dll" Name="QtCore4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtCore4.dll"/>
+									<File Id="QtGui4.dll" Name="QtGui4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtGui4.dll"/>
+									<File Id="QtNetwork4.dll" Name="QtNetwork4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtNetwork4.dll"/>
+									<File Id="QtXml4.dll" Name="QtXmld4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtXml4.dll"/>
+								<?endif?>
+							</Component>
+
+							<Directory Id="ImageformatsDir" Name="imageformats">
+								<Component Id="QtImagePlugins" Guid="{a2ec821e-0456-4c1c-aab1-189371497785}">
+									<File Id="qgifd4.dll" Name="qgifd4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qgifd4.dll"/>
+									<File Id="qjpegd4.dll" Name="qjpegd4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qjpegd4.dll"/>
+								</Component>
+							</Directory>
+
+							<Component Id="MsvcRuntime" Guid="{ece7de30-bab3-40a2-988b-a56e4bc633ac}">
+								<File Id="msvcp100d.dll" Name="msvcp100d.dll" DiskId="1" Source="C:\windows\system32\msvcp100d.dll"/>
+								<File Id="msvcr100d.dll" Name="msvcr100d.dll" DiskId="1" Source="C:\windows\system32\msvcr100d.dll"/>
+							</Component>
+							
+						</Directory>						
+					</Directory>
+				</Directory>
+			</Directory>
+			
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ApplicationProgramsFolder" Name="Wolframe"/>
+			</Directory>
+	
+		</Directory>
+
+		<DirectoryRef Id="ApplicationProgramsFolder">
+			<Component Id="ApplicationShortcut" Guid="{3e94c820-f998-4d46-b19f-74657a353295}">
+				<Shortcut Id="qtClient"
+				          Name="Wolframe Qt client"
+				          Description="Start Wolframe Qt client"
+				          Target="[INSTALLDIR]\bin\qtclient.exe"/>
+
+				<Shortcut Id="UninstallProduct"
+				          Name="Uninstall Wolframe Qt client"
+				          Description="Uninstalls Wolframe Qt client"
+				          Target="[System64Folder]msiexec.exe"
+				          Arguments="/x $(var.ProductCode)"/>
+
+				<RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+				<RegistryValue Root="HKCU" Key="SOFTWARE\WolframeGroup\Wolframe Client"
+				               Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</DirectoryRef>
+
+		<Feature Id="Complete" Title="Wolframe" Description="$(var.ProductName)"
+		         Display="expand" Level="1" ConfigurableDirectory="INSTALLDIR">
+			<Feature Id="qtClient" Title="Qt Client" Description="A Qt client to access the Wolframe server." Level="1">
+				<ComponentRef Id="ApplicationShortcut"/>
+				<ComponentRef Id="WolframeQtClient"/>
+				<ComponentRef Id="WolframeQtDlls"/>
+				<ComponentRef Id="WolframeQtPlugins"/>
+				<ComponentRef Id="QtDlls"/>
+				<ComponentRef Id="QtImagePlugins"/>
+				<ComponentRef Id="MsvcRuntime"/>
+				<?ifdef var.with_ssl?>				
+				<ComponentRef Id="OpenSSL"/>
+				<?endif?>
+			</Feature>
+		</Feature>
+
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR"/>
+
+		<WixVariable Id="WixUILicenseRtf" Value="license.rtf"/>
+		<WixVariable Id="WixUIDialogBmp" Value="bitmaps/Wolf.bmp"/>
+		<Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Check out http://www.wolframe.net for additional information."/>
+
+		<Property Id="APPHELPLINK">http://www.wolframe.net</Property>
+		<Icon Id="Wolframe.ico" SourceFile="bitmaps/Wolframe.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="Wolframe.ico"/>
+
+		<UIRef Id="WixUI_qtClient"/>
+		<UIRef Id="WixUI_ErrorProgressText"/>
+	</Product>
+</Wix>
+

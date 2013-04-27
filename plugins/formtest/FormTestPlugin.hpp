@@ -31,43 +31,22 @@
 
 ************************************************************************/
 
-#ifndef _FORM_LOADER_HPP_INCLUDED
-#define _FORM_LOADER_HPP_INCLUDED
+#ifndef _FORM_TEST_PLUGIN_INCLUDED
+#define _FORM_TEST_PLUGIN_INCLUDED
 
-#include <QObject>
-#include <QString>
-#include <QStringList>
-#include <QByteArray>
-#include <QLocale>
+#include "FormPluginInterface.hpp"
 
-class FormLoader : public QObject
-{	
+class FormTestPlugin : public QObject, public FormPluginInterface
+{
 	Q_OBJECT
+	Q_INTERFACES( FormPluginInterface )
+#if QT_VERSION >= 0x050000
+	Q_PLUGIN_METADATA( IID "org.wolframe.qtClient.FormPluginInterface/1.0"  )
+#endif // QT_VERSION >= 0x050000
 	
-	public:
-		virtual ~FormLoader( ) {};
-		virtual void initiateListLoad( ) = 0;
-		virtual void initiateFormLoad( QString &name ) = 0;
-		virtual void initiateFormLocalizationLoad( QString &name, QLocale locale ) = 0;
-		virtual void initiateGetLanguageCodes( ) = 0;
-		
-		virtual void initiateFormSave( QString name, QByteArray form ) = 0;
-		virtual void initiateFormLocalizationSave( QString name, QLocale locale, QByteArray localizationSrc, QByteArray localizationBin ) = 0;
-		
-		virtual void initiateFormDelete( QString name ) = 0;
-		virtual void initiateFormLocalizationDelete( QString name, QLocale locale ) = 0;
-
-	Q_SIGNALS:
-		void formListLoaded( QStringList forms );
-		void formLoaded( QString form_name, QByteArray form );
-		void formLocalizationLoaded( QString form_name, QByteArray localization );
-		void languageCodesLoaded( QStringList languages );
-		
-		void formSaved( QString name );
-		void formLocalizationSaved( QString name );
-		
-		void formDeleted( QString name );
-		void formLocalizationDeleted( QString name );
+	public:		
+		virtual const QString name( );
+		virtual QWidget *initialize( QWidget *_parent );
 };
 
-#endif // _FORM_LOADER_HPP_INCLUDED
+#endif // _FORM_TEST_PLUGIN_INCLUDED

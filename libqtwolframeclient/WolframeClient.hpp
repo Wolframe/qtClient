@@ -72,7 +72,7 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 		};
 
 	private:
-		ConnectionParameters m_connParams;
+		ServerDefinition m_connParams;
 		State m_state;
 		QAbstractSocket *m_socket;
 		bool m_hasErrors;
@@ -80,10 +80,10 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 		QTimer *m_timeoutTimer;
 
 	public:
-		WolframeClient( const ConnectionParameters _connParams,	QWidget *_parent = 0 );
+		WolframeClient( const ServerDefinition _connParams,	QWidget *_parent = 0 );
 		virtual ~WolframeClient( );
 
-		void setConnectionParameters( const ConnectionParameters _connParams );
+		void setConnectionParameters( const ServerDefinition _connParams );
 		
 		static bool SSLsupported( );
 

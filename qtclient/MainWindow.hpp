@@ -93,7 +93,7 @@ class MainWindow : public SkeletonMainWindow
 		QMap<QAction *, QMdiSubWindow *> m_subWinMap; // maps actions to MDI subwindows
 		QMap<QMdiSubWindow *, QAction *> m_revSubWinMap; // reverse map (the above is actually a bimap)
 		ApplicationSettings settings;	// Application settings
-		ConnectionParameters m_selectedConnection; // lastly selected connection
+		ServerDefinition m_selectedConnection; // lastly selected connection
 		bool m_terminating;
 		DebugTerminal *m_debugTerminal;
 		QAction *m_debugTerminalAction;
