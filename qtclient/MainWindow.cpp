@@ -323,7 +323,8 @@ void MainWindow::create( )
 	updateActionShortcuts( );
 
 // now that we have a menu where we can add things, we start the form list loading
-	m_formLoader->initiateListLoad( );
+	if( m_formLoader )
+		m_formLoader->initiateListLoad( );
 
 // load language codes for language picker
 	loadLanguages( );
@@ -465,7 +466,8 @@ void MainWindow::authOk( )
 void MainWindow::loadLanguages( )
 {
 // get the list of available languages in the forms
-	m_formLoader->initiateGetLanguageCodes( );
+	if( m_formLoader )
+		m_formLoader->initiateGetLanguageCodes( );
 }
 
 void MainWindow::languageCodesLoaded( QStringList languages )
