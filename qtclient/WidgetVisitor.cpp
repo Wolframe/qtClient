@@ -499,14 +499,14 @@ static QVariant expand_variable_references( WidgetVisitor& visitor, const QStrin
 	{
 		if (endidx < substidx)
 		{
-			logError( visitor.widget(), "brackets { } not balanced", "");
+			logError( visitor.widget(), "brackets { } not balanced", value);
 			break;
 		}
 		rt.append( value.mid( startidx, substidx-startidx));
 		int sb = value.indexOf( '{', substidx+1);
 		if (sb > 0 && sb < endidx)
 		{
-			logError( visitor.widget(), "brackets { { nested", "");
+			logError( visitor.widget(), "brackets { { nested", value);
 			break;
 		}
 		substidx++;

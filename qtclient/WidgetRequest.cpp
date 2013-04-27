@@ -117,9 +117,12 @@ static QByteArray getRequestXML( const QString& docType, const QString& rootElem
 		{
 			xml.writeDTD( QString( "<!DOCTYPE %1 SYSTEM '%2'>").arg( rootElement).arg( docType));
 		}
+		xml.writeStartElement( rootElement);
 	}
-
-	xml.writeStartElement( rootElement);
+	else
+	{
+		xml.writeStartElement( docType);
+	}
 	QList<DataSerializeItem>::const_iterator ie = elements.begin(), ee = elements.end();
 	for (; ie != ee; ++ie)
 	{

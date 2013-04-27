@@ -94,12 +94,11 @@ void FormWidget::formListLoaded( QStringList forms )
 
 void FormWidget::executeAction( QWidget *actionwidget )
 {
-	WidgetVisitor visitor( actionwidget);
-	QString suffix;
-	QVariant action = visitor.property( "action");
+	QVariant action = actionwidget->property( "action");
 
 	if (action.isValid())
 	{
+		WidgetVisitor visitor( actionwidget);
 		QPushButton* button = qobject_cast<QPushButton*>( actionwidget);
 		if (button->isDown())
 		{
@@ -705,19 +704,23 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 		}
 		else
 		{
-			foreach (QWidget* rcp, dispatcher.findRecipients( rq.recipientid()))
+			QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());
+			if (!rcpl.isEmpty())
 			{
-				disablePushButtonEnablers( rcp);
-				WidgetVisitor rcpvisitor( rcp);
-				if (!setWidgetAnswer( rcpvisitor, data_))
+				foreach (QWidget* rcp, rcpl)
 				{
-					qCritical() << "Failed assign request answer tag:" << tag_ << "data:" << data_;
-				}
-				rcpvisitor.setState( rcp->property( "_w_state"));
-				QVariant initialFocus = rcp->property( "initialFocus");
-				if (initialFocus.toBool()) rcp->setFocus();
+					disablePushButtonEnablers( rcp);
+					WidgetVisitor rcpvisitor( rcp);
+					if (!setWidgetAnswer( rcpvisitor, data_))
+					{
+						qCritical() << "Failed assign request answer tag:" << tag_ << "data:" << data_;
+					}
+					rcpvisitor.setState( rcp->property( "_w_state"));
+					QVariant initialFocus = rcp->property( "initialFocus");
+					if (initialFocus.toBool()) rcp->setFocus();
 
-				enablePushButtonEnablers( rcp);
+					enablePushButtonEnablers( rcp);
+				}
 			}
 		}
 	}
@@ -726,19 +729,23 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 
 void FormWidget::gotError( const QString& tag_, const QByteArray& data_)
 {
-	qDebug() << "got error tag=" << tag_ << "data=" << data_;
-	emit error( QString( data_));
-
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);
 	WidgetRequest rq( tag_, "");
 
 	if (rq.type() == WidgetRequest::Action)
 	{
-		foreach (QWidget* actionwidget, dispatcher.findRecipients( rq.recipientid()))
+		QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());
+		if (!rcpl.isEmpty())
 		{
-			QPushButton* button = qobject_cast<QPushButton*>( actionwidget);
-			if (button) button->setDown( false);
+			qDebug() << "got error tag=" << tag_ << "data=" << data_;
+			emit error( QString( data_));
+
+			foreach (QWidget* actionwidget, rcpl)
+			{
+				QPushButton* button = qobject_cast<QPushButton*>( actionwidget);
+				if (button) button->setDown( false);
+			}
 		}
 	}
 }
