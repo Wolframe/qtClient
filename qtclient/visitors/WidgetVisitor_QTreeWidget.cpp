@@ -178,11 +178,14 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 }
 
 enum StateTag {None,Open,Close,Expand,Select,ExpandSelect};
-static const char* stateTagName( StateTag i)
+struct DebugFunction
 {
-	static const char* ar[] = {"None","Open","Close","Expand","Select","ExpandSelect"};
-	return ar[i];
-}
+	static const char* stateTagName( StateTag i)
+	{
+		static const char* ar[] = {"None","Open","Close","Expand","Select","ExpandSelect"};
+		return ar[i];
+	}
+};
 static const char g_tagchr[] = "_ocES*";
 
 static QVariant getStateElementKey( StateTag tag, const QVariant& elem)
@@ -232,6 +235,20 @@ static QTreeWidgetItem* findchild( const QTreeWidgetItem* item, int keyidx, cons
 	{
 		QTreeWidgetItem* chld = item->child( ii);
 		if (elemkeystr == chld->data( keyidx, Qt::UserRole).toString()) return chld;
+	}
+	return 0;
+}
+
+static QTreeWidgetItem* findsubnode( const QTreeWidgetItem* item, int keyidx, const QVariant& elemkey)
+{
+	int ii=0,chldcnt = item->childCount();
+	QString elemkeystr = elemkey.toString();
+	for (; ii<chldcnt; ++ii)
+	{
+		QTreeWidgetItem* chld = item->child( ii);
+		if (elemkeystr == chld->data( keyidx, Qt::UserRole).toString()) return chld;
+		chld = findsubnode( chld, keyidx, elemkey);
+		if (chld) return chld;
 	}
 	return 0;
 }
@@ -369,19 +386,35 @@ void WidgetVisitorState_QTreeWidget::endofDataFeed()
 		QStack<StackElement> stk;
 		int keyidx = m_headers.indexOf( id_str);
 		if (keyidx < 0) keyidx = 0; //... first element is key if "id" not defined
+		QTreeWidgetItem* root = m_treeWidget->invisibleRootItem();
 
 		if (selected.type() == QVariant::List)
 		{
-			foreach (const QVariant& sel, selected.toList())
+			QList<QVariant> selectedlist = selected.toList();
+			foreach (const QVariant& sel, selectedlist)
 			{
-				QTreeWidgetItem* item = findchild( m_treeWidget->invisibleRootItem(), keyidx, sel);
-				if (item) item->setSelected( true);
+				QTreeWidgetItem* item = findsubnode( root, keyidx, sel);
+				if (item)
+				{
+					for (QTreeWidgetItem* prn = item->parent(); prn && prn != root; prn = prn->parent())
+					{
+						prn->setExpanded( true);
+					}
+					item->setSelected( true);
+				}
 			}
 		}
 		else
 		{
-			QTreeWidgetItem* item = findchild( m_treeWidget->invisibleRootItem(), keyidx, selected);
-			if (item) item->setSelected( true);
+			QTreeWidgetItem* item = findsubnode( root, keyidx, selected);
+			if (item)
+			{
+				for (QTreeWidgetItem* prn = item->parent(); prn && prn != root; prn = prn->parent())
+				{
+					prn->setExpanded( true);
+				}
+				item->setSelected( true);
+			}
 		}
 	}
 }
