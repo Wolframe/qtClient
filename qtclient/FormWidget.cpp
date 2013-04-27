@@ -44,12 +44,16 @@
 #include <QFrame>
 #include <QList>
 
-FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug)
+#include <QPluginLoader>
+#include <QApplication>
+#include "FormPluginInterface.hpp"
+
+FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir )
 	: QWidget( _parent ), m_form( ),
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
 	  m_dataLoader( _dataLoader ), m_globals(_globals ), m_ui( 0 ),
 	  m_locale( DEFAULT_LOCALE ), m_layout( 0 ), m_forms( ),
-	  m_debug( _debug ), m_modal( false )
+	  m_debug( _debug ), m_modal( false ), m_formDir( _formDir )
 {
 	initialize();
 }
@@ -464,21 +468,41 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 	qDebug( ) << "Form " << name << " loaded";
 	FormCall formCall( name);
-
-// read the form and construct it from the UI file
+	
 	QWidget *oldUi = m_ui;
-	QBuffer buf( &formXml );
-	m_ui = m_uiLoader->load( &buf, this );
-	if( m_ui == 0 ) {
+	if( formXml.size( ) == 0 ) {
+// byte array 0 indicates no UI description, so we call the plugin
+		QDir pluginDir( m_formDir );
+		foreach( QString filename, pluginDir.entryList( QDir::Files ) ) {
+			if( !QLibrary::isLibrary( filename ) ) continue;
+			QPluginLoader loader( pluginDir.absoluteFilePath( filename ) );
+			QObject *object = loader.instance( );
+			if( object ) {
+				if( qobject_cast<FormPluginInterface *>( object ) ) {
+					FormPluginInterface *plugin = qobject_cast<FormPluginInterface *>( object );
+					QString name = plugin->name( );
+					if( name == FormCall::name( name ) ) {
+						qDebug( ) << "PLUGIN: Initializing form plugin" << name;
+						m_ui = plugin->initialize( this );
+					}
+				}
+			}
+		}
+	} else {			
+// read the form and construct it from the UI file
+		QBuffer buf( &formXml );
+		m_ui = m_uiLoader->load( &buf, this );
+		if( m_ui == 0 ) {
 // something went wrong loading or constructing the form
-		m_ui = oldUi;
-		m_form = m_previousForm;
-		emit error( tr( "Unable to load form '%1', does it exist?" ).arg( name ) );
-		return;
+			m_ui = oldUi;
+			m_form = m_previousForm;
+			emit error( tr( "Unable to load form '%1', does it exist?" ).arg( name ) );
+			return;
+		}
+		buf.close( );
+		qDebug( ) << "Constructed UI form XML for form" << name << m_modal;
 	}
-	buf.close( );
-	qDebug( ) << "Constructed UI form XML for form" << name << m_modal;
-		
+	
 // if we have a modal dialog, we must not replace our own form, but emit
 // a signal, so the main window can rearange and load the form modal in
 // a new window

@@ -36,6 +36,7 @@
 
 #include <QtPlugin>
 #include <QString>
+#include <QWidget>
 
 class FormPluginInterface
 {	
@@ -43,7 +44,7 @@ class FormPluginInterface
 		virtual ~FormPluginInterface( ) { }
 		
 		virtual const QString name( ) = 0;
-		virtual void initialize( ) = 0;
+		virtual QWidget *initialize( QWidget *_parent ) = 0;
 };
 
 Q_DECLARE_INTERFACE( FormPluginInterface, "org.wolframe.qtClient.FormPluginInterface/1.0" )

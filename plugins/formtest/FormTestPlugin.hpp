@@ -46,7 +46,7 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 	
 	public:		
 		virtual const QString name( );
-		virtual void initialize( );
+		virtual QWidget *initialize( QWidget *_parent );
 };
 
 #endif // _FORM_TEST_PLUGIN_INCLUDED

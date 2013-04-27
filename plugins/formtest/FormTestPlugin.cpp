@@ -34,15 +34,19 @@
 #include "FormTestPlugin.hpp"
 
 #include <QDebug>
+#include <QLabel>
 
 const QString FormTestPlugin::name( )
 {
 	return "test";
 }
 
-void FormTestPlugin::initialize( )
+QWidget *FormTestPlugin::initialize( QWidget *_parent )
 {
 	qDebug( ) << "PLUGIN: initializing plugin" << name( );
+	QLabel *label = new QLabel( "form plugin test", _parent );
+	
+	return label;
 }
 
 #if QT_VERSION < 0x050000
