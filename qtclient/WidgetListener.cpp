@@ -91,28 +91,80 @@ void WidgetListener::setDebug( bool v)
 	m_debug = v;
 }
 
+void WidgetListener::trigger_reload( const QString& signame, QWidget* receiver)
+{
+	WidgetVisitor visitor( receiver);
+	visitor.readAssignments();
+
+	QAbstractButton* button = qobject_cast<QAbstractButton*>( receiver);
+	if (button)
+	{
+		button->toggle();
+		button->click();
+	}
+	QVariant actiondef = receiver->property( QByteArray("action:") + signame.toAscii());
+	if (!actiondef.isValid())
+	{
+		actiondef = receiver->property( "action");
+	}
+	if (actiondef.isValid())
+	{
+		WidgetRequest domload = getWidgetRequest( visitor, actiondef.toString(), m_debug);
+		if (!domload.content.isEmpty())
+		{
+			m_dataLoader->datarequest( domload.tag, domload.content);
+		}
+	}
+}
+
+QList<QWidget*> WidgetListener::get_forward_receivers( QWidget* receiver)
+{
+	QList<QWidget*> forwardlist;
+	int forwardlistidx = 0, forwardlistsize = 0;
+	forwardlist.push_back( receiver);
+
+	do
+	{
+		forwardlistsize = forwardlist.size();
+		for (;forwardlistidx < forwardlistsize; ++forwardlistidx)
+		{
+			QWidget* forwardsnd = forwardlist.at( forwardlistidx);
+			if (forwardsnd->property("datasignal:signaled").isValid())
+			{
+				WidgetVisitor sndvisitor( forwardsnd);
+				foreach (const QString& forward_rcvid, sndvisitor.property( "datasignal:signaled").toString().split(','))
+				{
+					typedef QPair<QString,QWidget*> Receiver;
+					foreach (const Receiver& forward_rcv, sndvisitor.get_datasignal_receivers( forward_rcvid.trimmed()))
+					{
+						if (!forwardlist.contains( forward_rcv.second))
+						{
+							forwardlist.push_back( forward_rcv.second);
+						}
+					}
+
+				}
+			}
+		}
+	}
+	while (forwardlistsize < forwardlist.size());
+
+	forwardlist.removeFirst();
+	return forwardlist;
+}
+
 void WidgetListener::handleDataSignal( WidgetVisitor::DataSignalType dt)
 {
 	WidgetVisitor tv( m_state);
-	foreach (QWidget* receiver, tv.get_datasignal_receivers( dt))
-	{
-		WidgetVisitor visitor( receiver);
-		visitor.readAssignments();
+	typedef QPair<QString,QWidget*> Receiver;
+	qDebug() << "handle datasignal [" << WidgetVisitor::dataSignalTypeName( dt) << "]";
 
-		QAbstractButton* button = qobject_cast<QAbstractButton*>( receiver);
-		if (button)
+	foreach (const Receiver& receiver, tv.get_datasignal_receivers( dt))
+	{
+		trigger_reload( receiver.first, receiver.second);
+		foreach (QWidget* fwd, get_forward_receivers( receiver.second))
 		{
-			button->toggle();
-			button->click();
-		}
-		if (receiver->property( "action").isValid())
-		{
-			WidgetMessageDispatcher dp( visitor);
-			WidgetRequest domload = dp.getDomainLoadRequest( m_debug);
-			if (!domload.content.isEmpty())
-			{
-				m_dataLoader->datarequest( domload.tag, domload.content);
-			}
+			trigger_reload( receiver.first, fwd);
 		}
 	}
 }

@@ -67,6 +67,10 @@ public slots:
 	void showContextMenu( const QPoint& pos);
 
 private:
+	void trigger_reload( const QString& signame, QWidget* receiver);
+	QList<QWidget*> get_forward_receivers( QWidget* receiver);
+
+private:
 	WidgetVisitor::StateR m_state;
 	DataLoader* m_dataLoader;
 	bool m_debug;

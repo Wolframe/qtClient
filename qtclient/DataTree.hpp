@@ -44,6 +44,11 @@ class DataTree
 {
 public:
 	enum ElementType {Invalid,Single,Array};
+	static const char* elementTypeName( ElementType i)
+	{
+		static const char* ar[] = {"Invalid","Single","Array"};
+		return ar[i];
+	}
 
 	explicit DataTree( ElementType elemtype_=Invalid)
 		:m_elemtype(elemtype_),m_nofattributes(0){}

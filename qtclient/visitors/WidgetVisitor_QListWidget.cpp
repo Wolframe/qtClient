@@ -37,45 +37,146 @@
 
 WidgetVisitorState_QListWidget::WidgetVisitorState_QListWidget( QWidget* widget_)
 	:WidgetVisitor::State(widget_)
-	,m_listWidget(qobject_cast<QListWidget*>(widget_)){}
+	,m_listWidget(qobject_cast<QListWidget*>(widget_))
+	,m_mode(Init)
+	,m_row(-1)
+{}
 
 void WidgetVisitorState_QListWidget::clear()
 {
 	m_listWidget->clear();
 }
 
-QVariant WidgetVisitorState_QListWidget::property( const QString& name)
+bool WidgetVisitorState_QListWidget::isArrayElement( const QString& name)
 {
-	if (name == "selected")
+	return name == "item";
+}
+
+bool WidgetVisitorState_QListWidget::enter( const QString& name, bool writemode)
+{
+	static const QString item_str( "item");
+	if (m_mode == Init && name == item_str)
 	{
-		QList<QVariant> rt;
-		foreach( QListWidgetItem *item, m_listWidget->selectedItems())
+		if (writemode)
 		{
-			rt.append( QVariant( item->text()));
-		}
-		if (rt.isEmpty())
-		{
-			return m_listWidget->property( "_w_selected");
+			m_listWidget->addItem( new QListWidgetItem( m_listWidget));
+			++m_row;
 		}
 		else
 		{
-			return QVariant( rt);
-	}	}
+			if (m_row+1 < m_listWidget->count())
+			{
+				++m_row;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		m_mode = Element;
+		return true;
+	}
+	return false;
+}
+
+bool WidgetVisitorState_QListWidget::leave( bool /*writemode*/)
+{
+	if (m_mode == Element)
+	{
+		m_mode = Init;
+		return true;
+	}
+	return false;
+}
+
+
+QVariant WidgetVisitorState_QListWidget::property( const QString& name)
+{
+	switch (m_mode)
+	{
+		case Element:
+			if (name.isEmpty())
+			{
+				if (m_row >= m_listWidget->count()) return QVariant();
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				return QVariant( item->text());
+			}
+			else if (name == "id")
+			{
+				if (m_row >= m_listWidget->count()) return false;
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				return item->data( Qt::UserRole);
+			}
+			break;
+
+		case Init:
+			if (name == "id")
+			{
+				QList<QVariant> rt;
+				foreach( QListWidgetItem *item, m_listWidget->findItems("", Qt::MatchStartsWith))
+				{
+					rt.push_back( item->data( Qt::UserRole));
+				}
+				return rt;
+			}
+			else if (name == "text")
+			{
+				QList<QVariant> rt;
+				foreach( QListWidgetItem *item, m_listWidget->findItems("", Qt::MatchStartsWith))
+				{
+					rt.push_back( QVariant( item->text()));
+				}
+				return rt;
+			}
+			else if (name == "selected")
+			{
+				QList<QVariant> rt;
+				foreach( QListWidgetItem *item, m_listWidget->selectedItems())
+				{
+					rt.append( item->data( Qt::UserRole));
+				}
+				if (rt.isEmpty())
+				{
+					return m_listWidget->property( "_w_selected");
+				}
+				else
+				{
+					return QVariant( rt);
+				}
+			}
+			break;
+	}
 	return QVariant();
 }
 
 bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVariant& data)
 {
-	if (name == "value")
+	switch (m_mode)
 	{
-		m_listWidget->addItem( data.toString());
-		return true;
-	}
-	if (name == "selected")
-	{
-		m_listWidget->setProperty( "_w_selected", data);
-		endofDataFeed();
-		return true;
+		case Element:
+			if (name.isEmpty())
+			{
+				if (m_row >= m_listWidget->count()) return false;
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				item->setText( data.toString());
+				return true;
+			}
+			else if (name == "id")
+			{
+				if (m_row >= m_listWidget->count()) return false;
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				item->setData( Qt::UserRole, data);
+				return true;
+			}
+			break;
+		case Init:
+			if (name == "selected")
+			{
+				m_listWidget->setProperty( "_w_selected", data);
+				endofDataFeed();
+				return true;
+			}
+			break;
 	}
 	return false;
 }

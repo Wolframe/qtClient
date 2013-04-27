@@ -68,6 +68,31 @@ QVariant WidgetVisitorState_QPushButton::getState() const
 	return QVariant( state);
 }
 
+void WidgetVisitorState_QPushButton::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)
+{
+	switch (dt)
+	{
+		case WidgetVisitor::SigChanged:
+			QObject::connect( m_pushButton, SIGNAL( released()), &listener, SLOT( changed()), Qt::UniqueConnection);
+			QObject::connect( m_pushButton, SIGNAL( toggled( bool)), &listener, SLOT( changed()), Qt::UniqueConnection);
+			QObject::connect( m_pushButton, SIGNAL( clicked( bool)), &listener, SLOT( changed()), Qt::UniqueConnection);
+			break;
+		case WidgetVisitor::SigActivated:
+			break;
+		case WidgetVisitor::SigEntered:
+			QObject::connect( m_pushButton, SIGNAL( toggled( bool)), &listener, SLOT( entered()), Qt::UniqueConnection);
+			break;
+		case WidgetVisitor::SigPressed:
+			QObject::connect( m_pushButton, SIGNAL( pressed()), &listener, SLOT( pressed()), Qt::UniqueConnection);
+			break;
+		case WidgetVisitor::SigClicked:
+			QObject::connect( m_pushButton, SIGNAL( clicked( bool)), &listener, SLOT( clicked()), Qt::UniqueConnection);
+			break;
+		case WidgetVisitor::SigDoubleClicked:
+			break;
+	}
+}
+
 void WidgetVisitorState_QPushButton::connectWidgetEnabler( WidgetEnabler& enabler)
 {
 	QObject::connect( m_pushButton, SIGNAL( clicked( bool)), &enabler, SLOT( changed()), Qt::UniqueConnection);

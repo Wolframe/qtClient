@@ -47,6 +47,7 @@ public:
 	virtual bool setProperty( const QString& name, const QVariant& data);
 	virtual void setState( const QVariant& state);
 	virtual QVariant getState() const;
+	virtual void connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:

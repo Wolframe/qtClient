@@ -23,6 +23,17 @@
 
 typedef WidgetVisitor::StateR (*StateConstructor)( QWidget* widget);
 
+class WidgetVisitorState_default
+	:public WidgetVisitor::State
+{
+public:
+	WidgetVisitorState_default( QWidget* widget_)
+		:WidgetVisitor::State(widget_){}
+
+	virtual QVariant property( const QString& /*name*/)				{return QVariant();}
+	virtual bool setProperty( const QString& /*name*/, const QVariant& /*data*/)	{return false;}
+};
+
 struct WidgetVisitorTypeMap :QHash<QString,StateConstructor>
 {
 	template <class VisitorStateClass>
@@ -68,7 +79,7 @@ WidgetVisitor::StateR createWidgetVisitorState( QWidget* widget)
 	QHash<QString,StateConstructor>::const_iterator wi = widgetVisitorTypeMap.find( widget->metaObject()->className());
 	if (wi == widgetVisitorTypeMap.end())
 	{
-		return WidgetVisitor::StateR( new WidgetVisitor::State( widget));
+		return WidgetVisitor::StateR( new WidgetVisitorState_default( widget));
 	}
 	else
 	{

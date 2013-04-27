@@ -222,9 +222,9 @@ class WidgetVisitor
 			///\brief Leave the current substructure context an switch to ist (enter) ancessor
 			virtual bool leave( bool /*writemode*/)					{return false;}
 			///\brief Get a property or set of properties of the current substructure context addressed by name
-			virtual QVariant property( const QString&)				{return QVariant();}
+			virtual QVariant property( const QString&)=0;
 			///\brief Set a property of the current substructure context addressed by name
-			virtual bool setProperty( const QString&, const QVariant&)		{return false;}
+			virtual bool setProperty( const QString&, const QVariant&)=0;
 			///\brief Restore the widget state from a variable
 			virtual void setState( const QVariant& /*state*/){}
 			///\brief Get the current the widget state
@@ -277,7 +277,8 @@ class WidgetVisitor
 
 		///\brief Constructor
 		///\param[in] root Root of widget tree visited
-		explicit WidgetVisitor( QWidget* root);
+		///\param[in] use_synonyms Wheter to use synonyms in evaluation or not
+		explicit WidgetVisitor( QWidget* root, bool useSynonyms_=true);
 
 		///\brief Copy constructor
 		///\param[in] o object to copy
@@ -370,7 +371,9 @@ class WidgetVisitor
 		void clear();
 
 		///\brief Get all receivers of a datasignal (type)
-		QList<QWidget*> get_datasignal_receivers( DataSignalType type);
+		QList<QPair<QString,QWidget*> > get_datasignal_receivers( DataSignalType type);
+		///\brief Get all datasignal receivers specified by id or dataslot definition
+		QList<QPair<QString,QWidget*> > get_datasignal_receivers( const QString& receiverid);
 
 		///\brief Execute dynamic properties declared as 'assign:var' := 'value' as assingments "var = <value>"
 		void readAssignments();
@@ -394,6 +397,8 @@ class WidgetVisitor
 
 		///\brief Create listener object for the widget and wire all data signals
 		WidgetListener* createListener( DataLoader* dataLoader);
+
+		bool useSynonyms( bool enable);
 
 	private:
 		///\brief Internal property get using 'level' to check property resolving step (B).
@@ -423,6 +428,7 @@ class WidgetVisitor
 
 	private:
 		QStack<StateR> m_stk;				//< stack of visited widget nodes (first) with their select state (second). The current node is the top element
+		bool m_useSynonyms;				//< wheter to use synonyms in evaluation or not
 };
 
 #endif

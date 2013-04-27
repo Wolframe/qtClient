@@ -151,22 +151,22 @@ WidgetVisitor::State::State( QWidget* widget_)
 			if (prop.startsWith( "synonym:"))
 			{
 				QVariant synonym = m_widget->property( prop);
-				m_synonyms.insert( prop.mid( 8, prop.size()-8), synonym.toString());
+				m_synonyms.insert( prop.mid( 8, prop.size()-8), synonym.toString().trimmed());
 			}
 			else if (prop.startsWith( "link:"))
 			{
 				QVariant link = m_widget->property( prop);
-				m_links.push_back( LinkDef( prop.mid( 5, prop.size()-5), link.toString()));
+				m_links.push_back( LinkDef( prop.mid( 5, prop.size()-5), link.toString().trimmed()));
 			}
 			else if (prop.startsWith( "assign:"))
 			{
 				QVariant value = m_widget->property( prop);
-				m_assignments.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString()));
+				m_assignments.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString().trimmed()));
 			}
 			else if (prop.startsWith( "global:"))
 			{
 				QVariant value = m_widget->property( prop);
-				m_globals.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString()));
+				m_globals.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString().trimmed()));
 			}
 			else if (prop.startsWith( "datasignal:"))
 			{
@@ -177,13 +177,17 @@ WidgetVisitor::State::State( QWidget* widget_)
 					values.push_back( vv.trimmed());
 				}
 				DataSignalType dt;
-				if (WidgetVisitor::getDataSignalType( signalname, dt))
+				if (strcmp( signalname, "signaled") != 0)
 				{
-					m_datasignals.id[ (int)dt] = values;
-				}
-				else
-				{
-					qCritical() << "error widget visitor state" << widget_->metaObject()->className() << widget_->objectName() << ": defined unknown data signal name" << prop;
+					// ... forward is handled differently
+					if (WidgetVisitor::getDataSignalType( signalname, dt))
+					{
+						m_datasignals.id[ (int)dt] = values;
+					}
+					else
+					{
+						qCritical() << "error widget visitor state" << widget_->metaObject()->className() << widget_->objectName() << ": defined unknown data signal name" << prop;
+					}
 				}
 			}
 		}
@@ -272,7 +276,8 @@ QString WidgetVisitor::State::getLink( const QString& name) const
 	return QString();
 }
 
-WidgetVisitor::WidgetVisitor( QWidget* root)
+WidgetVisitor::WidgetVisitor( QWidget* root, bool useSynonyms_)
+	:m_useSynonyms(useSynonyms_)
 {
 	m_stk.push( createWidgetVisitorState( root));
 }
@@ -285,6 +290,13 @@ WidgetVisitor::WidgetVisitor( const WidgetVisitor::StateR& state)
 WidgetVisitor::WidgetVisitor( const QStack<StateR>& stk_)
 	:m_stk(stk_)
 {}
+
+bool WidgetVisitor::useSynonyms( bool enable)
+{
+	bool rt = m_useSynonyms;
+	m_useSynonyms = enable;
+	return rt;
+}
 
 bool WidgetVisitor::enter( const QString& name, bool writemode)
 {
@@ -327,12 +339,15 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 	TRACE_STATUS( "try enter", className(), objectName(), name)
 	if (m_stk.empty()) return false;
 
-	// [A] check if name is a synonym and follow it if yes:
-	QVariant synonym = m_stk.top()->getSynonym( name);
-	if (synonym.isValid())
+	if (m_useSynonyms)
 	{
-		TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-		return enter( synonym.toString(), writemode, level);
+		// [A] check if name is a synonym and follow it if yes:
+		QVariant synonym = m_stk.top()->getSynonym( name);
+		if (synonym.isValid())
+		{
+			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
+			return enter( synonym.toString(), writemode, level);
+		}
 	}
 	// [A.1] check if name is a multipart reference and follow it if yes:
 	int followidx = name.indexOf( '.');
@@ -383,14 +398,14 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 		QString lnk = m_stk.top()->getLink( name);
 		if (!lnk.isEmpty())
 		{
-			QWidget* lnkwdg = resolveLink( lnk);
+			QWidget* lnkwdg = resolveLink( resolve( lnk).toString());
 			if (!lnkwdg)
 			{
 				ERROR( "failed to resolve symbolic link to widget");
 				return false;
 			}
 			m_stk.push_back( createWidgetVisitorState( lnkwdg));
-			TRACE_ENTER( "link", className(), objectName(), name);
+			TRACE_ENTER( "link", className(), objectName(), resolve(lnk));
 			return true;
 		}
 
@@ -480,7 +495,7 @@ static QVariant expand_variable_references( WidgetVisitor& visitor, const QStrin
 	{
 		return visitor.property( value.mid( substidx+1, endidx-substidx-1));
 	}
-	while (substidx > 0)
+	while (substidx >= 0)
 	{
 		if (endidx < substidx)
 		{
@@ -654,13 +669,15 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 {
 	if (m_stk.empty()) return 0;
 	// [A] check if a synonym is referenced and redirect to evaluate synonym value instead if yes
-	QVariant synonym = m_stk.top()->getSynonym( name);
-	if (synonym.isValid())
+	if (m_useSynonyms)
 	{
-		TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-		return getPropertyOwnerWidget( synonym.toString(), level);
+		QVariant synonym = m_stk.top()->getSynonym( name);
+		if (synonym.isValid())
+		{
+			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
+			return getPropertyOwnerWidget( synonym.toString(), level);
+		}
 	}
-
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
 	bool subelem = false;
 	QString prefix;
@@ -716,15 +733,19 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 
 QVariant WidgetVisitor::property( const QString& name, int level)
 {
-	if (m_stk.empty()) return QVariant()/*invalid*/;
-	// [A] check if a synonym is referenced and redirect to evaluate synonym value instead if yes
-	QVariant synonym = m_stk.top()->getSynonym( name);
-	if (synonym.isValid())
-	{
-		TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-		return property( synonym.toString(), level);
-	}
+	TRACE_STATUS( "try get property", className(), objectName(), name)
 
+	if (m_stk.empty()) return QVariant()/*invalid*/;
+	if (m_useSynonyms)
+	{
+		// [A] check if a synonym is referenced and redirect to evaluate synonym value instead if yes
+		QVariant synonym = m_stk.top()->getSynonym( name);
+		if (synonym.isValid())
+		{
+			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
+			return property( synonym.toString(), level);
+		}
+	}
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
 	bool subelem = false;
 	QString prefix;
@@ -834,14 +855,16 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 {
 	if (m_stk.empty()) return false;
 
-	// [A] check if a synonym is referenced and redirect set the synonym value instead if yes
-	QVariant synonym = m_stk.top()->getSynonym( name);
-	if (synonym.isValid())
+	if (m_useSynonyms)
 	{
-		TRACE_STATUS( "found synonym", synonym, name, value)
-		return setProperty( synonym.toString(), value, level);
+		// [A] check if a synonym is referenced and redirect set the synonym value instead if yes
+		QVariant synonym = m_stk.top()->getSynonym( name);
+		if (synonym.isValid())
+		{
+			TRACE_STATUS( "found synonym", synonym, name, value)
+			return setProperty( synonym.toString(), value, level);
+		}
 	}
-
 	// [C] check if an multipart property is referenced and try to step into the substructures to set the property (must a single value and must not have any repeating elements) if yes
 	bool subelem = false;
 	QString prefix;
@@ -1078,44 +1101,55 @@ static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& con
 	return false;
 }
 
-QList<QWidget*> WidgetVisitor::get_datasignal_receivers( DataSignalType type)
+typedef QPair<QString,QWidget*> SignalReceiver;
+
+QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const QString& receiverid)
 {
-	QList<QWidget*> rt;
+	QList<QPair<QString,QWidget*> > rt;
+	TRACE_STATUS( "find datasignal receiver", className(), objectName(), receiverid);
+	QWidget* rcvwidget;
+	QList<QWidget*> wl;
+
+	if (is_widgetid( receiverid))
+	{
+		WidgetVisitor mainvisitor( uirootwidget());
+		wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, receiverid));
+		foreach (QWidget* rcvwidget, wl)
+		{
+			TRACE_STATUS( "found widget by address", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+			rt.push_back( SignalReceiver( "datasignal", rcvwidget));
+		}
+	}
+	else if ((rcvwidget = get_widget_reference( receiverid)) != 0)
+	{
+		TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+		rt.push_back( SignalReceiver( "datasignal", rcvwidget));
+	}
+	else
+	{
+		WidgetVisitor mainvisitor( uirootwidget());
+		QWidget* thiswidget = widget();
+		foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, receiverid))
+		{
+			if (rcvwidget != thiswidget)
+			{
+				TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+				rt.push_back( SignalReceiver( receiverid, rcvwidget));
+			}
+		}
+	}
+	return rt;
+}
+
+QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( DataSignalType type)
+{
+	QList<QPair<QString,QWidget*> > rt;
 	if (m_stk.isEmpty()) return rt;
 
 	foreach (const QString& receiverprop, m_stk.top()->m_datasignals.id[(int)type])
 	{
-		TRACE_STATUS( "find datasignal receiver", className(), objectName(), receiverprop);
 		QVariant receiverid = resolve( receiverprop);
-		QString receiveridstr = receiverid.toString();
-		QWidget* rcvwidget;
-		QList<QWidget*> wl;
-
-		if (is_widgetid( receiveridstr))
-		{
-			WidgetVisitor mainvisitor( uirootwidget());
-			wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, receiverid));
-			foreach (QWidget* rcvwidget, wl) TRACE_STATUS( "found widget by address", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-			rt.append( wl);
-		}
-		else if ((rcvwidget = get_widget_reference( receiveridstr)) != 0)
-		{
-			TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-			rt.append( rcvwidget);
-		}
-		else
-		{
-			WidgetVisitor mainvisitor( uirootwidget());
-			QWidget* thiswidget = widget();
-			foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, receiverid))
-			{
-				if (rcvwidget != thiswidget)
-				{
-					TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-					rt.push_back( rcvwidget);
-				}
-			}
-		}
+		rt.append( get_datasignal_receivers( receiverid.toString()));
 	}
 	return rt;
 }

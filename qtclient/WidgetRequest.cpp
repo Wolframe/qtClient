@@ -157,8 +157,11 @@ static QByteArray getRequestXML( const QString& docType, const QString& rootElem
 
 static QByteArray getWidgetRequest_( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode)
 {
+	bool useSynonymsValue = visitor.useSynonyms( false);
+
 	QWidget* widget = visitor.widget();
 	QString actionstr( actiondef.toString());
+
 	ActionDefinition action( actionstr);
 	qDebug() << "checking action condition properties" << action.condProperties();
 	foreach (const QString& cond, action.condProperties())
@@ -167,6 +170,7 @@ static QByteArray getWidgetRequest_( WidgetVisitor& visitor, const QVariant& act
 		{
 			// one of the preconditions is not met, return empty (no) request
 			qDebug() << "suppressing action" << actionstr << "because condition" << cond << "is not met (condition not valid)";
+			visitor.useSynonyms( useSynonymsValue);
 			return QByteArray();
 		}
 	}
@@ -176,6 +180,7 @@ static QByteArray getWidgetRequest_( WidgetVisitor& visitor, const QVariant& act
 	if (!action.isValid())
 	{
 		qCritical() << "invalid request for action doctype=" << docType << "root=" << rootElement;
+		visitor.useSynonyms( useSynonymsValue);
 		return QByteArray();
 	}
 	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), widget);
@@ -262,6 +267,15 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode)
 	rt.tag = WidgetRequest::domainLoadWidgetRequestTag( visitor.widgetid());
 	rt.content = getWidgetRequest_( visitor, action_v, debugmode);
 	qDebug() << "widget request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
+	return rt;
+}
+
+WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode)
+{
+	WidgetRequest rt;
+	rt.tag = WidgetRequest::domainLoadWidgetRequestTag( visitor.widgetid());
+	rt.content = getWidgetRequest_( visitor, actiondef, debugmode);
+	qDebug() << "widget request [" << actiondef << "] of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
 	return rt;
 }
 

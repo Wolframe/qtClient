@@ -42,6 +42,9 @@ class WidgetVisitorState_QListWidget
 public:
 	WidgetVisitorState_QListWidget( QWidget* widget_);
 
+	virtual bool enter( const QString& name, bool writemode);
+	virtual bool leave( bool writemode);
+	virtual bool isArrayElement( const QString& name);
 	virtual void clear();
 	virtual QVariant property( const QString& name);
 	virtual bool setProperty( const QString& name, const QVariant& data);
@@ -53,6 +56,14 @@ public:
 
 private:
 	QListWidget* m_listWidget;
+	enum Mode {Init,Element};
+	static const char* modeName( Mode i)
+	{
+		static const char* ar[] = {"Init","Element"};
+		return ar[(int)i];
+	}
+	Mode m_mode;
+	int m_row;
 };
 
 #endif

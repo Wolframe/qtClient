@@ -57,9 +57,10 @@ struct WidgetRequest
 		:tag(o.tag),content(o.content){}
 };
 
-WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode=false);
-WidgetRequest getActionRequest( WidgetVisitor& visitor, bool debugmode=false);
-WidgetRequest getMenuActionRequest( WidgetVisitor& visitor, const QString& menuitem, bool debugmode=false);
+WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode);
+WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode);
+WidgetRequest getActionRequest( WidgetVisitor& visitor, bool debugmode);
+WidgetRequest getMenuActionRequest( WidgetVisitor& visitor, const QString& menuitem, bool debugmode);
 bool isActionRequest( const QString& tag);
 bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer);
 

@@ -601,10 +601,6 @@ void MainWindow::endModal( )
 
 	m_modalDialog->close( );
 	m_modalDialog->deleteLater( );
-
-	// hacky: should go without, especially because we loose data already
-	// entered in the parent dialog this way..
-	m_formWidget->reload( );
 }
 
 void MainWindow::endFormWidget( )

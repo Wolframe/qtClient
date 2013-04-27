@@ -618,7 +618,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		}
 	}
 
-// load localication of the form now
+// load localization of the form now
 	qDebug( ) << "Initiating form locatization load for " << m_form << " and locale "
 		<< m_locale.name( );
 	m_formLoader->initiateFormLocalizationLoad( m_form, m_locale );
@@ -670,7 +670,6 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 					li.value().push_back( WidgetListenerR( listener));
 				}
 			}
-
 		}
 		else
 		{
