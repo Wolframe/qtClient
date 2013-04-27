@@ -49,6 +49,8 @@
 #include <QCloseEvent>
 #include <QTranslator>
 
+#include "FormPluginInterface.hpp"
+
 class FormWidget : public QWidget
 {
 	Q_OBJECT
@@ -104,6 +106,8 @@ class FormWidget : public QWidget
 
 		QVariant getWidgetStates() const;
 		void setWidgetStates( const QVariant& state);
+
+		FormPluginInterface *formPlugin( QString name ) const;
 
 	signals:
 		void formLoaded( QString name );

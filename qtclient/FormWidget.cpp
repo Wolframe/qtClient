@@ -46,7 +46,6 @@
 
 #include <QPluginLoader>
 #include <QApplication>
-#include "FormPluginInterface.hpp"
 
 FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir )
 	: QWidget( _parent ), m_form( ),
@@ -460,6 +459,26 @@ void FormWidget::setWidgetStates( const QVariant& state)
 	}
 }
 
+FormPluginInterface *FormWidget::formPlugin( QString name ) const
+{
+	QDir pluginDir( m_formDir );
+	foreach( QString filename, pluginDir.entryList( QDir::Files ) ) {
+		if( !QLibrary::isLibrary( filename ) ) continue;
+		QPluginLoader loader( pluginDir.absoluteFilePath( filename ) );
+		QObject *object = loader.instance( );
+		if( object ) {
+			if( qobject_cast<FormPluginInterface *>( object ) ) {
+				FormPluginInterface *plugin = qobject_cast<FormPluginInterface *>( object );
+				if( plugin->name( ) == name ) {
+					return plugin;
+				}
+			}
+		}
+	}
+	
+	return 0;
+}
+
 void FormWidget::formLoaded( QString name, QByteArray formXml )
 {
 // that's not us
@@ -471,22 +490,9 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	QWidget *oldUi = m_ui;
 	if( formXml.size( ) == 0 ) {
 // byte array 0 indicates no UI description, so we call the plugin
-		QDir pluginDir( m_formDir );
-		foreach( QString filename, pluginDir.entryList( QDir::Files ) ) {
-			if( !QLibrary::isLibrary( filename ) ) continue;
-			QPluginLoader loader( pluginDir.absoluteFilePath( filename ) );
-			QObject *object = loader.instance( );
-			if( object ) {
-				if( qobject_cast<FormPluginInterface *>( object ) ) {
-					FormPluginInterface *plugin = qobject_cast<FormPluginInterface *>( object );
-					QString name = plugin->name( );
-					if( name == FormCall::name( name ) ) {
-						qDebug( ) << "PLUGIN: Initializing form plugin" << name;
-						m_ui = plugin->initialize( this );
-					}
-				}
-			}
-		}
+		FormPluginInterface *plugin = formPlugin( FormCall::name( name ) );
+		qDebug( ) << "PLUGIN: Initializing form plugin" << name;
+		m_ui = plugin->initialize( this );
 	} else {			
 // read the form and construct it from the UI file
 		QBuffer buf( &formXml );
