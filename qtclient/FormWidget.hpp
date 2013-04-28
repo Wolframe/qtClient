@@ -50,13 +50,14 @@
 #include <QTranslator>
 
 #include "FormPluginInterface.hpp"
+#include "WolframeClient.hpp"
 
 class FormWidget : public QWidget
 {
 	Q_OBJECT
 
 	public:		
-		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir );
+		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient );
 		virtual ~FormWidget( );
 
 		void loadForm( QString name, bool modal = false );
@@ -91,6 +92,7 @@ class FormWidget : public QWidget
 		bool m_debug;
 		bool m_modal;
 		QString m_formDir;
+		WolframeClient *m_wolframeClient;
 
 	private:
 		void initialize( );

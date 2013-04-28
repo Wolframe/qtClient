@@ -47,12 +47,13 @@
 #include <QPluginLoader>
 #include <QApplication>
 
-FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir )
+FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient )
 	: QWidget( _parent ), m_form( ),
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
 	  m_dataLoader( _dataLoader ), m_globals(_globals ), m_ui( 0 ),
 	  m_locale( DEFAULT_LOCALE ), m_layout( 0 ), m_forms( ),
-	  m_debug( _debug ), m_modal( false ), m_formDir( _formDir )
+	  m_debug( _debug ), m_modal( false ), m_formDir( _formDir ),
+	  m_wolframeClient( _wolframeClient )
 {
 	initialize();
 }
@@ -492,8 +493,14 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 // byte array 0 indicates no UI description, so we call the plugin
 		FormPluginInterface *plugin = formPlugin( FormCall::name( name ) );
 		qDebug( ) << "PLUGIN: Initializing form plugin" << name;
-		m_ui = plugin->initialize( this );
-	} else {			
+		m_ui = plugin->initialize( m_wolframeClient, this );
+		if( m_ui == 0 ) {
+			m_ui = oldUi;
+			m_form = m_previousForm;
+			emit error( tr( "Unable to load form '%1', does it exist?" ).arg( FormCall::name( name ) ) );
+			return;
+		}
+	} else {		
 // read the form and construct it from the UI file
 		QBuffer buf( &formXml );
 		m_ui = m_uiLoader->load( &buf, this );
@@ -654,6 +661,8 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 {
+	qDebug( ) << "Answer for form" << m_form << "and tag" << tag_;
+	
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);
 	WidgetRequest rq( tag_, "");
