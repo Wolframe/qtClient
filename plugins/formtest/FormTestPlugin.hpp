@@ -49,6 +49,7 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 	
 	public:		
 		virtual const QString name( );
+		virtual const QString windowTitle( );
 		virtual QWidget *initialize( WolframeClient *m_wolframeClient, QWidget *_parent );
 	
 	private:

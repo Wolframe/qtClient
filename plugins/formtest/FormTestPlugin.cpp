@@ -43,6 +43,11 @@ const QString FormTestPlugin::name( )
 	return "test";
 }
 
+const QString windowTitle( )
+{
+	return "Test Form";
+}
+
 QWidget *FormTestPlugin::initialize( WolframeClient *_wolframeClient, QWidget *_parent )
 {
 	qDebug( ) << "PLUGIN: initializing plugin" << name( );

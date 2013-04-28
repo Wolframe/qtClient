@@ -481,7 +481,7 @@ FormPluginInterface *FormWidget::formPlugin( QString name ) const
 }
 
 void FormWidget::formLoaded( QString name, QByteArray formXml )
-{
+{	
 // that's not us
 	if( name != m_form ) return;
 
@@ -492,20 +492,44 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	if( formXml.size( ) == 0 ) {
 // byte array 0 indicates no UI description, so we call the plugin
 		FormPluginInterface *plugin = formPlugin( FormCall::name( name ) );
+		if( !plugin ) {
+			if( !oldUi ) oldUi = new QLabel( "error", this );
+			m_ui = oldUi;
+			m_form = m_previousForm;
+			emit error( tr( "Unable to load form plugin '%1', does the plugin exist?" ).arg( FormCall::name( name ) ) );
+			return;
+		}
 		qDebug( ) << "PLUGIN: Initializing form plugin" << name;
 		m_ui = plugin->initialize( m_wolframeClient, this );
 		if( m_ui == 0 ) {
+			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
-			emit error( tr( "Unable to load form '%1', does it exist?" ).arg( FormCall::name( name ) ) );
+			emit error( tr( "Unable to initialize form plugin '%1', something went wrong in plugin initialization!" ).arg( FormCall::name( name ) ) );
 			return;
 		}
+// add new form to layout (which covers the whole widget)
+		m_layout->addWidget( m_ui );
+
+		qDebug( ) << "set window title" << plugin->windowTitle( );
+		setWindowTitle( plugin->windowTitle( ) );
+
+		if ( oldUi ) {
+			m_ui->move( oldUi->pos( ) );
+			oldUi->hide( );
+			oldUi->deleteLater( );
+			oldUi->setParent( 0 );
+		}
+		m_ui->show( );
+		
+		return;
 	} else {		
 // read the form and construct it from the UI file
 		QBuffer buf( &formXml );
 		m_ui = m_uiLoader->load( &buf, this );
 		if( m_ui == 0 ) {
 // something went wrong loading or constructing the form
+			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
 			emit error( tr( "Unable to load form '%1', does it exist?" ).arg( name ) );
