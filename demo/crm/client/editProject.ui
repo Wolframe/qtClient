@@ -90,7 +90,7 @@
         <string notr="true">project</string>
        </property>
        <property name="action" stdset="0">
-        <string notr="true">UpdateProject project {id={project.id},customerid={project.customerid},name{{project.name}},description{{project.description}}}</string>
+        <string notr="true">UpdateProject project {id={project.id},customerid={project.customer.selected},name{{project.name}},description{{project.description}}}</string>
        </property>
        <property name="form" stdset="0">
         <string notr="true">_CLOSE_</string>

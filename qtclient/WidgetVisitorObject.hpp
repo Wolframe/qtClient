@@ -40,20 +40,28 @@
 #include <QHash>
 #include <QVariant>
 
-///\class WidgetListener
-///\brief Forward declaration
-class WidgetListener;
 ///\class WidgetEnabler
-///\brief Forward declaration
-class WidgetEnabler;
-///\class DataLoader
-///\brief Forward declaration
-class DataLoader;
-
-///\class State
-///\brief Accessor for a widget (implemented for every widget type supported)
-struct WidgetVisitorObject
+///\brief Structure to enable widgets based on a set of properties
+class WidgetEnabler :public QObject
 {
+	Q_OBJECT
+
+public:
+	///\brief Constructor
+	virtual ~WidgetEnabler(){}
+	virtual void handle_changed()=0;
+
+public slots:
+	void changed()	{handle_changed();}
+};
+
+
+///\class WidgetListener
+///\brief Structure to redirect Qt widget signals to widget visitor events
+class WidgetListener :public QObject
+{
+	Q_OBJECT
+public:
 	///\enum DataSignalType
 	///\brief Data signal type
 	enum DataSignalType
@@ -65,6 +73,7 @@ struct WidgetVisitorObject
 		SigClicked,
 		SigDoubleClicked
 	};
+
 	enum {NofDataSignalTypes=(int)SigDoubleClicked+1};
 	static const char* dataSignalTypeName( DataSignalType ii)
 	{
@@ -74,6 +83,28 @@ struct WidgetVisitorObject
 	}
 	static bool getDataSignalType( const char* name, DataSignalType& dt);
 
+public:
+	///\brief Constructor
+	virtual ~WidgetListener(){};
+
+	virtual void handleDataSignal( DataSignalType dt)=0;
+	virtual void handleShowContextMenu( const QPoint& pos)=0;
+
+public slots:
+	void changed()					{handleDataSignal( SigChanged);}
+	void activated()				{handleDataSignal( SigActivated);}
+	void entered()					{handleDataSignal( SigEntered);}
+	void pressed()					{handleDataSignal( SigPressed);}
+	void clicked()					{handleDataSignal( SigClicked);}
+	void doubleclicked()				{handleDataSignal( SigDoubleClicked);}
+	void showContextMenu( const QPoint& pos)	{handleShowContextMenu( pos);}
+};
+
+
+///\class State
+///\brief Accessor for a widget (implemented for every widget type supported)
+struct WidgetVisitorObject
+{
 	///\brief Constructor
 	explicit WidgetVisitorObject( QWidget* widget_);
 
@@ -103,10 +134,8 @@ public://Interface methods implemented for different widget types:
 	///\brief Check if a an element can appear more than once
 	virtual bool isArrayElement( const QString&/*name*/)			{return false;}
 
-	///\brief Create listener object for the widget
-	virtual WidgetListener* createListener( DataLoader* dataLoader);
 	///\brief Connect all widget signals that should trigger an event on a signal of type 'type'
-	virtual void connectDataSignals( DataSignalType dt, WidgetListener& listener);
+	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	///\brief Connect widget signals that should trigger an event for enabling or disabling a data referencing widget
 	virtual void connectWidgetEnabler( WidgetEnabler& /*enabler*/){}
 
@@ -120,7 +149,7 @@ public://Common methods:
 private:
 	struct DataSignals
 	{
-		QList<QString> id[(int)NofDataSignalTypes];
+		QList<QString> id[(int)WidgetListener::NofDataSignalTypes];
 	};
 	friend class WidgetVisitorStackElement;
 	friend class WidgetVisitor;

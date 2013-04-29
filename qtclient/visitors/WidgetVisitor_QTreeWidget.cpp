@@ -419,19 +419,19 @@ void WidgetVisitorState_QTreeWidget::endofDataFeed()
 	}
 }
 
-void WidgetVisitorState_QTreeWidget::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QTreeWidget::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitorObject::SigChanged:
+		case WidgetListener::SigChanged:
 			QObject::connect( m_treeWidget, SIGNAL( currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_treeWidget, SIGNAL( itemChanged(QTreeWidgetItem*,int)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitorObject::SigActivated: QObject::connect( m_treeWidget, SIGNAL( itemActivated( QTreeWidgetItem*,int)), &listener, SLOT( activated()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigEntered: QObject::connect( m_treeWidget, SIGNAL( itemEntered( QTreeWidgetItem*,int)), &listener, SLOT( entered()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigPressed: QObject::connect( m_treeWidget, SIGNAL( itemPressed( QTreeWidgetItem*,int)), &listener, SLOT( pressed()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigClicked: QObject::connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigDoubleClicked: QObject::connect( m_treeWidget, SIGNAL( itemDoubleClicked( QTreeWidgetItem*,int)), &listener, SLOT( doubleclicked()), Qt::UniqueConnection); break;
+		case WidgetListener::SigActivated: QObject::connect( m_treeWidget, SIGNAL( itemActivated( QTreeWidgetItem*,int)), &listener, SLOT( activated()), Qt::UniqueConnection); break;
+		case WidgetListener::SigEntered: QObject::connect( m_treeWidget, SIGNAL( itemEntered( QTreeWidgetItem*,int)), &listener, SLOT( entered()), Qt::UniqueConnection); break;
+		case WidgetListener::SigPressed: QObject::connect( m_treeWidget, SIGNAL( itemPressed( QTreeWidgetItem*,int)), &listener, SLOT( pressed()), Qt::UniqueConnection); break;
+		case WidgetListener::SigClicked: QObject::connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
+		case WidgetListener::SigDoubleClicked: QObject::connect( m_treeWidget, SIGNAL( itemDoubleClicked( QTreeWidgetItem*,int)), &listener, SLOT( doubleclicked()), Qt::UniqueConnection); break;
 	}
 }
 

@@ -51,7 +51,7 @@ public:
 	virtual void setState( const QVariant& state);
 	virtual QVariant getState() const;
 	virtual void endofDataFeed();
-	virtual void connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener);
+	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:

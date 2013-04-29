@@ -36,13 +36,13 @@
 #include "WidgetVisitorStateConstructor.hpp"
 #include <QDebug>
 
-WidgetEnabler::WidgetEnabler( QWidget* widget_, const QList<QString>& properties_)
-	:QObject()
+WidgetEnablerImpl::WidgetEnablerImpl( QWidget* widget_, const QList<QString>& properties_)
+	:WidgetEnabler()
 	,m_state(createWidgetVisitorObject(widget_))
 	,m_properties(properties_)
 {}
 
-void WidgetEnabler::changed()
+void WidgetEnablerImpl::handle_changed()
 {
 	QWidget* widget = m_state->widget();
 	if (!widget)

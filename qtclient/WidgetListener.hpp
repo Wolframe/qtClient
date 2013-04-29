@@ -39,32 +39,22 @@
 #include <QWidget>
 #include <QSharedPointer>
 
-///\class WidgetListener
-///\brief Structure to redirect Qt widget signals to widget visitor events
-class WidgetListener :public QObject
+///\class WidgetListenerImpl
+///\brief Implementation of WidgetListener
+class WidgetListenerImpl :public WidgetListener
 {
-	Q_OBJECT
 public:
 	///\brief Function to check, if data signal lister has to be created for a widget
 	static bool hasDataSignals( const QWidget* widget_);
 
 public:
 	///\brief Constructor
-	WidgetListener( QWidget* widget_, DataLoader* dataLoader_);
-	virtual ~WidgetListener();
+	WidgetListenerImpl( QWidget* widget_, DataLoader* dataLoader_);
+	virtual ~WidgetListenerImpl();
 
-	void handleDataSignal( WidgetVisitorObject::DataSignalType dt);
+	virtual void handleDataSignal( DataSignalType dt);
+	virtual void handleShowContextMenu( const QPoint& pos);
 	void setDebug( bool v);
-
-public slots:
-	void changed()			{handleDataSignal( WidgetVisitorObject::SigChanged);}
-	void activated()		{handleDataSignal( WidgetVisitorObject::SigActivated);}
-	void entered()			{handleDataSignal( WidgetVisitorObject::SigEntered);}
-	void pressed()			{handleDataSignal( WidgetVisitorObject::SigPressed);}
-	void clicked()			{handleDataSignal( WidgetVisitorObject::SigClicked);}
-	void doubleclicked()		{handleDataSignal( WidgetVisitorObject::SigDoubleClicked);}
-
-	void showContextMenu( const QPoint& pos);
 
 private:
 	void trigger_reload( const QString& signame, QWidget* receiver);
@@ -77,7 +67,7 @@ private:
 	bool m_hasContextMenu;
 };
 
-typedef QSharedPointer<WidgetListener> WidgetListenerR;
+typedef QSharedPointer<WidgetListenerImpl> WidgetListenerR;
 
 #endif
 

@@ -84,6 +84,9 @@
      <property name="action" stdset="0">
       <string>ListProject project {} </string>
      </property>
+     <property name="dataslot" stdset="0">
+      <string>listProject</string>
+     </property>
      <column>
       <property name="text">
        <string>name</string>

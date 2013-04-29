@@ -164,12 +164,12 @@ by a declared assignment and a refresh issued onclose or onchange by the subwidg
 
 **/
 
-///\class WidgetListener
+///\class WidgetListenerImpl
 ///\brief Forward declaration
-class WidgetListener;
-///\class WidgetEnabler
+class WidgetListenerImpl;
+///\class WidgetEnablerImpl
 ///\brief Forward declaration
-class WidgetEnabler;
+class WidgetEnablerImpl;
 ///\class DataLoader
 ///\brief Forward declaration
 class DataLoader;
@@ -281,7 +281,7 @@ class WidgetVisitor
 		void clear();
 
 		///\brief Get all receivers of a datasignal (type)
-		QList<QPair<QString,QWidget*> > get_datasignal_receivers( WidgetVisitorObject::DataSignalType type);
+		QList<QPair<QString,QWidget*> > get_datasignal_receivers( WidgetListener::DataSignalType type);
 		///\brief Get all datasignal receivers specified by id or dataslot definition
 		QList<QPair<QString,QWidget*> > get_datasignal_receivers( const QString& receiverid);
 
@@ -306,7 +306,7 @@ class WidgetVisitor
 		void do_writeGlobals( QHash<QString,QVariant>& globals);
 
 		///\brief Create listener object for the widget and wire all data signals
-		WidgetListener* createListener( DataLoader* dataLoader);
+		WidgetListenerImpl* createListener( DataLoader* dataLoader);
 
 		bool useSynonyms( bool enable);
 

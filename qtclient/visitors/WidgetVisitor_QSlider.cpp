@@ -57,18 +57,18 @@ QVariant WidgetVisitorState_QSlider::getState() const
 	return QVariant();
 }
 
-void WidgetVisitorState_QSlider::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QSlider::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitorObject::SigChanged:
+		case WidgetListener::SigChanged:
 			QObject::connect( m_slider, SIGNAL( valueChanged( int)), &listener, SLOT( changed()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigActivated:
-		case WidgetVisitorObject::SigEntered:
-		case WidgetVisitorObject::SigPressed:
-		case WidgetVisitorObject::SigClicked:
-		case WidgetVisitorObject::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_slider->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
+		case WidgetListener::SigActivated:
+		case WidgetListener::SigEntered:
+		case WidgetListener::SigPressed:
+		case WidgetListener::SigClicked:
+		case WidgetListener::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_slider->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
 	}
 }
 

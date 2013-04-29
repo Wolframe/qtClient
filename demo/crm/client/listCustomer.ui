@@ -22,6 +22,9 @@
      <property name="action" stdset="0">
       <string>ListCustomer customer {}</string>
      </property>
+     <property name="dataslot" stdset="0">
+      <string>listCustomer</string>
+     </property>
      <column>
       <property name="text">
        <string>name</string>

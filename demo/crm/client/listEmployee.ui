@@ -84,6 +84,9 @@
      <property name="action" stdset="0">
       <string>ListEmployee employee {}</string>
      </property>
+     <property name="dataslot" stdset="0">
+      <string>listEmployee</string>
+     </property>
      <column>
       <property name="text">
        <string>name</string>

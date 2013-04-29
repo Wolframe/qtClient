@@ -1,9 +1,8 @@
 #include "WidgetVisitorObject.hpp"
-#include "WidgetListener.hpp"
 #include <cstring>
 #include <QDebug>
 
-bool WidgetVisitorObject::getDataSignalType( const char* name, DataSignalType& dt)
+bool WidgetListener::getDataSignalType( const char* name, DataSignalType& dt)
 {
 	const char* signame;
 	for (int ii=0; 0!=(signame=dataSignalTypeName((DataSignalType)ii)); ++ii)
@@ -65,11 +64,11 @@ WidgetVisitorObject::WidgetVisitorObject( QWidget* widget_)
 				{
 					values.push_back( vv.trimmed());
 				}
-				DataSignalType dt;
+				WidgetListener::DataSignalType dt;
 				if (strcmp( signalname, "signaled") != 0)
 				{
 					// ... forward is handled differently
-					if (getDataSignalType( signalname, dt))
+					if (WidgetListener::getDataSignalType( signalname, dt))
 					{
 						m_datasignals.id[ (int)dt] = values;
 					}
@@ -104,14 +103,9 @@ WidgetVisitorObject::WidgetVisitorObject( QWidget* widget_)
 	}
 }
 
-WidgetListener* WidgetVisitorObject::createListener( DataLoader* dataLoader)
+void WidgetVisitorObject::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& /*listener*/)
 {
-	return new WidgetListener( m_widget, dataLoader);
-}
-
-void WidgetVisitorObject::connectDataSignals( DataSignalType dt, WidgetListener& /*listener*/)
-{
-	qCritical() << "try to connect to signal not provided" << m_widget->metaObject()->className() << dataSignalTypeName(dt);
+	qCritical() << "try to connect to signal not provided" << m_widget->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
 }
 
 QVariant WidgetVisitorObject::dynamicProperty( const QString& name) const

@@ -56,18 +56,18 @@ QVariant WidgetVisitorState_QDoubleSpinBox::getState() const
 	return QVariant();
 }
 
-void WidgetVisitorState_QDoubleSpinBox::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QDoubleSpinBox::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitorObject::SigChanged:
+		case WidgetListener::SigChanged:
 			QObject::connect( m_doubleSpinBox, SIGNAL( valueChanged( double)), &listener, SLOT( changed()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigActivated:
-		case WidgetVisitorObject::SigEntered:
-		case WidgetVisitorObject::SigPressed:
-		case WidgetVisitorObject::SigClicked:
-		case WidgetVisitorObject::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_doubleSpinBox->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
+		case WidgetListener::SigActivated:
+		case WidgetListener::SigEntered:
+		case WidgetListener::SigPressed:
+		case WidgetListener::SigClicked:
+		case WidgetListener::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_doubleSpinBox->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
 	}
 }
 

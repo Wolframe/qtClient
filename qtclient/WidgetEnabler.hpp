@@ -41,27 +41,24 @@
 #include <QSharedPointer>
 
 ///\class WidgetEnabler
-///\brief Structure to enable widgets based on a set of properties
-class WidgetEnabler :public QObject
+///\brief Implementation of WidgetEnabler
+class WidgetEnablerImpl :public WidgetEnabler
 {
-	Q_OBJECT
-
 public:
 	///\brief Constructor
-	WidgetEnabler( QWidget* widget_, const QList<QString>& properties_);
-	virtual ~WidgetEnabler(){}
+	WidgetEnablerImpl( QWidget* widget_, const QList<QString>& properties_);
+	virtual ~WidgetEnablerImpl(){}
 	QWidget* actionwidget() const			{return m_state->widget();}
 	const QList<QString>& actionproperties() const	{return m_properties;}
 
-public slots:
-	void changed();
+	virtual void handle_changed();
 
 private:
 	WidgetVisitorObjectR m_state;
 	const QList<QString> m_properties;
 };
 
-typedef QSharedPointer<WidgetEnabler> WidgetEnablerR;
+typedef QSharedPointer<WidgetEnablerImpl> WidgetEnablerR;
 
 #endif
 

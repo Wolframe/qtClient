@@ -86,22 +86,22 @@ QVariant WidgetVisitorState_QTextEdit::getState() const
 	return (content != m_textLoaded)?QVariant( content):QVariant();
 }
 
-void WidgetVisitorState_QTextEdit::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QTextEdit::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitorObject::SigChanged:
+		case WidgetListener::SigChanged:
 			QObject::connect( m_textEdit, SIGNAL( currentCharFormatChanged(const QTextCharFormat&)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_textEdit, SIGNAL( cursorPositionChanged()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_textEdit, SIGNAL( selectionChanged()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_textEdit, SIGNAL( textChanged()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitorObject::SigActivated:
-		case WidgetVisitorObject::SigEntered:
-		case WidgetVisitorObject::SigPressed:
-		case WidgetVisitorObject::SigClicked:
-		case WidgetVisitorObject::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_textEdit->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
+		case WidgetListener::SigActivated:
+		case WidgetListener::SigEntered:
+		case WidgetListener::SigPressed:
+		case WidgetListener::SigClicked:
+		case WidgetListener::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_textEdit->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
 	}
 }
 

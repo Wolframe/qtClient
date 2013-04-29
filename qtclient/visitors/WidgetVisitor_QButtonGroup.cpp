@@ -127,20 +127,20 @@ QVariant WidgetVisitorState_QButtonGroup::getState() const
 	return QVariant( checkedList());
 }
 
-void WidgetVisitorState_QButtonGroup::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QButtonGroup::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitorObject::SigChanged:
+		case WidgetListener::SigChanged:
 			QObject::connect( m_buttonGroup, SIGNAL( toggled( bool)), &listener, SLOT( changed()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigClicked:
+		case WidgetListener::SigClicked:
 			QObject::connect( m_buttonGroup, SIGNAL( clicked( bool)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
 
-		case WidgetVisitorObject::SigPressed:
-		case WidgetVisitorObject::SigActivated:
-		case WidgetVisitorObject::SigEntered:
-		case WidgetVisitorObject::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_buttonGroup->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
+		case WidgetListener::SigPressed:
+		case WidgetListener::SigActivated:
+		case WidgetListener::SigEntered:
+		case WidgetListener::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_buttonGroup->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
 	}
 }
 

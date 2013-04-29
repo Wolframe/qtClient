@@ -43,11 +43,11 @@
 #include <QDebug>
 #include <QMessageBox>
 
-WidgetListener::~WidgetListener()
+WidgetListenerImpl::~WidgetListenerImpl()
 {
 }
 
-bool WidgetListener::hasDataSignals( const QWidget* widget_)
+bool WidgetListenerImpl::hasDataSignals( const QWidget* widget_)
 {
 	foreach (const QByteArray& prop, widget_->dynamicPropertyNames())
 	{
@@ -56,8 +56,8 @@ bool WidgetListener::hasDataSignals( const QWidget* widget_)
 	return false;
 }
 
-WidgetListener::WidgetListener( QWidget* widget_, DataLoader* dataLoader_)
-	:QObject()
+WidgetListenerImpl::WidgetListenerImpl( QWidget* widget_, DataLoader* dataLoader_)
+	:WidgetListener()
 	,m_state(createWidgetVisitorObject(widget_))
 	,m_dataLoader(dataLoader_)
 	,m_debug(false)
@@ -72,7 +72,7 @@ WidgetListener::WidgetListener( QWidget* widget_, DataLoader* dataLoader_)
 	}
 }
 
-void WidgetListener::setDebug( bool v)
+void WidgetListenerImpl::setDebug( bool v)
 {
 	if (!m_hasContextMenu)
 	{
@@ -92,7 +92,7 @@ void WidgetListener::setDebug( bool v)
 	m_debug = v;
 }
 
-void WidgetListener::trigger_reload( const QString& signame, QWidget* receiver)
+void WidgetListenerImpl::trigger_reload( const QString& signame, QWidget* receiver)
 {
 	WidgetVisitor visitor( receiver);
 	visitor.readAssignments();
@@ -118,7 +118,7 @@ void WidgetListener::trigger_reload( const QString& signame, QWidget* receiver)
 	}
 }
 
-QList<QWidget*> WidgetListener::get_forward_receivers( QWidget* receiver)
+QList<QWidget*> WidgetListenerImpl::get_forward_receivers( QWidget* receiver)
 {
 	QList<QWidget*> forwardlist;
 	int forwardlistidx = 0, forwardlistsize = 0;
@@ -154,11 +154,11 @@ QList<QWidget*> WidgetListener::get_forward_receivers( QWidget* receiver)
 	return forwardlist;
 }
 
-void WidgetListener::handleDataSignal( WidgetVisitorObject::DataSignalType dt)
+void WidgetListenerImpl::handleDataSignal( DataSignalType dt)
 {
 	WidgetVisitor tv( m_state);
 	typedef QPair<QString,QWidget*> Receiver;
-	qDebug() << "handle datasignal [" << WidgetVisitorObject::dataSignalTypeName( dt) << "]";
+	qDebug() << "handle datasignal [" << dataSignalTypeName( dt) << "]";
 
 	foreach (const Receiver& receiver, tv.get_datasignal_receivers( dt))
 	{
@@ -338,7 +338,7 @@ static QString widgetText( QWidget* widget, const QString& menuitem=QString())
 	return text;
 }
 
-void WidgetListener::showContextMenu( const QPoint& pos)
+void WidgetListenerImpl::handleShowContextMenu( const QPoint& pos)
 {
 	QPoint globalPos;
 	QWidget* widget = m_state->widget();

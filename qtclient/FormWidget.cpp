@@ -118,7 +118,7 @@ void FormWidget::executeAction( QWidget *actionwidget )
 		{
 			WidgetListenerR listener( visitor.createListener( m_dataLoader));
 			listener->setDebug( m_debug);
-			listener->handleDataSignal( WidgetVisitorObject::SigClicked);
+			listener->handleDataSignal( WidgetListener::SigClicked);
 		}
 	}
 	else
@@ -295,14 +295,14 @@ void FormWidget::formLocalizationLoaded( QString name, QByteArray localization )
 
 static bool nodeProperty_hasListener( const QWidget* widget, const QVariant&)
 {
-	if (WidgetListener::hasDataSignals( widget)) return true;
+	if (WidgetListenerImpl::hasDataSignals( widget)) return true;
 	if (widget->property( "contextmenu").isValid()) return true;
 	return false;
 }
 
 static bool nodeProperty_hasDebugListener( const QWidget* widget, const QVariant&)
 {
-	if (WidgetListener::hasDataSignals( widget)) return true;
+	if (WidgetListenerImpl::hasDataSignals( widget)) return true;
 	if (widget->property( "contextmenu").isValid()) return true;
 	if (widget->property( "action").isValid()) return true;
 	if (widget->property( "form").isValid()) return true;
@@ -345,7 +345,7 @@ void FormWidget::setPushButtonEnablers( QPushButton* pushButton)
 			}
 			else
 			{
-				enabler = WidgetEnablerR( new WidgetEnabler( pushButton, enable_props));
+				enabler = WidgetEnablerR( new WidgetEnablerImpl( pushButton, enable_props));
 				QHash<QString,QList<WidgetEnablerR> >::const_iterator fi = m_enablers.find( objName), fe = m_enablers.end();
 				if (fi == fe)
 				{
@@ -379,10 +379,10 @@ void FormWidget::disablePushButtonEnablers( QWidget* ownerwidget)
 	QList<WidgetEnablerR>::iterator ei = enl->begin(), ee = enl->end();
 	for (; ei != ee; ++ei)
 	{
-		WidgetEnabler* eref = ei->data();
+		WidgetEnablerImpl* eref = ei->data();
 		QPushButton* pushButton = qobject_cast<QPushButton*>( eref->actionwidget());
 		const QList<QString>& properties = eref->actionproperties();
-		*ei = WidgetEnablerR( new WidgetEnabler( pushButton, properties));
+		*ei = WidgetEnablerR( new WidgetEnablerImpl( pushButton, properties));
 	}
 }
 
@@ -732,7 +732,7 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 
 					enablePushButtonEnablers( rcp);
 
-					WidgetListener* listener = rcpvisitor.createListener( m_dataLoader);
+					WidgetListenerImpl* listener = rcpvisitor.createListener( m_dataLoader);
 					if (listener)
 					{
 						listener->setDebug( m_debug);

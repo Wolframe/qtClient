@@ -538,16 +538,16 @@ void WidgetVisitorState_QTableWidget::endofDataFeed()
 	}
 }
 
-void WidgetVisitorState_QTableWidget::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QTableWidget::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitorObject::SigChanged: QObject::connect( m_tableWidget, SIGNAL( cellChanged( int,int)), &listener, SLOT( changed()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigActivated: QObject::connect( m_tableWidget, SIGNAL( cellActivated( int,int)), &listener, SLOT( activated()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigEntered: QObject::connect( m_tableWidget, SIGNAL( cellEntered( int,int)), &listener, SLOT( entered()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigPressed: QObject::connect( m_tableWidget, SIGNAL( cellPressed( int,int)), &listener, SLOT( pressed()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigClicked: QObject::connect( m_tableWidget, SIGNAL( cellClicked( int,int)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
-		case WidgetVisitorObject::SigDoubleClicked: QObject::connect( m_tableWidget, SIGNAL( cellDoubleClicked( int,int)), &listener, SLOT( doubleclicked()), Qt::UniqueConnection);
+		case WidgetListener::SigChanged: QObject::connect( m_tableWidget, SIGNAL( cellChanged( int,int)), &listener, SLOT( changed()), Qt::UniqueConnection); break;
+		case WidgetListener::SigActivated: QObject::connect( m_tableWidget, SIGNAL( cellActivated( int,int)), &listener, SLOT( activated()), Qt::UniqueConnection); break;
+		case WidgetListener::SigEntered: QObject::connect( m_tableWidget, SIGNAL( cellEntered( int,int)), &listener, SLOT( entered()), Qt::UniqueConnection); break;
+		case WidgetListener::SigPressed: QObject::connect( m_tableWidget, SIGNAL( cellPressed( int,int)), &listener, SLOT( pressed()), Qt::UniqueConnection); break;
+		case WidgetListener::SigClicked: QObject::connect( m_tableWidget, SIGNAL( cellClicked( int,int)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
+		case WidgetListener::SigDoubleClicked: QObject::connect( m_tableWidget, SIGNAL( cellDoubleClicked( int,int)), &listener, SLOT( doubleclicked()), Qt::UniqueConnection);
 	}
 }
 

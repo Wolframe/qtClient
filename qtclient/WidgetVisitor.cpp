@@ -933,19 +933,19 @@ void WidgetVisitor::do_writeAssignments()
 	}
 }
 
-WidgetListener* WidgetVisitor::createListener( DataLoader* dataLoader)
+WidgetListenerImpl* WidgetVisitor::createListener( DataLoader* dataLoader)
 {
-	WidgetListener* listener = 0;
+	WidgetListenerImpl* listener = 0;
 	if (!m_stk.isEmpty())
 	{
-		listener = m_stk.top()->createListener( dataLoader);
+		listener = new WidgetListenerImpl( m_stk.top()->m_widget, dataLoader);
 		if (listener)
 		{
-			for (int dt=0; dt<WidgetVisitorObject::NofDataSignalTypes; ++dt)
+			for (int dt=0; dt<WidgetListener::NofDataSignalTypes; ++dt)
 			{
 				if (!m_stk.top()->m_datasignals.id[ dt].isEmpty())
 				{
-					m_stk.top()->connectDataSignals( (WidgetVisitorObject::DataSignalType)dt, *listener);
+					m_stk.top()->connectDataSignals( (WidgetListener::DataSignalType)dt, *listener);
 				}
 			}
 		}
@@ -1058,7 +1058,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 	return rt;
 }
 
-QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetVisitorObject::DataSignalType type)
+QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetListener::DataSignalType type)
 {
 	QList<QPair<QString,QWidget*> > rt;
 	if (m_stk.isEmpty()) return rt;
