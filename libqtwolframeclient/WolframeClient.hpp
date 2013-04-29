@@ -44,7 +44,7 @@
 #include <QSslSocket>
 #include <QSslCertificate>
 
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 
 class WolframeClientProtocol;
 
@@ -84,7 +84,7 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 		virtual ~WolframeClient( );
 
 		void setConnectionParameters( const ServerDefinition _connParams );
-		
+
 		static bool SSLsupported( );
 
 // low-level commands, pre-protocol, for debugging mainly
@@ -133,7 +133,7 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 // how to slots work with d_ptr?)
 	private:
 		bool m_initializedSsl;
-		
+
 	private slots:
 		void initializeSsl( );
 		QSslCertificate getCertificate( QString filename );

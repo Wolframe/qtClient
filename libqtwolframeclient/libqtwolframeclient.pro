@@ -15,13 +15,13 @@ QT += widgets
 }
 
 SOURCES += \
-	connection.cpp \
 	WolframeClient.cpp \
 	WolframeClientProtocolBase.cpp \
-	WolframeClientProtocol.cpp
+	WolframeClientProtocol.cpp \
+    serverDefinition.cpp
 
 HEADERS += \
-	connection.hpp \
 	WolframeClient.hpp \
 	private/WolframeClientProtocolBase.hpp \
-	private/WolframeClientProtocol.hpp
+	private/WolframeClientProtocol.hpp \
+    serverDefinition.hpp

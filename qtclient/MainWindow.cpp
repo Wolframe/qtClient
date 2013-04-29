@@ -113,7 +113,7 @@ void MainWindow::readSettings( )
 		m_language = settings.locale;
 	}
 
-	m_connections = settings.connectionParams;
+	m_serverDefs = settings.connectionParams;
 
 // set remember username and connection for the login dialog
 	if( settings.saveUsername ) {

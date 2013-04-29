@@ -40,14 +40,14 @@
 MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent )
 {
 // a demo connection, goes away later
-	ServerDefinition connection;
-	
-	connection.name = "example";
-	connection.host = "localhost";
-	connection.port = 7661;
+	ServerDefinition serverDef;
 
-	m_connections.append( connection );
-	
+	serverDef.name = "example";
+	serverDef.host = "localhost";
+	serverDef.port = 7661;
+
+	m_serverDefs.append( serverDef );
+
 	setRememberLogin( true );
 }
 
@@ -67,7 +67,7 @@ void MainWindow::deleteUi( )
 }
 
 void MainWindow::authOk( )
-{	
+{
 	SkeletonMainWindow::authOk( );
 
 	QMessageBox::warning( this, tr( "Authentication" ), tr( "authentication succeeded.." ), QMessageBox::Ok );
@@ -77,7 +77,7 @@ void MainWindow::login( )
 {
 	QMessageBox::warning( this, tr( "Authentication" ), tr( "logging in.." ), QMessageBox::Ok );
 
-	SkeletonMainWindow::login( );	
+	SkeletonMainWindow::login( );
 }
 
 void MainWindow::on_actionDoSomething_triggered( )

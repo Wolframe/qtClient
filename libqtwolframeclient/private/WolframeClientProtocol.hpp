@@ -47,7 +47,7 @@
 #include <QStringList>
 #include <QTimer>
 
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 
 class WolframeClientProtocol
 		:public WolframeClientProtocolBase

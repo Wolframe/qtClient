@@ -40,7 +40,7 @@
 #include <QSize>
 #include <QSettings>
 
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 #include "LoadMode.hpp"
 
 struct WinState
