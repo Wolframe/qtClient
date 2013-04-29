@@ -118,7 +118,7 @@ void FormWidget::executeAction( QWidget *actionwidget )
 		{
 			WidgetListenerR listener( visitor.createListener( m_dataLoader));
 			listener->setDebug( m_debug);
-			listener->handleDataSignal( WidgetVisitor::SigClicked);
+			listener->handleDataSignal( WidgetVisitorObject::SigClicked);
 		}
 	}
 	else

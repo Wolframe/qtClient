@@ -33,11 +33,11 @@
 
 #ifndef _WIDGET_VISIOR_FileChooser_HPP_INCLUDED
 #define _WIDGET_VISIOR_FileChooser_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 #include "FileChooser.hpp"
 
 class WidgetVisitorState_FileChooser
-	:public WidgetVisitor::State
+	:public WidgetVisitorObject
 {
 public:
 	WidgetVisitorState_FileChooser( QWidget* widget_);

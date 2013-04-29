@@ -33,11 +33,11 @@
 
 #ifndef _WIDGET_VISIOR_QCheckBox_HPP_INCLUDED
 #define _WIDGET_VISIOR_QCheckBox_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 #include <QCheckBox>
 
 class WidgetVisitorState_QCheckBox
-	:public WidgetVisitor::State
+	:public WidgetVisitorObject
 {
 public:
 	WidgetVisitorState_QCheckBox( QWidget* widget_);
@@ -49,7 +49,7 @@ public:
 	virtual bool setProperty( const QString& name, const QVariant& data);
 	virtual void setState( const QVariant& state);
 	virtual QVariant getState() const;
-	virtual void connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener);
+	virtual void connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:

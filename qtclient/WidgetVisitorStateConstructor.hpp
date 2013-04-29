@@ -1,5 +1,5 @@
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 
-WidgetVisitor::StateR createWidgetVisitorState( QWidget* widget);
+WidgetVisitorObjectR createWidgetVisitorObject( QWidget* widget);
 
 

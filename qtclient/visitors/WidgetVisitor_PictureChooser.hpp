@@ -33,11 +33,11 @@
 
 #ifndef _WIDGET_VISIOR_PictureChooser_HPP_INCLUDED
 #define _WIDGET_VISIOR_PictureChooser_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 #include "PictureChooser.hpp"
 
 class WidgetVisitorState_PictureChooser
-	:public WidgetVisitor::State
+	:public WidgetVisitorObject
 {
 public:
 	WidgetVisitorState_PictureChooser( QWidget* widget_);

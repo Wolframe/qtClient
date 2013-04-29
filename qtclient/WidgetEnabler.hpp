@@ -33,7 +33,7 @@
 
 #ifndef _WIDGET_Enabler_HPP_INCLUDED
 #define _WIDGET_Enabler_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 #include <QObject>
 #include <QWidget>
 #include <QList>
@@ -57,7 +57,7 @@ public slots:
 	void changed();
 
 private:
-	WidgetVisitor::StateR m_state;
+	WidgetVisitorObjectR m_state;
 	const QList<QString> m_properties;
 };
 

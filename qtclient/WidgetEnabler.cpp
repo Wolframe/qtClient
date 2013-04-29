@@ -31,13 +31,14 @@
 
 ************************************************************************/
 #include "WidgetEnabler.hpp"
+#include "WidgetVisitorObject.hpp"
 #include "WidgetVisitor.hpp"
 #include "WidgetVisitorStateConstructor.hpp"
 #include <QDebug>
 
 WidgetEnabler::WidgetEnabler( QWidget* widget_, const QList<QString>& properties_)
 	:QObject()
-	,m_state(createWidgetVisitorState(widget_))
+	,m_state(createWidgetVisitorObject(widget_))
 	,m_properties(properties_)
 {}
 

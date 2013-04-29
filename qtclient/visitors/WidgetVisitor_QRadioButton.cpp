@@ -5,7 +5,7 @@
 #include <QDebug>
 
 WidgetVisitorState_QRadioButton::WidgetVisitorState_QRadioButton( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_radioButton(qobject_cast<QRadioButton*>( widget_))
 {
 }
@@ -54,22 +54,22 @@ QVariant WidgetVisitorState_QRadioButton::getState() const
 	return QVariant( m_radioButton->isChecked());
 }
 
-void WidgetVisitorState_QRadioButton::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QRadioButton::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitor::SigChanged:
+		case WidgetVisitorObject::SigChanged:
 			QObject::connect( m_radioButton, SIGNAL( clicked( bool)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_radioButton, SIGNAL( released()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_radioButton, SIGNAL( toggled( bool)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitor::SigPressed:
+		case WidgetVisitorObject::SigPressed:
 			QObject::connect( m_radioButton, SIGNAL( pressed()), &listener, SLOT( pressed()), Qt::UniqueConnection); break;
-		case WidgetVisitor::SigActivated:
-		case WidgetVisitor::SigEntered:
-		case WidgetVisitor::SigClicked:
-		case WidgetVisitor::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_radioButton->metaObject()->className() << WidgetVisitor::dataSignalTypeName(dt);
+		case WidgetVisitorObject::SigActivated:
+		case WidgetVisitorObject::SigEntered:
+		case WidgetVisitorObject::SigClicked:
+		case WidgetVisitorObject::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_radioButton->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
 	}
 }
 

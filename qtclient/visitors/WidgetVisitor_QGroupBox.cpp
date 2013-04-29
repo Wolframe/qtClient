@@ -8,7 +8,7 @@
 #include <QCheckBox>
 
 WidgetVisitorState_QGroupBox::WidgetVisitorState_QGroupBox( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_groupBox(qobject_cast<QGroupBox*>( widget_))
 	,m_mode(Init)
 {}
@@ -127,20 +127,20 @@ QVariant WidgetVisitorState_QGroupBox::getState() const
 	return QVariant( checkedList());
 }
 
-void WidgetVisitorState_QGroupBox::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QGroupBox::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitor::SigChanged:
+		case WidgetVisitorObject::SigChanged:
 			QObject::connect( m_groupBox, SIGNAL( toggled( bool)), &listener, SLOT( changed()), Qt::UniqueConnection); break;
-		case WidgetVisitor::SigClicked:
+		case WidgetVisitorObject::SigClicked:
 			QObject::connect( m_groupBox, SIGNAL( clicked( bool)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
 
-		case WidgetVisitor::SigPressed:
-		case WidgetVisitor::SigActivated:
-		case WidgetVisitor::SigEntered:
-		case WidgetVisitor::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_groupBox->metaObject()->className() << WidgetVisitor::dataSignalTypeName(dt);
+		case WidgetVisitorObject::SigPressed:
+		case WidgetVisitorObject::SigActivated:
+		case WidgetVisitorObject::SigEntered:
+		case WidgetVisitorObject::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_groupBox->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
 	}
 }
 

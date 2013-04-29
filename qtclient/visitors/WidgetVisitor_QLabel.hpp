@@ -33,11 +33,11 @@
 
 #ifndef _WIDGET_VISIOR_QLabel_HPP_INCLUDED
 #define _WIDGET_VISIOR_QLabel_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 #include <QLabel>
 
 class WidgetVisitorState_QLabel
-	:public WidgetVisitor::State
+	:public WidgetVisitorObject
 {
 public:
 	WidgetVisitorState_QLabel( QWidget* widget_);

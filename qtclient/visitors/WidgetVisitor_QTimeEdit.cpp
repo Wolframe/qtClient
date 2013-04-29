@@ -7,7 +7,7 @@
 #include <QDebug>
 
 WidgetVisitorState_QTimeEdit::WidgetVisitorState_QTimeEdit( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_timeEdit(qobject_cast<QTimeEdit*>( widget_))
 {
 	m_timeEdit->setTime( QTime::currentTime());
@@ -57,18 +57,18 @@ QVariant WidgetVisitorState_QTimeEdit::getState() const
 	return m_timeEdit->time().isValid()?QVariant( m_timeEdit->time()):QVariant();
 }
 
-void WidgetVisitorState_QTimeEdit::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QTimeEdit::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitor::SigChanged:
+		case WidgetVisitorObject::SigChanged:
 			QObject::connect( (const QObject*)m_timeEdit, SIGNAL( timeChanged( const QDate&)), (const QObject*)&listener, SLOT( changed()), Qt::UniqueConnection); break;
-		case WidgetVisitor::SigActivated:
-		case WidgetVisitor::SigEntered:
-		case WidgetVisitor::SigPressed:
-		case WidgetVisitor::SigClicked:
-		case WidgetVisitor::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_timeEdit->metaObject()->className() << WidgetVisitor::dataSignalTypeName(dt);
+		case WidgetVisitorObject::SigActivated:
+		case WidgetVisitorObject::SigEntered:
+		case WidgetVisitorObject::SigPressed:
+		case WidgetVisitorObject::SigClicked:
+		case WidgetVisitorObject::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_timeEdit->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
 			break;
 	}
 }
