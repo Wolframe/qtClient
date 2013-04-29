@@ -437,9 +437,9 @@ void WolframeClient::dataAvailable( )
 }
 
 // high-level
-void WolframeClient::request( const QString& tag, const QByteArray& content )
+void WolframeClient::request( const QString& cmd, const QString& tag, const QByteArray& content )
 {
-	m_protocol->pushRequest( tag, content);
+	m_protocol->pushRequest( cmd, tag, content);
 }
 
 void WolframeClient::handleResult( )

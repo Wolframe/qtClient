@@ -91,7 +91,7 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 		void connect();
 		void disconnect();
 		void auth();
-		void request( const QString& tag, const QByteArray& content );
+		void request( const QString& cmd, const QString& tag, const QByteArray& content );
 // inquire status
 		bool isConnected( ) const;
 		const QString serverName() const;

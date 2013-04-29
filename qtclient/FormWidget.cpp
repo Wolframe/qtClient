@@ -111,7 +111,7 @@ void FormWidget::executeAction( QWidget *actionwidget )
 
 		if (!request.content.isEmpty())
 		{
-			m_dataLoader->datarequest( request.tag, request.content);
+			m_dataLoader->datarequest( request.cmd, request.tag, request.content);
 			button->setDown( true);
 		}
 		if (actionwidget->property( "datasignal:clicked").isValid())
@@ -140,7 +140,7 @@ void FormWidget::executeMenuAction( QWidget *actionwidget, const QString& menuac
 		WidgetRequest request = getMenuActionRequest( visitor, menuaction, m_debug);
 		if (!request.content.isEmpty())
 		{
-			m_dataLoader->datarequest( request.tag, request.content);
+			m_dataLoader->datarequest( request.cmd, request.tag, request.content);
 		}
 	}
 	else
@@ -636,7 +636,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	{
 		if (!request.content.isEmpty())
 		{
-			m_dataLoader->datarequest( request.tag, request.content);
+			m_dataLoader->datarequest( request.cmd, request.tag, request.content);
 		}
 	}
 

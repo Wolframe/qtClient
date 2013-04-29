@@ -41,9 +41,9 @@ FileDataLoader::FileDataLoader( QString dir ) : m_dir( dir )
 {
 }
 
-void FileDataLoader::datarequest( const QString& tag, const QByteArray& content)
+void FileDataLoader::datarequest( const QString& cmd, const QString& tag, const QByteArray& content)
 {
-	qDebug( ) << "datarequest, tag" << tag << "\n" << content;
+	qDebug( ) << "datarequest, cmd" << cmd << ", tag" << tag << "\n" << content;
 }
 
 void FileDataLoader::gotAnswer( bool /*success*/, const QString& /*tag*/, const QByteArray& /*content*/)

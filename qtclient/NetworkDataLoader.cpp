@@ -45,9 +45,9 @@ NetworkDataLoader::NetworkDataLoader( WolframeClient *_wolframeClient, bool _deb
 		this, SLOT( gotAnswer( bool,const QString&,const QByteArray&) ) );
 }
 
-void NetworkDataLoader::datarequest( const QString& tag, const QByteArray& content)
+void NetworkDataLoader::datarequest( const QString& cmd, const QString& tag, const QByteArray& content)
 {
-	m_wolframeClient->request( tag, content);
+	m_wolframeClient->request( cmd, tag, content);
 }
 
 void NetworkDataLoader::gotAnswer( bool success, const QString& tag, const QByteArray& content )

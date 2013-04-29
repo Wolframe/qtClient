@@ -47,7 +47,7 @@ class DataLoader : public QObject
 	public:
 		virtual ~DataLoader( ) {}
 		
-		virtual void datarequest( const QString& /*tag*/, const QByteArray& /*content*/) = 0;
+		virtual void datarequest( const QString& cmd, const QString& tag, const QByteArray& content) = 0;
 
 	// for NetworkDataLoader
 	public slots:

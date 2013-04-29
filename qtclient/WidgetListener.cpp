@@ -112,7 +112,7 @@ void WidgetListener::trigger_reload( const QString& signame, QWidget* receiver)
 		WidgetRequest domload = getWidgetRequest( visitor, actiondef.toString(), m_debug);
 		if (!domload.content.isEmpty())
 		{
-			m_dataLoader->datarequest( domload.tag, domload.content);
+			m_dataLoader->datarequest( domload.cmd, domload.tag, domload.content);
 		}
 	}
 }
