@@ -33,6 +33,7 @@
 #include "WidgetListener.hpp"
 #include "WidgetEnabler.hpp"
 #include "WidgetVisitorStateConstructor.hpp"
+#include "WidgetVisitor.hpp"
 #include "WidgetMessageDispatcher.hpp"
 #include "FormWidget.hpp"
 #include "FormCall.hpp"
@@ -57,7 +58,7 @@ bool WidgetListener::hasDataSignals( const QWidget* widget_)
 
 WidgetListener::WidgetListener( QWidget* widget_, DataLoader* dataLoader_)
 	:QObject()
-	,m_state(createWidgetVisitorState(widget_))
+	,m_state(createWidgetVisitorObject(widget_))
 	,m_dataLoader(dataLoader_)
 	,m_debug(false)
 	,m_hasContextMenu(false)
@@ -153,11 +154,11 @@ QList<QWidget*> WidgetListener::get_forward_receivers( QWidget* receiver)
 	return forwardlist;
 }
 
-void WidgetListener::handleDataSignal( WidgetVisitor::DataSignalType dt)
+void WidgetListener::handleDataSignal( WidgetVisitorObject::DataSignalType dt)
 {
 	WidgetVisitor tv( m_state);
 	typedef QPair<QString,QWidget*> Receiver;
-	qDebug() << "handle datasignal [" << WidgetVisitor::dataSignalTypeName( dt) << "]";
+	qDebug() << "handle datasignal [" << WidgetVisitorObject::dataSignalTypeName( dt) << "]";
 
 	foreach (const Receiver& receiver, tv.get_datasignal_receivers( dt))
 	{

@@ -36,7 +36,7 @@
 #include <QDebug>
 
 WidgetVisitorState_QTextEdit::WidgetVisitorState_QTextEdit( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_textEdit(qobject_cast<QTextEdit*>(widget_)){}
 
 void WidgetVisitorState_QTextEdit::clear()
@@ -86,22 +86,22 @@ QVariant WidgetVisitorState_QTextEdit::getState() const
 	return (content != m_textLoaded)?QVariant( content):QVariant();
 }
 
-void WidgetVisitorState_QTextEdit::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QTextEdit::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitor::SigChanged:
+		case WidgetVisitorObject::SigChanged:
 			QObject::connect( m_textEdit, SIGNAL( currentCharFormatChanged(const QTextCharFormat&)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_textEdit, SIGNAL( cursorPositionChanged()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_textEdit, SIGNAL( selectionChanged()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_textEdit, SIGNAL( textChanged()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitor::SigActivated:
-		case WidgetVisitor::SigEntered:
-		case WidgetVisitor::SigPressed:
-		case WidgetVisitor::SigClicked:
-		case WidgetVisitor::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_textEdit->metaObject()->className() << WidgetVisitor::dataSignalTypeName(dt);
+		case WidgetVisitorObject::SigActivated:
+		case WidgetVisitorObject::SigEntered:
+		case WidgetVisitorObject::SigPressed:
+		case WidgetVisitorObject::SigClicked:
+		case WidgetVisitorObject::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_textEdit->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
 	}
 }
 

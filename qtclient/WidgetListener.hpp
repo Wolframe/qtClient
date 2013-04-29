@@ -33,7 +33,7 @@
 
 #ifndef _WIDGET_LISTENER_HPP_INCLUDED
 #define _WIDGET_LISTENER_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 #include "DataLoader.hpp"
 #include <QObject>
 #include <QWidget>
@@ -53,16 +53,16 @@ public:
 	WidgetListener( QWidget* widget_, DataLoader* dataLoader_);
 	virtual ~WidgetListener();
 
-	void handleDataSignal( WidgetVisitor::DataSignalType dt);
+	void handleDataSignal( WidgetVisitorObject::DataSignalType dt);
 	void setDebug( bool v);
 
 public slots:
-	void changed()			{handleDataSignal( WidgetVisitor::SigChanged);}
-	void activated()		{handleDataSignal( WidgetVisitor::SigActivated);}
-	void entered()			{handleDataSignal( WidgetVisitor::SigEntered);}
-	void pressed()			{handleDataSignal( WidgetVisitor::SigPressed);}
-	void clicked()			{handleDataSignal( WidgetVisitor::SigClicked);}
-	void doubleclicked()		{handleDataSignal( WidgetVisitor::SigDoubleClicked);}
+	void changed()			{handleDataSignal( WidgetVisitorObject::SigChanged);}
+	void activated()		{handleDataSignal( WidgetVisitorObject::SigActivated);}
+	void entered()			{handleDataSignal( WidgetVisitorObject::SigEntered);}
+	void pressed()			{handleDataSignal( WidgetVisitorObject::SigPressed);}
+	void clicked()			{handleDataSignal( WidgetVisitorObject::SigClicked);}
+	void doubleclicked()		{handleDataSignal( WidgetVisitorObject::SigDoubleClicked);}
 
 	void showContextMenu( const QPoint& pos);
 
@@ -71,7 +71,7 @@ private:
 	QList<QWidget*> get_forward_receivers( QWidget* receiver);
 
 private:
-	WidgetVisitor::StateR m_state;
+	WidgetVisitorObjectR m_state;
 	DataLoader* m_dataLoader;
 	bool m_debug;
 	bool m_hasContextMenu;

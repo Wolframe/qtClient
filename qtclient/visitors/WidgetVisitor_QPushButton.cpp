@@ -36,7 +36,7 @@
 #include <QDebug>
 
 WidgetVisitorState_QPushButton::WidgetVisitorState_QPushButton( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_pushButton(qobject_cast<QPushButton*>(widget_)){}
 
 void WidgetVisitorState_QPushButton::clear()
@@ -68,27 +68,27 @@ QVariant WidgetVisitorState_QPushButton::getState() const
 	return QVariant( state);
 }
 
-void WidgetVisitorState_QPushButton::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QPushButton::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitor::SigChanged:
+		case WidgetVisitorObject::SigChanged:
 			QObject::connect( m_pushButton, SIGNAL( released()), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_pushButton, SIGNAL( toggled( bool)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			QObject::connect( m_pushButton, SIGNAL( clicked( bool)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitor::SigActivated:
+		case WidgetVisitorObject::SigActivated:
 			break;
-		case WidgetVisitor::SigEntered:
+		case WidgetVisitorObject::SigEntered:
 			QObject::connect( m_pushButton, SIGNAL( toggled( bool)), &listener, SLOT( entered()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitor::SigPressed:
+		case WidgetVisitorObject::SigPressed:
 			QObject::connect( m_pushButton, SIGNAL( pressed()), &listener, SLOT( pressed()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitor::SigClicked:
+		case WidgetVisitorObject::SigClicked:
 			QObject::connect( m_pushButton, SIGNAL( clicked( bool)), &listener, SLOT( clicked()), Qt::UniqueConnection);
 			break;
-		case WidgetVisitor::SigDoubleClicked:
+		case WidgetVisitorObject::SigDoubleClicked:
 			break;
 	}
 }

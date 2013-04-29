@@ -118,7 +118,15 @@ QList<QString> getFormCallProperties( const QString& str)
 		{
 			if (start != end)
 			{
-				rt.push_back( QString( start, itr-start).trimmed());
+				QString var = QString( start, itr-start).trimmed();
+				if (var.indexOf(':') < 0)
+				{
+					rt.push_back( var);
+				}
+				else
+				{
+					// ... definition { var : defaultvalue } is always fulfilled
+				}
 			}
 		}
 	}

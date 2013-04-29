@@ -33,11 +33,11 @@
 
 #ifndef _WIDGET_VISIOR_QListWidget_HPP_INCLUDED
 #define _WIDGET_VISIOR_QListWidget_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
+#include "WidgetVisitorObject.hpp"
 #include <QListWidget>
 
 class WidgetVisitorState_QListWidget
-	:public WidgetVisitor::State
+	:public WidgetVisitorObject
 {
 public:
 	WidgetVisitorState_QListWidget( QWidget* widget_);
@@ -51,7 +51,7 @@ public:
 	virtual void setState( const QVariant& state);
 	virtual QVariant getState() const;
 	virtual void endofDataFeed();
-	virtual void connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener);
+	virtual void connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:

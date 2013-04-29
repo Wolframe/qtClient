@@ -114,117 +114,6 @@ static QList<QWidget*> getWidgetChildren( QWidget* wdg)
 	return rt;
 }
 
-bool WidgetVisitor::getDataSignalType( const char* name, WidgetVisitor::DataSignalType& dt)
-{
-	const char* signame;
-	for (int ii=0; 0!=(signame=dataSignalTypeName((DataSignalType)ii)); ++ii)
-	{
-		if (std::strcmp( name, signame) == 0)
-		{
-			dt = (DataSignalType)ii;
-			return true;
-		}
-	}
-	return false;
-}
-
-WidgetVisitor::State::State( const State& o)
-	:m_widget(o.m_widget)
-	,m_synonyms(o.m_synonyms)
-	,m_links(o.m_links)
-	,m_assignments(o.m_assignments)
-	,m_datasignals(o.m_datasignals)
-	,m_dataslots(o.m_dataslots)
-	,m_dynamicProperties(o.m_dynamicProperties)
-	,m_synonym_entercnt(o.m_synonym_entercnt)
-	,m_internal_entercnt(o.m_internal_entercnt){}
-
-WidgetVisitor::State::State( QWidget* widget_)
-	:m_widget(widget_)
-	,m_synonym_entercnt(1)
-	,m_internal_entercnt(0)
-{
-	foreach (const QByteArray& prop, m_widget->dynamicPropertyNames())
-	{
-		if (prop.indexOf(':') >= 0)
-		{
-			if (prop.startsWith( "synonym:"))
-			{
-				QVariant synonym = m_widget->property( prop);
-				m_synonyms.insert( prop.mid( 8, prop.size()-8), synonym.toString().trimmed());
-			}
-			else if (prop.startsWith( "link:"))
-			{
-				QVariant link = m_widget->property( prop);
-				m_links.push_back( LinkDef( prop.mid( 5, prop.size()-5), link.toString().trimmed()));
-			}
-			else if (prop.startsWith( "assign:"))
-			{
-				QVariant value = m_widget->property( prop);
-				m_assignments.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString().trimmed()));
-			}
-			else if (prop.startsWith( "global:"))
-			{
-				QVariant value = m_widget->property( prop);
-				m_globals.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString().trimmed()));
-			}
-			else if (prop.startsWith( "datasignal:"))
-			{
-				const char* signalname = (const char*)prop + 11/*std::strlen( "datasignal:")*/;
-				QList<QString> values;
-				foreach (const QString& vv, m_widget->property( prop).toString().trimmed().split(','))
-				{
-					values.push_back( vv.trimmed());
-				}
-				DataSignalType dt;
-				if (strcmp( signalname, "signaled") != 0)
-				{
-					// ... forward is handled differently
-					if (WidgetVisitor::getDataSignalType( signalname, dt))
-					{
-						m_datasignals.id[ (int)dt] = values;
-					}
-					else
-					{
-						qCritical() << "error widget visitor state" << widget_->metaObject()->className() << widget_->objectName() << ": defined unknown data signal name" << prop;
-					}
-				}
-			}
-		}
-		if (!prop.startsWith( "_w_") && !prop.startsWith( "_q_"))
-		{
-			m_dynamicProperties.insert( prop, m_widget->property( prop));
-		}
-	}
-	QVariant dataslots = m_widget->property( "dataslot");
-	if (dataslots.isValid())
-	{
-		foreach (const QString& vv, dataslots.toString().trimmed().split(','))
-		{
-			m_dataslots.push_back( vv.trimmed());
-		}
-	}
-	static qint64 g_cnt = 0;
-	QVariant ruid = m_widget->property( "widgetid");
-	if (!ruid.isValid())
-	{
-		QString rt =  m_widget->objectName();
-		rt.append( ":");
-		rt.append( QVariant( ++g_cnt).toString());
-		m_widget->setProperty( "widgetid", QVariant(rt));
-	}
-}
-
-WidgetListener* WidgetVisitor::State::createListener( DataLoader* dataLoader)
-{
-	return new WidgetListener( m_widget, dataLoader);
-}
-
-void WidgetVisitor::State::connectDataSignals( DataSignalType dt, WidgetListener& /*listener*/)
-{
-	qCritical() << "try to connect to signal not provided" << m_widget->metaObject()->className() << WidgetVisitor::dataSignalTypeName(dt);
-}
-
 bool WidgetVisitor::is_widgetid( const QString& id)
 {
 	return id.indexOf(':') >= 0;
@@ -241,53 +130,18 @@ QWidget* WidgetVisitor::get_widget_reference( const QString& id)
 	return 0;
 }
 
-QVariant WidgetVisitor::State::dynamicProperty( const QString& name) const
-{
-	QHash<QString,QVariant>::const_iterator di = m_dynamicProperties.find( name);
-	if (di == m_dynamicProperties.end()) return QVariant();
-	return di.value();
-}
-
-bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVariant& value)
-{
-	m_dynamicProperties.insert( name, value);
-	m_widget->setProperty( name.toLatin1(), value);
-	return true;
-}
-
-QVariant WidgetVisitor::State::getSynonym( const QString& name) const
-{
-	static const QString empty;
-	QHash<QString,QString>::const_iterator syi = m_synonyms.find( name);
-	if (syi == m_synonyms.end()) return QVariant();
-	return QVariant( syi.value());
-}
-
-QString WidgetVisitor::State::getLink( const QString& name) const
-{
-	int ii = 0, nn = m_links.size();
-	for (; ii<nn; ++ii)
-	{
-		if (m_links.at( ii).first == name)
-		{
-			return m_links.at( ii).second;
-		}
-	}
-	return QString();
-}
-
 WidgetVisitor::WidgetVisitor( QWidget* root, bool useSynonyms_)
 	:m_useSynonyms(useSynonyms_)
 {
-	m_stk.push( createWidgetVisitorState( root));
+	m_stk.push( createWidgetVisitorObject( root));
 }
 
-WidgetVisitor::WidgetVisitor( const WidgetVisitor::StateR& state)
+WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& state)
 {
 	m_stk.push( state);
 }
 
-WidgetVisitor::WidgetVisitor( const QStack<StateR>& stk_)
+WidgetVisitor::WidgetVisitor( const QStack<WidgetVisitorObjectR>& stk_)
 	:m_stk(stk_)
 {}
 
@@ -311,7 +165,7 @@ bool WidgetVisitor::enter_root( const QString& name)
 	{
 		if (ww != m_stk.top()->m_widget)
 		{
-			m_stk.push_back( createWidgetVisitorState( ww));
+			m_stk.push_back( createWidgetVisitorObject( ww));
 			return true;
 		}
 	}
@@ -404,7 +258,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 				ERROR( "failed to resolve symbolic link to widget");
 				return false;
 			}
-			m_stk.push_back( createWidgetVisitorState( lnkwdg));
+			m_stk.push_back( createWidgetVisitorObject( lnkwdg));
 			TRACE_ENTER( "link", className(), objectName(), resolve(lnk));
 			return true;
 		}
@@ -428,7 +282,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 				return false;
 			}
 			if (cn.isEmpty()) return false;
-			m_stk.push( createWidgetVisitorState( cn[0]));
+			m_stk.push( createWidgetVisitorObject( cn[0]));
 			TRACE_ENTER( "child", className(), objectName(), name);
 			return true;
 		}
@@ -989,7 +843,7 @@ static bool nodeProperty_hasGlobal( const QWidget* widget, const QVariant& )
 void WidgetVisitor::readGlobals( const QHash<QString,QVariant>& globals)
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const State::Assignment& assignment, m_stk.top()->m_globals)
+	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_globals)
 	{
 		QHash<QString,QVariant>::const_iterator gi = globals.find( assignment.first);
 		if (gi != globals.end())
@@ -1002,7 +856,7 @@ void WidgetVisitor::readGlobals( const QHash<QString,QVariant>& globals)
 void WidgetVisitor::writeGlobals( QHash<QString,QVariant>& globals)
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const State::Assignment& assignment, m_stk.top()->m_globals)
+	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_globals)
 	{
 		globals[ assignment.first] = property( assignment.second);
 	}
@@ -1038,7 +892,7 @@ static bool nodeProperty_hasAssignment( const QWidget* widget, const QVariant& )
 void WidgetVisitor::readAssignments()
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const State::Assignment& assignment, m_stk.top()->m_assignments)
+	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_assignments)
 	{
 		QVariant value = property( assignment.second);
 		if (!setProperty( assignment.first, value))
@@ -1051,7 +905,7 @@ void WidgetVisitor::readAssignments()
 void WidgetVisitor::writeAssignments()
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const State::Assignment& assignment, m_stk.top()->m_assignments)
+	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_assignments)
 	{
 		QVariant value = property( assignment.first);
 		if (!setProperty( assignment.second, value))
@@ -1087,11 +941,11 @@ WidgetListener* WidgetVisitor::createListener( DataLoader* dataLoader)
 		listener = m_stk.top()->createListener( dataLoader);
 		if (listener)
 		{
-			for (int dt=0; dt<NofDataSignalTypes; ++dt)
+			for (int dt=0; dt<WidgetVisitorObject::NofDataSignalTypes; ++dt)
 			{
 				if (!m_stk.top()->m_datasignals.id[ dt].isEmpty())
 				{
-					m_stk.top()->connectDataSignals( (DataSignalType)dt, *listener);
+					m_stk.top()->connectDataSignals( (WidgetVisitorObject::DataSignalType)dt, *listener);
 				}
 			}
 		}
@@ -1204,7 +1058,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 	return rt;
 }
 
-QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( DataSignalType type)
+QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetVisitorObject::DataSignalType type)
 {
 	QList<QPair<QString,QWidget*> > rt;
 	if (m_stk.isEmpty()) return rt;

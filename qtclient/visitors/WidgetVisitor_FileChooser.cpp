@@ -4,7 +4,7 @@
 #include <QFile>
 
 WidgetVisitorState_FileChooser::WidgetVisitorState_FileChooser( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_mode(Init)
 	,m_fileChooser(qobject_cast<FileChooser*>( widget_))
 	,m_fileidx(-1)

@@ -36,7 +36,7 @@
 #include <QDebug>
 
 WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_label(qobject_cast<QLabel*>(widget_)){}
 
 void WidgetVisitorState_QLabel::clear()

@@ -21,30 +21,30 @@
 #include "visitors/WidgetVisitor_FileChooser.hpp"
 #include "visitors/WidgetVisitor_PictureChooser.hpp"
 
-typedef WidgetVisitor::StateR (*StateConstructor)( QWidget* widget);
+typedef WidgetVisitorObjectR (*WidgetVisitorObjectConstructor)( QWidget* widget);
 
-class WidgetVisitorState_default
-	:public WidgetVisitor::State
+class WidgetVisitorObject_default
+	:public WidgetVisitorObject
 {
 public:
-	WidgetVisitorState_default( QWidget* widget_)
-		:WidgetVisitor::State(widget_){}
+	WidgetVisitorObject_default( QWidget* widget_)
+		:WidgetVisitorObject(widget_){}
 
 	virtual QVariant property( const QString& /*name*/)				{return QVariant();}
 	virtual bool setProperty( const QString& /*name*/, const QVariant& /*data*/)	{return false;}
 };
 
-struct WidgetVisitorTypeMap :QHash<QString,StateConstructor>
+struct WidgetVisitorTypeMap :QHash<QString,WidgetVisitorObjectConstructor>
 {
-	template <class VisitorStateClass>
-	static WidgetVisitor::StateR stateConstructor( QWidget* widget)
+	template <class WidgetVisitorObjectClass>
+	static WidgetVisitorObjectR objConstructor( QWidget* widget)
 	{
-		return WidgetVisitor::StateR( new VisitorStateClass( widget));
+		return WidgetVisitorObjectR( new WidgetVisitorObjectClass( widget));
 	}
-	template <class VisitorStateClass>
+	template <class WidgetVisitorObjectClass>
 	void addClass( const char* name)
 	{
-		(*this)[ QString( name)] = &stateConstructor<VisitorStateClass>;
+		(*this)[ QString( name)] = &objConstructor<WidgetVisitorObjectClass>;
 	}
 	#define ADD_WidgetVisitorType( NAME ) { addClass<WidgetVisitorState_ ## NAME>( #NAME); }
 	WidgetVisitorTypeMap()
@@ -73,13 +73,13 @@ struct WidgetVisitorTypeMap :QHash<QString,StateConstructor>
 	}
 };
 
-WidgetVisitor::StateR createWidgetVisitorState( QWidget* widget)
+WidgetVisitorObjectR createWidgetVisitorObject( QWidget* widget)
 {
 	static WidgetVisitorTypeMap widgetVisitorTypeMap;
-	QHash<QString,StateConstructor>::const_iterator wi = widgetVisitorTypeMap.find( widget->metaObject()->className());
+	QHash<QString,WidgetVisitorObjectConstructor>::const_iterator wi = widgetVisitorTypeMap.find( widget->metaObject()->className());
 	if (wi == widgetVisitorTypeMap.end())
 	{
-		return WidgetVisitor::StateR( new WidgetVisitorState_default( widget));
+		return WidgetVisitorObjectR( new WidgetVisitorObject_default( widget));
 	}
 	else
 	{

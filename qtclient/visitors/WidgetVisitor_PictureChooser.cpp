@@ -3,7 +3,7 @@
 #include "WidgetEnabler.hpp"
 
 WidgetVisitorState_PictureChooser::WidgetVisitorState_PictureChooser( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_pictureChooser(qobject_cast<PictureChooser*>( widget_))
 {
 }

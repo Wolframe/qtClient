@@ -36,7 +36,7 @@
 #include <QDebug>
 
 WidgetVisitorState_QComboBox::WidgetVisitorState_QComboBox( QWidget* widget_)
-	:WidgetVisitor::State(widget_)
+	:WidgetVisitorObject(widget_)
 	,m_mode(None)
 	,m_comboBox(qobject_cast<QComboBox*>(widget_))
 	,m_elementname(widget_->objectName().toLatin1())
@@ -209,19 +209,19 @@ void WidgetVisitorState_QComboBox::endofDataFeed()
 	m_comboBox->setSizeAdjustPolicy( QComboBox::AdjustToContents);
 }
 
-void WidgetVisitorState_QComboBox::connectDataSignals( WidgetVisitor::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_QComboBox::connectDataSignals( WidgetVisitorObject::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
-		case WidgetVisitor::SigChanged:
+		case WidgetVisitorObject::SigChanged:
 			QObject::connect( m_comboBox, SIGNAL( currentIndexChanged( int)), &listener, SLOT( changed()), Qt::UniqueConnection); break;
-		case WidgetVisitor::SigActivated:
+		case WidgetVisitorObject::SigActivated:
 			QObject::connect( m_comboBox, SIGNAL( activated( int)), &listener, SLOT( activated()), Qt::UniqueConnection); break;
-		case WidgetVisitor::SigClicked:
-		case WidgetVisitor::SigPressed:
-		case WidgetVisitor::SigEntered:
-		case WidgetVisitor::SigDoubleClicked:
-			qCritical() << "try to connect to signal not provided" << m_comboBox->metaObject()->className() << WidgetVisitor::dataSignalTypeName(dt);
+		case WidgetVisitorObject::SigClicked:
+		case WidgetVisitorObject::SigPressed:
+		case WidgetVisitorObject::SigEntered:
+		case WidgetVisitorObject::SigDoubleClicked:
+			qCritical() << "try to connect to signal not provided" << m_comboBox->metaObject()->className() << WidgetVisitorObject::dataSignalTypeName(dt);
 	}
 }
 
