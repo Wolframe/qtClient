@@ -11,6 +11,7 @@ class QCheckBox;
 class QLabel;
 class QPushButton;
 class QListView;
+class QListWidget;
 QT_END_NAMESPACE
 
 class PluginWindow : public QWidget
@@ -44,7 +45,7 @@ private:
 	QPushButton	*removeImage;
 
 	QGroupBox	*selectedGroupBox;
-	QListView	*selectedList;
+	QListWidget	*selectedList;
 
 	QGroupBox	*propertiesGroupBox;
 	QLabel		*selectedItems;
