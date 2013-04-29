@@ -31,27 +31,33 @@
 
 ************************************************************************/
 
-#ifndef _IMAGE_SELECTOR_HPP_INCLUDED
-#define _IMAGE_SELECTOR_HPP_INCLUDED
+#ifndef _IMAGE_LIST_VIEW_DIALOG_HPP_INCLUDED
+#define _IMAGE_LIST_VIEW_DIALOG_HPP_INCLUDED
 
 #include <QWidget>
+#include <QFutureWatcher>
+#include <QListView>
+#include <QStandardItemModel>
 
-#ifdef BUILD_AS_PLUGIN
-#include <QDesignerExportWidget>
-#define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
-#else
-#define EXPORT_AS_PLUGIN X_EXPORT
-#endif
-
-class EXPORT_AS_PLUGIN ImageSelector : public QWidget
+class ImageListViewDialog : public QWidget
 {
 	Q_OBJECT
 
-	public:
-		ImageSelector( QWidget *_parent = 0 );
+public:
+	explicit ImageListViewDialog( QStringList imageNamesList, QWidget *parent = 0 );
+	~ImageListViewDialog();
 
-	private:
-		void initialize( );
+public Q_SLOTS:
+	void showImage(int num);
+	void finished();
+
+	void imageClicked(QModelIndex);
+
+private:
+	QStringList m_imageNamesList;
+	QFutureWatcher<QImage>*     m_imageScaler;
+	QListView*                  m_imageListView;
+	QStandardItemModel*         m_standardModel;
 };
 
-#endif // _IMAGE_SELECTOR_HPP_INCLUDED
+#endif // _IMAGE_LIST_VIEW_DIALOG_HPP_INCLUDED

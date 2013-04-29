@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-TARGET = imageselector
+TARGET = imagelistview
 
 CONFIG += qt warn_on plugin
 
@@ -33,11 +33,11 @@ build_all:!build_pass {
 
 # Input
 SOURCES += \
-    ImageSelectionDialog.cpp \
-    ImageSelector.cpp \
-    ImageSelectorPlugin.cpp
+    ImageListViewDialog.cpp \
+    ImageListView.cpp \
+    ImageListViewPlugin.cpp
 
 HEADERS += \
-    ImageSelectionDialog.hpp \
-    ImageSelector.hpp \
-    ImageSelectorPlugin.hpp
+    ImageListView.hpp \
+    ImageListViewDialog.hpp \
+    ImageListViewPlugin.hpp

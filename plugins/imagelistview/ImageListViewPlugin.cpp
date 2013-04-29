@@ -31,35 +31,35 @@
 
 ************************************************************************/
 
-#include "ImageSelectorPlugin.hpp"
-#include "ImageSelector.hpp"
+#include "ImageListViewPlugin.hpp"
+#include "ImageListView.hpp"
 
 #include <QtPlugin>
 
-ImageSelectorPlugin::ImageSelectorPlugin( QObject *_parent )
+ImageListViewPlugin::ImageListViewPlugin( QObject *_parent )
 	: QObject( _parent ), m_initialized( false )
 {
 }
 
-bool ImageSelectorPlugin::isContainer( ) const
+bool ImageListViewPlugin::isContainer( ) const
 {
 	return false;
 }
 
-bool ImageSelectorPlugin::isInitialized( ) const
+bool ImageListViewPlugin::isInitialized( ) const
 {
 	return m_initialized;
 }
 
-QIcon ImageSelectorPlugin::icon( ) const
+QIcon ImageListViewPlugin::icon( ) const
 {
 	return QIcon( );
 }
 
-QString ImageSelectorPlugin::domXml( ) const
+QString ImageListViewPlugin::domXml( ) const
 {
 	return 	"<ui language=\"c++\">\n"
-		" <widget class=\"ImageSelector\" name=\"imageSelector\">\n"
+		" <widget class=\"ImageListView\" name=\"imageListView\">\n"
 		"  <property name=\"geometry\">\n"
 		"   <rect>\n"
 		"    <x>0</x>\n"
@@ -72,38 +72,38 @@ QString ImageSelectorPlugin::domXml( ) const
 		"</ui>\n";
 }
 
-QString ImageSelectorPlugin::group( ) const
+QString ImageListViewPlugin::group( ) const
 {
 	return "Wolframe Widgets";
 }
 
-QString ImageSelectorPlugin::includeFile( ) const
+QString ImageListViewPlugin::includeFile( ) const
 {
-	return "ImageSelector.hpp";
+	return "ImageListView.hpp";
 }
 
-QString ImageSelectorPlugin::name( ) const
+QString ImageListViewPlugin::name( ) const
 {
-	return "ImageSelector";
+	return "ImageListView";
 }
 
-QString ImageSelectorPlugin::toolTip( ) const
-{
-	return "";
-}
-
-QString ImageSelectorPlugin::whatsThis( ) const
+QString ImageListViewPlugin::toolTip( ) const
 {
 	return "";
 }
 
-QWidget *ImageSelectorPlugin::createWidget( QWidget *_parent )
+QString ImageListViewPlugin::whatsThis( ) const
+{
+	return "";
+}
+
+QWidget *ImageListViewPlugin::createWidget( QWidget *_parent )
 {
 	// is overridden by property
-	return new ImageSelector( _parent );
+	return new ImageListView( _parent );
 }
 
-void ImageSelectorPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
+void ImageListViewPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
 {
 	if( m_initialized ) return;
 
@@ -111,5 +111,5 @@ void ImageSelectorPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
 }
 
 #if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2( imageselector, ImageSelectorPlugin )
+Q_EXPORT_PLUGIN2( imagelistview, ImageListViewPlugin )
 #endif // QT_VERSION < 0x050000
