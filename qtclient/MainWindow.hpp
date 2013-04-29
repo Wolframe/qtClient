@@ -51,7 +51,7 @@
 #include "LoadMode.hpp"
 #include "ui_MainWindow.h"
 #include "settings.hpp"
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 #include "DebugTerminal.hpp"
 
 #include "SkeletonMainWindow.hpp"

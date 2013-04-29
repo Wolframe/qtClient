@@ -31,12 +31,12 @@
 
 ************************************************************************/
 
-#ifndef _IMAGE_SELECTOR_PLUGIN_HPP_INCLUDED
-#define _IMAGE_SELECTOR_PLUGIN_HPP_INCLUDED
+#ifndef _IMAGE_LIST_VIEW_PLUGIN_HPP_INCLUDED
+#define _IMAGE_LIST_VIEW_PLUGIN_HPP_INCLUDED
 
 #include <QDesignerCustomWidgetInterface>
 
-class ImageSelectorPlugin : public QObject, public QDesignerCustomWidgetInterface
+class ImageListViewPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
 	Q_OBJECT
 	Q_INTERFACES( QDesignerCustomWidgetInterface )
@@ -45,7 +45,7 @@ class ImageSelectorPlugin : public QObject, public QDesignerCustomWidgetInterfac
 #endif // QT_VERSION >= 0x050000
 
 	public:
-		ImageSelectorPlugin( QObject *_parent = 0 );
+		ImageListViewPlugin( QObject *_parent = 0 );
 		bool isContainer( ) const;
 		bool isInitialized( ) const;
 		QIcon icon( ) const;
@@ -62,4 +62,4 @@ class ImageSelectorPlugin : public QObject, public QDesignerCustomWidgetInterfac
 		bool m_initialized;
 };
 
-#endif // _IMAGE_SELECTOR_PLUGIN_HPP_INCLUDED
+#endif // _IMAGE_LIST_VIEW_PLUGIN_HPP_INCLUDED

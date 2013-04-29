@@ -36,7 +36,7 @@
 #include <string>
 #include <sstream>
 
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 
 ServerDefinition::ServerDefinition()
 {

@@ -36,6 +36,9 @@
 
 #include "FormPluginInterface.hpp"
 
+#include <QWidget>
+#include <QPushButton>
+
 class FormTestPlugin : public QObject, public FormPluginInterface
 {
 	Q_OBJECT
@@ -46,7 +49,16 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 	
 	public:		
 		virtual const QString name( );
-		virtual QWidget *initialize( QWidget *_parent );
+		virtual const QString windowTitle( );
+		virtual QWidget *initialize( WolframeClient *m_wolframeClient, QWidget *_parent );
+	
+	private:
+		QWidget *m_widget;
+		WolframeClient *m_wolframeClient;
+		QPushButton *m_pushButton;
+
+	private slots:
+		void handleButtonPress( );
 };
 
 #endif // _FORM_TEST_PLUGIN_INCLUDED

@@ -4,9 +4,15 @@ TARGET = formtest
 
 CONFIG += qt warn_on plugin
 
-DEFINES += X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
+DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
 
-INCLUDEPATH += ../../qtclient
+INCLUDEPATH += ../../qtclient ../../libqtwolframeclient
+
+unix:LIBS += -L../../libqtwolframeclient -lqtwolframeclient
+win32:LIBS += ../../libqtwolframeclient/debug/qtwolframeclient0.lib
+macx:LIBS += ../../libqtwolframeclient/build/Release/libqtwolframeclient0.dylib
+
+QT += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 	QT += widgets concurrent

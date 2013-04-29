@@ -35,7 +35,7 @@
 #define _LOGIN_DIALOG_HPP_INCLUDED
 
 #include <QDialog>
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 
 namespace Ui {
 class LoginDialog;

@@ -31,33 +31,14 @@
 
 ************************************************************************/
 
-#ifndef _IMAGE_SELECTION_DIALOG_HPP_INCLUDED
-#define _IMAGE_SELECTION_DIALOG_HPP_INCLUDED
+#include "ImageListView.hpp"
 
-#include <QWidget>
-#include <QFutureWatcher>
-#include <QListView>
-#include <QStandardItemModel>
-
-class ImageSelectionDialog : public QWidget
+ImageListView::ImageListView( QWidget *_parent )
+	: QWidget( _parent )
 {
-	Q_OBJECT
+	initialize( );
+}
 
-public:
-	explicit ImageSelectionDialog( QStringList imageNamesList, QWidget *parent = 0 );
-	~ImageSelectionDialog();
-
-public Q_SLOTS:
-	void showImage(int num);
-	void finished();
-
-	void imageClicked(QModelIndex);
-
-private:
-	QStringList m_imageNamesList;
-	QFutureWatcher<QImage>*     m_imageScaler;
-	QListView*                  m_imageListView;
-	QStandardItemModel*         m_standardModel;
-};
-
-#endif // _IMAGE_SELECTION_DIALOG_HPP_INCLUDED
+void ImageListView::initialize( )
+{
+}

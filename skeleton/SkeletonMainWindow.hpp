@@ -38,7 +38,7 @@
 #include <QVector>
 #include <QString>
 
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 
 class WolframeClient;
 class QLabel;
@@ -54,29 +54,29 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 
 	protected:
 		void addStatusBarIndicators( );
-		void activateAction( const QString name, bool enabled );		
+		void activateAction( const QString name, bool enabled );
 
 		virtual void initializeUi( );
-		virtual void deleteUi( );		
+		virtual void deleteUi( );
 		virtual void updateMenusAndToolbars( );
-		
+
 		QString lastUsername( ) const;
 		void setLastUsername( QString &username );
 		QString lastConnName( ) const;
 		void setLastConnName( QString &connName );
 		void setRememberLogin( bool enable );
-	
+
 	private:
 		bool m_rememberLogin;
 		QLabel *m_statusBarConn;
 		QLabel *m_statusBarSSL;
 		QString	m_lastUsername;
 		QString	m_lastConnName;
-	
+
 	protected:
 		void *m_ui;
 		WolframeClient *m_wolframeClient;
-		QVector<ServerDefinition> m_connections;
+		QVector<ServerDefinition> m_serverDefs;
 
 	protected slots:
 // slots for the wolframe client

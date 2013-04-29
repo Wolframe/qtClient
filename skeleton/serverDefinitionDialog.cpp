@@ -38,7 +38,7 @@
 #include "serverDefinitionDialog.hpp"
 #include "ui_serverDefinitionDialog.h"
 
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 #include "WolframeClient.hpp"
 
 ServerDefinitionDialog::ServerDefinitionDialog( ServerDefinition& params, QWidget *_parent ) :
@@ -301,7 +301,7 @@ void ServerDefinitionDialog::testConnection()
 		this, SLOT( connected( ) ) );
 	connect( m_client, SIGNAL( disconnected( ) ),
 		this, SLOT( disconnected( ) ) );
-		
+
 	m_client->connect( );
 }
 

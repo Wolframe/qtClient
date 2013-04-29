@@ -37,7 +37,7 @@
 #include <QDialog>
 #include <QAbstractButton>
 
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 #include "WolframeClient.hpp"
 
 namespace Ui {

@@ -32,7 +32,7 @@
 ************************************************************************/
 
 #include "DebugTerminal.hpp"
-#include "connection.hpp"
+#include "serverDefinition.hpp"
 
 #include <QBoxLayout>
 #include <QLabel>
@@ -72,7 +72,7 @@ void DebugTerminal::initialize( )
 	if( WolframeClient::SSLsupported( ) ) {
 		wordList << "sconnect";
 	}
-	
+
 	QCompleter *completer = new QCompleter( wordList, this );
 	completer->setCaseSensitivity( Qt::CaseInsensitive );
 	completer->setCompletionMode( QCompleter::InlineCompletion );

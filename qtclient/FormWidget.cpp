@@ -46,14 +46,14 @@
 
 #include <QPluginLoader>
 #include <QApplication>
-#include "FormPluginInterface.hpp"
 
-FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir )
+FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient )
 	: QWidget( _parent ), m_form( ),
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
 	  m_dataLoader( _dataLoader ), m_globals(_globals ), m_ui( 0 ),
 	  m_locale( DEFAULT_LOCALE ), m_layout( 0 ), m_forms( ),
-	  m_debug( _debug ), m_modal( false ), m_formDir( _formDir )
+	  m_debug( _debug ), m_modal( false ), m_formDir( _formDir ),
+	  m_wolframeClient( _wolframeClient )
 {
 	initialize();
 }
@@ -460,8 +460,28 @@ void FormWidget::setWidgetStates( const QVariant& state)
 	}
 }
 
-void FormWidget::formLoaded( QString name, QByteArray formXml )
+FormPluginInterface *FormWidget::formPlugin( QString name ) const
 {
+	QDir pluginDir( m_formDir );
+	foreach( QString filename, pluginDir.entryList( QDir::Files ) ) {
+		if( !QLibrary::isLibrary( filename ) ) continue;
+		QPluginLoader loader( pluginDir.absoluteFilePath( filename ) );
+		QObject *object = loader.instance( );
+		if( object ) {
+			if( qobject_cast<FormPluginInterface *>( object ) ) {
+				FormPluginInterface *plugin = qobject_cast<FormPluginInterface *>( object );
+				if( plugin->name( ) == name ) {
+					return plugin;
+				}
+			}
+		}
+	}
+	
+	return 0;
+}
+
+void FormWidget::formLoaded( QString name, QByteArray formXml )
+{	
 // that's not us
 	if( name != m_form ) return;
 
@@ -471,28 +491,45 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	QWidget *oldUi = m_ui;
 	if( formXml.size( ) == 0 ) {
 // byte array 0 indicates no UI description, so we call the plugin
-		QDir pluginDir( m_formDir );
-		foreach( QString filename, pluginDir.entryList( QDir::Files ) ) {
-			if( !QLibrary::isLibrary( filename ) ) continue;
-			QPluginLoader loader( pluginDir.absoluteFilePath( filename ) );
-			QObject *object = loader.instance( );
-			if( object ) {
-				if( qobject_cast<FormPluginInterface *>( object ) ) {
-					FormPluginInterface *plugin = qobject_cast<FormPluginInterface *>( object );
-					QString name = plugin->name( );
-					if( name == FormCall::name( name ) ) {
-						qDebug( ) << "PLUGIN: Initializing form plugin" << name;
-						m_ui = plugin->initialize( this );
-					}
-				}
-			}
+		FormPluginInterface *plugin = formPlugin( FormCall::name( name ) );
+		if( !plugin ) {
+			if( !oldUi ) oldUi = new QLabel( "error", this );
+			m_ui = oldUi;
+			m_form = m_previousForm;
+			emit error( tr( "Unable to load form plugin '%1', does the plugin exist?" ).arg( FormCall::name( name ) ) );
+			return;
 		}
-	} else {			
+		qDebug( ) << "PLUGIN: Initializing form plugin" << name;
+		m_ui = plugin->initialize( m_wolframeClient, this );
+		if( m_ui == 0 ) {
+			if( !oldUi ) oldUi = new QLabel( "error", this );
+			m_ui = oldUi;
+			m_form = m_previousForm;
+			emit error( tr( "Unable to initialize form plugin '%1', something went wrong in plugin initialization!" ).arg( FormCall::name( name ) ) );
+			return;
+		}
+// add new form to layout (which covers the whole widget)
+		m_layout->addWidget( m_ui );
+
+		qDebug( ) << "set window title" << plugin->windowTitle( );
+		setWindowTitle( plugin->windowTitle( ) );
+
+		if ( oldUi ) {
+			m_ui->move( oldUi->pos( ) );
+			oldUi->hide( );
+			oldUi->deleteLater( );
+			oldUi->setParent( 0 );
+		}
+		m_ui->show( );
+		
+		return;
+	} else {		
 // read the form and construct it from the UI file
 		QBuffer buf( &formXml );
 		m_ui = m_uiLoader->load( &buf, this );
 		if( m_ui == 0 ) {
 // something went wrong loading or constructing the form
+			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
 			emit error( tr( "Unable to load form '%1', does it exist?" ).arg( name ) );
@@ -648,6 +685,8 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 {
+	qDebug( ) << "Answer for form" << m_form << "and tag" << tag_;
+	
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);
 	WidgetRequest rq( tag_);

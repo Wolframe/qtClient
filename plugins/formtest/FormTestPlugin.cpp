@@ -35,18 +35,56 @@
 
 #include <QDebug>
 #include <QLabel>
+#include <QByteArray>
+#include <QVBoxLayout>
 
 const QString FormTestPlugin::name( )
 {
 	return "test";
 }
 
-QWidget *FormTestPlugin::initialize( QWidget *_parent )
+const QString windowTitle( )
+{
+	return "Test Form";
+}
+
+QWidget *FormTestPlugin::initialize( WolframeClient *_wolframeClient, QWidget *_parent )
 {
 	qDebug( ) << "PLUGIN: initializing plugin" << name( );
-	QLabel *label = new QLabel( "form plugin test", _parent );
 	
-	return label;
+	m_wolframeClient = _wolframeClient;
+	
+	m_widget = new QWidget( _parent );
+	
+	QVBoxLayout *layout = new QVBoxLayout( m_widget );
+	m_widget->setLayout( layout );
+	
+	QLabel *label = new QLabel(
+		QString( "form plugin test, connected to %1, %2 (%3)" )
+			.arg( m_wolframeClient->serverName( ) )
+			.arg( m_wolframeClient->isEncrypted( ) ? "encrypted" : "not encrypted" )
+			.arg( m_wolframeClient->encryptionName( ) ),
+		m_widget );
+	layout->addWidget( label );
+
+	m_pushButton = new QPushButton( "Press me!", m_widget );
+	layout->addWidget( m_pushButton );
+
+	connect( m_pushButton, SIGNAL( clicked( ) ), this, SLOT( handleButtonPress( ) ) );
+	
+	return m_widget;
+}
+
+void FormTestPlugin::handleButtonPress( )
+{
+	QString tag = "test";
+	QByteArray content;
+
+	content.append( QString( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" ) );
+	content.append( QString( "<!DOCTYPE \"employee\" SYSTEM \"ListEmployee.simpleform\">" ) );
+	content.append( QString( "<employee/>" ) );
+
+	m_wolframeClient->request( tag, content );
 }
 
 #if QT_VERSION < 0x050000

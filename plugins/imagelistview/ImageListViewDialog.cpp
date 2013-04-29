@@ -37,7 +37,7 @@
 #include <QGridLayout>
 #include <QtConcurrentMap>
 
-#include "ImageSelectionDialog.hpp"
+#include "ImageListViewDialog.hpp"
 
 static const int imageSize = 60;
 
@@ -48,7 +48,7 @@ static QImage scale( const QString &imageFileName )
 			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
 }
 
-ImageSelectionDialog::ImageSelectionDialog( QStringList imageNamesList, QWidget *parent )
+ImageListViewDialog::ImageListViewDialog( QStringList imageNamesList, QWidget *parent )
 	: QWidget( parent ), m_imageNamesList( imageNamesList )
 {
 
@@ -77,24 +77,24 @@ ImageSelectionDialog::ImageSelectionDialog( QStringList imageNamesList, QWidget 
 	connect( m_imageListView, SIGNAL( doubleClicked( QModelIndex ) ), SLOT( imageClicked( QModelIndex ) ) );
 }
 
-ImageSelectionDialog::~ImageSelectionDialog()
+ImageListViewDialog::~ImageListViewDialog()
 {
 	m_imageScaler->cancel();
 	m_imageScaler->waitForFinished();
 }
 
-void ImageSelectionDialog::showImage( int num )
+void ImageListViewDialog::showImage( int num )
 {
 	QStandardItem* imageitem = new QStandardItem();
 	imageitem->setIcon( QIcon( QPixmap::fromImage( m_imageScaler->resultAt( num ) ) ) );
 	m_standardModel->appendRow( imageitem );
 }
 
-void ImageSelectionDialog::finished()
+void ImageListViewDialog::finished()
 {
 }
 
-void ImageSelectionDialog::imageClicked(QModelIndex index)
+void ImageListViewDialog::imageClicked(QModelIndex index)
 {
 	if ( index.row() < m_imageNamesList.count() )	{
 		qDebug() << "image selected " << m_imageNamesList.at( index.row() );
