@@ -230,7 +230,7 @@ class WidgetVisitor
 		void connectWidgetEnabler( WidgetEnabler& enabler);
 
 		///\brief Find all sub widgets matching a condition and return them as their visitor context
-		typedef bool (*NodeProperty)( const QWidget* widget, const QVariant& cond);
+		typedef bool (*NodeProperty)( const QWidget* widget_, const QVariant& cond);
 		QList<QWidget*> findSubNodes( NodeProperty prop, const QVariant& cond=QVariant()) const;
 
 		QList<QWidget*> children( const QString& name=QString()) const;
@@ -248,7 +248,7 @@ class WidgetVisitor
 		///\brief Get the unique identifier of the widget for server requests
 		QString widgetid() const;
 		///\brief Get the widget of the current state
-		QWidget* widget() const								{return m_stk.isEmpty()?0:m_stk.top()->m_widget;}
+		QWidget* widget() const								{return m_stk.isEmpty()?0:m_stk.top().m_obj->widget();}
 		///\brief Get the object name of the widget of the current state
 		QString objectName() const;
 		///\brief Get the class name of the widget of the current state
@@ -331,14 +331,51 @@ class WidgetVisitor
 		///\param[in] level element index in path (element is first element of a path <=> level == 0)
 		bool enter( const QString& name, bool writemode, int level);
 
-		///\brief Constructor internal
-		explicit WidgetVisitor( const QStack<WidgetVisitorObjectR>& stk_);
-
 		void ERROR( const char* msg, const QString& arg=QString()) const;
 
 	private:
-		QStack<WidgetVisitorObjectR> m_stk;		//< stack of visited widgets. The current node is the top element
-		bool m_useSynonyms;				//< wheter to use synonyms in evaluation or not
+		class State
+		{
+		public:
+			State();
+			State( const State& o);
+			State( WidgetVisitorObjectR obj_);
+
+		public://Common methods:
+			QVariant getSynonym( const QString& name) const;
+			QString getLink( const QString& name) const;
+			QVariant dynamicProperty( const QString& name) const;
+			bool setDynamicProperty( const QString&, const QVariant& value);
+
+		private:
+			struct DataSignals
+			{
+				QList<QString> id[(int)WidgetListener::NofDataSignalTypes];
+			};
+			friend class WidgetVisitorStackElement;
+			friend class WidgetVisitor;
+
+			typedef QPair< QString,QString> LinkDef;
+			typedef QPair< QString,QString> Assignment;
+
+			WidgetVisitorObjectR m_obj;
+			QHash<QString,QString> m_synonyms;		//< synonym name map
+			QList<LinkDef> m_links;				//< symbolic links to other objects
+			QList<Assignment> m_assignments;		//< assignment done at initialization and destruction
+			QList<Assignment> m_globals;			//< assignment done at initialization and destruction
+			DataSignals m_datasignals;			//< datasignals to emit on certain state changes
+			QList<QString> m_dataslots;			//< dataslot to declare a receiver by name for being informed on certain state changes
+			QHash<QString,QVariant> m_dynamicProperties;	//< map of defined dynamic properties
+			int m_synonym_entercnt;				//< counter for how many stack elements to pop on a leave (for multipart synonyms)
+			int m_internal_entercnt;			//< counter for calling State::leave() before removing stack elements
+		};
+
+		///\brief Constructor internal
+		explicit WidgetVisitor( const QStack<State>& stk_);
+
+	private:
+		QStack<State> m_stk;		//< stack of visited widgets. The current node is the top element
+		bool m_useSynonyms;		//< wheter to use synonyms in evaluation or not
 };
 
 #endif

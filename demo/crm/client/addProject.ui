@@ -84,7 +84,7 @@
         <string>Add</string>
        </property>
        <property name="action" stdset="0">
-        <string notr="true">InsertProject project {customerid={addProject.customerid},name{{addProject.name}},description{{addProject.description}}}</string>
+        <string notr="true">InsertProject project {customerid={addProject.customer.selected},name{{addProject.name}},description{{addProject.description}}}</string>
        </property>
        <property name="form" stdset="0">
         <string notr="true">_CLOSE_</string>

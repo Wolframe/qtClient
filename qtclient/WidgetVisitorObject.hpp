@@ -105,14 +105,14 @@ public slots:
 ///\brief Accessor for a widget (implemented for every widget type supported)
 struct WidgetVisitorObject
 {
+public:
 	///\brief Constructor
 	explicit WidgetVisitorObject( QWidget* widget_);
 
-	///\brief Copy constructor
-	WidgetVisitorObject( const WidgetVisitorObject& o);
-
 	///\brief Destructor
 	virtual ~WidgetVisitorObject(){}
+
+	QWidget* widget() const	{return m_widget;}
 
 public://Interface methods implemented for different widget types:
 	///\brief Clear contents of the widget
@@ -139,34 +139,8 @@ public://Interface methods implemented for different widget types:
 	///\brief Connect widget signals that should trigger an event for enabling or disabling a data referencing widget
 	virtual void connectWidgetEnabler( WidgetEnabler& /*enabler*/){}
 
-public://Common methods:
-	QVariant getSynonym( const QString& name) const;
-	QString getLink( const QString& name) const;
-	QVariant dynamicProperty( const QString& name) const;
-	bool setDynamicProperty( const QString&, const QVariant& value);
-	QWidget* widget() const		{return m_widget;}
-
 private:
-	struct DataSignals
-	{
-		QList<QString> id[(int)WidgetListener::NofDataSignalTypes];
-	};
-	friend class WidgetVisitorStackElement;
-	friend class WidgetVisitor;
-
-	typedef QPair< QString,QString> LinkDef;
-	typedef QPair< QString,QString> Assignment;
-
-	QWidget* m_widget;				//< widget reference
-	QHash<QString,QString> m_synonyms;		//< synonym name map
-	QList<LinkDef> m_links;				//< symbolic links to other objects
-	QList<Assignment> m_assignments;		//< assignment done at initialization and destruction
-	QList<Assignment> m_globals;			//< assignment done at initialization and destruction
-	DataSignals m_datasignals;			//< datasignals to emit on certain state changes
-	QList<QString> m_dataslots;			//< dataslot to declare a receiver by name for being informed on certain state changes
-	QHash<QString,QVariant> m_dynamicProperties;	//< map of defined dynamic properties
-	int m_synonym_entercnt;				//< counter for how many stack elements to pop on a leave (for multipart synonyms)
-	int m_internal_entercnt;			//< counter for calling State::leave() before removing stack elements
+	QWidget* m_widget;
 };
 typedef QSharedPointer<WidgetVisitorObject> WidgetVisitorObjectR;
 

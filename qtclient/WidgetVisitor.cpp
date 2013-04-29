@@ -79,6 +79,133 @@ static void logError( QWidget* widget, const char* msg, const QString& arg)
 	}
 }
 
+WidgetVisitor::State::State( const State& o)
+	:m_obj(o.m_obj)
+	,m_synonyms(o.m_synonyms)
+	,m_links(o.m_links)
+	,m_assignments(o.m_assignments)
+	,m_datasignals(o.m_datasignals)
+	,m_dataslots(o.m_dataslots)
+	,m_dynamicProperties(o.m_dynamicProperties)
+	,m_synonym_entercnt(o.m_synonym_entercnt)
+	,m_internal_entercnt(o.m_internal_entercnt){}
+
+WidgetVisitor::State::State()
+	:m_synonym_entercnt(1)
+	,m_internal_entercnt(0)
+{}
+
+WidgetVisitor::State::State( WidgetVisitorObjectR obj_)
+	:m_obj(obj_)
+	,m_synonym_entercnt(1)
+	,m_internal_entercnt(0)
+{
+	foreach (const QByteArray& prop, m_obj->widget()->dynamicPropertyNames())
+	{
+		if (prop.indexOf(':') >= 0)
+		{
+			if (prop.startsWith( "synonym:"))
+			{
+				QVariant synonym = m_obj->widget()->property( prop);
+				m_synonyms.insert( prop.mid( 8, prop.size()-8), synonym.toString().trimmed());
+			}
+			else if (prop.startsWith( "link:"))
+			{
+				QVariant link = m_obj->widget()->property( prop);
+				m_links.push_back( LinkDef( prop.mid( 5, prop.size()-5), link.toString().trimmed()));
+			}
+			else if (prop.startsWith( "assign:"))
+			{
+				QVariant value = m_obj->widget()->property( prop);
+				m_assignments.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString().trimmed()));
+			}
+			else if (prop.startsWith( "global:"))
+			{
+				QVariant value = m_obj->widget()->property( prop);
+				m_globals.push_back( Assignment( prop.mid( 7, prop.size()-7), value.toString().trimmed()));
+			}
+			else if (prop.startsWith( "datasignal:"))
+			{
+				const char* signalname = (const char*)prop + 11/*std::strlen( "datasignal:")*/;
+				QList<QString> values;
+				foreach (const QString& vv, m_obj->widget()->property( prop).toString().trimmed().split(','))
+				{
+					values.push_back( vv.trimmed());
+				}
+				WidgetListener::DataSignalType dt;
+				if (strcmp( signalname, "signaled") != 0)
+				{
+					// ... forward is handled differently
+					if (WidgetListener::getDataSignalType( signalname, dt))
+					{
+						m_datasignals.id[ (int)dt] = values;
+					}
+					else
+					{
+						qCritical() << "error widget visitor state" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName() << ": defined unknown data signal name" << prop;
+					}
+				}
+			}
+		}
+		if (!prop.startsWith( "_w_") && !prop.startsWith( "_q_"))
+		{
+			m_dynamicProperties.insert( prop, m_obj->widget()->property( prop));
+		}
+	}
+	QVariant dataslots = m_obj->widget()->property( "dataslot");
+	if (dataslots.isValid())
+	{
+		foreach (const QString& vv, dataslots.toString().trimmed().split(','))
+		{
+			m_dataslots.push_back( vv.trimmed());
+		}
+	}
+	static qint64 g_cnt = 0;
+	QVariant ruid = m_obj->widget()->property( "widgetid");
+	if (!ruid.isValid())
+	{
+		QString rt =  m_obj->widget()->objectName();
+		rt.append( ":");
+		rt.append( QVariant( ++g_cnt).toString());
+		m_obj->widget()->setProperty( "widgetid", QVariant(rt));
+	}
+}
+
+QVariant WidgetVisitor::State::dynamicProperty( const QString& name) const
+{
+	QHash<QString,QVariant>::const_iterator di = m_dynamicProperties.find( name);
+	if (di == m_dynamicProperties.end()) return QVariant();
+	return di.value();
+}
+
+bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVariant& value)
+{
+	m_dynamicProperties.insert( name, value);
+	m_obj->widget()->setProperty( name.toLatin1(), value);
+	return true;
+}
+
+QVariant WidgetVisitor::State::getSynonym( const QString& name) const
+{
+	static const QString empty;
+	QHash<QString,QString>::const_iterator syi = m_synonyms.find( name);
+	if (syi == m_synonyms.end()) return QVariant();
+	return QVariant( syi.value());
+}
+
+QString WidgetVisitor::State::getLink( const QString& name) const
+{
+	int ii = 0, nn = m_links.size();
+	for (; ii<nn; ++ii)
+	{
+		if (m_links.at( ii).first == name)
+		{
+			return m_links.at( ii).second;
+		}
+	}
+	return QString();
+}
+
 static void getWidgetChildren_( QList<QWidget*>& rt, QObject* wdg)
 {
 	static const QString str_QWidget("QWidget");
@@ -121,7 +248,7 @@ bool WidgetVisitor::is_widgetid( const QString& id)
 
 QWidget* WidgetVisitor::get_widget_reference( const QString& id)
 {
-	if (enter( id, true) && m_stk.top()->m_internal_entercnt == 0)
+	if (enter( id, true) && m_stk.top().m_internal_entercnt == 0)
 	{
 		QWidget* rt = widget();
 		leave( true);
@@ -133,15 +260,15 @@ QWidget* WidgetVisitor::get_widget_reference( const QString& id)
 WidgetVisitor::WidgetVisitor( QWidget* root, bool useSynonyms_)
 	:m_useSynonyms(useSynonyms_)
 {
-	m_stk.push( createWidgetVisitorObject( root));
+	m_stk.push( State( WidgetVisitorObjectR( createWidgetVisitorObject( root))));
 }
 
-WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& state)
+WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& obj)
 {
-	m_stk.push( state);
+	m_stk.push( State( obj));
 }
 
-WidgetVisitor::WidgetVisitor( const QStack<WidgetVisitorObjectR>& stk_)
+WidgetVisitor::WidgetVisitor( const QStack<State>& stk_)
 	:m_stk(stk_)
 {}
 
@@ -163,9 +290,9 @@ bool WidgetVisitor::enter_root( const QString& name)
 	QWidget* ww = predecessor( name);
 	if (ww)
 	{
-		if (ww != m_stk.top()->m_widget)
+		if (ww != m_stk.top().m_obj->widget())
 		{
-			m_stk.push_back( createWidgetVisitorObject( ww));
+			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( ww))));
 			return true;
 		}
 	}
@@ -175,9 +302,9 @@ bool WidgetVisitor::enter_root( const QString& name)
 QList<QWidget*> WidgetVisitor::children( const QString& name) const
 {
 	QList<QWidget*> rt;
-	if (!m_stk.empty() && !m_stk.top()->m_internal_entercnt)
+	if (!m_stk.empty() && !m_stk.top().m_internal_entercnt)
 	{
-		foreach( QWidget* ww, getWidgetChildren( m_stk.top()->m_widget))
+		foreach( QWidget* ww, getWidgetChildren( m_stk.top().m_obj->widget()))
 		{
 			if (name.isEmpty() || ww->objectName() == name)
 			{
@@ -196,7 +323,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 	if (m_useSynonyms)
 	{
 		// [A] check if name is a synonym and follow it if yes:
-		QVariant synonym = m_stk.top()->getSynonym( name);
+		QVariant synonym = m_stk.top().getSynonym( name);
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
@@ -232,24 +359,24 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 			prefix = rest.mid( 0, followidx);
 			rest = rest.mid( followidx+1, rest.size()-followidx-1);
 		} while (followidx >= 0);
-		m_stk.top()->m_synonym_entercnt = entercnt;
+		m_stk.top().m_synonym_entercnt = entercnt;
 		return true;
 	}
 
 	TRACE_STATUS( "try enter internal", className(), objectName(), name)
 	// [B] check if name refers to a widget internal item and follow it if yes:
-	if (m_stk.top()->enter( name, writemode))
+	if (m_stk.top().m_obj->enter( name, writemode))
 	{
 		TRACE_ENTER( "internal", className(), objectName(), name);
-		++m_stk.top()->m_internal_entercnt;
+		++m_stk.top().m_internal_entercnt;
 		return true;
 	}
 
-	if (m_stk.top()->m_internal_entercnt == 0)
+	if (m_stk.top().m_internal_entercnt == 0)
 	{
 		// [C] check if name refers to a symbolic link and follow the link if yes:
 		TRACE_STATUS( "try enter link", className(), objectName(), name)
-		QString lnk = m_stk.top()->getLink( name);
+		QString lnk = m_stk.top().getLink( name);
 		if (!lnk.isEmpty())
 		{
 			QWidget* lnkwdg = resolveLink( resolve( lnk).toString());
@@ -258,7 +385,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 				ERROR( "failed to resolve symbolic link to widget");
 				return false;
 			}
-			m_stk.push_back( createWidgetVisitorObject( lnkwdg));
+			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( lnkwdg))));
 			TRACE_ENTER( "link", className(), objectName(), resolve(lnk));
 			return true;
 		}
@@ -282,7 +409,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 				return false;
 			}
 			if (cn.isEmpty()) return false;
-			m_stk.push( createWidgetVisitorObject( cn[0]));
+			m_stk.push( State( WidgetVisitorObjectR( createWidgetVisitorObject( cn[0]))));
 			TRACE_ENTER( "child", className(), objectName(), name);
 			return true;
 		}
@@ -293,17 +420,17 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 void WidgetVisitor::leave( bool writemode)
 {
 	if (m_stk.empty()) return;
-	int cnt = m_stk.top()->m_synonym_entercnt;
+	int cnt = m_stk.top().m_synonym_entercnt;
 	while (cnt-- > 0)
 	{
-		if (m_stk.top()->m_internal_entercnt)
+		if (m_stk.top().m_internal_entercnt)
 		{
 			TRACE_LEAVE( "internal")
-			if (!m_stk.top()->leave( writemode))
+			if (!m_stk.top().m_obj->leave( writemode))
 			{
 				ERROR( "illegal state: internal state leave failed");
 			}
-			--m_stk.top()->m_internal_entercnt;
+			--m_stk.top().m_internal_entercnt;
 		}
 		else
 		{
@@ -428,7 +555,7 @@ QVariant WidgetVisitor::resolve( const QVariant& value)
 FormWidget* WidgetVisitor::formwidget() const
 {
 	if (m_stk.isEmpty()) return 0;
-	QObject* prn = m_stk.top()->m_widget;
+	QObject* prn = m_stk.top().m_obj->widget();
 	for (; prn != 0; prn = prn->parent())
 	{
 		FormWidget* fw = qobject_cast<FormWidget*>( prn);
@@ -440,7 +567,7 @@ FormWidget* WidgetVisitor::formwidget() const
 QWidget* WidgetVisitor::predecessor( const QString& name) const
 {
 	if (m_stk.isEmpty()) return 0;
-	QObject* prn = m_stk.top()->m_widget;
+	QObject* prn = m_stk.top().m_obj->widget();
 	for (; prn != 0; prn = prn->parent())
 	{
 		QWidget* wdg = qobject_cast<QWidget*>( prn);
@@ -463,7 +590,7 @@ QWidget* WidgetVisitor::predecessor( const QString& name) const
 QWidget* WidgetVisitor::uirootwidget() const
 {
 	if (m_stk.isEmpty()) return 0;
-	QWidget* wdg = m_stk.at(0)->m_widget;
+	QWidget* wdg = m_stk.at(0).m_obj->widget();
 	QObject* prn = wdg->parent();
 	for (; prn != 0; prn = prn->parent())
 	{
@@ -500,7 +627,7 @@ QVariant WidgetVisitor::getState()
 	QVariant state;
 	if (!m_stk.isEmpty())
 	{
-		state = m_stk.top()->getState();
+		state = m_stk.top().m_obj->getState();
 	}
 	return state;
 }
@@ -509,20 +636,20 @@ void WidgetVisitor::setState( const QVariant& state)
 {
 	if (!m_stk.isEmpty())
 	{
-		m_stk.top()->setState( state);
+		m_stk.top().m_obj->setState( state);
 	}
 }
 
 void WidgetVisitor::endofDataFeed()
 {
-	if (!m_stk.isEmpty()) m_stk.top()->endofDataFeed();
+	if (!m_stk.isEmpty()) m_stk.top().m_obj->endofDataFeed();
 }
 
 void WidgetVisitor::clear()
 {
 	if (!m_stk.isEmpty())
 	{
-		m_stk.top()->clear();
+		m_stk.top().m_obj->clear();
 	}
 }
 
@@ -539,7 +666,7 @@ QVariant WidgetVisitor::property( const char* name)
 QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name) const
 {
 	if (m_stk.empty()) return 0;
-	WidgetVisitor visitor( m_stk.top()->widget());
+	WidgetVisitor visitor( m_stk.top().m_obj->widget());
 	return visitor.getPropertyOwnerWidget( name, 0);
 }
 
@@ -549,7 +676,7 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 	// [A] check if a synonym is referenced and redirect to evaluate synonym value instead if yes
 	if (m_useSynonyms)
 	{
-		QVariant synonym = m_stk.top()->getSynonym( name);
+		QVariant synonym = m_stk.top().getSynonym( name);
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
@@ -589,24 +716,24 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 	{
 		// [B] check if an internal property of the widget is referenced and return its value if yes
 		QVariant rt;
-		if ((rt = m_stk.top()->property( name)).isValid())
+		if ((rt = m_stk.top().m_obj->property( name)).isValid())
 		{
 			TRACE_FETCH( "internal property", objectName(), name, rt)
-			return m_stk.top()->widget();
+			return m_stk.top().m_obj->widget();
 		}
 
 		// [D] check if a dynamic property is referenced and return its value if yes
-		if (m_stk.top()->m_internal_entercnt == 0)
+		if (m_stk.top().m_internal_entercnt == 0)
 		{
-			rt = m_stk.top()->dynamicProperty( name);
+			rt = m_stk.top().dynamicProperty( name);
 			if (rt.isValid())
 			{
 				TRACE_FETCH( "dynamic property", objectName(), name, rt)
-				return m_stk.top()->widget();
+				return m_stk.top().m_obj->widget();
 			}
 		}
 	}
-	return m_stk.top()->widget();
+	return m_stk.top().m_obj->widget();
 }
 
 QVariant WidgetVisitor::property( const QString& name, int level)
@@ -617,7 +744,7 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 	if (m_useSynonyms)
 	{
 		// [A] check if a synonym is referenced and redirect to evaluate synonym value instead if yes
-		QVariant synonym = m_stk.top()->getSynonym( name);
+		QVariant synonym = m_stk.top().getSynonym( name);
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
@@ -652,7 +779,7 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 	if (subelem)
 	{
 		QVariant rt = property( rest, level);
-		bool isArray = m_stk.top()->m_internal_entercnt != 0 && m_stk.top()->isArrayElement( prefix);
+		bool isArray = m_stk.top().m_internal_entercnt != 0 && m_stk.top().m_obj->isArrayElement( prefix);
 		leave( false);
 		if (isArray)
 		{
@@ -674,16 +801,16 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 	{
 		// [B] check if an internal property of the widget is referenced and return its value if yes
 		QVariant rt;
-		if ((rt = m_stk.top()->property( name)).isValid())
+		if ((rt = m_stk.top().m_obj->property( name)).isValid())
 		{
 			TRACE_FETCH( "internal property", objectName(), name, rt)
 			return resolve( rt);
 		}
 
 		// [D] check if a dynamic property is referenced and return its value if yes
-		if (m_stk.top()->m_internal_entercnt == 0)
+		if (m_stk.top().m_internal_entercnt == 0)
 		{
-			rt = m_stk.top()->dynamicProperty( name);
+			rt = m_stk.top().dynamicProperty( name);
 			if (rt.isValid())
 			{
 				TRACE_FETCH( "dynamic property", objectName(), name, rt)
@@ -698,19 +825,19 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 QString WidgetVisitor::objectName() const
 {
 	if (m_stk.isEmpty()) return QString();
-	return m_stk.top()->m_widget->objectName();
+	return m_stk.top().m_obj->widget()->objectName();
 }
 
 QString WidgetVisitor::className() const
 {
 	if (m_stk.isEmpty()) return QString();
-	return m_stk.top()->m_widget->metaObject()->className();
+	return m_stk.top().m_obj->widget()->metaObject()->className();
 }
 
 QString WidgetVisitor::widgetid() const
 {
 	if (m_stk.isEmpty()) return QString();
-	QVariant ruid = m_stk.top()->m_widget->property( "widgetid");
+	QVariant ruid = m_stk.top().dynamicProperty( "widgetid");
 	if (ruid.type() != QVariant::String)
 	{
 		ERROR( "property 'widgetid' missing in state");
@@ -736,7 +863,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 	if (m_useSynonyms)
 	{
 		// [A] check if a synonym is referenced and redirect set the synonym value instead if yes
-		QVariant synonym = m_stk.top()->getSynonym( name);
+		QVariant synonym = m_stk.top().getSynonym( name);
 		if (synonym.isValid())
 		{
 			TRACE_STATUS( "found synonym", synonym, name, value)
@@ -757,7 +884,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 		{
 			subelem = true;
 		}
-		bool isArray = m_stk.top()->m_internal_entercnt != 0 && m_stk.top()->isArrayElement( prefix);
+		bool isArray = m_stk.top().m_internal_entercnt != 0 && m_stk.top().m_obj->isArrayElement( prefix);
 		if (isArray)
 		{
 			ERROR( "cannot set property addressing a set of properties", prefix);
@@ -772,7 +899,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 			prefix = name;
 			rest.clear();
 		}
-		bool isArray = m_stk.top()->m_internal_entercnt != 0 && m_stk.top()->isArrayElement( name);
+		bool isArray = m_stk.top().m_internal_entercnt != 0 && m_stk.top().m_obj->isArrayElement( name);
 		if (isArray)
 		{
 			ERROR( "cannot set property addressing a set of properties", prefix);
@@ -788,7 +915,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 	{
 		TRACE_STATUS( "try to set internal property", className(), objectName(), name)
 		// [B] check if an internal property of the widget is referenced and set its value if yes
-		if (m_stk.top()->setProperty( name, value))
+		if (m_stk.top().m_obj->setProperty( name, value))
 		{
 			TRACE_ASSIGNMENT( "internal property", objectName(), name, value)
 			return true;
@@ -796,10 +923,10 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 
 		TRACE_STATUS( "try to set dynamic property", className(), objectName(), name)
 		// [D] check if a dynamic property is referenced and set its value if yes
-		if (m_stk.top()->m_internal_entercnt == 0)
+		if (m_stk.top().m_internal_entercnt == 0)
 		{
 			TRACE_ASSIGNMENT( "dynamic property", objectName(), name, value)
-			if (m_stk.top()->setDynamicProperty( name, value)) return true;
+			if (m_stk.top().setDynamicProperty( name, value)) return true;
 		}
 	}
 	return false;
@@ -811,8 +938,8 @@ QList<QWidget*> WidgetVisitor::findSubNodes( NodeProperty prop, const QVariant& 
 	if (m_stk.isEmpty()) return rt;
 	QVector<QWidget*> ar;
 
-	if (prop( m_stk.top()->m_widget, cond)) rt.push_back( m_stk.top()->m_widget);
-	ar.push_back( m_stk.top()->m_widget);
+	if (prop( m_stk.top().m_obj->widget(), cond)) rt.push_back( m_stk.top().m_obj->widget());
+	ar.push_back( m_stk.top().m_obj->widget());
 
 	int endidx = ar.size(), idx = 0;
 	do
@@ -843,7 +970,7 @@ static bool nodeProperty_hasGlobal( const QWidget* widget, const QVariant& )
 void WidgetVisitor::readGlobals( const QHash<QString,QVariant>& globals)
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_globals)
+	foreach (const State::Assignment& assignment, m_stk.top().m_globals)
 	{
 		QHash<QString,QVariant>::const_iterator gi = globals.find( assignment.first);
 		if (gi != globals.end())
@@ -856,7 +983,7 @@ void WidgetVisitor::readGlobals( const QHash<QString,QVariant>& globals)
 void WidgetVisitor::writeGlobals( QHash<QString,QVariant>& globals)
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_globals)
+	foreach (const State::Assignment& assignment, m_stk.top().m_globals)
 	{
 		globals[ assignment.first] = property( assignment.second);
 	}
@@ -892,7 +1019,7 @@ static bool nodeProperty_hasAssignment( const QWidget* widget, const QVariant& )
 void WidgetVisitor::readAssignments()
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_assignments)
+	foreach (const State::Assignment& assignment, m_stk.top().m_assignments)
 	{
 		QVariant value = property( assignment.second);
 		if (!setProperty( assignment.first, value))
@@ -905,7 +1032,7 @@ void WidgetVisitor::readAssignments()
 void WidgetVisitor::writeAssignments()
 {
 	if (m_stk.isEmpty()) return;
-	foreach (const WidgetVisitorObject::Assignment& assignment, m_stk.top()->m_assignments)
+	foreach (const State::Assignment& assignment, m_stk.top().m_assignments)
 	{
 		QVariant value = property( assignment.first);
 		if (!setProperty( assignment.second, value))
@@ -938,14 +1065,14 @@ WidgetListenerImpl* WidgetVisitor::createListener( DataLoader* dataLoader)
 	WidgetListenerImpl* listener = 0;
 	if (!m_stk.isEmpty())
 	{
-		listener = new WidgetListenerImpl( m_stk.top()->m_widget, dataLoader);
+		listener = new WidgetListenerImpl( m_stk.top().m_obj->widget(), dataLoader);
 		if (listener)
 		{
 			for (int dt=0; dt<WidgetListener::NofDataSignalTypes; ++dt)
 			{
-				if (!m_stk.top()->m_datasignals.id[ dt].isEmpty())
+				if (!m_stk.top().m_datasignals.id[ dt].isEmpty())
 				{
-					m_stk.top()->connectDataSignals( (WidgetListener::DataSignalType)dt, *listener);
+					m_stk.top().m_obj->connectDataSignals( (WidgetListener::DataSignalType)dt, *listener);
 				}
 			}
 		}
@@ -957,7 +1084,7 @@ void WidgetVisitor::connectWidgetEnabler( WidgetEnabler& enabler)
 {
 	if (!m_stk.isEmpty())
 	{
-		m_stk.top()->connectWidgetEnabler( enabler);
+		m_stk.top().m_obj->connectWidgetEnabler( enabler);
 	}
 }
 
@@ -1063,7 +1190,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetL
 	QList<QPair<QString,QWidget*> > rt;
 	if (m_stk.isEmpty()) return rt;
 
-	foreach (const QString& receiverprop, m_stk.top()->m_datasignals.id[(int)type])
+	foreach (const QString& receiverprop, m_stk.top().m_datasignals.id[(int)type])
 	{
 		QVariant receiverid = resolve( receiverprop);
 		rt.append( get_datasignal_receivers( receiverid.toString()));
