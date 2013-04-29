@@ -485,6 +485,30 @@ static void append_escaped( QString& dest, const QVariant& value)
 	append_escaped_( dest, value.toString());
 }
 
+static QVariant variable_value( WidgetVisitor& visitor, const QString& var)
+{
+	int dpidx =var.indexOf( ':');
+	if (dpidx < 0)
+	{
+		return visitor.property( var);
+	}
+	else
+	{
+		QString defaultvalue = var.mid( dpidx+1, var.size()-(dpidx+1)).trimmed();
+		foreach (QChar ch, defaultvalue)
+		{
+			if (!ch.isDigit())
+			{
+				qCritical() << "illegal character in default value (currently only non negative numbers and empty value allowed):" << ch << defaultvalue;
+				break;
+			}
+		}
+		QString tryvar = var.mid( 0, dpidx);
+		QVariant val = visitor.property( tryvar);
+		return val.isValid()?val:QVariant(defaultvalue);
+	}
+}
+
 static QVariant expand_variable_references( WidgetVisitor& visitor, const QString& value)
 {
 	int startidx = 0;
@@ -493,7 +517,7 @@ static QVariant expand_variable_references( WidgetVisitor& visitor, const QStrin
 	QString rt;
 	if (substidx == 0 && endidx == value.size()-1)
 	{
-		return visitor.property( value.mid( substidx+1, endidx-substidx-1));
+		return variable_value( visitor, value.mid( substidx+1, endidx-substidx-1));
 	}
 	while (substidx >= 0)
 	{
@@ -512,7 +536,7 @@ static QVariant expand_variable_references( WidgetVisitor& visitor, const QStrin
 		substidx++;
 
 		// evaluate property value and append it expanded as substutute to rt:
-		QVariant propvalue = visitor.property( value.mid( substidx, endidx-substidx));
+		QVariant propvalue = variable_value( visitor, value.mid( substidx, endidx-substidx));
 		if (propvalue.type() == QVariant::List)
 		{
 			QList<QVariant> propvaluelist = propvalue.toList();

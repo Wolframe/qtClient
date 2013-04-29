@@ -426,12 +426,10 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 		}
 		else if (xml.isCDATA() || xml.isCharacters() || xml.isWhitespace())
 		{
-			if (stk.isEmpty())
+			if (!stk.isEmpty())
 			{
-				XMLERROR( xml, stk, QString( "unexpected content element: no XML tag context defined"));
-				return false;
+				stk.last().tok.append( xml.text());
 			}
-			stk.last().tok.append( xml.text());
 		}
 	}
 	visitor.endofDataFeed();
