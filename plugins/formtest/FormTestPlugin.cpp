@@ -77,6 +77,7 @@ QWidget *FormTestPlugin::initialize( WolframeClient *_wolframeClient, QWidget *_
 
 void FormTestPlugin::handleButtonPress( )
 {
+	QString cmd;
 	QString tag = "test";
 	QByteArray content;
 
@@ -84,7 +85,7 @@ void FormTestPlugin::handleButtonPress( )
 	content.append( QString( "<!DOCTYPE \"employee\" SYSTEM \"ListEmployee.simpleform\">" ) );
 	content.append( QString( "<employee/>" ) );
 
-	m_wolframeClient->request( tag, content );
+	m_wolframeClient->request( cmd, tag, content );
 }
 
 #if QT_VERSION < 0x050000
