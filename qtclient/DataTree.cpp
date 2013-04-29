@@ -488,6 +488,13 @@ ActionDefinition::ActionDefinition( const QString& str)
 	for (; itr != end && isAlphaNum(*itr); ++itr);
 	m_doctype = QString( str.begin(), itr-str.begin());
 	skipSpaces( itr, end);
+	if (itr != end && *itr == ':')
+	{
+		m_command = m_doctype;
+		m_doctype.clear();
+		++itr;
+		skipSpaces( itr, end);
+	}
 	if (itr != end && isAlphaNum(*itr))
 	{
 		QString::const_iterator rootstart = itr;
@@ -503,9 +510,21 @@ ActionDefinition::ActionDefinition( const QString& str)
 	}
 }
 
+ActionDefinition::ActionDefinition( const ActionDefinition& o)
+	:m_condProperties(o.m_condProperties)
+	,m_command(o.m_command)
+	,m_doctype(o.m_doctype)
+	,m_rootelement(o.m_rootelement)
+	,m_structure(o.m_structure){}
+
 QString ActionDefinition::toString() const
 {
 	QString rt;
+	if (!m_command.isEmpty())
+	{
+		rt.append( m_command);
+		rt.append( ": ");
+	}
 	rt.append( m_doctype);
 	rt.push_back( ' ');
 	rt.append( m_rootelement);

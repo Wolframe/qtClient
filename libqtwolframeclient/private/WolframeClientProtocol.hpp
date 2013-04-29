@@ -99,6 +99,8 @@ class WolframeClientProtocol
 
 		///\brief Push a request and process it if possible
 		void pushRequest( const QString& tag, const QByteArray& content);
+		///\brief Push a request and process it if possible
+		void pushRequest( const QString& cmd, const QString& tag, const QByteArray& content);
 
 		///\brief Get the tag of the last answer or NULL if no answer available yet
 		const QString* getAnswerTag() const;
@@ -132,7 +134,18 @@ class WolframeClientProtocol
 	private:
 		State m_state;
 		QAbstractSocket *m_socket;
-		QQueue<QPair<QString,QByteArray> > m_requestqueue;	// queued commands (tag,content)
+		struct Request
+		{
+			QString cmd;
+			QString tag;
+			QByteArray content;
+			Request();
+			Request( const QString& cmd_, const QString& tag_, const QByteArray& content_)
+				:cmd(cmd_),tag(tag_),content(content_){}
+			Request( const Request& o)
+				:cmd(o.cmd),tag(o.tag),content(o.content){}
+		};
+		QQueue<Request> m_requestqueue;				// queued commands (tag,content)
 		QQueue<QString> m_requesttagqueue;			// queued tags of issued commands (tag)
 		QQueue<QPair<QString,QByteArray> > m_answerqueue;	// queued answers (tag,content)
 		QQueue<QPair<QString,QByteArray> > m_errorqueue;	// queued error answers (tag,message)

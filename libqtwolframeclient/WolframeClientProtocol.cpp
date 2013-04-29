@@ -65,7 +65,7 @@ bool WolframeClientProtocol::sendLine( const QByteArray& line)
 bool WolframeClientProtocol::sendRequestContent()
 {
 	if (m_requestqueue.isEmpty()) return false;
-	QByteArray escdata = WolframeClientProtocolBase::escapedContent( m_requestqueue.head().second);
+	QByteArray escdata = WolframeClientProtocolBase::escapedContent( m_requestqueue.head().content);
 	escdata.append( "\r\n.\r\n");
 	qint64 status = m_socket->write( escdata);
 	if (status < 0)
@@ -82,7 +82,7 @@ bool WolframeClientProtocol::sendRequestContent()
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 	qDebug() << "network send content (esc" << status <<"):" << escdata;
 #endif
-	m_requesttagqueue.enqueue( m_requestqueue.head().first);
+	m_requesttagqueue.enqueue( m_requestqueue.head().tag);
 	m_requestqueue.dequeue();
 	return true;
 }
@@ -91,7 +91,7 @@ void WolframeClientProtocol::discardPendingRequests( const char* errmsg)
 {
 	while (!m_requestqueue.isEmpty())
 	{
-		m_errorqueue.enqueue( qMakePair( m_requestqueue.head().first, QByteArray(errmsg)));
+		m_errorqueue.enqueue( qMakePair( m_requestqueue.head().tag, QByteArray(errmsg)));
 		m_requestqueue.dequeue();
 	}
 }
@@ -304,9 +304,15 @@ bool WolframeClientProtocol::process()
 					}
 					return true;
 				}
-				else
+				else if (m_requestqueue.head().cmd.isEmpty())
 				{
 					if (!sendLine( "REQUEST")) return false;
+					m_state = AuthorizedRequest;
+					continue;
+				}
+				else
+				{
+					if (!sendCommandLine( "REQUEST", m_requestqueue.head().cmd.toLatin1())) return false;
 					m_state = AuthorizedRequest;
 					continue;
 				}
@@ -390,25 +396,29 @@ bool WolframeClientProtocol::process()
 	}
 }
 
-void WolframeClientProtocol::pushRequest( const QString& tag, const QByteArray& content)
+void WolframeClientProtocol::pushRequest( const QString& cmd, const QString& tag, const QByteArray& content)
 {
-	typedef QPair<QString,QByteArray> Request;
 	if (tag[0] != '-')
 	{
 		QList<Request>::iterator ri = m_requestqueue.begin(), re = m_requestqueue.end();
 		for (; ri != re; ++ri)
 		{
-			if (ri->first == tag)
+			if (ri->tag == tag)
 			{
 				qDebug() << "replace pending domain load request, tag=" << tag;
-				ri->second = content;
+				ri->content = content;
 				return;
 			}
 		}
 	}
 	qDebug() << "push request tag=" << tag;
-	m_requestqueue.enqueue( qMakePair( tag, content));
+	m_requestqueue.enqueue( Request( cmd, tag, content));
 	process();
+}
+
+void WolframeClientProtocol::pushRequest( const QString& tag, const QByteArray& content)
+{
+		pushRequest( "", tag, content);
 }
 
 bool WolframeClientProtocol::getAnswerSuccess() const

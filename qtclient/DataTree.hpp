@@ -106,13 +106,10 @@ class ActionDefinition
 {
 public:
 	ActionDefinition( const QString& content);
-	ActionDefinition( const ActionDefinition& o)
-		:m_condProperties(o.m_condProperties)
-		,m_doctype(o.m_doctype)
-		,m_rootelement(o.m_rootelement)
-		,m_structure(o.m_structure){}
+	ActionDefinition( const ActionDefinition& o);
 	QString toString() const;
 
+	const QString& command() const			{return m_command;}
 	const QString& doctype() const			{return m_doctype;}
 	const QString& rootelement() const		{return m_rootelement;}
 	const DataTree& structure() const		{return m_structure;}
@@ -121,6 +118,7 @@ public:
 
 private:
 	QList<QString> m_condProperties;
+	QString m_command;
 	QString m_doctype;
 	QString m_rootelement;
 	DataTree m_structure;

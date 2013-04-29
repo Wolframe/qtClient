@@ -650,7 +650,7 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 {
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);
-	WidgetRequest rq( tag_, "");
+	WidgetRequest rq( tag_);
 
 	if (rq.type() == WidgetRequest::Action)
 	{
@@ -731,7 +731,7 @@ void FormWidget::gotError( const QString& tag_, const QByteArray& data_)
 {
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);
-	WidgetRequest rq( tag_, "");
+	WidgetRequest rq( tag_);
 
 	if (rq.type() == WidgetRequest::Action)
 	{

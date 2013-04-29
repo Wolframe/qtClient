@@ -1096,9 +1096,36 @@ static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& con
 	{
 		idx += cond.toString().length();
 		QString dd = dataslots.toString();
-		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ',') return true;
+		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ','  || dd.at(idx) == '[') return true;
 	}
 	return false;
+}
+
+static QVariant getDatasignalSender( QWidget* widget, const QVariant& cond)
+{
+	WidgetVisitor visitor( widget);
+	QVariant dataslots = visitor.property( "dataslot");
+	int idx = 0;
+	QString dd = dataslots.toString();
+	while ((idx=dd.indexOf( cond.toString(), idx)) >= 0)
+	{
+		idx += cond.toString().length();
+		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ','  || dd.at(idx) == '[') break;
+	}
+	if (idx >= 0)
+	{
+		while (idx < dd.size() && dd.at(idx) == ' ') ++idx;
+		if (idx < dd.size() && dd.at(idx) == '[')
+		{
+			int endidx = dd.indexOf( ']', ++idx);
+			if (endidx >= idx)
+			{
+				QVariant rt( dd.mid( idx, endidx-idx).trimmed());
+				return rt;
+			}
+		}
+	}
+	return QVariant();
 }
 
 typedef QPair<QString,QWidget*> SignalReceiver;
@@ -1133,8 +1160,20 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 		{
 			if (rcvwidget != thiswidget)
 			{
-				TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-				rt.push_back( SignalReceiver( receiverid, rcvwidget));
+				QVariant sendercond = getDatasignalSender( rcvwidget, receiverid);
+				if (sendercond.isValid())
+				{
+					if (sendercond.toString() == widgetid())
+					{
+						TRACE_STATUS( "found widget by data slot identifier with sender id", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+						rt.push_back( SignalReceiver( receiverid, rcvwidget));
+					}
+				}
+				else
+				{
+					TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+					rt.push_back( SignalReceiver( receiverid, rcvwidget));
+				}
 			}
 		}
 	}

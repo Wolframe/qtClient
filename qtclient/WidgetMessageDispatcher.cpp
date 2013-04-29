@@ -77,7 +77,7 @@ WidgetRequest WidgetMessageDispatcher::getFormActionRequest( bool debugmode)
 
 QList<QWidget*> WidgetMessageDispatcher::findRecipients( const QString& tag) const
 {
-	WidgetRequest request( tag, "");
+	WidgetRequest request( tag);
 	return m_visitor.findSubNodes( nodeProperty_hasWidgetId, request.recipientid());
 }
 

@@ -39,6 +39,7 @@
 struct WidgetRequest
 {
 	enum Type {Action,DomainLoad};
+	QString cmd;
 	QString tag;
 	QByteArray content;
 
@@ -51,10 +52,12 @@ struct WidgetRequest
 	static QString domainLoadWidgetRequestTag( QString recipientid_);
 
 	WidgetRequest(){}
-	WidgetRequest( QString tag_, QByteArray content_="")
-		:tag(tag_),content(content_){}
+	WidgetRequest( QString tag_)
+		:tag(tag_){}
+	WidgetRequest( QString cmd_, QString tag_, QByteArray content_)
+		:cmd(cmd_),tag(tag_),content(content_){}
 	WidgetRequest( const WidgetRequest& o)
-		:tag(o.tag),content(o.content){}
+		:cmd(o.cmd),tag(o.tag),content(o.content){}
 };
 
 WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode);
