@@ -22,12 +22,12 @@ PluginWindow::PluginWindow()
 	pluginLayout->setRowMinimumHeight( 0, selector->sizeHint().height() );
 	pluginLayout->setColumnMinimumWidth( 0, selector->sizeHint().width() );
 
-	setWindowTitle( tr( "ImageSelector Widget Test" ));
+	setWindowTitle( tr( "Image List View/Widget Test" ));
 }
 
 void PluginWindow::createPluginGroupBox()
 {
-	pluginGroupBox = new QGroupBox( tr( "ImageSelector" ));
+	pluginGroupBox = new QGroupBox( tr( "ImageList" ));
 //!!!!!!!!!
 	selector = new QListView;
 	connect( selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
@@ -90,7 +90,7 @@ void PluginWindow::createSelectedGroupBox()
 {
 	selectedGroupBox = new QGroupBox( tr( "Selected" ));
 
-	selectedList = new QListView();
+	selectedList = new QListWidget();
 
 	QGridLayout *selectedLayout = new QGridLayout;
 	selectedLayout->addWidget( selectedList, 0, 0 );
