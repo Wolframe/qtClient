@@ -44,7 +44,7 @@ class WidgetMessageDispatcher
 		///\brief Constructor
 		///\param[in] root Root of widget tree visited
 		WidgetMessageDispatcher( QWidget* formwidget)
-			:m_visitor( formwidget, false){}
+			:m_visitor( formwidget, WidgetVisitor::None){}
 		WidgetMessageDispatcher( const WidgetVisitor& visitor_)
 			:m_visitor( visitor_){}
 

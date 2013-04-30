@@ -43,9 +43,12 @@
 #include <QDebug>
 #include <QMessageBox>
 
-WidgetListenerImpl::~WidgetListenerImpl()
+void WidgetListenerImpl::blockSignals( bool v)
 {
+	QObject* object = m_state->widget();
+	if (object) object->blockSignals( v);
 }
+
 
 bool WidgetListenerImpl::hasDataSignals( const QWidget* widget_)
 {
@@ -94,7 +97,7 @@ void WidgetListenerImpl::setDebug( bool v)
 
 void WidgetListenerImpl::trigger_reload( const QString& signame, QWidget* receiver)
 {
-	WidgetVisitor visitor( receiver);
+	WidgetVisitor visitor( receiver, WidgetVisitor::None);
 	visitor.readAssignments();
 
 	QAbstractButton* button = qobject_cast<QAbstractButton*>( receiver);
@@ -132,7 +135,7 @@ QList<QWidget*> WidgetListenerImpl::get_forward_receivers( QWidget* receiver)
 			QWidget* forwardsnd = forwardlist.at( forwardlistidx);
 			if (forwardsnd->property("datasignal:signaled").isValid())
 			{
-				WidgetVisitor sndvisitor( forwardsnd);
+				WidgetVisitor sndvisitor( forwardsnd, WidgetVisitor::None);
 				foreach (const QString& forward_rcvid, sndvisitor.property( "datasignal:signaled").toString().split(','))
 				{
 					typedef QPair<QString,QWidget*> Receiver;
@@ -156,7 +159,7 @@ QList<QWidget*> WidgetListenerImpl::get_forward_receivers( QWidget* receiver)
 
 void WidgetListenerImpl::handleDataSignal( DataSignalType dt)
 {
-	WidgetVisitor tv( m_state);
+	WidgetVisitor tv( m_state, WidgetVisitor::None);
 	typedef QPair<QString,QWidget*> Receiver;
 	qDebug() << "handle datasignal [" << dataSignalTypeName( dt) << "]";
 
@@ -188,7 +191,7 @@ static QString widgetText( QWidget* widget, const QString& menuitem=QString())
 	QString text;
 	QVariant action;
 	QVariant form;
-	WidgetVisitor visitor( widget);
+	WidgetVisitor visitor( widget, WidgetVisitor::None);
 	QList<QString> condprops;
 	WidgetRequest request;
 	FormCall formCall;
@@ -352,7 +355,7 @@ void WidgetListenerImpl::handleShowContextMenu( const QPoint& pos)
 		globalPos = widget->mapToGlobal( pos);
 	}
 	QMenu menu;
-	WidgetVisitor visitor( m_state);
+	WidgetVisitor visitor( m_state, WidgetVisitor::None);
 	QVariant contextmenudef_p( visitor.property( "contextmenu"));
 	QList<QString> contextmenudef( contextmenudef_p.toString().split(','));
 	int nofMenuEntries = 0;

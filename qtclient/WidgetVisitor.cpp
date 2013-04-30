@@ -88,17 +88,24 @@ WidgetVisitor::State::State( const State& o)
 	,m_dataslots(o.m_dataslots)
 	,m_dynamicProperties(o.m_dynamicProperties)
 	,m_synonym_entercnt(o.m_synonym_entercnt)
-	,m_internal_entercnt(o.m_internal_entercnt){}
+	,m_internal_entercnt(o.m_internal_entercnt)
+	,m_blockSignals(o.m_blockSignals)
+	,m_blockSignals_bak(o.m_blockSignals_bak)
+{}
 
 WidgetVisitor::State::State()
 	:m_synonym_entercnt(1)
 	,m_internal_entercnt(0)
+	,m_blockSignals(false)
+	,m_blockSignals_bak(false)
 {}
 
-WidgetVisitor::State::State( WidgetVisitorObjectR obj_)
+WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 	:m_obj(obj_)
 	,m_synonym_entercnt(1)
 	,m_internal_entercnt(0)
+	,m_blockSignals(blockSignals_)
+	,m_blockSignals_bak(false)
 {
 	foreach (const QByteArray& prop, m_obj->widget()->dynamicPropertyNames())
 	{
@@ -168,6 +175,18 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_)
 		rt.append( ":");
 		rt.append( QVariant( ++g_cnt).toString());
 		m_obj->widget()->setProperty( "widgetid", QVariant(rt));
+	}
+	if (m_blockSignals)
+	{
+		m_blockSignals_bak = m_obj->widget()->blockSignals( m_blockSignals);
+	}
+}
+
+WidgetVisitor::State::~State()
+{
+	if (m_blockSignals)
+	{
+		m_obj->widget()->blockSignals( m_blockSignals_bak);
 	}
 }
 
@@ -257,20 +276,17 @@ QWidget* WidgetVisitor::get_widget_reference( const QString& id)
 	return 0;
 }
 
-WidgetVisitor::WidgetVisitor( QWidget* root, bool useSynonyms_)
-	:m_useSynonyms(useSynonyms_)
+WidgetVisitor::WidgetVisitor( QWidget* root, VisitorFlags flags_)
+	:m_useSynonyms(((int)flags_&(int)UseSynonyms) == (int)UseSynonyms)
+	,m_blockSignals(((int)flags_&(int)BlockSignals) == (int)BlockSignals)
 {
-	m_stk.push( State( WidgetVisitorObjectR( createWidgetVisitorObject( root))));
+	m_stk.push( State( WidgetVisitorObjectR( createWidgetVisitorObject( root)), m_blockSignals));
 }
 
-WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& obj)
+WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& obj, VisitorFlags flags_)
 {
-	m_stk.push( State( obj));
+	m_stk.push( State( obj, flags_));
 }
-
-WidgetVisitor::WidgetVisitor( const QStack<State>& stk_)
-	:m_stk(stk_)
-{}
 
 bool WidgetVisitor::useSynonyms( bool enable)
 {
@@ -292,7 +308,7 @@ bool WidgetVisitor::enter_root( const QString& name)
 	{
 		if (ww != m_stk.top().m_obj->widget())
 		{
-			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( ww))));
+			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( ww)), m_blockSignals));
 			return true;
 		}
 	}
@@ -385,7 +401,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 				ERROR( "failed to resolve symbolic link to widget");
 				return false;
 			}
-			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( lnkwdg))));
+			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( lnkwdg)), m_blockSignals));
 			TRACE_ENTER( "link", className(), objectName(), resolve(lnk));
 			return true;
 		}
@@ -409,7 +425,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 				return false;
 			}
 			if (cn.isEmpty()) return false;
-			m_stk.push( State( WidgetVisitorObjectR( createWidgetVisitorObject( cn[0]))));
+			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( cn[0])), m_blockSignals));
 			TRACE_ENTER( "child", className(), objectName(), name);
 			return true;
 		}
@@ -612,7 +628,7 @@ QWidget* WidgetVisitor::resolveLink( const QString& link)
 {
 	QWidget* wdg = uirootwidget();
 	if (!wdg) return 0;
-	WidgetVisitor visitor( wdg);
+	WidgetVisitor visitor( wdg, None);
 	QList<QWidget*> wdglist = visitor.findSubNodes( nodeProperty_hasWidgetId, link);
 	if (wdglist.isEmpty()) return 0;
 	if (wdglist.size() > 1)
@@ -666,7 +682,7 @@ QVariant WidgetVisitor::property( const char* name)
 QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name) const
 {
 	if (m_stk.empty()) return 0;
-	WidgetVisitor visitor( m_stk.top().m_obj->widget());
+	WidgetVisitor visitor( m_stk.top().m_obj->widget(), flags());
 	return visitor.getPropertyOwnerWidget( name, 0);
 }
 
@@ -993,7 +1009,7 @@ void WidgetVisitor::do_readGlobals( const QHash<QString,QVariant>& globals)
 {
 	foreach (QWidget* wdg, findSubNodes( nodeProperty_hasGlobal))
 	{
-		WidgetVisitor chldvisitor( wdg);
+		WidgetVisitor chldvisitor( wdg, flags());
 		chldvisitor.readGlobals( globals);
 	}
 }
@@ -1002,7 +1018,7 @@ void WidgetVisitor::do_writeGlobals( QHash<QString,QVariant>& globals)
 {
 	foreach (QWidget* wdg, findSubNodes( nodeProperty_hasGlobal))
 	{
-		WidgetVisitor chldvisitor( wdg);
+		WidgetVisitor chldvisitor( wdg, flags());
 		chldvisitor.writeGlobals( globals);
 	}
 }
@@ -1046,7 +1062,7 @@ void WidgetVisitor::do_readAssignments()
 {
 	foreach (QWidget* wdg, findSubNodes( nodeProperty_hasAssignment))
 	{
-		WidgetVisitor chldvisitor( wdg);
+		WidgetVisitor chldvisitor( wdg, flags());
 		chldvisitor.readAssignments();
 	}
 }
@@ -1055,7 +1071,7 @@ void WidgetVisitor::do_writeAssignments()
 {
 	foreach (QWidget* wdg, findSubNodes( nodeProperty_hasAssignment))
 	{
-		WidgetVisitor chldvisitor( wdg);
+		WidgetVisitor chldvisitor( wdg, flags());
 		chldvisitor.writeAssignments();
 	}
 }
@@ -1108,7 +1124,7 @@ static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& con
 
 static QVariant getDatasignalSender( QWidget* widget, const QVariant& cond)
 {
-	WidgetVisitor visitor( widget);
+	WidgetVisitor visitor( widget, WidgetVisitor::None);
 	QVariant dataslots = visitor.property( "dataslot");
 	int idx = 0;
 	QString dd = dataslots.toString();
@@ -1144,7 +1160,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 
 	if (is_widgetid( receiverid))
 	{
-		WidgetVisitor mainvisitor( uirootwidget());
+		WidgetVisitor mainvisitor( uirootwidget(), None);
 		wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, receiverid));
 		foreach (QWidget* rcvwidget, wl)
 		{
@@ -1159,7 +1175,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 	}
 	else
 	{
-		WidgetVisitor mainvisitor( uirootwidget());
+		WidgetVisitor mainvisitor( uirootwidget(), None);
 		QWidget* thiswidget = widget();
 		foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, receiverid))
 		{

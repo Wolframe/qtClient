@@ -48,10 +48,13 @@ public:
 	///\brief Constructor
 	WidgetEnablerImpl( QWidget* widget_, const QList<QString>& properties_);
 	virtual ~WidgetEnablerImpl(){}
+
 	QWidget* actionwidget() const			{return m_state->widget();}
 	const QList<QString>& actionproperties() const	{return m_properties;}
 
 	virtual void handle_changed();
+
+	void blockSignals( bool v);
 
 private:
 	WidgetVisitorObjectR m_state;

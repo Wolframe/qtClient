@@ -139,7 +139,7 @@ static int getLastArrayIdx( const QList<StackElement>& stk)
 QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, QWidget* widget)
 {
 	QList<DataSerializeItem> rt;
-	WidgetVisitor visitor( widget);
+	WidgetVisitor visitor( widget, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
 	QList<StackElement> stk;
 	stk.push_back( StackElement( QString(), datatree));
 	int arrayidx = -1;

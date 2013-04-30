@@ -55,7 +55,7 @@ QList<WidgetRequest> WidgetMessageDispatcher::getDomainLoadRequests( bool debugm
 	QList<WidgetRequest> rt;
 	foreach (QWidget* widget, m_visitor.findSubNodes( nodeProperty_isEnabledNonActionWidgetWithAction))
 	{
-		WidgetVisitor visitor( widget, false);
+		WidgetVisitor visitor( widget);
 		WidgetRequest request = getWidgetRequest( visitor, debugmode);
 		rt.push_back( request);
 	}

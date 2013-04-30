@@ -42,6 +42,12 @@ WidgetEnablerImpl::WidgetEnablerImpl( QWidget* widget_, const QList<QString>& pr
 	,m_properties(properties_)
 {}
 
+void WidgetEnablerImpl::blockSignals( bool v)
+{
+	QObject* object = m_state->widget();
+	if (object) object->blockSignals( v);
+}
+
 void WidgetEnablerImpl::handle_changed()
 {
 	QWidget* widget = m_state->widget();
@@ -50,10 +56,11 @@ void WidgetEnablerImpl::handle_changed()
 		qCritical() << "enabler has no widget defined";
 		return;
 	}
-	WidgetVisitor visitor( m_state);
+	WidgetVisitor visitor( m_state, WidgetVisitor::None);
 	bool enabled = true;
 	foreach (const QString& prop, m_properties)
 	{
+		/*[-]*/qDebug() << "handle changed of widget" << widget->objectName() << "check condition" << prop;
 		if (!visitor.property( prop).isValid())
 		{
 			if (visitor.getPropertyOwnerWidget( prop))

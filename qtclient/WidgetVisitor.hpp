@@ -185,10 +185,14 @@ class WidgetVisitor
 		///\brief Default constructor
 		WidgetVisitor(){}
 
+		///\enum Flags
+		///\brief Flags stearing behaviour
+		enum VisitorFlags {None=0x0,UseSynonyms=0x1, BlockSignals=0x2};
+
 		///\brief Constructor
 		///\param[in] root Root of widget tree visited
-		///\param[in] use_synonyms Wheter to use synonyms in evaluation or not
-		explicit WidgetVisitor( QWidget* root, bool useSynonyms_=true);
+		///\param[in] flags flags stearing visitor behaviour
+		explicit WidgetVisitor( QWidget* root, VisitorFlags flags_=WidgetVisitor::None);
 
 		///\brief Copy constructor
 		///\param[in] o object to copy
@@ -196,7 +200,12 @@ class WidgetVisitor
 			:m_stk(o.m_stk){}
 
 		///\brief Constructor by object
-		explicit WidgetVisitor( const WidgetVisitorObjectR& obj);
+		explicit WidgetVisitor( const WidgetVisitorObjectR& obj, VisitorFlags flags);
+
+		VisitorFlags flags() const
+		{
+			return (VisitorFlags)((int)(m_blockSignals?BlockSignals:None)|(int)(m_useSynonyms?UseSynonyms:None));
+		}
 
 		///\brief Sets the current node to the child with name 'name'
 		bool enter( const QString& name, bool writemode);
@@ -337,9 +346,10 @@ class WidgetVisitor
 		class State
 		{
 		public:
+			~State();
 			State();
 			State( const State& o);
-			State( WidgetVisitorObjectR obj_);
+			State( WidgetVisitorObjectR obj_, bool blockSignals_);
 
 		public://Common methods:
 			QVariant getSynonym( const QString& name) const;
@@ -368,14 +378,14 @@ class WidgetVisitor
 			QHash<QString,QVariant> m_dynamicProperties;	//< map of defined dynamic properties
 			int m_synonym_entercnt;				//< counter for how many stack elements to pop on a leave (for multipart synonyms)
 			int m_internal_entercnt;			//< counter for calling State::leave() before removing stack elements
+			bool m_blockSignals;
+			bool m_blockSignals_bak;
 		};
-
-		///\brief Constructor internal
-		explicit WidgetVisitor( const QStack<State>& stk_);
 
 	private:
 		QStack<State> m_stk;		//< stack of visited widgets. The current node is the top element
 		bool m_useSynonyms;		//< wheter to use synonyms in evaluation or not
+		bool m_blockSignals;		//< wheter to block signals or not
 };
 
 #endif

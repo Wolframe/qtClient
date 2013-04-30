@@ -99,10 +99,6 @@ class FormWidget : public QWidget
 		void switchForm( QWidget *actionwidget, const QString& actionid=QString());
 		///\brief Define all listeners for events bound to properties 'pushButton' depends on, and let the disable/enable state of 'pushButton' be dependent on these properties
 		void setPushButtonEnablers( QPushButton* pushButton);
-		///\brief Temporarily disable the button enablers dependent on 'ownerwidget' (while injecting the domain load request answer data)
-		void disablePushButtonEnablers( QWidget* ownerwidget);
-		///\brief Reenable the button enablers disabled with disablePushButtonEnablers(QWidget*) (after the domain load request)
-		void enablePushButtonEnablers( QWidget* ownerwidget);
 		///\brief Signal the push button enablers to recheck their state
 		void signalPushButtonEnablers();
 

@@ -371,35 +371,6 @@ void FormWidget::setPushButtonEnablers( QPushButton* pushButton)
 	pushButton->setEnabled( enabled);
 }
 
-void FormWidget::disablePushButtonEnablers( QWidget* ownerwidget)
-{
-	QHash<QString,QList<WidgetEnablerR> >::iterator enl = m_enablers.find( ownerwidget->objectName());
-	if (enl == m_enablers.end()) return;
-
-	QList<WidgetEnablerR>::iterator ei = enl->begin(), ee = enl->end();
-	for (; ei != ee; ++ei)
-	{
-		WidgetEnablerImpl* eref = ei->data();
-		QPushButton* pushButton = qobject_cast<QPushButton*>( eref->actionwidget());
-		const QList<QString>& properties = eref->actionproperties();
-		*ei = WidgetEnablerR( new WidgetEnablerImpl( pushButton, properties));
-	}
-}
-
-void FormWidget::enablePushButtonEnablers( QWidget* ownerwidget)
-{
-	QHash<QString,QList<WidgetEnablerR> >::iterator enl = m_enablers.find( ownerwidget->objectName());
-	if (enl == m_enablers.end()) return;
-
-	QList<WidgetEnablerR>::iterator ei = enl->begin(), ee = enl->end();
-	for (; ei != ee; ++ei)
-	{
-		WidgetEnabler* eref = ei->data();
-		WidgetVisitor ownervisitor( ownerwidget);
-		ownervisitor.connectWidgetEnabler( *eref);
-	}
-}
-
 void FormWidget::signalPushButtonEnablers()
 {
 	QHash<QString,QList<WidgetEnablerR> >::iterator li = m_enablers.begin(), le = m_enablers.end();
@@ -709,57 +680,19 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 	}
 	else
 	{
-		QHash<QString,QList<WidgetListenerR> >::iterator li = m_listeners.find( rq.recipientid());
-		if (li != m_listeners.end())
+		QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());
+		if (!rcpl.isEmpty())
 		{
-			li.value().clear();
-			QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());
-			if (!rcpl.isEmpty())
+			foreach (QWidget* rcp, rcpl)
 			{
-				qDebug() << "got load request answer tag=" << tag_ << "data=" << data_;
-				foreach (QWidget* rcp, rcpl)
+				WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::UseSynonyms|WidgetVisitor::BlockSignals));
+				if (!setWidgetAnswer( rcpvisitor, data_))
 				{
-					disablePushButtonEnablers( rcp);
-
-					WidgetVisitor rcpvisitor( rcp);
-					if (!setWidgetAnswer( rcpvisitor, data_))
-					{
-						qCritical() << "Failed assign request answer tag:" << tag_ << "data:" << data_;
-					}
-					rcpvisitor.setState( rcp->property( "_w_state"));
-					QVariant initialFocus = rcp->property( "initialFocus");
-					if (initialFocus.toBool()) rcp->setFocus();
-
-					enablePushButtonEnablers( rcp);
-
-					WidgetListenerImpl* listener = rcpvisitor.createListener( m_dataLoader);
-					if (listener)
-					{
-						listener->setDebug( m_debug);
-						li.value().push_back( WidgetListenerR( listener));
-					}
+					qCritical() << "Failed assign request answer tag:" << tag_ << "data:" << data_;
 				}
-			}
-		}
-		else
-		{
-			QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());
-			if (!rcpl.isEmpty())
-			{
-				foreach (QWidget* rcp, rcpl)
-				{
-					disablePushButtonEnablers( rcp);
-					WidgetVisitor rcpvisitor( rcp);
-					if (!setWidgetAnswer( rcpvisitor, data_))
-					{
-						qCritical() << "Failed assign request answer tag:" << tag_ << "data:" << data_;
-					}
-					rcpvisitor.setState( rcp->property( "_w_state"));
-					QVariant initialFocus = rcp->property( "initialFocus");
-					if (initialFocus.toBool()) rcp->setFocus();
-
-					enablePushButtonEnablers( rcp);
-				}
+				rcpvisitor.setState( rcp->property( "_w_state"));
+				QVariant initialFocus = rcp->property( "initialFocus");
+				if (initialFocus.toBool()) rcp->setFocus();
 			}
 		}
 	}

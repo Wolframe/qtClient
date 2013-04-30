@@ -50,11 +50,13 @@ public:
 public:
 	///\brief Constructor
 	WidgetListenerImpl( QWidget* widget_, DataLoader* dataLoader_);
-	virtual ~WidgetListenerImpl();
+	virtual ~WidgetListenerImpl(){}
 
 	virtual void handleDataSignal( DataSignalType dt);
 	virtual void handleShowContextMenu( const QPoint& pos);
+
 	void setDebug( bool v);
+	void blockSignals( bool v);
 
 private:
 	void trigger_reload( const QString& signame, QWidget* receiver);
