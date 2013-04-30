@@ -93,7 +93,6 @@ void SkeletonMainWindow::updateMenusAndToolbars( )
 // connection status
 	if( m_wolframeClient && m_wolframeClient->isConnected( ) ) {
 		m_statusBarConn->setPixmap( QPixmap( ":/images/16x16/connected.png" ) );
-//		m_statusBarConn->setToolTip( tr( "Status: online" ) );
 		m_statusBarConn->setToolTip( tr( "Status: connected to server %1" ).arg( m_wolframeClient->serverName()) );
 		m_statusBarConn->setEnabled( true );
 	} else {
@@ -225,9 +224,9 @@ void SkeletonMainWindow::login( )
 	LoginDialog* loginDlg = new LoginDialog( username, lastConn,
 						 m_serverDefs );
 						 
-	if( loginDlg->exec( ) == QDialog::Accepted ) {
+	if( loginDlg->specificExec( ) == QDialog::Accepted ) {
 // user choose nothing, bail out
-		if( !loginDlg->hasSelectedserver( ) ) {
+		if( !loginDlg->hasSelectedServer( ) ) {
 			QMessageBox::critical( this, tr( "Parameters error"),
 				"You didn't select any connection!" );
 			delete loginDlg;
