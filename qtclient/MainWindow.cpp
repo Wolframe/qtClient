@@ -729,7 +729,7 @@ void MainWindow::on_actionExit_triggered( )
 
 	if( settings.uiLoadMode == LoadMode::NETWORK || settings.dataLoadMode == LoadMode::NETWORK ) {
 		if( m_wolframeClient ) {
-			m_wolframeClient->disconnect( );
+			logout( );
 		} else {
 			close( );
 		}
