@@ -48,8 +48,8 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 #endif // QT_VERSION >= 0x050000
 	
 	public:		
-		virtual const QString name( );
-		virtual const QString windowTitle( );
+		virtual QString name( ) const;
+		virtual QString windowTitle( ) const;
 		virtual QWidget *initialize( WolframeClient *m_wolframeClient, QWidget *_parent );
 	
 	private:

@@ -38,12 +38,12 @@
 #include <QByteArray>
 #include <QVBoxLayout>
 
-const QString FormTestPlugin::name( )
+QString FormTestPlugin::name( ) const
 {
 	return "test";
 }
 
-const QString windowTitle( )
+QString FormTestPlugin::windowTitle( ) const
 {
 	return "Test Form";
 }

@@ -45,8 +45,8 @@ class FormPluginInterface
 	public:
 		virtual ~FormPluginInterface( ) { }
 		
-		virtual const QString name( ) = 0;
-		virtual const QString windowTitle( ) = 0;
+		virtual QString name( ) const = 0;
+		virtual QString windowTitle( ) const = 0;
 		virtual QWidget *initialize( WolframeClient *m_wolframeClient, QWidget *_parent ) = 0;
 };
 
