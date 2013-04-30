@@ -50,11 +50,12 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 	public:		
 		virtual QString name( ) const;
 		virtual QString windowTitle( ) const;
-		virtual QWidget *initialize( WolframeClient *m_wolframeClient, QWidget *_parent );
-	
+		virtual QWidget *initialize( DataLoader *m_dataLoader, QWidget *_parent );
+		virtual void gotAnswer( const QString& _tag, const QByteArray& _data );
+
 	private:
 		QWidget *m_widget;
-		WolframeClient *m_wolframeClient;
+		DataLoader *m_dataLoader;
 		QPushButton *m_pushButton;
 
 	private slots:

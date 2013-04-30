@@ -471,7 +471,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			return;
 		}
 		qDebug( ) << "PLUGIN: Initializing form plugin" << name;
-		m_ui = plugin->initialize( m_wolframeClient, this );
+		m_ui = plugin->initialize( m_dataLoader, this );
 		if( m_ui == 0 ) {
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
@@ -657,6 +657,14 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 {
 	qDebug( ) << "Answer for form" << m_form << "and tag" << tag_;
+
+// hand-written plugin, custom request, pass it back directly, don't go over
+// generic widget answer part (TODO: there should be a registry map here perhaps)
+	FormPluginInterface *plugin = formPlugin( m_form );
+	if( plugin ) {
+		plugin->gotAnswer( tag_, data_ );
+		return;
+	}
 	
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);

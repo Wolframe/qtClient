@@ -48,23 +48,18 @@ QString FormTestPlugin::windowTitle( ) const
 	return "Test Form";
 }
 
-QWidget *FormTestPlugin::initialize( WolframeClient *_wolframeClient, QWidget *_parent )
+QWidget *FormTestPlugin::initialize( DataLoader *_dataLoader, QWidget *_parent )
 {
 	qDebug( ) << "PLUGIN: initializing plugin" << name( );
 	
-	m_wolframeClient = _wolframeClient;
+	m_dataLoader = _dataLoader;
 	
 	m_widget = new QWidget( _parent );
 	
 	QVBoxLayout *layout = new QVBoxLayout( m_widget );
 	m_widget->setLayout( layout );
 	
-	QLabel *label = new QLabel(
-		QString( "form plugin test, connected to %1, %2 (%3)" )
-			.arg( m_wolframeClient->serverName( ) )
-			.arg( m_wolframeClient->isEncrypted( ) ? "encrypted" : "not encrypted" )
-			.arg( m_wolframeClient->encryptionName( ) ),
-		m_widget );
+	QLabel *label = new QLabel( "Form plugin test" );
 	layout->addWidget( label );
 
 	m_pushButton = new QPushButton( "Press me!", m_widget );
@@ -85,7 +80,11 @@ void FormTestPlugin::handleButtonPress( )
 	content.append( QString( "<!DOCTYPE \"employee\" SYSTEM \"ListEmployee.simpleform\">" ) );
 	content.append( QString( "<employee/>" ) );
 
-	m_wolframeClient->request( cmd, tag, content );
+	m_dataLoader->datarequest( cmd, tag, content );
+}
+
+void FormTestPlugin::gotAnswer( const QString& _tag, const QByteArray& _data )
+{
 }
 
 #if QT_VERSION < 0x050000

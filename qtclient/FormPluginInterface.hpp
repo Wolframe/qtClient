@@ -36,9 +36,10 @@
 
 #include <QtPlugin>
 #include <QString>
+#include <QByteArray>
 #include <QWidget>
 
-#include "WolframeClient.hpp"
+#include "DataLoader.hpp"
 
 class FormPluginInterface
 {	
@@ -47,7 +48,8 @@ class FormPluginInterface
 		
 		virtual QString name( ) const = 0;
 		virtual QString windowTitle( ) const = 0;
-		virtual QWidget *initialize( WolframeClient *m_wolframeClient, QWidget *_parent ) = 0;
+		virtual QWidget *initialize( DataLoader *m_dataLoader, QWidget *_parent ) = 0;
+		virtual void gotAnswer( const QString& _tag, const QByteArray& _data ) = 0;
 };
 
 Q_DECLARE_INTERFACE( FormPluginInterface, "org.wolframe.qtClient.FormPluginInterface/1.0" )
