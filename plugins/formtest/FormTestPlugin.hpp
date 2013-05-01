@@ -47,7 +47,9 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 	Q_PLUGIN_METADATA( IID "org.wolframe.qtClient.FormPluginInterface/1.0"  )
 #endif // QT_VERSION >= 0x050000
 	
-	public:		
+	public:
+		FormTestPlugin( );
+		
 		virtual QString name( ) const;
 		virtual QString windowTitle( ) const;
 		virtual QWidget *initialize( DataLoader *m_dataLoader, QWidget *_parent );
@@ -57,6 +59,8 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 		QWidget *m_widget;
 		DataLoader *m_dataLoader;
 		QPushButton *m_pushButton;
+		int m_tagCounter;
+		QString m_tag;
 
 	private slots:
 		void handleButtonPress( );

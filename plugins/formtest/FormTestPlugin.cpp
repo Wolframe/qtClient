@@ -37,6 +37,13 @@
 #include <QLabel>
 #include <QByteArray>
 #include <QVBoxLayout>
+#include <QMessageBox>
+#include <QUuid>
+
+FormTestPlugin::FormTestPlugin( ) : QObject( ),
+	m_tagCounter( 0 )
+{
+}
 
 QString FormTestPlugin::name( ) const
 {
@@ -73,18 +80,24 @@ QWidget *FormTestPlugin::initialize( DataLoader *_dataLoader, QWidget *_parent )
 void FormTestPlugin::handleButtonPress( )
 {
 	QString cmd;
-	QString tag = "test";
+	QString winId = QString::number( (int)m_widget->winId( ) );
+	m_tag = QString( "tag_%1_%2" ).arg( winId ).arg( m_tagCounter++ );
 	QByteArray content;
 
 	content.append( QString( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" ) );
 	content.append( QString( "<!DOCTYPE \"employee\" SYSTEM \"ListEmployee.simpleform\">" ) );
 	content.append( QString( "<employee/>" ) );
 
-	m_dataLoader->datarequest( cmd, tag, content );
+	m_dataLoader->datarequest( cmd, m_tag, content );
 }
 
 void FormTestPlugin::gotAnswer( const QString& _tag, const QByteArray& _data )
 {
+	if( _tag != m_tag ) return;
+	
+	QMessageBox::information( m_widget, tr( "Answer from Wolframe server" ),
+		QString( "tag %1: %2" ).arg( _tag ).arg( _data.constData( ) ),
+		QMessageBox::Ok );
 }
 
 #if QT_VERSION < 0x050000
