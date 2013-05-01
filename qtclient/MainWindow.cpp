@@ -746,6 +746,8 @@ void MainWindow::on_actionExit_triggered( )
 
 		close( );
 	}
+	
+	storeSettings( );
 }
 
 void MainWindow::restoreStateAndPositions( )
@@ -787,12 +789,6 @@ void MainWindow::storeStateAndPositions( )
 		settings.mainWindowSize = size( );
 	}
 
-// optionally remember last connection and username
-	if( settings.saveUsername ) {
-		settings.lastUsername = lastUsername( );
-		settings.lastConnection = lastConnName( );
-	}
-
 // save position/size and state of subwindows (if wished)
 	if( settings.saveRestoreState ) {
 		settings.states.clear( );
@@ -820,6 +816,17 @@ void MainWindow::storeStateAndPositions( )
 
 void MainWindow::storeSettings( )
 {
+// connection parameters
+	settings.connectionParams = m_serverDefs;
+
+// optionally remember last connection and username
+	if( settings.saveUsername ) {
+		settings.lastUsername = lastUsername( );
+		settings.lastConnection = lastConnName( );
+	}
+
+// store them to the configuration file or the default configuration
+// file respectively registry	
 	if( m_settings.isEmpty( ) ) {
 		settings.write( ORGANIZATION_NAME, APPLICATION_NAME );
 	} else {
