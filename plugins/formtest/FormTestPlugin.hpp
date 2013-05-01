@@ -38,6 +38,30 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QHash>
+
+class FormTestPlugin;
+
+class FormTestWidget : public QWidget
+{
+	Q_OBJECT
+	
+	public:
+		FormTestWidget( FormTestPlugin *_plugin, QWidget *_parent = 0 );
+
+		void gotAnswer( const QByteArray& _data );
+		
+	private:
+		void initialize( );
+		
+	private:
+		FormTestPlugin *m_plugin;
+		QLabel *m_label;
+
+	private slots:
+		void handlePressMeButton( );
+		void handleClearButton( );
+};
 
 class FormTestPlugin : public QObject, public FormPluginInterface
 {
@@ -52,19 +76,15 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 		
 		virtual QString name( ) const;
 		virtual QString windowTitle( ) const;
-		virtual QWidget *initialize( DataLoader *_dataLoader, QWidget *_parent );
+		virtual QWidget *createForm( DataLoader *_dataLoader, QWidget *_parent );
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data );
-
+		
+		void sendRequest( WId wid, const QByteArray &_request );
+		
 	private:
-		QWidget *m_widget;
+		QHash<QString, FormTestWidget *> m_widgets;
 		DataLoader *m_dataLoader;
-		QLabel *m_label;
 		int m_tagCounter;
-		QString m_tag;
-
-	private slots:
-		void handlePressMeButton( );
-		void handleClearButton( );
 };
 
 #endif // _FORM_TEST_PLUGIN_INCLUDED
