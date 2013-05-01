@@ -37,7 +37,7 @@
 #include "FormPluginInterface.hpp"
 
 #include <QWidget>
-#include <QPushButton>
+#include <QLabel>
 
 class FormTestPlugin : public QObject, public FormPluginInterface
 {
@@ -52,18 +52,19 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 		
 		virtual QString name( ) const;
 		virtual QString windowTitle( ) const;
-		virtual QWidget *initialize( DataLoader *m_dataLoader, QWidget *_parent );
+		virtual QWidget *initialize( DataLoader *_dataLoader, QWidget *_parent );
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data );
 
 	private:
 		QWidget *m_widget;
 		DataLoader *m_dataLoader;
-		QPushButton *m_pushButton;
+		QLabel *m_label;
 		int m_tagCounter;
 		QString m_tag;
 
 	private slots:
-		void handleButtonPress( );
+		void handlePressMeButton( );
+		void handleClearButton( );
 };
 
 #endif // _FORM_TEST_PLUGIN_INCLUDED

@@ -34,11 +34,10 @@
 #include "FormTestPlugin.hpp"
 
 #include <QDebug>
-#include <QLabel>
 #include <QByteArray>
 #include <QVBoxLayout>
-#include <QMessageBox>
-#include <QUuid>
+#include <QPushButton>
+#include <QSpacerItem>
 
 FormTestPlugin::FormTestPlugin( ) : QObject( ),
 	m_tagCounter( 0 )
@@ -62,22 +61,37 @@ QWidget *FormTestPlugin::initialize( DataLoader *_dataLoader, QWidget *_parent )
 	m_dataLoader = _dataLoader;
 	
 	m_widget = new QWidget( _parent );
-	
-	QVBoxLayout *layout = new QVBoxLayout( m_widget );
-	m_widget->setLayout( layout );
-	
-	QLabel *label = new QLabel( "Form plugin test" );
-	layout->addWidget( label );
 
-	m_pushButton = new QPushButton( "Press me!", m_widget );
-	layout->addWidget( m_pushButton );
+	QVBoxLayout *vLayout = new QVBoxLayout( m_widget );
 
-	connect( m_pushButton, SIGNAL( clicked( ) ), this, SLOT( handleButtonPress( ) ) );
+	QHBoxLayout *hLayout = new QHBoxLayout( );
+
+	QSpacerItem *hSpacer = new QSpacerItem( 20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding );
+	hLayout->addItem( hSpacer );
+	
+	QPushButton *pressMeButton = new QPushButton( "Press me!", m_widget );
+	hLayout->addWidget( pressMeButton );
+	
+	QPushButton *clearButton = new QPushButton( "Clear", m_widget );
+	hLayout->addWidget( clearButton );
+
+	vLayout->addLayout( hLayout );
+
+	QSpacerItem *vSpacer = new QSpacerItem( 20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding );
+	vLayout->addItem( vSpacer );
+
+	m_label = new QLabel( "Form plugin test", m_widget );
+	m_label->setWordWrap( true );
+	m_label->setTextFormat( Qt::RichText );
+	vLayout->addWidget( m_label );
+
+	connect( pressMeButton, SIGNAL( clicked( ) ), this, SLOT( handlePressMeButton( ) ) );
+	connect( clearButton, SIGNAL( clicked( ) ), this, SLOT( handleClearButton( ) ) );
 	
 	return m_widget;
 }
 
-void FormTestPlugin::handleButtonPress( )
+void FormTestPlugin::handlePressMeButton( )
 {
 	QString cmd;
 	QString winId = QString::number( (int)m_widget->winId( ) );
@@ -91,13 +105,18 @@ void FormTestPlugin::handleButtonPress( )
 	m_dataLoader->datarequest( cmd, m_tag, content );
 }
 
+void FormTestPlugin::handleClearButton( )
+{
+	m_label->setText( "" );
+}
+
 void FormTestPlugin::gotAnswer( const QString& _tag, const QByteArray& _data )
 {
 	if( _tag != m_tag ) return;
 	
-	QMessageBox::information( m_widget, tr( "Answer from Wolframe server" ),
-		QString( "tag %1: %2" ).arg( _tag ).arg( _data.constData( ) ),
-		QMessageBox::Ok );
+	QString xml( _data.data( ) );
+	xml.replace( '&', "&amp;" ).replace( '<', "&lt;" ).replace( '>', "&gt;<br/>" );
+	m_label->setText( QString( "<html><h2>tag %1</h2><body>%2</body></html>" ).arg( _tag ).arg( xml ) );
 }
 
 #if QT_VERSION < 0x050000
