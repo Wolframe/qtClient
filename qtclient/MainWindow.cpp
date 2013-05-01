@@ -41,6 +41,7 @@
 #include "global.hpp"
 #include "FormChooseDialog.hpp"
 #include "manageServersDialog.hpp"
+#include "FormCall.hpp"
 
 #include <QtGui>
 #include <QBuffer>
@@ -461,6 +462,7 @@ void MainWindow::authOk( )
 	}
 
 	restoreStateAndPositions( );
+	updateMenusAndToolbars( );
 }
 
 void MainWindow::loadLanguages( )
@@ -798,7 +800,7 @@ void MainWindow::storeStateAndPositions( )
 			foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
 				WinState state;
 				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
-				state.form = f->form( );
+				state.form = FormCall::name( f->form( ) );
 				state.position = w->pos( );
 				state.size = w->size( );
 				settings.states.append( state );
@@ -807,7 +809,7 @@ void MainWindow::storeStateAndPositions( )
 			settings.states.clear( );
 			if( m_formWidget ) {
 				WinState state;
-				state.form = m_formWidget->form( );
+				state.form = FormCall::name( m_formWidget->form( ) );
 				state.position = m_formWidget->pos( );
 				state.size = m_formWidget->size( );
 				settings.states.append( state );
