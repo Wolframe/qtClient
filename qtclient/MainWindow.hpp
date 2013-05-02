@@ -43,6 +43,8 @@
 #include <QMap>
 #include <QAction>
 #include <QCloseEvent>
+#include <QList>
+#include <QMenu>
 
 #include "global.hpp"
 #include "FormLoader.hpp"
@@ -100,6 +102,7 @@ class MainWindow : public SkeletonMainWindow
 		QAction *m_openFormAction;
 		QAction *m_openFormNewWindowAction;
 		QDialog *m_modalDialog;
+		QList<QAction *> m_actions;	// custom menus for the current application and set of forms
 
 	public slots:
 		void readSettings( );
@@ -125,7 +128,8 @@ class MainWindow : public SkeletonMainWindow
 		void storeStateAndPositions( );
 		void restoreStateAndPositions( );
 		void addDeveloperMenu( );
-
+		void removeApplicationMenus( );
+		
 	private slots:
 // menu slots
 		void languageSelected( QAction *action );
@@ -138,6 +142,8 @@ class MainWindow : public SkeletonMainWindow
 		void endModal();
 		void endFormWidget();
 		void formError( QString error );
+		void menuListLoaded( QStringList menus );
+		void menuLoaded( QString name, QByteArray form );
 
 // MDI slots
 		void subWindowSelected( QAction *action );

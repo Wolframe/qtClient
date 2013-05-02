@@ -43,6 +43,7 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QList>
+#include <QBuffer>
 
 #include <QPluginLoader>
 #include <QApplication>
@@ -511,9 +512,13 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		qDebug( ) << "Constructed UI form XML for form" << name << m_modal;
 	}
 
-// special case of a QMainWindow (we abuse it as menu editor for now)
+// special case of a QMainWindow (we abuse it as menu editor for now),
+// show nothing, menu is drawn in main menu when logging in
 	if( qobject_cast<QMainWindow *>( m_ui ) ) {
-		QMainWindow *w = qobject_cast<QMainWindow *>( m_ui );
+		if( !oldUi ) oldUi = new QLabel( "error", this );
+		m_ui = oldUi;
+		m_form = m_previousForm;
+		emit error( tr( "Calling the menu UI %1 as if it were a normal form. This is a programming mistake!" ).arg( name ) );
 		return;
 	}
 	
@@ -521,6 +526,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 // a signal, so the main window can rearange and load the form modal in
 // a new window
 	if( !m_modal && ( m_ui->isModal( ) || m_ui->isWindow( ) ) ) {
+		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
 		emit formModal( name );

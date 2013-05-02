@@ -1,9 +1,8 @@
 now musts:
 - qtclient:
   - image selection plugin
-  - menu resources instead of 'index.txt', replacing new/open form menus
   - rewrite configurator as form plugin
-
+  
 later (cleanups):
   - libqtwolframeclient cleanup
   - libraries for request construction and answer interpretation

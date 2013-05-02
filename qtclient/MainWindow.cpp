@@ -44,13 +44,15 @@
 #include "FormCall.hpp"
 
 #include <QtGui>
-#include <QBuffer>
 #include <QApplication>
 #include <QTranslator>
 #include <QLocale>
 #include <QtAlgorithms>
 #include <QMessageBox>
 #include <QDebug>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QBuffer>
 
 // built-in defaults
 MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
@@ -251,7 +253,7 @@ void MainWindow::create( )
 // a local sqlite database, pass the form loader to the FormWidget
 	switch( settings.uiLoadMode ) {
 		case LoadMode::FILE:
-			m_formLoader = new FileFormLoader( settings.uiFormsDir, settings.uiFormTranslationsDir, settings.uiFormResourcesDir );
+			m_formLoader = new FileFormLoader( settings.uiFormsDir, settings.uiFormTranslationsDir, settings.uiFormResourcesDir, settings.uiMenusDir );
 			break;
 
 		case LoadMode::NETWORK:
@@ -284,6 +286,8 @@ void MainWindow::create( )
 		this, SLOT( languageCodesLoaded( QStringList ) ) );
 	connect( m_formLoader, SIGNAL( formListLoaded( QStringList ) ),
 		this, SLOT( formListLoaded( QStringList ) ) );
+	connect( m_formLoader, SIGNAL( menuListLoaded( QStringList ) ),
+		this, SLOT( menuListLoaded( QStringList ) ) );
 
 // create central widget, either as MDI area or as one form widget
 	if( settings.mdi ) {
@@ -322,10 +326,6 @@ void MainWindow::create( )
 
 // update shortcuts to standard ones
 	updateActionShortcuts( );
-
-// now that we have a menu where we can add things, we start the form list loading
-	if( m_formLoader )
-		m_formLoader->initiateListLoad( );
 
 // load language codes for language picker
 	loadLanguages( );
@@ -463,6 +463,13 @@ void MainWindow::authOk( )
 
 	restoreStateAndPositions( );
 	updateMenusAndToolbars( );
+
+// initialize a form list load in order to get list of menus to be
+// shown in the main menu and the list of forms in the developer menues
+	if( m_formLoader ) {
+		m_formLoader->initiateListLoad( );
+		m_formLoader->initiateMenuListLoad( );
+	}
 }
 
 void MainWindow::loadLanguages( )
@@ -577,9 +584,47 @@ void MainWindow::changeEvent( QEvent* _event )
 	QMainWindow::changeEvent( _event );
 }
 
+void MainWindow::menuLoaded( QString name, QByteArray menu )
+{
+	qDebug( ) << "MENU: checking for main menu" << name << "\n" << menu;
+	QBuffer buf( &menu );
+	QWidget *ui = m_uiLoader->load( &buf, 0 );
+	
+	QMainWindow *w = qobject_cast<QMainWindow *>( ui );
+	if( w ) {
+		QMenuBar *bar = qobject_cast<QMenuBar *>( w->menuWidget( ) );
+		if( bar ) {
+			qDebug( ) << "MENU:" << name << "is a menu, integrating it into menu bar";
+			QList<QMenu *> menus = bar->findChildren<QMenu *>( );
+			foreach( QMenu *menu, menus ) {
+				qDebug( ) << "MENU: glueing menu" << menu->title( );
+				QAction *action = menuBar( )->addMenu( menu );
+				if( action ) {
+					m_actions.push_back( action );
+				}
+			}
+		}
+	}
+}
+
 void MainWindow::formListLoaded( QStringList forms )
 {
 	m_forms = forms;
+}
+
+void MainWindow::menuListLoaded( QStringList menus )
+{
+	connect( m_formLoader, SIGNAL( menuLoaded( QString, QByteArray ) ),
+		this, SLOT( menuLoaded( QString, QByteArray ) ) );
+
+// iterate over all UIs and find out which ones are QMainWindows (for
+// now the placeholder for all menues)
+	foreach( QString menu, menus ) {
+		m_formLoader->initiateMenuLoad( menu );
+	}
+	
+	disconnect( m_formLoader, SIGNAL( menuLoaded( QString, QByteArray ) ),
+		this, SLOT( menuLoaded( QString, QByteArray ) ) );
 }
 
 void MainWindow::loadForm( QString name )
@@ -1071,8 +1116,17 @@ void MainWindow::login( )
 	}
 }
 
+void MainWindow::removeApplicationMenus( )
+{
+	foreach( QAction *action, m_actions ) {
+		action->setVisible( false );
+	}
+	m_actions.clear( );
+}
+
 void MainWindow::logout( )
 {
+	removeApplicationMenus( );
 	storeStateAndPositions( );
 	storeSettings( );
 
