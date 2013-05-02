@@ -872,15 +872,6 @@ void MainWindow::on_actionAboutQt_triggered( )
 
 // -- form handling
 
-void MainWindow::on_actionOpenForm_triggered( )
-{
-	FormChooseDialog d( m_forms, this );
-	if( d.exec( ) == QDialog::Accepted ) {
-		QString form = d.form( );
-		loadForm( form );
-	}
-}
-
 void MainWindow::on_actionReload_triggered( )
 {
 	m_formWidget->reload( );
@@ -927,16 +918,6 @@ void MainWindow::subWindowChanged( QMdiSubWindow *w )
 	m_formWidget = qobject_cast<FormWidget *>( w->widget( ) );
 
 	updateWindowMenu( );
-}
-
-void MainWindow::on_actionOpenFormNewWindow_triggered( )
-{
-	FormChooseDialog d( m_forms, this );
-	if( d.exec( ) == QDialog::Accepted ) {
-		(void)CreateMdiSubWindow( d.form( ) );
-	}
-
-	updateMenusAndToolbars( );
 }
 
 void MainWindow::on_actionNextWindow_triggered( )
@@ -1124,6 +1105,25 @@ void MainWindow::removeDebugToggle( )
 	_debugTerminal = 0;
 }
 
+void MainWindow::openForm( )
+{
+	FormChooseDialog d( m_forms, this );
+	if( d.exec( ) == QDialog::Accepted ) {
+		QString form = d.form( );
+		loadForm( form );
+	}
+}
+
+void MainWindow::openFormNew( )
+{
+	FormChooseDialog d( m_forms, this );
+	if( d.exec( ) == QDialog::Accepted ) {
+		(void)CreateMdiSubWindow( d.form( ) );
+	}
+
+	updateMenusAndToolbars( );
+}
+
 void MainWindow::addDeveloperMenu( )
 {
 	QMenu *developerMenu = menuBar( )->addMenu( tr( "&Developer" ) );
@@ -1133,10 +1133,28 @@ void MainWindow::addDeveloperMenu( )
 	m_debugTerminalAction->setCheckable( true );
 	m_debugTerminalAction->setShortcut( QKeySequence( "Ctrl+Alt+D" ) );
 	developerMenu->addAction( m_debugTerminalAction );
+	
+	developerMenu->addSeparator( );
+	
+	QAction *m_openFormAction = new QAction( tr( "&Open form" ), this );
+	m_openFormAction->setObjectName( QString::fromUtf8( "actionOpenForm") );
+	m_openFormAction->setStatusTip( tr( "Open form in current window" ) );
+	m_openFormAction->setEnabled( false );
+	developerMenu->addAction( m_openFormAction );
+	
+	QAction *m_openFormNewWindowAction = new QAction( tr( "Open form in &new window" ), this );
+	m_openFormNewWindowAction->setStatusTip( tr( "Open form in a new window" ) );
+	m_openFormNewWindowAction->setObjectName( QString::fromUtf8( "actionOpenFormNewWindow") );
+	m_openFormNewWindowAction->setEnabled( false );
+	developerMenu->addAction( m_openFormNewWindowAction );
 
 	QToolBar *developerToolBar = addToolBar( tr( "Developer" ));
 	developerToolBar->addAction( m_debugTerminalAction );
 
 	connect( m_debugTerminalAction, SIGNAL( toggled( bool ) ), this,
 		SLOT( showDebugTerminal( bool ) ) );
+	connect( m_openFormAction, SIGNAL( triggered( ) ), this,
+		SLOT( openForm( ) ) );
+	connect( m_openFormNewWindowAction, SIGNAL( triggered( ) ), this,
+		SLOT( openFormNew( ) ) );
 }

@@ -46,6 +46,7 @@
 
 #include <QPluginLoader>
 #include <QApplication>
+#include <QMainWindow>
 
 FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient )
 	: QWidget( _parent ), m_form( ),
@@ -508,6 +509,12 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		}
 		buf.close( );
 		qDebug( ) << "Constructed UI form XML for form" << name << m_modal;
+	}
+
+// special case of a QMainWindow (we abuse it as menu editor for now)
+	if( qobject_cast<QMainWindow *>( m_ui ) ) {
+		QMainWindow *w = qobject_cast<QMainWindow *>( m_ui );
+		return;
 	}
 	
 // if we have a modal dialog, we must not replace our own form, but emit

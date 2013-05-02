@@ -97,6 +97,8 @@ class MainWindow : public SkeletonMainWindow
 		bool m_terminating;
 		DebugTerminal *m_debugTerminal;
 		QAction *m_debugTerminalAction;
+		QAction *m_openFormAction;
+		QAction *m_openFormNewWindowAction;
 		QDialog *m_modalDialog;
 
 	public slots:
@@ -146,6 +148,8 @@ class MainWindow : public SkeletonMainWindow
 // developer slots
 		void showDebugTerminal( bool checked );
 		void removeDebugToggle( );
+		void openForm( );
+		void openFormNew( );
 
 // generic updating of status in menus and toolbars
 		void updateMenusAndToolbars( );
@@ -156,8 +160,6 @@ class MainWindow : public SkeletonMainWindow
 		void on_actionPreferences_triggered( );
 		void on_actionAbout_triggered( );
 		void on_actionAboutQt_triggered( );
-		void on_actionOpenForm_triggered( );
-		void on_actionOpenFormNewWindow_triggered( );
 		void on_actionReload_triggered( );
 		void on_actionNextWindow_triggered( );
 		void on_actionPreviousWindow_triggered( );

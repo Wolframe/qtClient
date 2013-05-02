@@ -92,9 +92,6 @@
     <addaction name="actionLogout"/>
     <addaction name="actionManageServers"/>
     <addaction name="separator"/>
-    <addaction name="actionOpenFormNewWindow"/>
-    <addaction name="actionOpenForm"/>
-    <addaction name="separator"/>
     <addaction name="actionPrint"/>
     <addaction name="separator"/>
     <addaction name="actionRestart"/>
@@ -260,28 +257,6 @@
    </property>
    <property name="toolTip">
     <string>Restart the Wolframe client</string>
-   </property>
-  </action>
-  <action name="actionOpenForm">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Open form..</string>
-   </property>
-   <property name="defaultShortcut" stdset="0">
-    <string>QKeySequence::Open</string>
-   </property>
-  </action>
-  <action name="actionOpenFormNewWindow">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Open form in &amp;new window..</string>
-   </property>
-   <property name="defaultShortcut" stdset="0">
-    <string>QKeySequence::New</string>
    </property>
   </action>
   <action name="actionContents">
