@@ -45,6 +45,7 @@
 #include <QCloseEvent>
 #include <QList>
 #include <QMenu>
+#include <QSignalMapper>
 
 #include "global.hpp"
 #include "FormLoader.hpp"
@@ -103,6 +104,7 @@ class MainWindow : public SkeletonMainWindow
 		QAction *m_openFormNewWindowAction;
 		QDialog *m_modalDialog;
 		QList<QAction *> m_actions;	// custom menus for the current application and set of forms
+		QSignalMapper *m_menuSignalMapper; // for mapping form calls to parameterized form calls in the menus
 
 	public slots:
 		void readSettings( );
@@ -144,6 +146,7 @@ class MainWindow : public SkeletonMainWindow
 		void formError( QString error );
 		void menuListLoaded( QStringList menus );
 		void menuLoaded( QString name, QByteArray form );
+		void loadMenuForm( QString form );
 
 // MDI slots
 		void subWindowSelected( QAction *action );

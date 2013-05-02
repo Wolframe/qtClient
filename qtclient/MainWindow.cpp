@@ -61,7 +61,7 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
 	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
-	m_modalDialog( 0 )
+	m_modalDialog( 0 ), m_menuSignalMapper( 0 )
 {
 // read parameters, first and only one is the optional configurartion files
 // containint the settings
@@ -72,6 +72,19 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 
 // enable login remember mechanism
 	setRememberLogin( true );
+
+// signal mapper for menu actions to load form calls with parameter
+	m_menuSignalMapper = new QSignalMapper( this );
+
+	connect( m_menuSignalMapper, SIGNAL( mapped( QString ) ),
+		this, SLOT( loadMenuForm( QString ) ) );
+}
+
+void MainWindow::loadMenuForm( QString form )
+{
+	qDebug( ) << "MENU: form call" << form;
+
+	loadForm( form );
 }
 
 void MainWindow::initializeUi( )
@@ -589,7 +602,9 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 	qDebug( ) << "MENU: checking for main menu" << name << "\n" << menu;
 	QBuffer buf( &menu );
 	QWidget *ui = m_uiLoader->load( &buf, 0 );
-	
+
+// read the UI and glue the menu into the main menu bar
+// TODO: a menu can be edited only in a QMainWindow for now	
 	QMainWindow *w = qobject_cast<QMainWindow *>( ui );
 	if( w ) {
 		QMenuBar *bar = qobject_cast<QMenuBar *>( w->menuWidget( ) );
@@ -598,9 +613,19 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 			QList<QMenu *> menus = bar->findChildren<QMenu *>( );
 			foreach( QMenu *menu, menus ) {
 				qDebug( ) << "MENU: glueing menu" << menu->title( );
-				QAction *action = menuBar( )->addMenu( menu );
-				if( action ) {
-					m_actions.push_back( action );
+				QAction *glueAction = menuBar( )->addMenu( menu );
+				if( glueAction ) {
+					m_actions.push_back( glueAction );
+// read dynamic property 'form' and connect it to loadForm calls
+					foreach( QAction *action, menu->actions( ) ) {
+						QString form = action->property( "form" ).toString( );
+						if( !form.isEmpty( ) ) {
+							qDebug( ) << "MENU: linking action" << action->text( ) << "to form call" << form;
+							connect( action, SIGNAL( triggered( ) ),
+								m_menuSignalMapper, SLOT( map( ) ) );
+							m_menuSignalMapper->setMapping( action, form );
+						}
+					}
 				}
 			}
 		}
