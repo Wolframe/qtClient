@@ -48,16 +48,16 @@ public:
 	~ImageListViewDialog();
 
 public Q_SLOTS:
-	void showImage(int num);
+	void showImage( int num );
 	void finished();
 
-	void imageClicked(QModelIndex);
+	void imageClicked( QModelIndex index );
 
 private:
-	QStringList m_imageNamesList;
-	QFutureWatcher<QImage>*     m_imageScaler;
-	QListView*                  m_imageListView;
-	QStandardItemModel*         m_standardModel;
+	QStringList		m_imageNamesList;
+	QFutureWatcher<QImage>*	m_imageScaler;
+	QListView*		m_imageListView;
+	QStandardItemModel*	m_standardModel;
 };
 
 #endif // _IMAGE_LIST_VIEW_DIALOG_HPP_INCLUDED

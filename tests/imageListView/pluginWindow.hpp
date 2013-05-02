@@ -13,6 +13,7 @@ class QPushButton;
 class QListView;
 class QListWidget;
 QT_END_NAMESPACE
+class ImageListViewDialog;
 
 class PluginWindow : public QWidget
 {
@@ -34,24 +35,24 @@ private:
 	void createSelectedGroupBox();
 	void createPropertiesGroupBox();
 
-	QGroupBox	*pluginGroupBox;
-	QGridLayout	*pluginLayout;
-	QListView	*selector;
+	QGroupBox		*m_pluginGroupBox;
+	QGridLayout		*m_pluginLayout;
+	ImageListViewDialog	*m_selector;
 
-	QGroupBox	*operationsGroupBox;
-	QLabel		*localeLabel;
-	QComboBox	*localeCombo;
-	QPushButton	*addImage;
-	QPushButton	*removeImage;
+	QGroupBox		*m_operationsGroupBox;
+	QLabel			*m_localeLabel;
+	QComboBox		*m_localeCombo;
+	QPushButton		*m_addImage;
+	QPushButton		*m_removeImage;
 
-	QGroupBox	*selectedGroupBox;
-	QListWidget	*selectedList;
+	QGroupBox		*m_selectedGroupBox;
+	QListWidget		*m_selectedList;
 
-	QGroupBox	*propertiesGroupBox;
-	QLabel		*selectedItems;
-	QLabel		*totalItems;
+	QGroupBox		*m_propertiesGroupBox;
+	QLabel			*m_selectedItems;
+	QLabel			*m_totalItems;
 
-	QStringList	imageFiles;
+	QStringList		m_imageFiles;
 };
 
 #endif	// _WINDOW_HPP_INCLUDED
