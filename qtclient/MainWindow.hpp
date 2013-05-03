@@ -43,6 +43,9 @@
 #include <QMap>
 #include <QAction>
 #include <QCloseEvent>
+#include <QList>
+#include <QMenu>
+#include <QSignalMapper>
 
 #include "global.hpp"
 #include "FormLoader.hpp"
@@ -97,7 +100,11 @@ class MainWindow : public SkeletonMainWindow
 		bool m_terminating;
 		DebugTerminal *m_debugTerminal;
 		QAction *m_debugTerminalAction;
+		QAction *m_openFormAction;
+		QAction *m_openFormNewWindowAction;
 		QDialog *m_modalDialog;
+		QList<QAction *> m_actions;	// custom menus for the current application and set of forms
+		QSignalMapper *m_menuSignalMapper; // for mapping form calls to parameterized form calls in the menus
 
 	public slots:
 		void readSettings( );
@@ -123,7 +130,8 @@ class MainWindow : public SkeletonMainWindow
 		void storeStateAndPositions( );
 		void restoreStateAndPositions( );
 		void addDeveloperMenu( );
-
+		void removeApplicationMenus( );
+		
 	private slots:
 // menu slots
 		void languageSelected( QAction *action );
@@ -136,6 +144,9 @@ class MainWindow : public SkeletonMainWindow
 		void endModal();
 		void endFormWidget();
 		void formError( QString error );
+		void menuListLoaded( QStringList menus );
+		void menuLoaded( QString name, QByteArray form );
+		void loadMenuForm( QString form );
 
 // MDI slots
 		void subWindowSelected( QAction *action );
@@ -146,6 +157,8 @@ class MainWindow : public SkeletonMainWindow
 // developer slots
 		void showDebugTerminal( bool checked );
 		void removeDebugToggle( );
+		void openForm( );
+		void openFormNew( );
 
 // generic updating of status in menus and toolbars
 		void updateMenusAndToolbars( );
@@ -156,8 +169,6 @@ class MainWindow : public SkeletonMainWindow
 		void on_actionPreferences_triggered( );
 		void on_actionAbout_triggered( );
 		void on_actionAboutQt_triggered( );
-		void on_actionOpenForm_triggered( );
-		void on_actionOpenFormNewWindow_triggered( );
 		void on_actionReload_triggered( );
 		void on_actionNextWindow_triggered( );
 		void on_actionPreviousWindow_triggered( );

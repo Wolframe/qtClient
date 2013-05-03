@@ -53,17 +53,24 @@ LoginDialog::LoginDialog( const QString& username,
 	ui->serverCombo->setCurrentIndex( index );
 
 	connect( ui->serverManageButton, SIGNAL( clicked() ), this, SLOT( manageServers() ));
-
-	if ( m_connParams.size() == 0 )	{
-		QMessageBox::information( this, tr( "Login" ),
-					  tr( "There are no servers defined.\nPlease define a server." ));
-		manageServers();
-	}
 }
 
 LoginDialog::~LoginDialog()
 {
 	delete ui;
+}
+
+int LoginDialog::specificExec()
+{
+	while ( m_connParams.size() == 0 )	{
+		if ( QMessageBox::Ok == QMessageBox::information( this, tr( "Login" ),
+								  tr( "There are no servers defined.\nPlease define a server." ),
+								  QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok ))
+			manageServers();
+		else
+			return QDialog::Rejected;
+	}
+	return this->exec();
 }
 
 void LoginDialog::manageServers()
@@ -83,18 +90,18 @@ void LoginDialog::manageServers()
 	delete manageDlg;
 }
 
-bool LoginDialog::hasSelectedserver( )
+bool LoginDialog::hasSelectedServer() const
 {
 	return( ui->serverCombo->currentIndex( ) >= 0 &&
 		ui->serverCombo->currentIndex( ) < m_connParams.size( ) );
 }
 
-ServerDefinition LoginDialog::selectedServer( )
+ServerDefinition LoginDialog::selectedServer() const
 {
 	return m_connParams[ ui->serverCombo->currentIndex( ) ];
 }
 
-QString LoginDialog::username( )
+QString LoginDialog::username() const
 {
 	return ui->userInput->text( );
 }

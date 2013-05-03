@@ -94,7 +94,7 @@ void ImageListViewDialog::finished()
 {
 }
 
-void ImageListViewDialog::imageClicked(QModelIndex index)
+void ImageListViewDialog::imageClicked( QModelIndex index )
 {
 	if ( index.row() < m_imageNamesList.count() )	{
 		qDebug() << "image selected " << m_imageNamesList.at( index.row() );

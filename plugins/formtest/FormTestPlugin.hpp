@@ -37,7 +37,31 @@
 #include "FormPluginInterface.hpp"
 
 #include <QWidget>
-#include <QPushButton>
+#include <QLabel>
+#include <QHash>
+
+class FormTestPlugin;
+
+class FormTestWidget : public QWidget
+{
+	Q_OBJECT
+	
+	public:
+		FormTestWidget( FormTestPlugin *_plugin, QWidget *_parent = 0 );
+
+		void gotAnswer( const QByteArray& _data );
+		
+	private:
+		void initialize( );
+		
+	private:
+		FormTestPlugin *m_plugin;
+		QLabel *m_label;
+
+	private slots:
+		void handlePressMeButton( );
+		void handleClearButton( );
+};
 
 class FormTestPlugin : public QObject, public FormPluginInterface
 {
@@ -47,18 +71,20 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 	Q_PLUGIN_METADATA( IID "org.wolframe.qtClient.FormPluginInterface/1.0"  )
 #endif // QT_VERSION >= 0x050000
 	
-	public:		
-		virtual const QString name( );
-		virtual const QString windowTitle( );
-		virtual QWidget *initialize( WolframeClient *m_wolframeClient, QWidget *_parent );
-	
+	public:
+		FormTestPlugin( );
+		
+		virtual QString name( ) const;
+		virtual QString windowTitle( ) const;
+		virtual QWidget *createForm( DataLoader *_dataLoader, QWidget *_parent );
+		virtual void gotAnswer( const QString& _tag, const QByteArray& _data );
+		
+		void sendRequest( WId wid, const QByteArray &_request );
+		
 	private:
-		QWidget *m_widget;
-		WolframeClient *m_wolframeClient;
-		QPushButton *m_pushButton;
-
-	private slots:
-		void handleButtonPress( );
+		QHash<QString, FormTestWidget *> m_widgets;
+		DataLoader *m_dataLoader;
+		int m_tagCounter;
 };
 
 #endif // _FORM_TEST_PLUGIN_INCLUDED

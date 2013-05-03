@@ -1,10 +1,13 @@
-Aba:
+now musts:
 - qtclient:
-  - picture chooser plugin
+  - image selection plugin
+  - rewrite configurator as form plugin
+  
+later (cleanups):
+  - libqtwolframeclient cleanup
+  - libraries for request construction and answer interpretation
+    - the one using visitors
   - plugins using visitors, how to respect plugin interface there?
-  - generic plugin interface for form request (as needed for the
-    'configurator' dialog)
-  - menu resources instead of 'index.txt', replacing new/open form menus
 
 unsorted from here:
 

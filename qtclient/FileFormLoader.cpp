@@ -45,8 +45,9 @@
 #include <QApplication>
 #include "FormPluginInterface.hpp"
 
-FileFormLoader::FileFormLoader( QString formDir, QString localeDir, QString resourcesDir )
-	: m_formDir( formDir ), m_localeDir( localeDir ), m_resourcesDir( resourcesDir )
+FileFormLoader::FileFormLoader( QString formDir, QString localeDir, QString resourcesDir, QString menusDir )
+	: m_formDir( formDir ), m_localeDir( localeDir ), m_resourcesDir( resourcesDir ),
+	m_menusDir( menusDir )
 {
 	initialize( );
 }
@@ -68,30 +69,41 @@ void FileFormLoader::initialize( )
 	}
 }
 
+void FileFormLoader::initiateMenuListLoad( )
+{
+	QStringList menus;
+
+	QDir menusDir( m_menusDir );
+	QStringList filters;
+	filters << "*.ui";
+	menusDir.setNameFilters( filters );
+	menus = menusDir.entryList( QDir::Files | QDir::NoDotAndDotDot, QDir::Name )
+		.replaceInStrings( ".ui", "" );
+	
+	emit menuListLoaded( menus );
+}
+
+void FileFormLoader::initiateMenuLoad( QString &name )
+{
+// read directly here and stuff data into the signal
+	QByteArray menu = readFile( m_menusDir + "/" + FormCall::name( name) + ".ui" );
+
+	emit menuLoaded( name, menu );
+}
+
 void FileFormLoader::initiateListLoad( )
 {
 	QStringList forms;
 	
-	QFile indexFile( m_formDir + "/" + "index.txt" );
-	if( indexFile.open( QIODevice::ReadOnly ) ) {
-// explicit index file listing uis to load
-		QTextStream in( &indexFile );
-		while( !in.atEnd( ) ) {
-			QString line = in.readLine( );
-			forms << line;
-		}
-		indexFile.close( );
-	} else {
-// implicit, fetch all ui files from the given directory
-		QDir formsDir( m_formDir );
-		QStringList filters;
-		filters << "*.ui";
-		formsDir.setNameFilters( filters );
-		forms = formsDir.entryList( QDir::Files | QDir::NoDotAndDotDot, QDir::Name )
-			.replaceInStrings( ".ui", "" );
-	}
+// fetch all ui files from the given directory
+	QDir formsDir( m_formDir );
+	QStringList filters;
+	filters << "*.ui";
+	formsDir.setNameFilters( filters );
+	forms = formsDir.entryList( QDir::Files | QDir::NoDotAndDotDot, QDir::Name )
+		.replaceInStrings( ".ui", "" );
 
-// load form plugin code (EXPERMINTAL!)
+// load form plugin code
 	QDir pluginDir( m_formDir );
 	foreach( QString filename, pluginDir.entryList( QDir::Files ) ) {
 		if( !QLibrary::isLibrary( filename ) ) continue;
@@ -137,7 +149,6 @@ void FileFormLoader::initiateFormLoad( QString &name )
 
 	emit formLoaded( name, form );
 }
-
 
 void FileFormLoader::initiateGetLanguageCodes( )
 {

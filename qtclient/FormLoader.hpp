@@ -51,6 +51,9 @@ class FormLoader : public QObject
 		virtual void initiateFormLocalizationLoad( QString &name, QLocale locale ) = 0;
 		virtual void initiateGetLanguageCodes( ) = 0;
 		
+		virtual void initiateMenuListLoad( ) = 0;
+		virtual void initiateMenuLoad( QString &name ) = 0;
+		
 		virtual void initiateFormSave( QString name, QByteArray form ) = 0;
 		virtual void initiateFormLocalizationSave( QString name, QLocale locale, QByteArray localizationSrc, QByteArray localizationBin ) = 0;
 		
@@ -62,6 +65,9 @@ class FormLoader : public QObject
 		void formLoaded( QString form_name, QByteArray form );
 		void formLocalizationLoaded( QString form_name, QByteArray localization );
 		void languageCodesLoaded( QStringList languages );
+		
+		void menuListLoaded( QStringList menus );
+		void menuLoaded( QString form_name, QByteArray menu );
 		
 		void formSaved( QString name );
 		void formLocalizationSaved( QString name );

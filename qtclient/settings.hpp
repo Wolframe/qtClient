@@ -72,6 +72,7 @@ struct ApplicationSettings
 	QString uiFormTranslationsDir;		///< QM files (translations)
 	QString uiFormResourcesDir;		///< resources (e.g. pictures)
 	QString dataLoaderDir;			///< XML demo data simulating data forms
+	QString uiMenusDir;			///< UI files representing menus (main and popups)
 
 	bool saveRestoreState;
 	QVector<WinState> states;		///< states of subwindow(s)

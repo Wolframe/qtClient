@@ -149,12 +149,14 @@ void PreferencesDialog::loadSettings( )
 	m_developer->uiFormTranslationsDir->setEnabled( false );
 	m_developer->uiFormResourcesDir->setEnabled( false );
 	m_developer->dataLoaderDir->setEnabled( false );
+	m_developer->uiMenusDir->setEnabled( false );
 	switch( m_settings.uiLoadMode ) {
 		case LoadMode::FILE:
 			m_developer->uiLoadModeLocalFile->setChecked( true );
 			m_developer->uiFormsDir->setEnabled( true );
 			m_developer->uiFormTranslationsDir->setEnabled( true );
 			m_developer->uiFormResourcesDir->setEnabled( true );
+			m_developer->uiMenusDir->setEnabled( true );
 			break;
 
 		case LoadMode::NETWORK:
@@ -185,6 +187,7 @@ void PreferencesDialog::loadSettings( )
 	m_developer->uiFormTranslationsDir->setFileName( m_settings.uiFormTranslationsDir );
 	m_developer->uiFormResourcesDir->setFileName( m_settings.uiFormResourcesDir );
 	m_developer->dataLoaderDir->setFileName( m_settings.dataLoaderDir );
+	m_developer->uiMenusDir->setFileName( m_settings.uiMenusDir );
 }
 
 void PreferencesDialog::apply( )
@@ -223,6 +226,7 @@ void PreferencesDialog::apply( )
 	m_settings.uiFormTranslationsDir = m_developer->uiFormTranslationsDir->fileName( );
 	m_settings.uiFormResourcesDir = m_developer->uiFormResourcesDir->fileName( );
 	m_settings.dataLoaderDir = m_developer->dataLoaderDir->fileName( );
+	m_settings.uiMenusDir = m_developer->uiMenusDir->fileName( );
 
 	accept( );
 }
@@ -253,12 +257,14 @@ void PreferencesDialog::restoreDefaults( )
 	m_developer->uiFormTranslationsDir->setEnabled( false );
 	m_developer->uiFormResourcesDir->setEnabled( false );
 	m_developer->dataLoaderDir->setEnabled( false );
+	m_developer->uiMenusDir->setEnabled( false );
 	switch( DEFAULT_UILOADMODE ) {
 		case LoadMode::FILE:
 			m_developer->uiLoadModeLocalFile->setChecked( true );
 			m_developer->uiFormsDir->setEnabled( true );
 			m_developer->uiFormTranslationsDir->setEnabled( true );
 			m_developer->uiFormResourcesDir->setEnabled( true );
+			m_developer->uiMenusDir->setEnabled( true );
 			break;
 
 		case LoadMode::NETWORK:
@@ -287,6 +293,7 @@ void PreferencesDialog::restoreDefaults( )
 	m_developer->uiFormTranslationsDir->setFileName( DEFAULT_UI_FORM_TRANSLATIONS_DIR );
 	m_developer->uiFormResourcesDir->setFileName( DEFAULT_UI_FORM_RESOURCES_DIR );
 	m_developer->dataLoaderDir->setFileName( DEFAULT_DATA_LOADER_DIR );
+	m_developer->uiMenusDir->setFileName( DEFAULT_UI_MENUS_DIR );
 }
 
 void PreferencesDialog::cancel( )
@@ -300,6 +307,7 @@ void PreferencesDialog::toggleLoadMode( bool /* checked */ )
 	m_developer->uiFormTranslationsDir->setEnabled( m_developer->uiLoadModeLocalFile->isChecked( ) );
 	m_developer->uiFormResourcesDir->setEnabled( m_developer->uiLoadModeLocalFile->isChecked( ) );
 	m_developer->dataLoaderDir->setEnabled( m_developer->dataLoadModeLocalFile->isChecked( ) );
+	m_developer->uiMenusDir->setEnabled( m_developer->uiLoadModeLocalFile->isChecked( ) );
 }
 
 void PreferencesDialog::toggleLocale( bool /* checked */ )

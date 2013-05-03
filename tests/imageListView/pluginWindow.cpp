@@ -3,6 +3,8 @@
 
 #include "pluginWindow.hpp"
 
+#include "ImageListViewDialog.hpp"
+
 PluginWindow::PluginWindow()
 {
 	createPluginGroupBox();
@@ -11,38 +13,38 @@ PluginWindow::PluginWindow()
 	createPropertiesGroupBox();
 
 	QGridLayout *layout = new QGridLayout;
-	layout->addWidget( pluginGroupBox, 0, 0 );
-	layout->addWidget( selectedGroupBox, 0, 1 );
-	layout->addWidget( propertiesGroupBox, 1, 0 );
-	layout->addWidget( operationsGroupBox, 1, 1 );
+	layout->addWidget( m_pluginGroupBox, 0, 0 );
+	layout->addWidget( m_selectedGroupBox, 0, 1 );
+	layout->addWidget( m_propertiesGroupBox, 1, 0 );
+	layout->addWidget( m_operationsGroupBox, 1, 1 );
 
 	layout->setSizeConstraint( QLayout::SetFixedSize );
 	setLayout( layout );
 
-	pluginLayout->setRowMinimumHeight( 0, selector->sizeHint().height() );
-	pluginLayout->setColumnMinimumWidth( 0, selector->sizeHint().width() );
+	m_pluginLayout->setRowMinimumHeight( 0, m_selector->sizeHint().height() );
+	m_pluginLayout->setColumnMinimumWidth( 0, m_selector->sizeHint().width() );
 
 	setWindowTitle( tr( "Image List View/Widget Test" ));
 }
 
 void PluginWindow::createPluginGroupBox()
 {
-	pluginGroupBox = new QGroupBox( tr( "ImageList" ));
+	m_pluginGroupBox = new QGroupBox( tr( "ImageList" ));
 //!!!!!!!!!
-	selector = new QListView;
-	connect( selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
-	connect( selector, SIGNAL( doubleClicked( QModelIndex )), this, SLOT( itemSelected()) );
+	m_selector = new ImageListViewDialog( m_imageFiles );
+	connect( m_selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
+	connect( m_selector, SIGNAL( doubleClicked( QModelIndex )), this, SLOT( itemSelected()) );
 //!!!!!!!!!
-	pluginLayout = new QGridLayout;
-	pluginLayout->addWidget( selector, 0, 0, Qt::AlignCenter );
-	pluginGroupBox->setLayout( pluginLayout );
+	m_pluginLayout = new QGridLayout;
+	m_pluginLayout->addWidget( m_selector, 0, 0, Qt::AlignCenter );
+	m_pluginGroupBox->setLayout( m_pluginLayout );
 }
 
 void PluginWindow::createOperationsGroupBox()
 {
-	operationsGroupBox = new QGroupBox( tr( "Operations" ));
+	m_operationsGroupBox = new QGroupBox( tr( "Operations" ));
 // Build locale combo
-	localeCombo = new QComboBox;
+	m_localeCombo = new QComboBox;
 	int curLocaleIndex = -1;
 	int index = 0;
 	for ( int langIdx = QLocale::C; langIdx <= QLocale::LastLanguage; langIdx++ )	{
@@ -56,66 +58,66 @@ void PluginWindow::createOperationsGroupBox()
 			QLocale locale( lang, country );
 			if ( this->locale().language() == lang && this->locale().country() == country )
 				curLocaleIndex = index;
-			localeCombo->addItem( label, locale );
+			m_localeCombo->addItem( label, locale );
 			index++;
 		}
 	}
 	if ( curLocaleIndex != -1 )
-		localeCombo->setCurrentIndex( curLocaleIndex );
-	localeLabel = new QLabel( tr( "&Locale" ));
-	localeLabel->setBuddy( localeCombo );
+		m_localeCombo->setCurrentIndex( curLocaleIndex );
+	m_localeLabel = new QLabel( tr( "&Locale" ));
+	m_localeLabel->setBuddy( m_localeCombo );
 
-	connect( localeCombo, SIGNAL( currentIndexChanged( int )),
+	connect( m_localeCombo, SIGNAL( currentIndexChanged( int )),
 		 this, SLOT( localeChanged( int )) );
 // End of locale combo
 
 // Buttons
-	addImage = new QPushButton( tr( "&Add image(s) from file(s)..." ));
-	connect( addImage, SIGNAL( clicked( bool )), this, SLOT( addImagesFromFiles()) );
+	m_addImage = new QPushButton( tr( "&Add image(s) from file(s)..." ));
+	connect( m_addImage, SIGNAL( clicked( bool )), this, SLOT( addImagesFromFiles()) );
 
-	removeImage = new QPushButton( tr( "&Remove selected image(s)" ));
-	connect( removeImage, SIGNAL( clicked( bool )), this, SLOT( removeSelectedImages()) );
+	m_removeImage = new QPushButton( tr( "&Remove selected image(s)" ));
+	connect( m_removeImage, SIGNAL( clicked( bool )), this, SLOT( removeSelectedImages()) );
 
 // Set elements into the grid
 	QGridLayout *opLayout = new QGridLayout;
-	opLayout->addWidget( localeLabel, 0, 0 );
-	opLayout->addWidget( localeCombo, 0, 1 );
-	opLayout->addWidget( addImage, 1, 1 );
-	opLayout->addWidget( removeImage, 2, 1 );
+	opLayout->addWidget( m_localeLabel, 0, 0 );
+	opLayout->addWidget( m_localeCombo, 0, 1 );
+	opLayout->addWidget( m_addImage, 1, 1 );
+	opLayout->addWidget( m_removeImage, 2, 1 );
 
-	operationsGroupBox->setLayout( opLayout );
+	m_operationsGroupBox->setLayout( opLayout );
 }
 
 void PluginWindow::createSelectedGroupBox()
 {
-	selectedGroupBox = new QGroupBox( tr( "Selected" ));
+	m_selectedGroupBox = new QGroupBox( tr( "Selected" ));
 
-	selectedList = new QListWidget();
+	m_selectedList = new QListWidget();
 
 	QGridLayout *selectedLayout = new QGridLayout;
-	selectedLayout->addWidget( selectedList, 0, 0 );
+	selectedLayout->addWidget( m_selectedList, 0, 0 );
 
-	selectedGroupBox->setLayout( selectedLayout );
+	m_selectedGroupBox->setLayout( selectedLayout );
 }
 
 void PluginWindow::createPropertiesGroupBox()
 {
-	propertiesGroupBox = new QGroupBox( tr( "Widget properties" ));
+	m_propertiesGroupBox = new QGroupBox( tr( "Widget properties" ));
 
-	selectedItems = new QLabel( tr( "Number of selected items: 0" ));
-	totalItems = new QLabel( tr( "Total number of items: 0" ));
+	m_selectedItems = new QLabel( tr( "Number of selected items: 0" ));
+	m_totalItems = new QLabel( tr( "Total number of items: 0" ));
 
 	QGridLayout *propLayout = new QGridLayout;
-	propLayout->addWidget( selectedItems, 0, 0 );
-	propLayout->addWidget( totalItems, 1, 0 );
+	propLayout->addWidget( m_selectedItems, 0, 0 );
+	propLayout->addWidget( m_totalItems, 1, 0 );
 
-	propertiesGroupBox->setLayout( propLayout );
+	m_propertiesGroupBox->setLayout( propLayout );
 }
 
 // Slots
 void PluginWindow::localeChanged( int index )
 {
-	selector->setLocale( localeCombo->itemData( index ).toLocale() );
+	m_selector->setLocale( m_localeCombo->itemData( index ).toLocale() );
 }
 
 void PluginWindow::addImagesFromFiles()
@@ -128,7 +130,7 @@ void PluginWindow::addImagesFromFiles()
 	QStringList	fileNames;
 	if ( fileDialog.exec() )	{
 		fileNames = fileDialog.selectedFiles();
-		imageFiles += fileNames;
+		m_imageFiles += fileNames;
 	}
 	QMessageBox::critical( this, tr( "Plugin tester" ), tr( "Not implemented yet" ) );
 }

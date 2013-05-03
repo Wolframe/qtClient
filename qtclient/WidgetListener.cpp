@@ -106,7 +106,7 @@ void WidgetListenerImpl::trigger_reload( const QString& signame, QWidget* receiv
 		button->toggle();
 		button->click();
 	}
-	QVariant actiondef = receiver->property( QByteArray("action:") + signame.toAscii());
+	QVariant actiondef = receiver->property( QByteArray("action:") + signame.toLatin1());
 	if (!actiondef.isValid())
 	{
 		actiondef = receiver->property( "action");

@@ -41,15 +41,18 @@
 #include "global.hpp"
 #include "FormChooseDialog.hpp"
 #include "manageServersDialog.hpp"
+#include "FormCall.hpp"
 
 #include <QtGui>
-#include <QBuffer>
 #include <QApplication>
 #include <QTranslator>
 #include <QLocale>
 #include <QtAlgorithms>
 #include <QMessageBox>
 #include <QDebug>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QBuffer>
 
 // built-in defaults
 MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
@@ -58,7 +61,7 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
 	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
-	m_modalDialog( 0 )
+	m_modalDialog( 0 ), m_menuSignalMapper( 0 )
 {
 // read parameters, first and only one is the optional configurartion files
 // containint the settings
@@ -69,6 +72,23 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 
 // enable login remember mechanism
 	setRememberLogin( true );
+
+// signal mapper for menu actions to load form calls with parameter
+	m_menuSignalMapper = new QSignalMapper( this );
+
+	connect( m_menuSignalMapper, SIGNAL( mapped( QString ) ),
+		this, SLOT( loadMenuForm( QString ) ) );
+}
+
+void MainWindow::loadMenuForm( QString form )
+{
+	qDebug( ) << "MENU: form call" << form;
+
+	if( settings.mdi ) {
+		(void)CreateMdiSubWindow( form );
+	} else {
+		loadForm( form );
+	}
 }
 
 void MainWindow::initializeUi( )
@@ -250,7 +270,7 @@ void MainWindow::create( )
 // a local sqlite database, pass the form loader to the FormWidget
 	switch( settings.uiLoadMode ) {
 		case LoadMode::FILE:
-			m_formLoader = new FileFormLoader( settings.uiFormsDir, settings.uiFormTranslationsDir, settings.uiFormResourcesDir );
+			m_formLoader = new FileFormLoader( settings.uiFormsDir, settings.uiFormTranslationsDir, settings.uiFormResourcesDir, settings.uiMenusDir );
 			break;
 
 		case LoadMode::NETWORK:
@@ -283,6 +303,8 @@ void MainWindow::create( )
 		this, SLOT( languageCodesLoaded( QStringList ) ) );
 	connect( m_formLoader, SIGNAL( formListLoaded( QStringList ) ),
 		this, SLOT( formListLoaded( QStringList ) ) );
+	connect( m_formLoader, SIGNAL( menuListLoaded( QStringList ) ),
+		this, SLOT( menuListLoaded( QStringList ) ) );
 
 // create central widget, either as MDI area or as one form widget
 	if( settings.mdi ) {
@@ -321,10 +343,6 @@ void MainWindow::create( )
 
 // update shortcuts to standard ones
 	updateActionShortcuts( );
-
-// now that we have a menu where we can add things, we start the form list loading
-	if( m_formLoader )
-		m_formLoader->initiateListLoad( );
 
 // load language codes for language picker
 	loadLanguages( );
@@ -461,6 +479,14 @@ void MainWindow::authOk( )
 	}
 
 	restoreStateAndPositions( );
+	updateMenusAndToolbars( );
+
+// initialize a form list load in order to get list of menus to be
+// shown in the main menu and the list of forms in the developer menues
+	if( m_formLoader ) {
+		m_formLoader->initiateListLoad( );
+		m_formLoader->initiateMenuListLoad( );
+	}
 }
 
 void MainWindow::loadLanguages( )
@@ -575,9 +601,59 @@ void MainWindow::changeEvent( QEvent* _event )
 	QMainWindow::changeEvent( _event );
 }
 
+void MainWindow::menuLoaded( QString name, QByteArray menu )
+{
+	qDebug( ) << "MENU: checking for main menu" << name << "\n" << menu;
+	QBuffer buf( &menu );
+	QWidget *ui = m_uiLoader->load( &buf, 0 );
+
+// read the UI and glue the menu into the main menu bar
+// TODO: a menu can be edited only in a QMainWindow for now	
+	QMainWindow *w = qobject_cast<QMainWindow *>( ui );
+	if( w ) {
+		QMenuBar *bar = qobject_cast<QMenuBar *>( w->menuWidget( ) );
+		if( bar ) {
+			qDebug( ) << "MENU:" << name << "is a menu, integrating it into menu bar";
+			QList<QMenu *> menus = bar->findChildren<QMenu *>( );
+			foreach( QMenu *menu, menus ) {
+				qDebug( ) << "MENU: glueing menu" << menu->title( );
+				QAction *glueAction = menuBar( )->addMenu( menu );
+				if( glueAction ) {
+					m_actions.push_back( glueAction );
+// read dynamic property 'form' and connect it to loadForm calls
+					foreach( QAction *action, menu->actions( ) ) {
+						QString form = action->property( "form" ).toString( );
+						if( !form.isEmpty( ) ) {
+							qDebug( ) << "MENU: linking action" << action->text( ) << "to form call" << form;
+							connect( action, SIGNAL( triggered( ) ),
+								m_menuSignalMapper, SLOT( map( ) ) );
+							m_menuSignalMapper->setMapping( action, form );
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void MainWindow::formListLoaded( QStringList forms )
 {
 	m_forms = forms;
+}
+
+void MainWindow::menuListLoaded( QStringList menus )
+{
+	connect( m_formLoader, SIGNAL( menuLoaded( QString, QByteArray ) ),
+		this, SLOT( menuLoaded( QString, QByteArray ) ) );
+
+// iterate over all UIs and find out which ones are QMainWindows (for
+// now the placeholder for all menues)
+	foreach( QString menu, menus ) {
+		m_formLoader->initiateMenuLoad( menu );
+	}
+	
+	disconnect( m_formLoader, SIGNAL( menuLoaded( QString, QByteArray ) ),
+		this, SLOT( menuLoaded( QString, QByteArray ) ) );
 }
 
 void MainWindow::loadForm( QString name )
@@ -729,7 +805,7 @@ void MainWindow::on_actionExit_triggered( )
 
 	if( settings.uiLoadMode == LoadMode::NETWORK || settings.dataLoadMode == LoadMode::NETWORK ) {
 		if( m_wolframeClient ) {
-			m_wolframeClient->disconnect( );
+			logout( );
 		} else {
 			close( );
 		}
@@ -744,6 +820,8 @@ void MainWindow::on_actionExit_triggered( )
 
 		close( );
 	}
+	
+	storeSettings( );
 }
 
 void MainWindow::restoreStateAndPositions( )
@@ -785,12 +863,6 @@ void MainWindow::storeStateAndPositions( )
 		settings.mainWindowSize = size( );
 	}
 
-// optionally remember last connection and username
-	if( settings.saveUsername ) {
-		settings.lastUsername = lastUsername( );
-		settings.lastConnection = lastConnName( );
-	}
-
 // save position/size and state of subwindows (if wished)
 	if( settings.saveRestoreState ) {
 		settings.states.clear( );
@@ -798,7 +870,7 @@ void MainWindow::storeStateAndPositions( )
 			foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
 				WinState state;
 				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
-				state.form = f->form( );
+				state.form = FormCall::name( f->form( ) );
 				state.position = w->pos( );
 				state.size = w->size( );
 				settings.states.append( state );
@@ -807,7 +879,7 @@ void MainWindow::storeStateAndPositions( )
 			settings.states.clear( );
 			if( m_formWidget ) {
 				WinState state;
-				state.form = m_formWidget->form( );
+				state.form = FormCall::name( m_formWidget->form( ) );
 				state.position = m_formWidget->pos( );
 				state.size = m_formWidget->size( );
 				settings.states.append( state );
@@ -818,6 +890,17 @@ void MainWindow::storeStateAndPositions( )
 
 void MainWindow::storeSettings( )
 {
+// connection parameters
+	settings.connectionParams = m_serverDefs;
+
+// optionally remember last connection and username
+	if( settings.saveUsername ) {
+		settings.lastUsername = lastUsername( );
+		settings.lastConnection = lastConnName( );
+	}
+
+// store them to the configuration file or the default configuration
+// file respectively registry	
 	if( m_settings.isEmpty( ) ) {
 		settings.write( ORGANIZATION_NAME, APPLICATION_NAME );
 	} else {
@@ -862,15 +945,6 @@ void MainWindow::on_actionAboutQt_triggered( )
 }
 
 // -- form handling
-
-void MainWindow::on_actionOpenForm_triggered( )
-{
-	FormChooseDialog d( m_forms, this );
-	if( d.exec( ) == QDialog::Accepted ) {
-		QString form = d.form( );
-		loadForm( form );
-	}
-}
 
 void MainWindow::on_actionReload_triggered( )
 {
@@ -918,16 +992,6 @@ void MainWindow::subWindowChanged( QMdiSubWindow *w )
 	m_formWidget = qobject_cast<FormWidget *>( w->widget( ) );
 
 	updateWindowMenu( );
-}
-
-void MainWindow::on_actionOpenFormNewWindow_triggered( )
-{
-	FormChooseDialog d( m_forms, this );
-	if( d.exec( ) == QDialog::Accepted ) {
-		(void)CreateMdiSubWindow( d.form( ) );
-	}
-
-	updateMenusAndToolbars( );
 }
 
 void MainWindow::on_actionNextWindow_triggered( )
@@ -1081,8 +1145,17 @@ void MainWindow::login( )
 	}
 }
 
+void MainWindow::removeApplicationMenus( )
+{
+	foreach( QAction *action, m_actions ) {
+		action->setVisible( false );
+	}
+	m_actions.clear( );
+}
+
 void MainWindow::logout( )
 {
+	removeApplicationMenus( );
 	storeStateAndPositions( );
 	storeSettings( );
 
@@ -1115,6 +1188,25 @@ void MainWindow::removeDebugToggle( )
 	_debugTerminal = 0;
 }
 
+void MainWindow::openForm( )
+{
+	FormChooseDialog d( m_forms, this );
+	if( d.exec( ) == QDialog::Accepted ) {
+		QString form = d.form( );
+		loadForm( form );
+	}
+}
+
+void MainWindow::openFormNew( )
+{
+	FormChooseDialog d( m_forms, this );
+	if( d.exec( ) == QDialog::Accepted ) {
+		(void)CreateMdiSubWindow( d.form( ) );
+	}
+
+	updateMenusAndToolbars( );
+}
+
 void MainWindow::addDeveloperMenu( )
 {
 	QMenu *developerMenu = menuBar( )->addMenu( tr( "&Developer" ) );
@@ -1124,10 +1216,28 @@ void MainWindow::addDeveloperMenu( )
 	m_debugTerminalAction->setCheckable( true );
 	m_debugTerminalAction->setShortcut( QKeySequence( "Ctrl+Alt+D" ) );
 	developerMenu->addAction( m_debugTerminalAction );
+	
+	developerMenu->addSeparator( );
+	
+	QAction *m_openFormAction = new QAction( tr( "&Open form" ), this );
+	m_openFormAction->setObjectName( QString::fromUtf8( "actionOpenForm") );
+	m_openFormAction->setStatusTip( tr( "Open form in current window" ) );
+	m_openFormAction->setEnabled( false );
+	developerMenu->addAction( m_openFormAction );
+	
+	QAction *m_openFormNewWindowAction = new QAction( tr( "Open form in &new window" ), this );
+	m_openFormNewWindowAction->setStatusTip( tr( "Open form in a new window" ) );
+	m_openFormNewWindowAction->setObjectName( QString::fromUtf8( "actionOpenFormNewWindow") );
+	m_openFormNewWindowAction->setEnabled( false );
+	developerMenu->addAction( m_openFormNewWindowAction );
 
 	QToolBar *developerToolBar = addToolBar( tr( "Developer" ));
 	developerToolBar->addAction( m_debugTerminalAction );
 
 	connect( m_debugTerminalAction, SIGNAL( toggled( bool ) ), this,
 		SLOT( showDebugTerminal( bool ) ) );
+	connect( m_openFormAction, SIGNAL( triggered( ) ), this,
+		SLOT( openForm( ) ) );
+	connect( m_openFormNewWindowAction, SIGNAL( triggered( ) ), this,
+		SLOT( openFormNew( ) ) );
 }

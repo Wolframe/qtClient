@@ -43,9 +43,11 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QList>
+#include <QBuffer>
 
 #include <QPluginLoader>
 #include <QApplication>
+#include <QMainWindow>
 
 FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient )
 	: QWidget( _parent ), m_form( ),
@@ -470,8 +472,8 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			emit error( tr( "Unable to load form plugin '%1', does the plugin exist?" ).arg( FormCall::name( name ) ) );
 			return;
 		}
-		qDebug( ) << "PLUGIN: Initializing form plugin" << name;
-		m_ui = plugin->initialize( m_wolframeClient, this );
+		qDebug( ) << "PLUGIN: Creatting a plugin form" << name;
+		m_ui = plugin->createForm( m_dataLoader, this );
 		if( m_ui == 0 ) {
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
@@ -509,11 +511,22 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		buf.close( );
 		qDebug( ) << "Constructed UI form XML for form" << name << m_modal;
 	}
+
+// special case of a QMainWindow (we abuse it as menu editor for now),
+// show nothing, menu is drawn in main menu when logging in
+	if( qobject_cast<QMainWindow *>( m_ui ) ) {
+		if( !oldUi ) oldUi = new QLabel( "error", this );
+		m_ui = oldUi;
+		m_form = m_previousForm;
+		emit error( tr( "Calling the menu UI %1 as if it were a normal form. This is a programming mistake!" ).arg( name ) );
+		return;
+	}
 	
 // if we have a modal dialog, we must not replace our own form, but emit
 // a signal, so the main window can rearange and load the form modal in
 // a new window
 	if( !m_modal && ( m_ui->isModal( ) || m_ui->isWindow( ) ) ) {
+		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
 		emit formModal( name );
@@ -614,26 +627,28 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	{
 		formstack.push_back( QVariant( QString( "init")));
 	}
-	QString topform = formstack.back().toString();
-	int qmidx_c = m_form.indexOf( '?');
-	if (qmidx_c < 0) qmidx_c = m_form.size();
-	int qmidx_p = topform.indexOf( '?');
-	if (qmidx_p < 0) qmidx_p = topform.size();
-	if (qmidx_c != qmidx_p)
-	{
-		// ... form name differs (in size)
-		formstack.push_back( QVariant( m_form));
-	}
-	else if (m_form.mid( 0, qmidx_c) == topform.mid( 0, qmidx_c))
-	{
-		// ... form differs only in parameters
-		formstack.pop_back();
-		formstack.push_back( QVariant( m_form));
-	}
-	else
-	{
-		// ... form name differs
-		formstack.push_back( m_form);
+	if( !formstack.isEmpty( ) ) {
+		QString topform = formstack.back().toString();
+		int qmidx_c = m_form.indexOf( '?');
+		if (qmidx_c < 0) qmidx_c = m_form.size();
+		int qmidx_p = topform.indexOf( '?');
+		if (qmidx_p < 0) qmidx_p = topform.size();
+		if (qmidx_c != qmidx_p)
+		{
+			// ... form name differs (in size)
+			formstack.push_back( QVariant( m_form));
+		}
+		else if (m_form.mid( 0, qmidx_c) == topform.mid( 0, qmidx_c))
+		{
+			// ... form differs only in parameters
+			formstack.pop_back();
+			formstack.push_back( QVariant( m_form));
+		}
+		else
+		{
+			// ... form name differs
+			formstack.push_back( m_form);
+		}
 	}
 	qDebug() << "form stack for " << m_form << ":" << formstack;
 	m_ui->setProperty( "_w_formstack", QVariant( formstack));
@@ -657,6 +672,14 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 {
 	qDebug( ) << "Answer for form" << m_form << "and tag" << tag_;
+
+// hand-written plugin, custom request, pass it back directly, don't go over
+// generic widget answer part (TODO: there should be a registry map here perhaps)
+	FormPluginInterface *plugin = formPlugin( m_form );
+	if( plugin ) {
+		plugin->gotAnswer( tag_, data_ );
+		return;
+	}
 	
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);

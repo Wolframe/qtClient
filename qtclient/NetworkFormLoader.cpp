@@ -61,6 +61,13 @@ void NetworkFormLoader::initiateListLoad( )
 	emit formListLoaded( forms );
 }
 
+void NetworkFormLoader::initiateMenuListLoad( )
+{
+	QStringList menus;
+	
+	emit menuListLoaded( menus );
+}
+
 void NetworkFormLoader::initiateFormLocalizationLoad( QString& /*name*/, QLocale /*locale*/ )
 {
 	//~ QString s = m_wolframeClient->syncRun( "getFormLocalization " + name + " " + locale.name( ) );
@@ -73,6 +80,18 @@ void NetworkFormLoader::initiateFormLocalizationLoad( QString& /*name*/, QLocale
 }
 
 void NetworkFormLoader::initiateFormLoad( QString& /*name*/ )
+{
+	// int paramidx = FormCall::name( name);
+	// QString formname( paramidx<0?name:name.mid( 0, paramidx));
+	//~ QString s = m_wolframeClient->syncRun( "getForm " + formname );
+	//~ if( s.isNull( ) ) {
+		//~ qWarning( ) << "Trouble loading form" << formname;
+	//~ } else {
+		//~ emit formLoaded( name, s.toUtf8( ) );
+	//~ }
+}
+
+void NetworkFormLoader::initiateMenuLoad( QString& /*name*/ )
 {
 	// int paramidx = FormCall::name( name);
 	// QString formname( paramidx<0?name:name.mid( 0, paramidx));

@@ -51,19 +51,22 @@ public:
 			      QWidget *parent = 0 );
 	~LoginDialog();
 
-	bool hasSelectedserver();
-	ServerDefinition selectedServer();
-	QString username();
+	bool hasSelectedServer() const;
+	ServerDefinition selectedServer() const;
+	QString username() const;
+
+public slots:
+	int specificExec();
 
 private slots:
 	void manageServers();
 
 private:
-	QVector< ServerDefinition >& m_connParams;
-	Ui::LoginDialog	*ui;
-	QString			m_username;
-	QString			m_password;
-	QString			m_connName;
+	QVector< ServerDefinition >&	m_connParams;
+	Ui::LoginDialog*		ui;
+	QString				m_username;
+	QString				m_password;
+	QString				m_connName;
 };
 
 #endif // _LOGIN_DIALOG_HPP_INCLUDED

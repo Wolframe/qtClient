@@ -34,58 +34,125 @@
 #include "FormTestPlugin.hpp"
 
 #include <QDebug>
-#include <QLabel>
 #include <QByteArray>
 #include <QVBoxLayout>
+#include <QPushButton>
+#include <QSpacerItem>
 
-const QString FormTestPlugin::name( )
+// FormTestWidget
+
+FormTestWidget::FormTestWidget( FormTestPlugin *_plugin, QWidget *_parent )
+	: QWidget( _parent ), m_plugin( _plugin )
+{
+	initialize( );
+}
+
+void FormTestWidget::initialize( )
+{
+	QVBoxLayout *vLayout = new QVBoxLayout( this );
+
+	QHBoxLayout *hLayout = new QHBoxLayout( );
+
+	QSpacerItem *hSpacer = new QSpacerItem( 20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding );
+	hLayout->addItem( hSpacer );
+	
+	QPushButton *pressMeButton = new QPushButton( "Press me!", this );
+	hLayout->addWidget( pressMeButton );
+	
+	QPushButton *clearButton = new QPushButton( "Clear", this );
+	hLayout->addWidget( clearButton );
+
+	vLayout->addLayout( hLayout );
+
+	QSpacerItem *vSpacer = new QSpacerItem( 20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding );
+	vLayout->addItem( vSpacer );
+
+	m_label = new QLabel( "Form plugin test", this );
+	m_label->setWordWrap( true );
+	m_label->setTextFormat( Qt::RichText );
+	vLayout->addWidget( m_label );
+
+	connect( pressMeButton, SIGNAL( clicked( ) ), this, SLOT( handlePressMeButton( ) ) );
+	connect( clearButton, SIGNAL( clicked( ) ), this, SLOT( handleClearButton( ) ) );
+}
+
+void FormTestWidget::handlePressMeButton( )
+{
+	QByteArray request;
+	request.append( QString( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" ) );
+	request.append( QString( "<!DOCTYPE \"employee\" SYSTEM \"ListEmployee.simpleform\">" ) );
+	request.append( QString( "<employee/>" ) );
+
+	m_plugin->sendRequest( winId( ), request );
+}
+
+void FormTestWidget::gotAnswer( const QByteArray& _data )
+{
+	QString xml( _data.data( ) );
+	
+	xml.replace( '&', "&amp;" ).replace( '<', "&lt;" ).replace( '>', "&gt;<br/>" );
+
+	m_label->setText( QString( "<html><body>%2</body></html>" ).arg( xml ) );
+}
+
+void FormTestWidget::handleClearButton( )
+{
+	m_label->setText( "" );
+}
+
+// FormTestPlugin
+
+FormTestPlugin::FormTestPlugin( ) : QObject( ),
+	m_tagCounter( 0 )
+{
+}
+
+QString FormTestPlugin::name( ) const
 {
 	return "test";
 }
 
-const QString windowTitle( )
+QString FormTestPlugin::windowTitle( ) const
 {
 	return "Test Form";
 }
 
-QWidget *FormTestPlugin::initialize( WolframeClient *_wolframeClient, QWidget *_parent )
+QWidget *FormTestPlugin::createForm( DataLoader *_dataLoader, QWidget *_parent )
 {
-	qDebug( ) << "PLUGIN: initializing plugin" << name( );
+	qDebug( ) << "PLUGIN: creating a form of type" << name( );
 	
-	m_wolframeClient = _wolframeClient;
+	m_dataLoader = _dataLoader;
 	
-	m_widget = new QWidget( _parent );
+	FormTestWidget *widget = new FormTestWidget( this, _parent );
+	QString winId = QString::number( (int)widget->winId( ) );
+	m_widgets.insert( winId, widget );
 	
-	QVBoxLayout *layout = new QVBoxLayout( m_widget );
-	m_widget->setLayout( layout );
-	
-	QLabel *label = new QLabel(
-		QString( "form plugin test, connected to %1, %2 (%3)" )
-			.arg( m_wolframeClient->serverName( ) )
-			.arg( m_wolframeClient->isEncrypted( ) ? "encrypted" : "not encrypted" )
-			.arg( m_wolframeClient->encryptionName( ) ),
-		m_widget );
-	layout->addWidget( label );
-
-	m_pushButton = new QPushButton( "Press me!", m_widget );
-	layout->addWidget( m_pushButton );
-
-	connect( m_pushButton, SIGNAL( clicked( ) ), this, SLOT( handleButtonPress( ) ) );
-	
-	return m_widget;
+	return widget;
 }
 
-void FormTestPlugin::handleButtonPress( )
+void FormTestPlugin::sendRequest( WId wid, const QByteArray &_request )
 {
+	// TODO: how to initialize this one? With what?
 	QString cmd;
-	QString tag = "test";
-	QByteArray content;
+	QString id = QString::number( (int)wid );
+	QString tag = QString( "%1:%2" ).arg( id ).arg( m_tagCounter++ );
 
-	content.append( QString( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" ) );
-	content.append( QString( "<!DOCTYPE \"employee\" SYSTEM \"ListEmployee.simpleform\">" ) );
-	content.append( QString( "<employee/>" ) );
+	m_dataLoader->datarequest( cmd, tag, _request );	
+}
 
-	m_wolframeClient->request( cmd, tag, content );
+void FormTestPlugin::gotAnswer( const QString& _tag, const QByteArray& _data )
+{
+	QStringList parts = _tag.split( ':' );
+	QHash<QString, FormTestWidget *>::const_iterator it = m_widgets.find( parts[0] );
+	if( it == m_widgets.end( ) ) {
+		qDebug( ) << "Unknown tag" << _tag << ", don't know where to deliver the message";
+		return;
+	}
+	
+	FormTestWidget *widget = *it;
+	if( widget ) {
+		widget->gotAnswer( _data );
+	}
 }
 
 #if QT_VERSION < 0x050000

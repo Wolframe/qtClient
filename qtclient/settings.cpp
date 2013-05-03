@@ -105,6 +105,7 @@ void ApplicationSettings::write( QSettings &settings )
 	settings.setValue( "uiFormTranslationsDir", uiFormTranslationsDir );
 	settings.setValue( "uiFormResourcesDir", uiFormResourcesDir );
 	settings.setValue( "dataLoaderDir", dataLoaderDir );
+	settings.setValue( "uiMenusDir", uiMenusDir );
 
 	settings.setValue( "keepState", saveRestoreState );
 	settings.beginWriteArray( "WindowStates" );
@@ -172,6 +173,7 @@ void ApplicationSettings::read( QSettings &settings )
 	uiFormTranslationsDir = settings.value( "uiFormTranslationsDir", DEFAULT_UI_FORM_TRANSLATIONS_DIR ).toString( );
 	uiFormResourcesDir = settings.value( "uiFormResourcesDir", DEFAULT_UI_FORM_RESOURCES_DIR ).toString( );
 	dataLoaderDir = settings.value( "dataLoaderDir", DEFAULT_DATA_LOADER_DIR ).toString( );
+	uiMenusDir = settings.value( "uiMenusDir", DEFAULT_UI_MENUS_DIR ).toString( );
 
 	saveRestoreState = settings.value( "keepState", false ).toBool( );
 	size = settings.beginReadArray( "WindowStates" );
