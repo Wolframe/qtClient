@@ -68,6 +68,10 @@ class FormWidget : public QWidget
 	public:
 		QString form( ) const;
 		QIcon getWindowIcon( ) const;
+		QWidget* mainwidget() const
+		{
+			return m_ui;
+		}
 
 	public slots:
 		void setForm( const QString &_form );
