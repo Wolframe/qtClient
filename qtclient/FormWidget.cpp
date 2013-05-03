@@ -627,26 +627,28 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	{
 		formstack.push_back( QVariant( QString( "init")));
 	}
-	QString topform = formstack.back().toString();
-	int qmidx_c = m_form.indexOf( '?');
-	if (qmidx_c < 0) qmidx_c = m_form.size();
-	int qmidx_p = topform.indexOf( '?');
-	if (qmidx_p < 0) qmidx_p = topform.size();
-	if (qmidx_c != qmidx_p)
-	{
-		// ... form name differs (in size)
-		formstack.push_back( QVariant( m_form));
-	}
-	else if (m_form.mid( 0, qmidx_c) == topform.mid( 0, qmidx_c))
-	{
-		// ... form differs only in parameters
-		formstack.pop_back();
-		formstack.push_back( QVariant( m_form));
-	}
-	else
-	{
-		// ... form name differs
-		formstack.push_back( m_form);
+	if( !formstack.isEmpty( ) ) {
+		QString topform = formstack.back().toString();
+		int qmidx_c = m_form.indexOf( '?');
+		if (qmidx_c < 0) qmidx_c = m_form.size();
+		int qmidx_p = topform.indexOf( '?');
+		if (qmidx_p < 0) qmidx_p = topform.size();
+		if (qmidx_c != qmidx_p)
+		{
+			// ... form name differs (in size)
+			formstack.push_back( QVariant( m_form));
+		}
+		else if (m_form.mid( 0, qmidx_c) == topform.mid( 0, qmidx_c))
+		{
+			// ... form differs only in parameters
+			formstack.pop_back();
+			formstack.push_back( QVariant( m_form));
+		}
+		else
+		{
+			// ... form name differs
+			formstack.push_back( m_form);
+		}
 	}
 	qDebug() << "form stack for " << m_form << ":" << formstack;
 	m_ui->setProperty( "_w_formstack", QVariant( formstack));
