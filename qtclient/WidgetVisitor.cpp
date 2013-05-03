@@ -305,10 +305,10 @@ bool WidgetVisitor::enter_root( const QString& name)
 	if (m_stk.empty()) return false;
 	if (name == "main")
 	{
-		QWidget* wdg = formwidget();
-		if (wdg)
+		FormWidget* wdg = formwidget();
+		if (wdg && wdg->mainwidget())
 		{
-			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( wdg)), m_blockSignals));
+			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( wdg->mainwidget())), m_blockSignals));
 			return true;
 		}
 	}
