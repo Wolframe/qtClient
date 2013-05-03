@@ -303,13 +303,25 @@ bool WidgetVisitor::enter( const QString& name, bool writemode)
 bool WidgetVisitor::enter_root( const QString& name)
 {
 	if (m_stk.empty()) return false;
-	QWidget* ww = predecessor( name);
-	if (ww)
+	if (name == "main")
 	{
-		if (ww != m_stk.top().m_obj->widget())
+		QWidget* wdg = formwidget();
+		if (wdg)
 		{
-			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( ww)), m_blockSignals));
+			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( wdg)), m_blockSignals));
 			return true;
+		}
+	}
+	else
+	{
+		QWidget* ww = predecessor( name);
+		if (ww)
+		{
+			if (ww != m_stk.top().m_obj->widget())
+			{
+				m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( ww)), m_blockSignals));
+				return true;
+			}
 		}
 	}
 	return false;
