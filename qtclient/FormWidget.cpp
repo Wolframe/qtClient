@@ -535,7 +535,6 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 // initialize the form variables given by globals
 	WidgetVisitor::init_widgetids( m_ui);
-
 	WidgetVisitor visitor( m_ui);
 	visitor.do_readGlobals( *m_globals);
 
