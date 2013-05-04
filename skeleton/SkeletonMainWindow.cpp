@@ -36,7 +36,7 @@
 #include "WolframeClient.hpp"
 #include "ui_SkeletonMainWindow.h"
 #include "loginDialog.hpp"
-#include "manageServersDialog.hpp"
+#include "manageServerDefsDialog.hpp"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -284,7 +284,7 @@ void SkeletonMainWindow::logout( )
 
 void SkeletonMainWindow::on_actionManageServers_triggered( )
 {
-	ManageServersDialog* serversDlg = new ManageServersDialog( m_serverDefs );
+	ManageServerDefsDialog* serversDlg = new ManageServerDefsDialog( m_serverDefs );
 	serversDlg->exec( );
 
 	delete serversDlg;

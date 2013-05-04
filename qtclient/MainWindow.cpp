@@ -40,7 +40,7 @@
 #include "PreferencesDialog.hpp"
 #include "global.hpp"
 #include "FormChooseDialog.hpp"
-#include "manageServersDialog.hpp"
+#include "manageServerDefsDialog.hpp"
 #include "FormCall.hpp"
 
 #include <QtGui>

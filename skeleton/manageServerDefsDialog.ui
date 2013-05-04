@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ManageServersDialog</class>
- <widget class="QDialog" name="ManageServersDialog">
+ <class>ManageServerDefsDialog</class>
+ <widget class="QDialog" name="ManageServerDefsDialog">
   <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>421</width>
-    <height>279</height>
+    <height>299</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,21 +27,14 @@
    <item>
     <layout class="QVBoxLayout" name="vLayoutLeft">
      <item>
-      <widget class="QLabel" name="connectionLbl">
+      <widget class="QLabel" name="definitionLbl">
        <property name="text">
         <string>Configured Servers:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QListWidget" name="connectionList">
-       <property name="statusTip">
-        <string>Connect to the selected server</string>
-       </property>
-       <property name="sortingEnabled">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <widget class="QListWidget" name="definitionList"/>
      </item>
     </layout>
    </item>
@@ -64,7 +57,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QLabel" name="parametersLbl">
+      <widget class="QLabel" name="showParamLbl">
        <property name="text">
         <string/>
        </property>
@@ -74,23 +67,30 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="newServerBttn">
+      <widget class="QPushButton" name="newBttn">
        <property name="text">
         <string>&amp;New Definition ...</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="editServerBttn">
+      <widget class="QPushButton" name="editBttn">
        <property name="text">
         <string>&amp;Edit Definition ...</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="delServerBttn">
+      <widget class="QPushButton" name="deleteBttn">
        <property name="text">
         <string>&amp;Delete Definition</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="defaultBttn">
+       <property name="text">
+        <string>&amp;Set as default</string>
        </property>
       </widget>
      </item>
@@ -106,10 +106,9 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>connectionList</tabstop>
-  <tabstop>newServerBttn</tabstop>
-  <tabstop>editServerBttn</tabstop>
-  <tabstop>delServerBttn</tabstop>
+  <tabstop>newBttn</tabstop>
+  <tabstop>editBttn</tabstop>
+  <tabstop>deleteBttn</tabstop>
  </tabstops>
  <resources>
   <include location="../qtclient/qtclient.qrc"/>
@@ -118,7 +117,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ManageServersDialog</receiver>
+   <receiver>ManageServerDefsDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -134,7 +133,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ManageServersDialog</receiver>
+   <receiver>ManageServerDefsDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

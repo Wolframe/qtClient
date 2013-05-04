@@ -37,7 +37,7 @@
 #include "loginDialog.hpp"
 #include "ui_loginDialog.h"
 
-#include "manageServersDialog.hpp"
+#include "manageServerDefsDialog.hpp"
 
 LoginDialog::LoginDialog( const QString& username,
 			      const QString& connName, QVector< ServerDefinition >& connParams,
@@ -75,7 +75,7 @@ int LoginDialog::specificExec()
 
 void LoginDialog::manageServers()
 {
-	ManageServersDialog* manageDlg = new ManageServersDialog( m_connParams );
+	ManageServerDefsDialog* manageDlg = new ManageServerDefsDialog( m_connParams );
 	if ( manageDlg->exec() )	{
 		QString conn = ui->serverCombo->currentText();
 		ui->serverCombo->clear();

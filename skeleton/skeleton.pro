@@ -25,20 +25,20 @@ win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
 SOURCES += \
 	SkeletonMainWindow.cpp \
 	loginDialog.cpp \
-	manageServersDialog.cpp \
-	serverDefinitionDialog.cpp
+	serverDefinitionDialog.cpp \
+    manageServerDefsDialog.cpp
 	
 HEADERS += \
 	SkeletonMainWindow.hpp \
 	loginDialog.hpp \
-	manageServersDialog.hpp \
-	serverDefinitionDialog.hpp
+	serverDefinitionDialog.hpp \
+    manageServerDefsDialog.hpp
 	
 FORMS += \
 	SkeletonMainWindow.ui \
 	loginDialog.ui \
-	manageServersDialog.ui \
-	serverDefinitionDialog.ui
+	serverDefinitionDialog.ui \
+    manageServerDefsDialog.ui
 
 RESOURCES = \
 	skeleton.qrc
