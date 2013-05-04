@@ -207,6 +207,8 @@ class WidgetVisitor
 			return (VisitorFlags)((int)(m_blockSignals?BlockSignals:None)|(int)(m_useSynonyms?UseSynonyms:None));
 		}
 
+		static void init_widgetids( QWidget* widget);
+
 		///\brief Sets the current node to the child with name 'name'
 		bool enter( const QString& name, bool writemode);
 		///\brief Sets the current node to the root widget or child with name 'name' of the root widget

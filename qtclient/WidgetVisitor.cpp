@@ -100,6 +100,8 @@ WidgetVisitor::State::State()
 	,m_blockSignals_bak(false)
 {}
 
+static qint64 g_cnt = 0;
+
 WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 	:m_obj(obj_)
 	,m_synonym_entercnt(1)
@@ -167,7 +169,6 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 			m_dataslots.push_back( vv.trimmed());
 		}
 	}
-	static qint64 g_cnt = 0;
 	QVariant ruid = m_obj->widget()->property( "widgetid");
 	if (!ruid.isValid())
 	{
@@ -258,6 +259,27 @@ static QList<QWidget*> getWidgetChildren( QWidget* wdg)
 	QList<QWidget*> rt;
 	getWidgetChildren_( rt, wdg);
 	return rt;
+}
+
+static void init_widgetid( QWidget* widget)
+{
+	QVariant ruid = widget->property( "widgetid");
+	if (!ruid.isValid())
+	{
+		QString rt =  widget->objectName();
+		rt.append( ":");
+		rt.append( QVariant( ++g_cnt).toString());
+		widget->setProperty( "widgetid", QVariant(rt));
+	}
+}
+
+void WidgetVisitor::init_widgetids( QWidget* widget)
+{
+	init_widgetid( widget);
+	foreach (QWidget* child, widget->findChildren<QWidget*>())
+	{
+		init_widgetid( child);
+	}
 }
 
 bool WidgetVisitor::is_widgetid( const QString& id)
