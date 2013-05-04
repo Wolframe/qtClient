@@ -53,6 +53,8 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QBuffer>
+#include <QList>
+#include <QAction>
 
 // built-in defaults
 MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
@@ -616,8 +618,25 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 			qDebug( ) << "MENU:" << name << "is a menu, integrating it into menu bar";
 			QList<QMenu *> menus = bar->findChildren<QMenu *>( );
 			foreach( QMenu *menu, menus ) {
-				qDebug( ) << "MENU: glueing menu" << menu->title( );
-				QAction *glueAction = menuBar( )->addMenu( menu );
+				QString beforeMenuName = bar->property( "beforeMenu" ).toString( );
+				QAction *glueAction = 0;
+				if( beforeMenuName.isEmpty( ) ) {
+					qDebug( ) << "MENU: glueing menu" << menu->title( );
+					glueAction = menuBar( )->addMenu( menu );
+				} else {
+					QList<QMenu *> existingMenus = menuBar( )->findChildren<QMenu *>( );
+					foreach( QMenu *m, existingMenus ) {
+						QAction *action = m->menuAction( );
+						if( m->objectName( ) == beforeMenuName ) {
+							qDebug( ) << "MENU: glueing menu" << menu->title( ) << "before main menu entry" << m->objectName( );
+							glueAction = menuBar( )->insertMenu( m->menuAction( ), menu );
+						}
+					}
+					if( !glueAction ) {
+						qWarning( ) << "MENU: beforeMenu" << beforeMenuName << "missing in MainWindow.ui";
+						glueAction = menuBar( )->addMenu( menu );
+					}
+				}
 				if( glueAction ) {
 					m_actions.push_back( glueAction );
 // read dynamic property 'form' and connect it to loadForm calls
