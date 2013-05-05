@@ -103,7 +103,7 @@ void FormTestWidget::handleClearButton( )
 // FormTestPlugin
 
 FormTestPlugin::FormTestPlugin( ) : QObject( ),
-	m_tagCounter( 0 )
+	m_tagCounter( 0 ), m_debug( false )
 {
 }
 
@@ -115,6 +115,11 @@ QString FormTestPlugin::name( ) const
 QString FormTestPlugin::windowTitle( ) const
 {
 	return "Test Form";
+}
+
+void FormTestPlugin::setDebug( bool _debug )
+{
+	m_debug = _debug;
 }
 
 QWidget *FormTestPlugin::createForm( DataLoader *_dataLoader, QWidget *_parent )

@@ -60,7 +60,7 @@ void WidgetEnablerImpl::handle_changed()
 	bool enabled = true;
 	foreach (const QString& prop, m_properties)
 	{
-		/*[-]*/qDebug() << "handle changed of widget" << widget->objectName() << "check condition" << prop;
+		qDebug() << "handle changed of widget" << widget->objectName() << "check condition" << prop;
 		if (!visitor.property( prop).isValid())
 		{
 			if (visitor.getPropertyOwnerWidget( prop))

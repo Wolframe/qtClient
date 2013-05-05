@@ -472,7 +472,8 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			emit error( tr( "Unable to load form plugin '%1', does the plugin exist?" ).arg( FormCall::name( name ) ) );
 			return;
 		}
-		qDebug( ) << "PLUGIN: Creatting a plugin form" << name;
+		qDebug( ) << "PLUGIN: Creating a form plugin with name" << name;
+		plugin->setDebug( m_debug );
 		m_ui = plugin->createForm( m_dataLoader, this );
 		if( m_ui == 0 ) {
 			if( !oldUi ) oldUi = new QLabel( "error", this );

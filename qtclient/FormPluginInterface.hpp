@@ -48,6 +48,7 @@ class FormPluginInterface
 		
 		virtual QString name( ) const = 0;
 		virtual QString windowTitle( ) const = 0;
+		virtual void setDebug( bool /* _debug */ ) { };
 		virtual QWidget *createForm( DataLoader *m_dataLoader, QWidget *_parent ) = 0;
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data ) = 0;
 };

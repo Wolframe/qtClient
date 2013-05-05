@@ -179,6 +179,9 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 	}
 	if (m_blockSignals)
 	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "block signals of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName();
+#endif
 		m_blockSignals_bak = m_obj->widget()->blockSignals( m_blockSignals);
 	}
 }
@@ -187,6 +190,12 @@ WidgetVisitor::State::~State()
 {
 	if (m_blockSignals)
 	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		if (!m_blockSignals_bak)
+		{
+			qDebug() << "unblock signals of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName();
+		}
+#endif
 		m_obj->widget()->blockSignals( m_blockSignals_bak);
 	}
 }
@@ -377,7 +386,10 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			return enter( synonym.toString(), writemode, level);
+			m_useSynonyms = false;
+			bool rt = enter( synonym.toString(), writemode, level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [A.1] check if name is a multipart reference and follow it if yes:
@@ -730,7 +742,10 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			return getPropertyOwnerWidget( synonym.toString(), level);
+			m_useSynonyms = false;
+			QWidget* rt = getPropertyOwnerWidget( synonym.toString(), level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
@@ -798,7 +813,10 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			return property( synonym.toString(), level);
+			m_useSynonyms = false;
+			QVariant rt = property( synonym.toString(), level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
@@ -917,7 +935,10 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 		if (synonym.isValid())
 		{
 			TRACE_STATUS( "found synonym", synonym, name, value)
-			return setProperty( synonym.toString(), value, level);
+			m_useSynonyms = false;
+			bool rt = setProperty( synonym.toString(), value, level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [C] check if an multipart property is referenced and try to step into the substructures to set the property (must a single value and must not have any repeating elements) if yes
