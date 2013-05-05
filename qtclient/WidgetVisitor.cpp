@@ -177,26 +177,27 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 		rt.append( QVariant( ++g_cnt).toString());
 		m_obj->widget()->setProperty( "widgetid", QVariant(rt));
 	}
-	if (m_blockSignals)
+	if (m_blockSignals && !m_obj->widget()->signalsBlocked())
 	{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "block signals of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName();
 #endif
-		m_blockSignals_bak = m_obj->widget()->blockSignals( m_blockSignals);
+		m_blockSignals_bak = m_obj->widget()->blockSignals( true);
+	}
+	else
+	{
+		m_blockSignals_bak = true;
 	}
 }
 
 WidgetVisitor::State::~State()
 {
-	if (m_blockSignals)
+	if (m_blockSignals && !m_blockSignals_bak)
 	{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-		if (!m_blockSignals_bak)
-		{
-			qDebug() << "unblock signals of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName();
-		}
+		qDebug() << "unblock signals of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName();
 #endif
-		m_obj->widget()->blockSignals( m_blockSignals_bak);
+		m_obj->widget()->blockSignals( false);
 	}
 }
 
