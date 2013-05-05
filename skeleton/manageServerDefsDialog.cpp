@@ -36,37 +36,37 @@
 #include <QtGui>
 #include <cassert>
 
-#include "manageServersDialog.hpp"
-#include "ui_manageServersDialog.h"
+#include "manageServerDefsDialog.hpp"
+#include "ui_manageServerDefsDialog.h"
 
 #include "serverDefinitionDialog.hpp"
 
-ManageServersDialog::ManageServersDialog( QVector<ServerDefinition>& params,
-					  QWidget *parent ) :
-	QDialog( parent ), ui( new Ui::ManageServersDialog ),
+ManageServerDefsDialog::ManageServerDefsDialog( QVector<ServerDefinition>& params,
+						QWidget *parent ) :
+	QDialog( parent ), ui( new Ui::ManageServerDefsDialog ),
 	m_globalParams( params )
 {
 	m_localParams = m_globalParams;
 	ui->setupUi( this );
-	ui->connectionList->sortItems();
-	ui->connectionList->setSelectionMode( QAbstractItemView::SingleSelection );
+	ui->definitionList->sortItems();
+	ui->definitionList->setSelectionMode( QAbstractItemView::SingleSelection );
 	for ( QVector<ServerDefinition>::const_iterator it = m_localParams.begin();
 							it != m_localParams.end(); it++ )
-		ui->connectionList->addItem( it->name );
-	connect( ui->newServerBttn, SIGNAL( clicked() ), this, SLOT( newServerDefinition() ));
-	connect( ui->editServerBttn, SIGNAL( clicked() ), this, SLOT( editServerDefinition() ));
-	connect( ui->delServerBttn, SIGNAL( clicked() ), this, SLOT( delServerDefinition() ));
-	connect( ui->connectionList, SIGNAL( itemSelectionChanged() ), this, SLOT( updateUIstate() ));
+		ui->definitionList->addItem( it->name );
+	connect( ui->newBttn, SIGNAL( clicked() ), this, SLOT( newServerDefinition() ));
+	connect( ui->editBttn, SIGNAL( clicked() ), this, SLOT( editServerDefinition() ));
+	connect( ui->deleteBttn, SIGNAL( clicked() ), this, SLOT( delServerDefinition() ));
+	connect( ui->definitionList, SIGNAL( itemSelectionChanged() ), this, SLOT( updateUIstate() ));
 
 	updateUIstate();
 }
 
-ManageServersDialog::~ManageServersDialog()
+ManageServerDefsDialog::~ManageServerDefsDialog()
 {
 	delete ui;
 }
 
-void ManageServersDialog::done( int retCode )
+void ManageServerDefsDialog::done( int retCode )
 {
 	if ( retCode == QDialog::Accepted )	{
 		m_globalParams.clear();
@@ -77,7 +77,7 @@ void ManageServersDialog::done( int retCode )
 		QDialog::done( retCode );
 }
 
-void ManageServersDialog::newServerDefinition()
+void ManageServerDefsDialog::newServerDefinition()
 {
 	ServerDefinition conn;
 	ServerDefinitionDialog* newConn = new ServerDefinitionDialog( conn, this );
@@ -97,9 +97,9 @@ void ManageServersDialog::newServerDefinition()
 			}
 			if ( ! duplicate )	{
 				m_localParams.append( conn );
-				ui->connectionList->clear();
+				ui->definitionList->clear();
 				for ( int i = 0; i < m_localParams.size(); i++ )
-					ui->connectionList->addItem( m_localParams[ i ].name );
+					ui->definitionList->addItem( m_localParams[ i ].name );
 			}
 		}
 	} while( duplicate );
@@ -107,9 +107,9 @@ void ManageServersDialog::newServerDefinition()
 	delete newConn;
 }
 
-void ManageServersDialog::editServerDefinition()
+void ManageServerDefsDialog::editServerDefinition()
 {
-	QList< QListWidgetItem* > items = ui->connectionList->selectedItems();
+	QList< QListWidgetItem* > items = ui->definitionList->selectedItems();
 	assert( items.size() == 1 );
 
 	int	pos;
@@ -140,9 +140,9 @@ void ManageServersDialog::editServerDefinition()
 			}
 			if ( ! duplicate )	{
 				m_localParams[ pos ] = conn;
-				ui->connectionList->clear();
+				ui->definitionList->clear();
 				for ( int i = 0; i < m_localParams.size(); i++ )
-					ui->connectionList->addItem( m_localParams[ i ].name );
+					ui->definitionList->addItem( m_localParams[ i ].name );
 			}
 		}
 	} while( duplicate );
@@ -150,9 +150,9 @@ void ManageServersDialog::editServerDefinition()
 	delete editServer;
 }
 
-void ManageServersDialog::delServerDefinition()
+void ManageServerDefsDialog::delServerDefinition()
 {
-	QList< QListWidgetItem* > items = ui->connectionList->selectedItems();
+	QList< QListWidgetItem* > items = ui->definitionList->selectedItems();
 	assert( items.size() == 1 );
 
 	QString conn = items.first()->data( 0 ).toString();
@@ -163,41 +163,43 @@ void ManageServersDialog::delServerDefinition()
 										 msg, QMessageBox::Ok | QMessageBox::Cancel );
 			if ( ret == QMessageBox::Ok )	{
 				m_localParams.remove( i );
-				ui->connectionList->clear();
+				ui->definitionList->clear();
 				for ( int i = 0; i < m_localParams.size(); i++ )
-					ui->connectionList->addItem( m_localParams[ i ].name );
+					ui->definitionList->addItem( m_localParams[ i ].name );
 			}
 			break;
 		}
 	}
 }
 
-void ManageServersDialog::updateUIstate()
+void ManageServerDefsDialog::updateUIstate()
 {
 	// Update the states of the buttons
-	QList< QListWidgetItem* > items = ui->connectionList->selectedItems();
+	QList< QListWidgetItem* > items = ui->definitionList->selectedItems();
 	if ( items.empty() )	{
-		ui->newServerBttn->setEnabled( true );
-		ui->editServerBttn->setEnabled( false );
-		ui->delServerBttn->setEnabled( false );
+		ui->newBttn->setEnabled( true );
+		ui->editBttn->setEnabled( false );
+		ui->deleteBttn->setEnabled( false );
+		ui->defaultBttn->setEnabled( false );
 	}
 	else	{
-		ui->newServerBttn->setEnabled( true );
-		ui->editServerBttn->setEnabled( true );
-		ui->delServerBttn->setEnabled( true );
+		ui->newBttn->setEnabled( true );
+		ui->editBttn->setEnabled( true );
+		ui->deleteBttn->setEnabled( true );
+		ui->defaultBttn->setEnabled( false );
 	}
 
 	// Update the brief of the selected definition
-	if ( ui->connectionList->count() && ui->connectionList->currentItem() )	{
-		QString name = ui->connectionList->currentItem()->text();
+	if ( ui->definitionList->count() && ui->definitionList->currentItem() )	{
+		QString name = ui->definitionList->currentItem()->text();
 		for ( QVector< ServerDefinition >::const_iterator it = m_localParams.begin();
 									it != m_localParams.end(); it++ )	{
 			if ( it->name.compare( name, Qt::CaseInsensitive ) == 0 )	{
-				ui->parametersLbl->setText( it->toString() );
+				ui->showParamLbl->setText( it->toString() );
 				break;
 			}
 		}
 	}
 	else
-		ui->parametersLbl->setText( tr( "No definition selected." ) );
+		ui->showParamLbl->setText( tr( "No definition selected." ) );
 }

@@ -31,23 +31,23 @@
 
 ************************************************************************/
 
-#ifndef _MANAGE_SERVERS_DIALOG_HPP_INCLUDED
-#define _MANAGE_SERVERS_DIALOG_HPP_INCLUDED
+#ifndef _MANAGE_SERVER_DEFS_DIALOG_HPP_INCLUDED
+#define _MANAGE_SERVER_DEFS_DIALOG_HPP_INCLUDED
 
 #include <QDialog>
 #include "serverDefinition.hpp"
 
 namespace Ui {
-class ManageServersDialog;
+class ManageServerDefsDialog;
 }
 
-class SKELETON_VISIBILITY ManageServersDialog : public QDialog
+class SKELETON_VISIBILITY ManageServerDefsDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit ManageServersDialog( QVector< ServerDefinition >& params, QWidget *parent = 0 );
-	~ManageServersDialog();
+	explicit ManageServerDefsDialog( QVector< ServerDefinition >& params, QWidget *parent = 0 );
+	~ManageServerDefsDialog();
 
 private slots:
 	void done( int retCode );
@@ -59,9 +59,9 @@ private slots:
 	void updateUIstate();
 
 private:
-	Ui::ManageServersDialog			*ui;
-	QVector< ServerDefinition >		m_localParams;
+	Ui::ManageServerDefsDialog	*ui;
+	QVector< ServerDefinition >	m_localParams;
 	QVector< ServerDefinition >&	m_globalParams;
 };
 
-#endif // _MANAGE_SERVERS_DIALOG_HPP_INCLUDED
+#endif // _MANAGE_SERVER_DEFS_DIALOG_HPP_INCLUDED
