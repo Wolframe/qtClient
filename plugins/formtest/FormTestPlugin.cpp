@@ -122,8 +122,11 @@ void FormTestPlugin::setDebug( bool _debug )
 	m_debug = _debug;
 }
 
-QWidget *FormTestPlugin::createForm( DataLoader *_dataLoader, QWidget *_parent )
+QWidget *FormTestPlugin::createForm( DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent )
 {
+	m_debug = _debug;
+	m_globals = _globals;
+	
 	qDebug( ) << "PLUGIN: creating a form of type" << name( );
 	
 	m_dataLoader = _dataLoader;

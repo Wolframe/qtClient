@@ -473,8 +473,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			return;
 		}
 		qDebug( ) << "PLUGIN: Creating a form plugin with name" << name;
-		plugin->setDebug( m_debug );
-		m_ui = plugin->createForm( m_dataLoader, this );
+		m_ui = plugin->createForm( m_dataLoader, m_debug, m_globals, this );
 		if( m_ui == 0 ) {
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
