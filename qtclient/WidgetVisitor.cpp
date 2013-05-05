@@ -386,7 +386,10 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			return enter( synonym.toString(), writemode, level);
+			m_useSynonyms = false;
+			bool rt = enter( synonym.toString(), writemode, level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [A.1] check if name is a multipart reference and follow it if yes:
@@ -739,7 +742,10 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			return getPropertyOwnerWidget( synonym.toString(), level);
+			m_useSynonyms = false;
+			QWidget* rt = getPropertyOwnerWidget( synonym.toString(), level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
@@ -807,7 +813,10 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 		if (synonym.isValid())
 		{
 			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			return property( synonym.toString(), level);
+			m_useSynonyms = false;
+			QVariant rt = property( synonym.toString(), level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
@@ -926,7 +935,10 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 		if (synonym.isValid())
 		{
 			TRACE_STATUS( "found synonym", synonym, name, value)
-			return setProperty( synonym.toString(), value, level);
+			m_useSynonyms = false;
+			bool rt = setProperty( synonym.toString(), value, level);
+			m_useSynonyms = true;
+			return rt;
 		}
 	}
 	// [C] check if an multipart property is referenced and try to step into the substructures to set the property (must a single value and must not have any repeating elements) if yes

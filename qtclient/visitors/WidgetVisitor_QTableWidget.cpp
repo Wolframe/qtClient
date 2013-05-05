@@ -233,7 +233,7 @@ bool WidgetVisitorState_QTableWidget::isArrayElement( const QString& name)
 	return false;
 }
 
-void WidgetVisitorState_QTableWidget::set_thumbnail( int row, int itemidx, const QVariant& data)
+void WidgetVisitorState_QTableWidget::set_pixmap( int row, int itemidx, const QVariant& data)
 {
 	QByteArray decoded = QByteArray::fromBase64( data.toByteArray());
 	QPixmap pixmap;
@@ -248,7 +248,7 @@ void WidgetVisitorState_QTableWidget::set_thumbnail( int row, int itemidx, const
 	m_tableWidget->setRowHeight( row, 50 );
 }
 
-QVariant WidgetVisitorState_QTableWidget::get_thumbnail( int row, int col) const
+QVariant WidgetVisitorState_QTableWidget::get_pixmap( int row, int col) const
 {
 	const QWidget* cellwidget = m_tableWidget->cellWidget( row, col);
 	if (!cellwidget) return QVariant();
@@ -390,9 +390,9 @@ QVariant WidgetVisitorState_QTableWidget::property( const QString& name)
 				item = m_tableWidget->item( m_row, m_column);
 				if (item) return item->data( Qt::UserRole);
 			}
-			if (name == "thumbnail")
+			if (name == "pixmap")
 			{
-				return get_thumbnail( m_row, m_column);
+				return get_pixmap( m_row, m_column);
 			}
 	}
 	return QVariant();
@@ -445,9 +445,9 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 				m_items[ m_column] = data;
 				return true;
 			}
-			if (name == "thumbnail")
+			if (name == "pixmap")
 			{
-				set_thumbnail( m_row, m_column, data);
+				set_pixmap( m_row, m_column, data);
 				return true;
 			}
 			break;
@@ -457,9 +457,9 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 				m_items[ m_row] = data;
 				return true;
 			}
-			if (name == "thumbnail")
+			if (name == "pixmap")
 			{
-				set_thumbnail( m_row, m_row, data);
+				set_pixmap( m_row, m_row, data);
 				return true;
 			}
 			break;
