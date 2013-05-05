@@ -46,8 +46,8 @@ class SKELETON_VISIBILITY LoginDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit LoginDialog( const QString& username,
-			      const QString& connName, QVector< ServerDefinition >& connParams,
+	explicit LoginDialog( const QString& username, const QString& connName,
+			      QVector< ServerDefinition >& connParams, QString& defaultServer,
 			      QWidget *parent = 0 );
 	~LoginDialog();
 
@@ -62,11 +62,12 @@ private slots:
 	void manageServers();
 
 private:
-	QVector< ServerDefinition >&	m_connParams;
+	QVector< ServerDefinition >&	m_serverDefs;
+	QString&			m_defaultServer;
 	Ui::LoginDialog*		ui;
 	QString				m_username;
 	QString				m_password;
-	QString				m_connName;
+	QString				m_serverName;
 };
 
 #endif // _LOGIN_DIALOG_HPP_INCLUDED

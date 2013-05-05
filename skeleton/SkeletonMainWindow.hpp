@@ -77,6 +77,7 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		void *m_ui;
 		WolframeClient *m_wolframeClient;
 		QVector<ServerDefinition> m_serverDefs;
+		QString	m_defaultServer;
 
 	protected slots:
 // slots for the wolframe client

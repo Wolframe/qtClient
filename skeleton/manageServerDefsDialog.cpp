@@ -42,11 +42,12 @@
 #include "serverDefinitionDialog.hpp"
 
 ManageServerDefsDialog::ManageServerDefsDialog( QVector<ServerDefinition>& params,
-						QWidget *parent ) :
+						QString& defaultServer, QWidget *parent ) :
 	QDialog( parent ), ui( new Ui::ManageServerDefsDialog ),
-	m_globalParams( params )
+	m_globalParams( params ), m_globalDefault( defaultServer )
 {
 	m_localParams = m_globalParams;
+	m_localDefault = m_globalDefault;
 	ui->setupUi( this );
 	ui->definitionList->sortItems();
 	ui->definitionList->setSelectionMode( QAbstractItemView::SingleSelection );
@@ -56,6 +57,7 @@ ManageServerDefsDialog::ManageServerDefsDialog( QVector<ServerDefinition>& param
 	connect( ui->newBttn, SIGNAL( clicked() ), this, SLOT( newServerDefinition() ));
 	connect( ui->editBttn, SIGNAL( clicked() ), this, SLOT( editServerDefinition() ));
 	connect( ui->deleteBttn, SIGNAL( clicked() ), this, SLOT( delServerDefinition() ));
+	connect( ui->defaultBttn, SIGNAL( clicked() ), this, SLOT( setDefaultServer() ));
 	connect( ui->definitionList, SIGNAL( itemSelectionChanged() ), this, SLOT( updateUIstate() ));
 
 	updateUIstate();
@@ -71,6 +73,7 @@ void ManageServerDefsDialog::done( int retCode )
 	if ( retCode == QDialog::Accepted )	{
 		m_globalParams.clear();
 		m_globalParams = m_localParams;
+		m_globalDefault = m_localDefault;
 		QDialog::done( retCode );
 	}
 	else
@@ -172,6 +175,14 @@ void ManageServerDefsDialog::delServerDefinition()
 	}
 }
 
+void ManageServerDefsDialog::setDefaultServer()
+{
+	if ( ui->definitionList->count() && ui->definitionList->currentItem() )	{
+		m_localDefault = ui->definitionList->currentItem()->text();
+		ui->defaultBttn->setEnabled( false );
+	}
+}
+
 void ManageServerDefsDialog::updateUIstate()
 {
 	// Update the states of the buttons
@@ -186,7 +197,10 @@ void ManageServerDefsDialog::updateUIstate()
 		ui->newBttn->setEnabled( true );
 		ui->editBttn->setEnabled( true );
 		ui->deleteBttn->setEnabled( true );
-		ui->defaultBttn->setEnabled( false );
+		if ( ui->definitionList->currentItem()->text() == m_localDefault )
+			ui->defaultBttn->setEnabled( false );
+		else
+			ui->defaultBttn->setEnabled( true );
 	}
 
 	// Update the brief of the selected definition

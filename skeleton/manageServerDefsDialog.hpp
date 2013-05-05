@@ -46,7 +46,8 @@ class SKELETON_VISIBILITY ManageServerDefsDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit ManageServerDefsDialog( QVector< ServerDefinition >& params, QWidget *parent = 0 );
+	explicit ManageServerDefsDialog( QVector< ServerDefinition >& params,
+					 QString& defaultServer, QWidget *parent = 0 );
 	~ManageServerDefsDialog();
 
 private slots:
@@ -55,13 +56,16 @@ private slots:
 	void newServerDefinition();
 	void editServerDefinition();
 	void delServerDefinition();
+	void setDefaultServer();
 
 	void updateUIstate();
 
 private:
 	Ui::ManageServerDefsDialog	*ui;
 	QVector< ServerDefinition >	m_localParams;
+	QString				m_localDefault;
 	QVector< ServerDefinition >&	m_globalParams;
+	QString&			m_globalDefault;
 };
 
 #endif // _MANAGE_SERVER_DEFS_DIALOG_HPP_INCLUDED

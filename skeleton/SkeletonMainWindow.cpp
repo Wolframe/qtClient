@@ -222,7 +222,7 @@ void SkeletonMainWindow::login( )
 	}
 	
 	LoginDialog* loginDlg = new LoginDialog( username, lastConn,
-						 m_serverDefs );
+						 m_serverDefs, m_defaultServer );
 						 
 	if( loginDlg->specificExec( ) == QDialog::Accepted ) {
 // user choose nothing, bail out
@@ -284,7 +284,7 @@ void SkeletonMainWindow::logout( )
 
 void SkeletonMainWindow::on_actionManageServers_triggered( )
 {
-	ManageServerDefsDialog* serversDlg = new ManageServerDefsDialog( m_serverDefs );
+	ManageServerDefsDialog* serversDlg = new ManageServerDefsDialog( m_serverDefs, m_defaultServer );
 	serversDlg->exec( );
 
 	delete serversDlg;

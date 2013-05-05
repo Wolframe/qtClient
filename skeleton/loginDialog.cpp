@@ -39,17 +39,30 @@
 
 #include "manageServerDefsDialog.hpp"
 
-LoginDialog::LoginDialog( const QString& username,
-			      const QString& connName, QVector< ServerDefinition >& connParams,
-			      QWidget *parent ) :
-	QDialog( parent ), m_connParams( connParams ), ui( new Ui::LoginDialog )
+LoginDialog::LoginDialog( const QString& username, const QString& serverName,
+			  QVector< ServerDefinition >& serverDefs, QString& defaultServer,
+			  QWidget *parent ) :
+	QDialog( parent ), m_serverDefs( serverDefs ), m_defaultServer( defaultServer ),
+	ui( new Ui::LoginDialog )
 {
 	ui->setupUi( this );
-	ui->userInput->setText( username );
+	if ( ! username.isEmpty() )
+		ui->userInput->setText( username );
 
-	for ( int i = 0; i < m_connParams.size(); i++ )
-		ui->serverCombo->addItem( m_connParams[ i ].name );
-	int index = ui->serverCombo->findText( connName );
+	for ( int i = 0; i < m_serverDefs.size(); i++ )
+		if ( ! m_serverDefs[ i ].name.isEmpty() )
+			ui->serverCombo->addItem( m_serverDefs[ i ].name );
+
+	// if there is a server name and is in the list, we use that one
+	// if not, we use the default server, if it exists and is in the list
+	int index = -1;
+	if ( ! serverName.isEmpty() )
+		index = ui->serverCombo->findText( serverName );
+	if ( index < 0 )	{
+		if ( ! defaultServer.isEmpty() )
+			index = ui->serverCombo->findText( defaultServer );
+	}
+
 	ui->serverCombo->setCurrentIndex( index );
 
 	connect( ui->serverManageButton, SIGNAL( clicked() ), this, SLOT( manageServers() ));
@@ -62,7 +75,7 @@ LoginDialog::~LoginDialog()
 
 int LoginDialog::specificExec()
 {
-	while ( m_connParams.size() == 0 )	{
+	while ( m_serverDefs.size() == 0 )	{
 		if ( QMessageBox::Ok == QMessageBox::information( this, tr( "Login" ),
 								  tr( "There are no servers defined.\nPlease define a server." ),
 								  QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok ))
@@ -75,12 +88,12 @@ int LoginDialog::specificExec()
 
 void LoginDialog::manageServers()
 {
-	ManageServerDefsDialog* manageDlg = new ManageServerDefsDialog( m_connParams );
+	ManageServerDefsDialog* manageDlg = new ManageServerDefsDialog( m_serverDefs, m_defaultServer );
 	if ( manageDlg->exec() )	{
 		QString conn = ui->serverCombo->currentText();
 		ui->serverCombo->clear();
-		for ( int i = 0; i < m_connParams.size(); i++ )
-			ui->serverCombo->addItem( m_connParams[ i ].name );
+		for ( int i = 0; i < m_serverDefs.size(); i++ )
+			ui->serverCombo->addItem( m_serverDefs[ i ].name );
 		if ( ! conn.isEmpty() )	{
 			int index = ui->serverCombo->findText( conn );
 			ui->serverCombo->setCurrentIndex( index );
@@ -93,12 +106,12 @@ void LoginDialog::manageServers()
 bool LoginDialog::hasSelectedServer() const
 {
 	return( ui->serverCombo->currentIndex( ) >= 0 &&
-		ui->serverCombo->currentIndex( ) < m_connParams.size( ) );
+		ui->serverCombo->currentIndex( ) < m_serverDefs.size( ) );
 }
 
 ServerDefinition LoginDialog::selectedServer() const
 {
-	return m_connParams[ ui->serverCombo->currentIndex( ) ];
+	return m_serverDefs[ ui->serverCombo->currentIndex( ) ];
 }
 
 QString LoginDialog::username() const
