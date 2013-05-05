@@ -38,6 +38,8 @@
 #include <QString>
 #include <QByteArray>
 #include <QWidget>
+#include <QHash>
+#include <QVariant>
 
 #include "DataLoader.hpp"
 
@@ -48,8 +50,7 @@ class FormPluginInterface
 		
 		virtual QString name( ) const = 0;
 		virtual QString windowTitle( ) const = 0;
-		virtual void setDebug( bool /* _debug */ ) { };
-		virtual QWidget *createForm( DataLoader *m_dataLoader, QWidget *_parent ) = 0;
+		virtual QWidget *createForm( DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent ) = 0;
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data ) = 0;
 };
 

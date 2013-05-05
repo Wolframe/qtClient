@@ -473,8 +473,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			return;
 		}
 		qDebug( ) << "PLUGIN: Creating a form plugin with name" << name;
-		plugin->setDebug( m_debug );
-		m_ui = plugin->createForm( m_dataLoader, this );
+		m_ui = plugin->createForm( m_dataLoader, m_debug, m_globals, this );
 		if( m_ui == 0 ) {
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
@@ -710,6 +709,17 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 		{
 			foreach (QWidget* rcp, rcpl)
 			{
+				//block signals before assigning the answer
+				QList<bool> blksig;
+				blksig.push_back( rcp->blockSignals( true));
+				foreach (QWidget* cld, rcp->findChildren<QWidget*>())
+				{
+					if (!cld->objectName().isEmpty() && !cld->objectName().startsWith("qt_"))
+					{
+						qDebug() << "block signals of" << cld->metaObject()->className() << cld->objectName() << cld->objectName().startsWith("qt_");
+						blksig.push_back( cld->blockSignals( true));
+					}
+				}
 				WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::UseSynonyms|WidgetVisitor::BlockSignals));
 				if (!setWidgetAnswer( rcpvisitor, data_))
 				{
@@ -718,6 +728,19 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 				rcpvisitor.setState( rcp->property( "_w_state"));
 				QVariant initialFocus = rcp->property( "initialFocus");
 				if (initialFocus.toBool()) rcp->setFocus();
+
+				//unblock blocked signals after assigning the answer
+				QList<bool>::const_iterator bi = blksig.begin(), be = blksig.end();
+				if (bi != be) rcp->blockSignals( *bi++);
+				foreach (QWidget* cld, rcp->findChildren<QWidget*>())
+				{
+					if (bi == be) break;
+					if (!cld->objectName().isEmpty() && !cld->objectName().startsWith("_q"))
+					{
+						qDebug() << "unblock signals of" << cld->metaObject()->className() << cld->objectName();
+						cld->blockSignals( *bi++);
+					}
+				}
 			}
 		}
 	}
