@@ -179,6 +179,9 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 	}
 	if (m_blockSignals)
 	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "block signals of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName();
+#endif
 		m_blockSignals_bak = m_obj->widget()->blockSignals( m_blockSignals);
 	}
 }
@@ -187,6 +190,12 @@ WidgetVisitor::State::~State()
 {
 	if (m_blockSignals)
 	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		if (!m_blockSignals_bak)
+		{
+			qDebug() << "unblock signals of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName();
+		}
+#endif
 		m_obj->widget()->blockSignals( m_blockSignals_bak);
 	}
 }
