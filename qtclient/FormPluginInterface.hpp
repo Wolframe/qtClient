@@ -42,6 +42,7 @@
 #include <QVariant>
 
 #include "DataLoader.hpp"
+#include "FormCall.hpp"
 
 class FormPluginInterface
 {	
@@ -50,7 +51,7 @@ class FormPluginInterface
 		
 		virtual QString name( ) const = 0;
 		virtual QString windowTitle( ) const = 0;
-		virtual QWidget *createForm( DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent ) = 0;
+		virtual QWidget *createForm( const FormCall &formCall, DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent ) = 0;
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data ) = 0;
 };
 
