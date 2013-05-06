@@ -35,6 +35,8 @@
 #define _MANAGE_SERVER_DEFS_DIALOG_HPP_INCLUDED
 
 #include <QDialog>
+#include <QAbstractListModel>
+
 #include "serverDefinition.hpp"
 
 namespace Ui {
@@ -59,6 +61,20 @@ private slots:
 	void setDefaultServer();
 
 	void updateUIstate();
+
+private:
+	class DefsListModel : public QAbstractListModel	{
+		DefsListModel( QVector< ServerDefinition >& defsVector )
+			: m_defsVector( defsVector )			{}
+		int rowCount( const QModelIndex& /*parent*/ ) const	{ return m_defsVector.count(); }
+		int columnCount( const QModelIndex& /*parent*/ ) const	{ return 1; }
+		QVariant data ( const QModelIndex& index, int role ) const;
+		QVariant headerData ( int /*section*/, Qt::Orientation /*orientation*/, int /*role*/ ) const
+									{ return QVariant(); }
+
+	private:
+		QVector< ServerDefinition >&	m_defsVector;
+	};
 
 private:
 	Ui::ManageServerDefsDialog	*ui;
