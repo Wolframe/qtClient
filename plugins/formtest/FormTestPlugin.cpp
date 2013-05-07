@@ -131,7 +131,7 @@ void FormTestPlugin::setDebug( bool _debug )
 	m_debug = _debug;
 }
 
-QWidget *FormTestPlugin::createForm( const FormCall & /*formCall*/, DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent )
+QWidget *FormTestPlugin::createForm( const FormCall &/*formCall*/, DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent )
 {
 	m_debug = _debug;
 	m_globals = _globals;
