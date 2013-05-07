@@ -811,13 +811,6 @@ void MainWindow::formError( QString error )
 	QMessageBox::critical( this, tr( "Form error" ), error, QMessageBox::Ok );
 }
 
-void MainWindow::on_actionRestart_triggered( )
-{
-	qDebug( ) << "Restarting application";
-	close( );
-	QApplication::instance( )->exit( RESTART_CODE );
-}
-
 void MainWindow::on_actionExit_triggered( )
 {
 	m_terminating = true;
