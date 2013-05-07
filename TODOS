@@ -1,7 +1,13 @@
 now musts:
 - qtclient:
   - image selection plugin
-  - rewrite configurator as form plugin
+  - rewrite configurator form as form plugin
+    - reload of form
+    - communicate values
+  - rewrite i18n support: one resource file, e.g. configurator.rcc, not
+    per form
+  - serverskeleton, write server session of server data, derive from
+    this class, add sessions for qtclient
   
 later (cleanups):
   - libqtwolframeclient cleanup
