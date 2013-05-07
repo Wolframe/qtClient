@@ -64,16 +64,19 @@ private slots:
 
 private:
 	class DefsListModel : public QAbstractListModel	{
-		DefsListModel( QVector< ServerDefinition >& defsVector )
-			: m_defsVector( defsVector )			{}
+	public:
+		DefsListModel( QVector< ServerDefinition >& defsVector, QString& defEntry )
+			: m_defsVector( defsVector ), m_defEntry( defEntry )	{}
 		int rowCount( const QModelIndex& /*parent*/ ) const	{ return m_defsVector.count(); }
-		int columnCount( const QModelIndex& /*parent*/ ) const	{ return 1; }
 		QVariant data ( const QModelIndex& index, int role ) const;
 		QVariant headerData ( int /*section*/, Qt::Orientation /*orientation*/, int /*role*/ ) const
 									{ return QVariant(); }
-
+		void rowChanged( const int row );
+		bool appendServerDefinition( const ServerDefinition& def );
+		bool removeServerDefinition( int position );
 	private:
 		QVector< ServerDefinition >&	m_defsVector;
+		QString&			m_defEntry;
 	};
 
 private:
@@ -82,6 +85,7 @@ private:
 	QString				m_localDefault;
 	QVector< ServerDefinition >&	m_globalParams;
 	QString&			m_globalDefault;
+	DefsListModel			m_defsListModel;
 };
 
 #endif // _MANAGE_SERVER_DEFS_DIALOG_HPP_INCLUDED

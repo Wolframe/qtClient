@@ -41,24 +41,77 @@
 
 #include "serverDefinitionDialog.hpp"
 
+
+// model
+QVariant ManageServerDefsDialog::DefsListModel::data( const QModelIndex &index, int role ) const
+{
+	switch( role )	{
+		case Qt::DisplayRole:
+			return m_defsVector[ index.row() ].name;
+			break;
+		case Qt::FontRole:
+			if ( m_defsVector[ index.row() ].name == m_defEntry )	{
+				QFont boldFont;
+				boldFont.setBold( true );
+				return boldFont;
+			}
+			break;
+		case Qt::BackgroundRole:
+			break;
+		case Qt::TextAlignmentRole:
+			break;
+		case Qt::CheckStateRole:
+			break;
+	}
+	return QVariant();
+}
+
+void ManageServerDefsDialog::DefsListModel::rowChanged( const int row )
+{
+	if ( row >= 0 )	{
+		QModelIndex r = createIndex( row, 0 );
+		emit dataChanged( r, r );
+	}
+}
+
+bool ManageServerDefsDialog::DefsListModel::appendServerDefinition( const ServerDefinition& def )
+{
+	beginInsertRows( QModelIndex(), m_defsVector.count(), m_defsVector.count() );
+	m_defsVector.append( def );
+	endInsertRows();
+	return true;
+}
+
+bool ManageServerDefsDialog::DefsListModel::removeServerDefinition( int position )
+{
+	if ( position >= 0 && position < m_defsVector.count() )	{
+		beginRemoveRows( QModelIndex(), position, position );
+		m_defsVector.remove( position );
+		endRemoveRows();
+		return true;
+	}
+	else
+		return false;
+}
+
 ManageServerDefsDialog::ManageServerDefsDialog( QVector<ServerDefinition>& params,
 						QString& defaultServer, QWidget *parent ) :
 	QDialog( parent ), ui( new Ui::ManageServerDefsDialog ),
-	m_globalParams( params ), m_globalDefault( defaultServer )
+	m_localParams( params ), m_localDefault( defaultServer ),
+	m_globalParams( params ), m_globalDefault( defaultServer ),
+	m_defsListModel( m_localParams, m_localDefault )
 {
-	m_localParams = m_globalParams;
-	m_localDefault = m_globalDefault;
 	ui->setupUi( this );
-	ui->definitionList->sortItems();
+	ui->definitionList->setModel( & m_defsListModel );
 	ui->definitionList->setSelectionMode( QAbstractItemView::SingleSelection );
-	for ( QVector<ServerDefinition>::const_iterator it = m_localParams.begin();
-							it != m_localParams.end(); it++ )
-		ui->definitionList->addItem( it->name );
+
 	connect( ui->newBttn, SIGNAL( clicked() ), this, SLOT( newServerDefinition() ));
 	connect( ui->editBttn, SIGNAL( clicked() ), this, SLOT( editServerDefinition() ));
 	connect( ui->deleteBttn, SIGNAL( clicked() ), this, SLOT( delServerDefinition() ));
 	connect( ui->defaultBttn, SIGNAL( clicked() ), this, SLOT( setDefaultServer() ));
-	connect( ui->definitionList, SIGNAL( itemSelectionChanged() ), this, SLOT( updateUIstate() ));
+	connect( ui->definitionList->selectionModel(),
+		 SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
+		 this, SLOT( updateUIstate() ));
 
 	updateUIstate();
 }
@@ -98,12 +151,8 @@ void ManageServerDefsDialog::newServerDefinition()
 					break;
 				}
 			}
-			if ( ! duplicate )	{
-				m_localParams.append( conn );
-				ui->definitionList->clear();
-				for ( int i = 0; i < m_localParams.size(); i++ )
-					ui->definitionList->addItem( m_localParams[ i ].name );
-			}
+			if ( ! duplicate )
+				m_defsListModel.appendServerDefinition( conn );
 		}
 	} while( duplicate );
 
@@ -112,20 +161,13 @@ void ManageServerDefsDialog::newServerDefinition()
 
 void ManageServerDefsDialog::editServerDefinition()
 {
-	QList< QListWidgetItem* > items = ui->definitionList->selectedItems();
+	QList< QModelIndex > items = ui->definitionList->selectionModel()->selectedIndexes();
 	assert( items.size() == 1 );
 
-	int	pos;
-	ServerDefinition conn;
-	QString name = items.first()->data( 0 ).toString();
-	for ( pos = 0; pos < m_localParams.size(); pos++ )	{
-		if ( m_localParams[ pos ].name.compare( name, Qt::CaseInsensitive ) == 0 )	{
-			conn = m_localParams[ pos ];
-			break;
-		}
-	}
+	int pos = items.begin()->row();
 	assert( pos >= 0 && pos < m_localParams.size() );
 
+	ServerDefinition conn = m_localParams[ pos ];
 	ServerDefinitionDialog* editServer = new ServerDefinitionDialog( conn, this );
 	editServer->windowTitle() = tr( "Edit connection parameters" );
 
@@ -143,9 +185,7 @@ void ManageServerDefsDialog::editServerDefinition()
 			}
 			if ( ! duplicate )	{
 				m_localParams[ pos ] = conn;
-				ui->definitionList->clear();
-				for ( int i = 0; i < m_localParams.size(); i++ )
-					ui->definitionList->addItem( m_localParams[ i ].name );
+				m_defsListModel.rowChanged( pos );
 			}
 		}
 	} while( duplicate );
@@ -155,38 +195,43 @@ void ManageServerDefsDialog::editServerDefinition()
 
 void ManageServerDefsDialog::delServerDefinition()
 {
-	QList< QListWidgetItem* > items = ui->definitionList->selectedItems();
+	QList< QModelIndex > items = ui->definitionList->selectionModel()->selectedIndexes();
 	assert( items.size() == 1 );
 
-	QString conn = items.first()->data( 0 ).toString();
-	for ( int i = 0; i < m_localParams.size(); i++ )	{
-		if ( m_localParams[ i ].name.compare( conn, Qt::CaseInsensitive ) == 0 )	{
-			QString msg = QString( "Delete the definition for '%1' ?" ).arg( m_localParams[ i ].name );
-			QMessageBox::StandardButton ret = QMessageBox::question( this, tr( "Delete definition" ),
-										 msg, QMessageBox::Ok | QMessageBox::Cancel );
-			if ( ret == QMessageBox::Ok )	{
-				m_localParams.remove( i );
-				ui->definitionList->clear();
-				for ( int i = 0; i < m_localParams.size(); i++ )
-					ui->definitionList->addItem( m_localParams[ i ].name );
-			}
-			break;
-		}
-	}
+	int pos = items.begin()->row();
+	assert( pos >= 0 && pos < m_localParams.size() );
+
+	QString msg = QString( "Delete the definition for '%1' ?" ).arg( m_localParams[ pos ].name );
+	QMessageBox::StandardButton ret = QMessageBox::question( this, tr( "Delete definition" ),
+								 msg, QMessageBox::Ok | QMessageBox::Cancel );
+	if ( ret == QMessageBox::Ok )
+		m_defsListModel.removeServerDefinition( pos );
 }
 
 void ManageServerDefsDialog::setDefaultServer()
 {
-	if ( ui->definitionList->count() && ui->definitionList->currentItem() )	{
-		m_localDefault = ui->definitionList->currentItem()->text();
-		ui->defaultBttn->setEnabled( false );
+	QList< QModelIndex > items = ui->definitionList->selectionModel()->selectedIndexes();
+	assert( items.size() == 1 );
+
+	// get current default
+	int oldPos = -1;
+	for ( int i = 0; i < m_localParams.size(); i++ )	{
+		if ( m_localParams[ i ].name.compare( m_localDefault, Qt::CaseInsensitive ) == 0 )	{
+			oldPos = i;
+			break;
+		}
 	}
+
+	m_localDefault = m_localParams[ items.begin()->row() ].name;
+	ui->defaultBttn->setEnabled( false );
+	m_defsListModel.rowChanged( oldPos );
+	m_defsListModel.rowChanged( items.begin()->row() );
 }
 
 void ManageServerDefsDialog::updateUIstate()
 {
 	// Update the states of the buttons
-	QList< QListWidgetItem* > items = ui->definitionList->selectedItems();
+	QList< QModelIndex > items = ui->definitionList->selectionModel()->selectedIndexes();
 	if ( items.empty() )	{
 		ui->newBttn->setEnabled( true );
 		ui->editBttn->setEnabled( false );
@@ -195,17 +240,21 @@ void ManageServerDefsDialog::updateUIstate()
 	}
 	else	{
 		ui->newBttn->setEnabled( true );
-		ui->editBttn->setEnabled( true );
+		if ( items.count() == 1 )
+			ui->editBttn->setEnabled( true );
+		else
+			ui->editBttn->setEnabled( false );
 		ui->deleteBttn->setEnabled( true );
-		if ( ui->definitionList->currentItem()->text() == m_localDefault )
+		if ( items.count() != 1 ||
+				m_localParams[ items.begin()->row() ].name == m_localDefault )
 			ui->defaultBttn->setEnabled( false );
 		else
 			ui->defaultBttn->setEnabled( true );
 	}
 
 	// Update the brief of the selected definition
-	if ( ui->definitionList->count() && ui->definitionList->currentItem() )	{
-		QString name = ui->definitionList->currentItem()->text();
+	if ( items.count() == 1 )	{
+		QString name = m_localParams[ items.begin()->row() ].name;
 		for ( QVector< ServerDefinition >::const_iterator it = m_localParams.begin();
 									it != m_localParams.end(); it++ )	{
 			if ( it->name.compare( name, Qt::CaseInsensitive ) == 0 )	{
