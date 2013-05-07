@@ -77,7 +77,7 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 		virtual QString name( ) const;
 		virtual QString windowTitle( ) const;
 		virtual void setDebug( bool _debug );
-		virtual QWidget *createForm( DataLoader *m_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent );
+		virtual QWidget *createForm( const FormCall &formCall, DataLoader *m_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent );
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data );
 		
 		void sendRequest( WId wid, const QByteArray &_request );

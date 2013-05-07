@@ -473,7 +473,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			return;
 		}
 		qDebug( ) << "PLUGIN: Creating a form plugin with name" << name;
-		m_ui = plugin->createForm( m_dataLoader, m_debug, m_globals, this );
+		m_ui = plugin->createForm( FormCall( name ), m_dataLoader, m_debug, m_globals, this );
 		if( m_ui == 0 ) {
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
@@ -676,7 +676,7 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 
 // hand-written plugin, custom request, pass it back directly, don't go over
 // generic widget answer part (TODO: there should be a registry map here perhaps)
-	FormPluginInterface *plugin = formPlugin( m_form );
+	FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
 	if( plugin ) {
 		plugin->gotAnswer( tag_, data_ );
 		return;
