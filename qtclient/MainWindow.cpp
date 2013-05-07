@@ -626,7 +626,7 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 				} else {
 					QList<QMenu *> existingMenus = menuBar( )->findChildren<QMenu *>( );
 					foreach( QMenu *m, existingMenus ) {
-						QAction *action = m->menuAction( );
+// MBa: not needed ?				QAction *action = m->menuAction( );
 						if( m->objectName( ) == beforeMenuName ) {
 							qDebug( ) << "MENU: glueing menu" << menu->title( ) << "before main menu entry" << m->objectName( );
 							glueAction = menuBar( )->insertMenu( m->menuAction( ), menu );
