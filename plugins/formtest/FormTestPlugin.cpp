@@ -61,6 +61,9 @@ void FormTestWidget::initialize( )
 	
 	QPushButton *clearButton = new QPushButton( "Clear", this );
 	hLayout->addWidget( clearButton );
+	
+	QPushButton *reloadButton = new QPushButton( "Reload", this );
+	hLayout->addWidget( reloadButton );
 
 	vLayout->addLayout( hLayout );
 
@@ -74,6 +77,7 @@ void FormTestWidget::initialize( )
 
 	connect( pressMeButton, SIGNAL( clicked( ) ), this, SLOT( handlePressMeButton( ) ) );
 	connect( clearButton, SIGNAL( clicked( ) ), this, SLOT( handleClearButton( ) ) );
+	connect( reloadButton, SIGNAL( clicked( ) ), this, SLOT( handleReloadButton( ) ) );
 }
 
 void FormTestWidget::handlePressMeButton( )
@@ -100,6 +104,11 @@ void FormTestWidget::handleClearButton( )
 	m_label->setText( "" );
 }
 
+void FormTestWidget::handleReloadButton( )
+{
+	emit reload( );
+}
+
 // FormTestPlugin
 
 FormTestPlugin::FormTestPlugin( ) : QObject( ),
@@ -122,7 +131,7 @@ void FormTestPlugin::setDebug( bool _debug )
 	m_debug = _debug;
 }
 
-QWidget *FormTestPlugin::createForm( const FormCall &formCall, DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent )
+QWidget *FormTestPlugin::createForm( const FormCall & /*formCall*/, DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent )
 {
 	m_debug = _debug;
 	m_globals = _globals;
@@ -134,6 +143,8 @@ QWidget *FormTestPlugin::createForm( const FormCall &formCall, DataLoader *_data
 	FormTestWidget *widget = new FormTestWidget( this, _parent );
 	QString winId = QString::number( (int)widget->winId( ) );
 	m_widgets.insert( winId, widget );
+	
+	connect( widget, SIGNAL( reload( ) ), _parent, SLOT( reload( ) ) );
 	
 	return widget;
 }

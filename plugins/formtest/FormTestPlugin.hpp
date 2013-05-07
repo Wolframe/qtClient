@@ -58,9 +58,13 @@ class FormTestWidget : public QWidget
 		FormTestPlugin *m_plugin;
 		QLabel *m_label;
 
+	signals:
+		void reload( );
+		
 	private slots:
 		void handlePressMeButton( );
 		void handleClearButton( );
+		void handleReloadButton( );
 };
 
 class FormTestPlugin : public QObject, public FormPluginInterface
