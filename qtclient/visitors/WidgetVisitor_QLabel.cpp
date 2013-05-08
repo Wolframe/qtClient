@@ -46,7 +46,7 @@ void WidgetVisitorState_QLabel::clear()
 
 QVariant WidgetVisitorState_QLabel::property( const QString& name)
 {
-	if (name.isEmpty())
+	if (name.isEmpty() || name == "text")
 	{
 		return QVariant( m_label->text());
 	}
@@ -55,22 +55,31 @@ QVariant WidgetVisitorState_QLabel::property( const QString& name)
 
 bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant& data)
 {
-	if (name.isEmpty())
+	if (name.isEmpty() || name == "text")
 	{
 		m_label->setText( data.toString());
+		return true;
+	}
+	else if (name.size() == 1 && name.at(0) >= '1' && name.at(0) <= '9')
+	{
+		QString subst("%");
+		subst.push_back( name.at(0));
+
+		m_label->setText( m_label->text().replace( subst, data.toString()));
 		return true;
 	}
 	return false;
 }
 
-void WidgetVisitorState_QLabel::setState( const QVariant& /*state*/)
+void WidgetVisitorState_QLabel::setState( const QVariant& state)
 {
 	qDebug() << "set state for label" << m_label->objectName();
+	m_label->setText( state.toString());
 }
 
 QVariant WidgetVisitorState_QLabel::getState() const
 {
-	return QVariant();
+	return QVariant( m_label->text());
 }
 
 void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)

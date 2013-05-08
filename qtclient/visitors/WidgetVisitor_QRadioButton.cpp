@@ -31,6 +31,10 @@ QVariant WidgetVisitorState_QRadioButton::property( const QString& name)
 	{
 		return QVariant( m_radioButton->isChecked());
 	}
+	else if (name == "text")
+	{
+		return QVariant( m_radioButton->text());
+	}
 	return QVariant();
 }
 
@@ -40,18 +44,39 @@ bool WidgetVisitorState_QRadioButton::setProperty( const QString& name, const QV
 	{
 		m_radioButton->setChecked( data.toBool());
 	}
+	else if (name == "text")
+	{
+		m_radioButton->setText( data.toString());
+		return true;
+	}
+	else if (name.size() == 1 && name.at(0) >= '1' && name.at(0) <= '9')
+	{
+		QString subst("%");
+		subst.push_back( name.at(0));
+
+		m_radioButton->setText( m_radioButton->text().replace( subst, data.toString()));
+		return true;
+	}
 	return false;
 }
 
 void WidgetVisitorState_QRadioButton::setState( const QVariant& state)
 {
 	qDebug() << "set state for radio button" << m_radioButton->objectName();
-	if (state.isValid()) m_radioButton->setChecked( state.toBool());
+	if (state.isValid() && state.type() == QVariant::List)
+	{
+		QList<QVariant> lst = state.toList();
+		if (lst.size() > 0) m_radioButton->setChecked( lst.at(0).toBool());
+		if (lst.size() > 1) m_radioButton->setText( lst.at(1).toString());
+	}
 }
 
 QVariant WidgetVisitorState_QRadioButton::getState() const
 {
-	return QVariant( m_radioButton->isChecked());
+	QList<QVariant> lst;
+	lst.push_back( m_radioButton->isChecked());
+	lst.push_back( m_radioButton->text());
+	return QVariant( lst);
 }
 
 void WidgetVisitorState_QRadioButton::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)

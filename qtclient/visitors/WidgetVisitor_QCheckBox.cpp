@@ -31,6 +31,10 @@ QVariant WidgetVisitorState_QCheckBox::property( const QString& name)
 	{
 		return QVariant( m_checkBox->isChecked());
 	}
+	else if (name == "text")
+	{
+		return QVariant( m_checkBox->text());
+	}
 	return QVariant();
 }
 
@@ -40,17 +44,39 @@ bool WidgetVisitorState_QCheckBox::setProperty( const QString& name, const QVari
 	{
 		m_checkBox->setChecked( data.toBool());
 	}
+	else if (name == "text")
+	{
+		m_checkBox->setText( data.toString());
+		return true;
+	}
+	else if (name.size() == 1 && name.at(0) >= '1' && name.at(0) <= '9')
+	{
+		QString subst("%");
+		subst.push_back( name.at(0));
+
+		m_checkBox->setText( m_checkBox->text().replace( subst, data.toString()));
+		return true;
+	}
 	return false;
 }
 
 void WidgetVisitorState_QCheckBox::setState( const QVariant& state)
 {
 	if (state.isValid()) m_checkBox->setCheckState( (Qt::CheckState)state.toInt());
+	if (state.isValid() && state.type() == QVariant::List)
+	{
+		QList<QVariant> lst = state.toList();
+		if (lst.size() > 0) m_checkBox->setCheckState( (Qt::CheckState)lst.at(0).toInt());
+		if (lst.size() > 1) m_checkBox->setText( lst.at(1).toString());
+	}
 }
 
 QVariant WidgetVisitorState_QCheckBox::getState() const
 {
-	return QVariant( (int)m_checkBox->checkState());
+	QList<QVariant> lst;
+	lst.push_back( m_checkBox->checkState());
+	lst.push_back( m_checkBox->text());
+	return QVariant( lst);
 }
 
 void WidgetVisitorState_QCheckBox::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
