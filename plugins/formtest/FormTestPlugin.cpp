@@ -99,6 +99,15 @@ void FormTestWidget::gotAnswer( const QByteArray& _data )
 	m_label->setText( QString( "<html><body>%2</body></html>" ).arg( xml ) );
 }
 
+void FormTestWidget::gotError( const QByteArray& _error )
+{
+	QString xml( _error.data( ) );
+	
+	xml.replace( '&', "&amp;" ).replace( '<', "&lt;" ).replace( '>', "&gt;<br/>" );
+
+	m_label->setText( QString( "<html><body>%2</body></html>" ).arg( xml ) );
+}
+
 void FormTestWidget::handleClearButton( )
 {
 	m_label->setText( "" );
@@ -171,6 +180,21 @@ void FormTestPlugin::gotAnswer( const QString& _tag, const QByteArray& _data )
 	FormTestWidget *widget = *it;
 	if( widget ) {
 		widget->gotAnswer( _data );
+	}
+}
+
+void FormTestPlugin::gotError( const QString& _tag, const QByteArray& _error )
+{
+	QStringList parts = _tag.split( ':' );
+	QHash<QString, FormTestWidget *>::const_iterator it = m_widgets.find( parts[0] );
+	if( it == m_widgets.end( ) ) {
+		qDebug( ) << "Unknown tag" << _tag << ", don't know where to deliver the error";
+		return;
+	}
+	
+	FormTestWidget *widget = *it;
+	if( widget ) {
+		widget->gotError( _error );
 	}
 }
 

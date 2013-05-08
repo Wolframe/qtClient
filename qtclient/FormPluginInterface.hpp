@@ -53,6 +53,7 @@ class FormPluginInterface
 		virtual QString windowTitle( ) const = 0;
 		virtual QWidget *createForm( const FormCall &formCall, DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent ) = 0;
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data ) = 0;
+		virtual void gotError( const QString& tag_, const QByteArray& error_ ) = 0;
 };
 
 Q_DECLARE_INTERFACE( FormPluginInterface, "org.wolframe.qtClient.FormPluginInterface/1.0" )

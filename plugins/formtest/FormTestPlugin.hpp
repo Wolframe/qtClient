@@ -49,7 +49,8 @@ class FormTestWidget : public QWidget
 	public:
 		FormTestWidget( FormTestPlugin *_plugin, QWidget *_parent = 0 );
 
-		void gotAnswer( const QByteArray& _data );
+		void gotAnswer( const QByteArray& _data );		
+		void gotError( const QByteArray& _error );
 		
 	private:
 		void initialize( );
@@ -83,6 +84,7 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 		virtual void setDebug( bool _debug );
 		virtual QWidget *createForm( const FormCall &formCall, DataLoader *m_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent );
 		virtual void gotAnswer( const QString& _tag, const QByteArray& _data );
+		virtual void gotError( const QString& tag_, const QByteArray& error_ );
 		
 		void sendRequest( WId wid, const QByteArray &_request );
 		

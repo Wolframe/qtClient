@@ -749,6 +749,16 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 
 void FormWidget::gotError( const QString& tag_, const QByteArray& data_)
 {
+	qDebug( ) << "Error for form" << m_form << "and tag" << tag_;
+
+// hand-written plugin, custom request, pass it back directly, don't go over
+// generic widget answer part (TODO: there should be a registry map here perhaps)
+	FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
+	if( plugin ) {
+		plugin->gotError( tag_, data_ );
+		return;
+	}
+
 	WidgetVisitor visitor( m_ui);
 	WidgetMessageDispatcher dispatcher( visitor);
 	WidgetRequest rq( tag_);
