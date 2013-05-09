@@ -43,13 +43,14 @@ static const int imageSize = 60;
 
 static QImage scale( const QString &imageFileName )
 {
+	qDebug() << "image scaling " << imageFileName;
 	QImage image( imageFileName );
 	return image.scaled( QSize( imageSize, imageSize ),
 			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
 }
 
-ImageListViewDialog::ImageListViewDialog( QStringList imageNamesList, QWidget *parent )
-	: QWidget( parent ), m_imageNamesList( imageNamesList )
+ImageListViewDialog::ImageListViewDialog( QWidget *parent )
+	: QWidget( parent )
 {
 
 	QGridLayout* m_gridLayout = new QGridLayout( this );
@@ -68,26 +69,30 @@ ImageListViewDialog::ImageListViewDialog( QStringList imageNamesList, QWidget *p
 	m_standardModel = new QStandardItemModel( this );
 	m_imageListView->setModel( m_standardModel );
 
-	m_imageScaler = new QFutureWatcher<QImage>( this );
-	connect( m_imageScaler, SIGNAL( resultReadyAt( int ) ), SLOT( showImage( int ) ) );
-	connect( m_imageScaler, SIGNAL( finished() ), SLOT( finished() ) );
+//	m_imageScaler = new QFutureWatcher<QImage>( this );
+//	connect( m_imageScaler, SIGNAL( resultReadyAt( int ) ), SLOT( addImage( int ) ) );
+//	connect( m_imageScaler, SIGNAL( finished() ), SLOT( finished() ) );
 
-	m_imageScaler->setFuture( QtConcurrent::mapped( m_imageNamesList, scale ) );
-
-	connect( m_imageListView, SIGNAL( doubleClicked( QModelIndex ) ), SLOT( imageClicked( QModelIndex ) ) );
+	connect( m_imageListView, SIGNAL( clicked( QModelIndex ) ), SLOT( imageClicked( QModelIndex ) ) );
+	connect( m_imageListView, SIGNAL( doubleClicked( QModelIndex ) ), SLOT( imageDoubleClicked( QModelIndex ) ) );
 }
 
 ImageListViewDialog::~ImageListViewDialog()
 {
-	m_imageScaler->cancel();
-	m_imageScaler->waitForFinished();
+//	m_imageScaler->cancel();
+//	m_imageScaler->waitForFinished();
 }
 
-void ImageListViewDialog::showImage( int num )
+void ImageListViewDialog::addImage( const QString imageFile, const QString toolTip )
 {
-	QStandardItem* imageitem = new QStandardItem();
-	imageitem->setIcon( QIcon( QPixmap::fromImage( m_imageScaler->resultAt( num ) ) ) );
-	m_standardModel->appendRow( imageitem );
+	qDebug() << "show image " << imageFile;
+//	m_imageScaler->setFuture( QtConcurrent::mapped( imageFile, scale ) );
+	QStandardItem* imageItem = new QStandardItem();
+//	imageItem->setIcon( QIcon( QPixmap::fromImage( m_imageScaler->result() ) ) );
+	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( imageFile ) ) ) );
+	imageItem->setToolTip( toolTip );
+	m_standardModel->appendRow( imageItem );
+	qDebug() << "image '" << imageFile << "' available";
 }
 
 void ImageListViewDialog::finished()
@@ -96,8 +101,10 @@ void ImageListViewDialog::finished()
 
 void ImageListViewDialog::imageClicked( QModelIndex index )
 {
-	if ( index.row() < m_imageNamesList.count() )	{
-		qDebug() << "image selected " << m_imageNamesList.at( index.row() );
-		close();
-	}
+	qDebug() << "image clicked at " << index.row();
+}
+
+void ImageListViewDialog::imageDoubleClicked( QModelIndex index )
+{
+	qDebug() << "image double clicked at " << index.row();
 }

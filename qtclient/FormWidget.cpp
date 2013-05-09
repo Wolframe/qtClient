@@ -56,12 +56,13 @@ static bool isInternalWidget( const QWidget* widget)
 		|| widget->objectName().startsWith( "_q");
 }
 
-FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient )
+FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient, bool _mdi )
 	: QWidget( _parent ), m_form( ),
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
 	  m_dataLoader( _dataLoader ), m_globals(_globals ), m_ui( 0 ),
 	  m_locale( DEFAULT_LOCALE ), m_layout( 0 ), m_forms( ),
 	  m_debug( _debug ), m_modal( false ), m_newWindow( false ),
+	  m_mdi( _mdi ),
 	  m_formDir( _formDir ), m_wolframeClient( _wolframeClient )
 {
 	initialize();
@@ -627,7 +628,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 // if the window is not a singleton, the main window must open our form
 // in a new MDI window eventually
-	if( !m_modal && !m_newWindow && !m_ui->property( "singletonWindow" ).toBool( ) ) {
+	if( m_mdi && !m_modal && !m_newWindow && !m_ui->property( "singletonWindow" ).toBool( ) ) {
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
