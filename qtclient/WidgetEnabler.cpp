@@ -36,6 +36,8 @@
 #include "WidgetVisitorStateConstructor.hpp"
 #include <QDebug>
 
+#undef WOLFRAME_LOWLEVEL_DEBUG
+
 WidgetEnablerImpl::WidgetEnablerImpl( QWidget* widget_, const QList<QString>& properties_)
 	:WidgetEnabler()
 	,m_state(createWidgetVisitorObject(widget_))
@@ -60,7 +62,9 @@ void WidgetEnablerImpl::handle_changed()
 	bool enabled = true;
 	foreach (const QString& prop, m_properties)
 	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "handle changed of widget" << widget->objectName() << "check condition" << prop;
+#endif
 		if (!visitor.property( prop).isValid())
 		{
 			if (visitor.getPropertyOwnerWidget( prop))

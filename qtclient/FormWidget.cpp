@@ -49,6 +49,13 @@
 #include <QApplication>
 #include <QMainWindow>
 
+static bool isInternalWidget( const QWidget* widget)
+{
+	return widget->objectName().isEmpty()
+		|| widget->objectName().startsWith( "qt_")
+		|| widget->objectName().startsWith( "_q");
+}
+
 FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient )
 	: QWidget( _parent ), m_form( ),
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
@@ -174,6 +181,7 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		QString nextForm = formlink.toString();
 		if (nextForm == "_CLOSE_")
 		{
+			/*[-]*/qDebug() << "got _CLOSE_";
 			if (m_modal)
 			{
 				emit closed( );
@@ -389,7 +397,7 @@ QVariant FormWidget::getWidgetStates() const
 	QList<QVariant> rt;
 	foreach( QWidget *widget, m_ui->findChildren<QWidget*>())
 	{
-		if (!widget->objectName().isEmpty() && !widget->objectName().startsWith( "qt_"))
+		if (!isInternalWidget( widget))
 		{
 			WidgetVisitor visitor( widget);
 			QVariant state = visitor.getState();
@@ -411,23 +419,26 @@ void FormWidget::setWidgetStates( const QVariant& state)
 
 	foreach( QWidget *widget, m_ui->findChildren<QWidget*>())
 	{
-		if (itr != statelist.end() && widget->objectName() == itr->toString())
+		if (!isInternalWidget( widget))
 		{
-			WidgetVisitor visitor( widget);
-			++itr;
-			if (itr != statelist.end())
+			if (itr != statelist.end() && widget->objectName() == itr->toString())
 			{
-				if (visitor.property( "action").isValid())
-				{
-					widget->setProperty( "_w_state", *itr);
-				}
-				else
-				{
-					visitor.setState( *itr);
-					QVariant initialFocus = widget->property( "initialFocus");
-					if (initialFocus.toBool()) widget->setFocus();
-				}
+				WidgetVisitor visitor( widget);
 				++itr;
+				if (itr != statelist.end())
+				{
+					if (visitor.property( "action").isValid())
+					{
+						widget->setProperty( "_w_state", *itr);
+					}
+					else
+					{
+						visitor.setState( *itr);
+						QVariant initialFocus = widget->property( "initialFocus");
+						if (initialFocus.toBool()) widget->setFocus();
+					}
+					++itr;
+				}
 			}
 		}
 	}
@@ -710,14 +721,17 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 			foreach (QWidget* rcp, rcpl)
 			{
 				//block signals before assigning the answer
-				QList<bool> blksig;
-				blksig.push_back( rcp->blockSignals( true));
+				typedef QPair<QString,bool> Trace;
+				typedef QList<Trace> TraceList;
+				TraceList blksig;
+				blksig.push_back( Trace( rcp->objectName(), rcp->blockSignals(true)));
+
 				foreach (QWidget* cld, rcp->findChildren<QWidget*>())
 				{
-					if (!cld->objectName().isEmpty() && !cld->objectName().startsWith("qt_"))
+					if (!isInternalWidget( cld))
 					{
-						qDebug() << "block signals of" << cld->metaObject()->className() << cld->objectName() << cld->objectName().startsWith("qt_");
-						blksig.push_back( cld->blockSignals( true));
+						qDebug() << "block signals of" << cld->metaObject()->className() << cld->objectName();
+						blksig.push_back( Trace( cld->objectName(), cld->blockSignals(true)));
 					}
 				}
 				WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::UseSynonyms|WidgetVisitor::BlockSignals));
@@ -730,15 +744,20 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 				if (initialFocus.toBool()) rcp->setFocus();
 
 				//unblock blocked signals after assigning the answer
-				QList<bool>::const_iterator bi = blksig.begin(), be = blksig.end();
-				if (bi != be) rcp->blockSignals( *bi++);
+				TraceList::const_iterator bi = blksig.begin(), be = blksig.end();
+				if (bi != be)
+				{
+					rcp->blockSignals( bi->second);
+					++bi;
+				}
 				foreach (QWidget* cld, rcp->findChildren<QWidget*>())
 				{
 					if (bi == be) break;
-					if (!cld->objectName().isEmpty() && !cld->objectName().startsWith("_q"))
+					if (bi->first == cld->objectName())
 					{
 						qDebug() << "unblock signals of" << cld->metaObject()->className() << cld->objectName();
-						cld->blockSignals( *bi++);
+						cld->blockSignals( bi->second);
+						++bi;
 					}
 				}
 			}
