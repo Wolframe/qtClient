@@ -108,6 +108,14 @@ void ApplicationSettings::write( QSettings &settings )
 	settings.setValue( "uiMenusDir", uiMenusDir );
 
 	settings.setValue( "keepState", saveRestoreState );
+
+	size = settings.beginReadArray( "WindowStates" );
+	for( int i = 0; i < size; ++i ) {
+		settings.setArrayIndex( i );
+		settings.remove( "" );
+	}
+	settings.endArray( );
+
 	settings.beginWriteArray( "WindowStates" );
 	for( int i = 0; i < states.size( ); i++ ) {
 		settings.setArrayIndex( i );

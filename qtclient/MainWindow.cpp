@@ -361,6 +361,8 @@ void MainWindow::CreateFormWidget( const QString &name )
 		this, SLOT( formLoaded( QString ) ) );
 	connect( m_formWidget, SIGNAL( formModal( QString ) ),
 		this, SLOT( formModal( QString ) ) );
+	connect( m_formWidget, SIGNAL( formNewWindow( QString ) ),
+		this, SLOT( formNewWindow( QString ) ) );
 	connect( m_formWidget, SIGNAL( error( QString ) ),
 		this, SLOT( formError( QString ) ) );
 
@@ -675,11 +677,11 @@ void MainWindow::menuListLoaded( QStringList menus )
 		this, SLOT( menuLoaded( QString, QByteArray ) ) );
 }
 
-void MainWindow::loadForm( QString name )
+void MainWindow::loadForm( QString name, const bool newWindow )
 {
 // delegate form loading to form widget
 	if( m_formWidget )
-		m_formWidget->loadForm( name );
+		m_formWidget->loadForm( name, false, newWindow );
 }
 
 void MainWindow::endModal( )
@@ -691,6 +693,8 @@ void MainWindow::endModal( )
 		this, SLOT( formLoaded( QString ) ) );
 	connect( m_formWidget, SIGNAL( formModal( QString ) ),
 		this, SLOT( formModal( QString ) ) );
+	connect( m_formWidget, SIGNAL( formNewWindow( QString ) ),
+		this, SLOT( formNewWindow( QString ) ) );
 	connect( m_formWidget, SIGNAL( error( QString ) ),
 		this, SLOT( formError( QString ) ) );
 	connect( m_formWidget,SIGNAL( destroyed( ) ),
@@ -700,20 +704,14 @@ void MainWindow::endModal( )
 	m_modalDialog->deleteLater( );
 }
 
-void MainWindow::endFormWidget( )
+void MainWindow::formNewWindow( QString name )
 {
-	qDebug( ) << "end form widget";
-
-// restore wiring in main frame
-	disconnect( QObject::sender(), SIGNAL( closed() ),
-		this, SLOT( endFormWidget( ) ) );
-
-	QWidget* widget = qobject_cast<QWidget*>( QObject::sender());
-	if (widget)
-	{
-		widget->hide( );
-		widget->deleteLater( );
-		widget->setParent( 0 );
+// open new MDI subwindow in MDI case (default, singletonWindow avoids this)
+	if( settings.mdi ) {
+		QMdiSubWindow *w = CreateMdiSubWindow( name, true );
+// kiosk mode, always load form normally in the only form widget there is
+	} else {
+		loadForm( name );
 	}
 }
 
@@ -727,6 +725,8 @@ void MainWindow::formModal( QString name )
 		this, SLOT( formLoaded( QString ) ) );
 	connect( formWidget, SIGNAL( formModal( QString ) ),
 		this, SLOT( formModal( QString ) ) );
+	connect( m_formWidget, SIGNAL( formNewWindow( QString ) ),
+		this, SLOT( formNewWindow( QString ) ) );
 	connect( formWidget, SIGNAL( error( QString ) ),
 		this, SLOT( formError( QString ) ) );
 	connect( formWidget,SIGNAL( destroyed( ) ),
@@ -738,6 +738,7 @@ void MainWindow::formModal( QString name )
 // the main window in order not to trigger funny results
 	disconnect( m_formWidget, SIGNAL( formLoaded( QString ) ), 0, 0 );
 	disconnect( m_formWidget, SIGNAL( formModal( QString ) ), 0, 0 );
+	disconnect( m_formWidget, SIGNAL( formNewWindow( QString ) ), 0, 0 );
 	disconnect( m_formWidget, SIGNAL( error( QString ) ), 0, 0 );
 	disconnect( m_formWidget, SIGNAL( destroyed( ) ), 0, 0 );
 
@@ -848,12 +849,13 @@ void MainWindow::restoreStateAndPositions( )
 		if( settings.saveRestoreState ) {
 			for( int i = 0; i < settings.states.size( ); i++ ) {
 				WinState state = settings.states[i];
-				QMdiSubWindow *w = CreateMdiSubWindow( state.form );
+				// all stored windows had newWindow set, hence true
+				QMdiSubWindow *w = CreateMdiSubWindow( state.form, true );
 				w->move( state.position );
 				w->resize( state.size );
 			}
 		} else {
-			(void)CreateMdiSubWindow( "init" );
+			(void)CreateMdiSubWindow( "init", true );
 // default it tiling MDI subwindows, no better option
 			m_mdiArea->tileSubWindows( );
 		}
@@ -882,16 +884,15 @@ void MainWindow::storeStateAndPositions( )
 			foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
 				WinState state;
 				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
-				state.form = FormCall::name( f->form( ) );
+				state.form = f->formCall( );
 				state.position = w->pos( );
 				state.size = w->size( );
 				settings.states.append( state );
 			}
 		} else {
-			settings.states.clear( );
 			if( m_formWidget ) {
 				WinState state;
-				state.form = FormCall::name( m_formWidget->form( ) );
+				state.form = m_formWidget->formCall( );
 				state.position = m_formWidget->pos( );
 				state.size = m_formWidget->size( );
 				settings.states.append( state );
@@ -965,7 +966,7 @@ void MainWindow::on_actionReload_triggered( )
 
 // -- MDI mode
 
-QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form )
+QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, bool newWindow )
 {
 	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.uiFormsDir, m_wolframeClient );
 
@@ -973,20 +974,27 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form )
 		this, SLOT( formLoaded( QString ) ) );
 	connect( formWidget, SIGNAL( formModal( QString ) ),
 		this, SLOT( formModal( QString ) ) );
+	connect( formWidget, SIGNAL( formNewWindow( QString ) ),
+		this, SLOT( formNewWindow( QString ) ) );
 	connect( formWidget, SIGNAL( error( QString ) ),
 		this, SLOT( formError( QString ) ) );
-	connect( formWidget,SIGNAL( destroyed( ) ),
+	connect( formWidget, SIGNAL( destroyed( ) ),
 		this, SLOT( updateMenusAndToolbars( ) ) );
 
 	QMdiSubWindow *mdiSubWindow = m_mdiArea->addSubWindow( formWidget );
 	mdiSubWindow->setAttribute( Qt::WA_DeleteOnClose );
 
+	connect( formWidget, SIGNAL( closed( ) ),
+		mdiSubWindow, SLOT( close( ) ) );
+
 	m_formWidget = formWidget; // ugly dirty hack, must ammend later
 	formWidget->show( );
 	formWidget->setLanguage( m_language );
-	loadForm( form );
+	loadForm( form, newWindow );
 
 	mdiSubWindow->resize( mdiSubWindow->sizeHint( ) );
+	
+	updateMdiMenusAndToolbars( );
 
 	return mdiSubWindow;
 }
@@ -1215,8 +1223,6 @@ void MainWindow::openFormNew( )
 	if( d.exec( ) == QDialog::Accepted ) {
 		(void)CreateMdiSubWindow( d.form( ) );
 	}
-
-	updateMenusAndToolbars( );
 }
 
 void MainWindow::addDeveloperMenu( )

@@ -61,8 +61,8 @@ FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
 	  m_dataLoader( _dataLoader ), m_globals(_globals ), m_ui( 0 ),
 	  m_locale( DEFAULT_LOCALE ), m_layout( 0 ), m_forms( ),
-	  m_debug( _debug ), m_modal( false ), m_formDir( _formDir ),
-	  m_wolframeClient( _wolframeClient )
+	  m_debug( _debug ), m_modal( false ), m_newWindow( false ),
+	  m_formDir( _formDir ), m_wolframeClient( _wolframeClient )
 {
 	initialize();
 }
@@ -220,15 +220,15 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		}
 		else if (nextForm == "_CLOSE_")
 		{
-			//... _CLOSE_ calls loadForm with the predecessor of
-			//    the top form of the form stack and the formstate
-			//    stored there (parallel on the statestack).
-			if (m_modal)
+			if (m_modal || m_newWindow)
 			{
-				emit closed( );
+				emit closed();
 			}
 			else
 			{
+				//... _CLOSE_ calls loadForm with the predecessor of
+				//    the top form of the form stack and the formstate
+				//    stored there (parallel on the statestack).
 				QList<QVariant> formstack = m_ui->property("_w_formstack").toList();
 				QList<QVariant> statestack = m_ui->property("_w_statestack").toList();
 
@@ -306,12 +306,12 @@ FormWidget::~FormWidget( )
 	if( m_ui ) delete m_ui;
 }
 
-void FormWidget::setForm( const QString &_form )
+void FormWidget::setFormCall( const QString &_form )
 {
 	loadForm( _form );
 }
 
-QString FormWidget::form( ) const
+QString FormWidget::formCall( ) const
 {
 	return m_form;
 }
@@ -321,15 +321,18 @@ QIcon FormWidget::getWindowIcon( ) const
 	return m_ui->windowIcon( );
 }
 
-void FormWidget::loadForm( QString name, bool modal )
+void FormWidget::loadForm( QString name, bool modal, bool newWindow )
 {
 	if( !m_formLoader ) return;
 
 	m_previousForm = m_form;
 	m_form = name;
 	m_modal = modal;
+	m_newWindow = newWindow;
 
-	qDebug( ) << "Initiating form load for " << m_form << m_modal;
+	qDebug( ) << "Initiating form load for " << m_form << ","
+		<< ( m_modal ? "modal" : "non-modal" ) << ","
+		<< ( m_newWindow ? "new window" : "same window" );
 
 	m_formLoader->initiateFormLoad( m_form );
 }
@@ -596,7 +599,9 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			return;
 		}
 		buf.close( );
-		qDebug( ) << "Constructed UI form XML for form" << name << m_modal;
+		qDebug( ) << "Constructed UI form XML for form" << name << ","
+			<< ( m_modal ? "modal" : "non-modal" ) << ","
+			<< ( m_newWindow ? "new window" : "same window" );
 	}
 
 // special case of a QMainWindow (we abuse it as menu editor for now),
@@ -617,6 +622,16 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		m_ui = oldUi;
 		m_form = m_previousForm;
 		emit formModal( name );
+		return;
+	}
+
+// if the window is not a singleton, the main window must open our form
+// in a new MDI window eventually
+	if( !m_modal && !m_newWindow && !m_ui->property( "singletonWindow" ).toBool( ) ) {
+		if( !oldUi ) oldUi = new QLabel( "error", this );
+		m_ui = oldUi;
+		m_form = m_previousForm;
+		emit formNewWindow( name );
 		return;
 	}
 
