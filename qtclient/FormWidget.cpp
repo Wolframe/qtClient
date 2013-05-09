@@ -76,7 +76,7 @@ void FormWidget::initialize( )
 
 // link the form loader for form loader notifications
 	connect( m_formLoader, SIGNAL( formLoaded( QString, QByteArray ) ),
-		this, SLOT( formLoaded( QString, QByteArray ) ) );
+		this, SLOT( formLoaded( QString, QByteArray ) ), Qt::UniqueConnection );
 	connect( m_formLoader, SIGNAL( formLocalizationLoaded( QString, QByteArray ) ),
 		this, SLOT( formLocalizationLoaded( QString, QByteArray ) ) );
 	connect( m_formLoader, SIGNAL( formListLoaded( QStringList ) ),
