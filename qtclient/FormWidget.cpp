@@ -181,7 +181,6 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		QString nextForm = formlink.toString();
 		if (nextForm == "_CLOSE_")
 		{
-			/*[-]*/qDebug() << "got _CLOSE_";
 			if (m_modal)
 			{
 				emit closed( );
