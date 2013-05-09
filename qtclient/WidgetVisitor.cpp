@@ -531,25 +531,42 @@ static void append_escaped( QString& dest, const QVariant& value)
 
 static QVariant variable_value( WidgetVisitor& visitor, const QString& var)
 {
-	int dpidx =var.indexOf( ':');
+	int dpidx = var.indexOf( ':');
 	if (dpidx < 0)
 	{
 		return visitor.property( var);
 	}
 	else
 	{
-		QString defaultvalue = var.mid( dpidx+1, var.size()-(dpidx+1)).trimmed();
-		foreach (QChar ch, defaultvalue)
+		QString value;
+		QVariant val = visitor.property( var.mid( 0, dpidx));
+
+		int altidx = var.indexOf( ':', dpidx +1);
+		if (altidx >= 0)
 		{
-			if (!ch.isDigit())
+			if (val.isValid())
 			{
-				qCritical() << "illegal character in default value (currently only non negative numbers and empty value allowed):" << ch << defaultvalue;
+				value = var.mid( dpidx+1, altidx - (dpidx+1)).trimmed();
+			}
+			else
+			{
+				value = var.mid( altidx+1, var.size()-(altidx+1)).trimmed();
+			}
+		}
+		else
+		{
+			if (val.isValid()) return val;
+			value = var.mid( dpidx+1, var.size()-(dpidx+1)).trimmed();
+		}
+		foreach (QChar ch, value)
+		{
+			if (!ch.isDigit() && !ch.isLetter() && ch != '_')
+			{
+				qCritical() << "illegal character in default value (currently only non negative numbers and alphanumeric or empty value allowed):" << ch << value;
 				break;
 			}
 		}
-		QString tryvar = var.mid( 0, dpidx);
-		QVariant val = visitor.property( tryvar);
-		return val.isValid()?val:QVariant(defaultvalue);
+		return QVariant( value);
 	}
 }
 
@@ -581,6 +598,8 @@ static QVariant expand_variable_references( WidgetVisitor& visitor, const QStrin
 
 		// evaluate property value and append it expanded as substutute to rt:
 		QVariant propvalue = variable_value( visitor, value.mid( substidx, endidx-substidx));
+		if (!propvalue.isValid()) return QVariant();
+
 		if (propvalue.type() == QVariant::List)
 		{
 			QList<QVariant> propvaluelist = propvalue.toList();
@@ -613,6 +632,152 @@ QVariant WidgetVisitor::resolve( const QVariant& value)
 		return expand_variable_references( *this, valuestr);
 	}
 	return value;
+}
+
+static QVariant getOperand( QString::const_iterator& xi, const QString::const_iterator xe)
+{
+	QString rt;
+	for (; xi != xe && xi->isSpace(); ++xi);
+	if (xi != xe)
+	{
+		if (*xi == '\'' || *xi == '"')
+		{
+			QChar eb = *xi;
+			for (++xi; xi != xe && *xi != eb; ++xi)
+			{
+				rt.push_back( *xi);
+			}
+			if (xi == xe)
+			{
+				qCritical() << "string not terminated in expression";
+			}
+			else
+			{
+				++xi;
+			}
+			return QVariant(rt);
+		}
+		else
+		{
+			for (; xi != xe && xi->isSpace(); ++xi);
+			for (; xi != xe && !xi->isSpace() && *xi != '=' && *xi != '!' && *xi != '>' && *xi != '<'; ++xi)
+			{
+				rt.push_back( *xi);
+			}
+			if (rt.isEmpty()) return QVariant();
+			return QVariant(rt);
+		}
+	}
+	return QVariant();
+}
+
+enum ExprOperator {ExprOpInvalid,ExprOpEq,ExprOpNe,ExprOpGt,ExprOpLt,ExprOpGe,ExprOpLe};
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+static const char* exprOperatorName( ExprOperator i)
+{
+	static const char* ar[] = {"ExprOpInvalid","ExprOpEq","ExprOpNe","ExprOpGt","ExprOpLt","ExprOpGe","ExprOpLe"};
+	return ar[i];
+}
+#endif
+
+static ExprOperator getOperator( QString::const_iterator& xi, const QString::const_iterator xe)
+{
+	ExprOperator rt = ExprOpInvalid;
+	for (; xi != xe && xi->isSpace(); ++xi);
+	if (xi != xe)
+	{
+		if (*xi == '>')
+		{
+			++xi;
+			if (xi != xe && *xi == '=')
+			{
+				rt = ExprOpGe;
+				++xi;
+			}
+			else
+			{
+				rt = ExprOpGt;
+			}
+		}
+		else if (*xi == '<')
+		{
+			++xi;
+			if (xi != xe && *xi == '=')
+			{
+				rt = ExprOpLe;
+				++xi;
+			}
+			else if (xi != xe && *xi == '>')
+			{
+				rt = ExprOpNe;
+				++xi;
+			}
+			else
+			{
+				rt = ExprOpLt;
+			}
+		}
+		else if (*xi == '!')
+		{
+			++xi;
+			if (xi != xe && *xi == '=')
+			{
+				rt = ExprOpNe;
+				++xi;
+			}
+		}
+		else if (*xi == '=')
+		{
+			++xi;
+			if (xi != xe && *xi == '=')
+			{
+				++xi;
+			}
+			rt = ExprOpEq;
+		}
+	}
+	return rt;
+}
+
+bool WidgetVisitor::evalCondition( const QVariant& expr)
+{
+	QList<QString> stack;
+	QVariant resolved = resolve(expr);
+	if (!resolved.isValid()) return false;
+	QString exprstr = resolve(expr).toString().trimmed();
+	QString::const_iterator xi = exprstr.begin(), xe = exprstr.end();
+	QVariant op1 = getOperand( xi, xe);
+	if (xi == xe) return op1.isValid();
+	ExprOperator opr = getOperator( xi, xe);
+	QVariant op2 = getOperand( xi, xe);
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "evaluate expression" << op1 << exprOperatorName(opr) << op2;
+#endif
+	if (!op1.isValid() || !op2.isValid()) return false;
+	for (; xi != xe && xi->isSpace(); ++xi);
+	if (xi != xe)
+	{
+		qCritical() << "superfluos characters at end of expression";
+	}
+	switch (opr)
+	{
+		case ExprOpInvalid:
+			qCritical() << "invalid operator in conditional expression";
+			return false;
+		case ExprOpEq:
+			return op1.toString() == op2.toString();
+		case ExprOpNe:
+			return op1.toString() != op2.toString();
+		case ExprOpGt:
+			return op1.toInt() > op2.toInt();
+		case ExprOpLt:
+			return op1.toInt() < op2.toInt();
+		case ExprOpGe:
+			return op1.toInt() >= op2.toInt();
+		case ExprOpLe:
+			return op1.toInt() <= op2.toInt();
+	}
+	return false;
 }
 
 FormWidget* WidgetVisitor::formwidget() const

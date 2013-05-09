@@ -661,6 +661,52 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		setWidgetStates( m_formstate);
 	}
 
+// set widget state according to 'state:..' properties and their conditionals
+	foreach (QWidget* chld, m_ui->findChildren<QWidget *>())
+	{
+		foreach (const QByteArray& prop, chld->dynamicPropertyNames())
+		{
+			if (prop.startsWith( "state:"))
+			{
+				WidgetVisitor vv( chld);
+
+				QByteArray nam = prop.mid( 6, prop.size()-6);
+				QVariant condexpr = chld->property( prop);
+				bool cond = vv.evalCondition( condexpr);
+				if (nam == "visible")
+				{
+					qDebug() << "set" << chld->objectName() << "visible" << cond << "because of condition" << condexpr;
+					chld->setVisible( cond);
+				}
+				else if (nam == "invisible")
+				{
+					qDebug() << "set" << chld->objectName() << "invisible" << cond << "because of condition" << condexpr;
+					chld->setVisible( !cond);
+				}
+				else if (nam == "hidden")
+				{
+					qDebug() << "set" << chld->objectName() << "hidden" << cond << "because of condition" << condexpr;
+					chld->setHidden( cond);
+				}
+				else if (nam == "enabled")
+				{
+					qDebug() << "set" << chld->objectName() << "enabled" << cond << "because of condition" << condexpr;
+					chld->setEnabled( cond);
+				}
+				else if (nam == "disabled")
+				{
+					qDebug() << "set" << chld->objectName() << "disabled" << cond << "because of condition" << condexpr;
+					chld->setDisabled( cond);
+				}
+				else
+				{
+					qCritical() << "unknown state property name" << prop;
+				}
+			}
+		}
+	}
+
+
 // connect listener to signals converted to data signals
 	m_listeners.clear();
 	if (m_debug)

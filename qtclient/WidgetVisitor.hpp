@@ -265,9 +265,13 @@ class WidgetVisitor
 		///\brief Get the class name of the widget of the current state
 		QString className() const;
 
-		///\brief Resolve reference to a variable
-		///\param[in] value to resolve
+		///\brief Resolve variable references in value
+		///\param[in] value value to resolve
 		QVariant resolve( const QVariant& value);
+
+		///\brief Resolve condition
+		///\param[in] expr conditional expression to resolve
+		bool evalCondition( const QVariant& expr);
 
 		///\brief Get the form widget of this widget
 		///\brief Return the form widget reference if this widget is a sub widget of a form or 0 if it does not exist

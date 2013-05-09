@@ -53,7 +53,6 @@ bool WidgetVisitorState_QCheckBox::setProperty( const QString& name, const QVari
 	{
 		QString subst("%");
 		subst.push_back( name.at(0));
-
 		m_checkBox->setText( m_checkBox->text().replace( subst, data.toString()));
 		return true;
 	}

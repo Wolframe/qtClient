@@ -33,7 +33,7 @@
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
 #include <QDebug>
-#include <QAbstractButton>
+#include <QPushButton>
 
 static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& cond)
 {
@@ -46,7 +46,7 @@ static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& con
 static bool nodeProperty_isEnabledNonActionWidgetWithAction( const QWidget* widget, const QVariant&)
 {
 	if (!widget->isEnabled()) return false;
-	if (qobject_cast<const QAbstractButton*>( widget)) return false;
+	if (qobject_cast<const QPushButton*>( widget)) return false;
 	return (widget->property( "action").isValid());
 }
 
