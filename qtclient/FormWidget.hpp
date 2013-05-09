@@ -60,13 +60,13 @@ class FormWidget : public QWidget
 		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient );
 		virtual ~FormWidget( );
 
-		void loadForm( QString name, bool modal = false );
+		void loadForm( QString name, bool modal = false, bool newWindow = false );
 		void setLocale( QLocale locale );
 		void setLanguage( QString language );
 		void executeMenuAction( QWidget *actionwidget, const QString& action);
 
 	public:
-		QString form( ) const;
+		QString formCall( ) const;
 		QIcon getWindowIcon( ) const;
 		QWidget* mainwidget() const
 		{
@@ -74,7 +74,7 @@ class FormWidget : public QWidget
 		}
 
 	public slots:
-		void setForm( const QString &_form );
+		void setFormCall( const QString &_formCall );
 		void reload( );
 
 	private:
@@ -95,6 +95,7 @@ class FormWidget : public QWidget
 		QHash<QString,QVariant> m_formstatemap;
 		bool m_debug;
 		bool m_modal;
+		bool m_newWindow;
 		QString m_formDir;
 		WolframeClient *m_wolframeClient;
 
@@ -114,6 +115,7 @@ class FormWidget : public QWidget
 	signals:
 		void formLoaded( QString name );
 		void formModal( QString m_form );
+		void formNewWindow( QString m_form );
 		void error( QString error );
 		void closed( );
 		void datarequest();

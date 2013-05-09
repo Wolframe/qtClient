@@ -110,7 +110,7 @@ class MainWindow : public SkeletonMainWindow
 		void readSettings( );
 		void parseArgs( );
 		void loadLanguages( );
-		void loadForm( QString formName );
+		void loadForm( QString formName, const bool newWindow = false );
 		void loadLanguage( QString language );
 
 	protected:
@@ -120,7 +120,7 @@ class MainWindow : public SkeletonMainWindow
 	private:
 		void switchTranslator( QTranslator &translator, const QString &filename, const QString &i18n );
 		void CreateFormWidget( const QString &name );
-		QMdiSubWindow *CreateMdiSubWindow( const QString &form );
+		QMdiSubWindow *CreateMdiSubWindow( const QString &form, const bool newWindow = false );
 		int nofSubWindows( ) const;
 		void activateAction( const QString name, bool enabled );
 		QString composeWindowListTitle( const int idx, const QString title );
@@ -141,8 +141,8 @@ class MainWindow : public SkeletonMainWindow
 		void formListLoaded( QStringList forms );
 		void formLoaded( QString name );
 		void formModal( QString name );
+		void formNewWindow( QString name );
 		void endModal();
-		void endFormWidget();
 		void formError( QString error );
 		void menuListLoaded( QStringList menus );
 		void menuLoaded( QString name, QByteArray form );
