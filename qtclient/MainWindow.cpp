@@ -87,7 +87,7 @@ void MainWindow::loadMenuForm( QString form )
 	qDebug( ) << "MENU: form call" << form;
 
 	if( settings.mdi ) {
-		(void)CreateMdiSubWindow( form );
+		(void)CreateMdiSubWindow( form, true );
 	} else {
 		loadForm( form );
 	}
