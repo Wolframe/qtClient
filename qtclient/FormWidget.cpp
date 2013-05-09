@@ -179,8 +179,50 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 	{
 		qDebug() << "Switch form to" << formlink;
 		QString nextForm = formlink.toString();
-		if (nextForm == "_CLOSE_")
+		m_formstate = QVariant();
+
+		if (nextForm == "_RESET_")
 		{
+			//... _RELOAD_ calls loadForm with the top form of the
+			//     form stack and an empty formstate
+			if (m_modal)
+			{
+				qCritical() << "illegal _RELOAD_ load of modal dialog";
+				emit closed( );
+			}
+			else
+			{
+				QList<QVariant> formstack = m_ui->property("_w_formstack").toList();
+				QList<QVariant> statestack = m_ui->property("_w_statestack").toList();
+
+				if (formstack.isEmpty())
+				{
+					qCritical() << "_RELOAD_ of form but loaded form stack is missing";
+					loadForm( m_form);
+				}
+				else
+				{
+					qDebug() << "form stack before pop (_RELOAD_):" << formstack;
+
+					nextForm = formstack.back().toString();
+					formstack.pop_back();
+					if (!statestack.isEmpty())
+					{
+						statestack.pop_back();
+					}
+					m_ui->setProperty( "_w_formstack", QVariant( formstack));
+					m_ui->setProperty( "_w_statestack", QVariant( statestack));
+
+					qDebug() << "load form from stack:" << nextForm;
+					loadForm( nextForm);
+				}
+			}
+		}
+		else if (nextForm == "_CLOSE_")
+		{
+			//... _CLOSE_ calls loadForm with the predecessor of
+			//    the top form of the form stack and the formstate
+			//    stored there (parallel on the statestack).
 			if (m_modal)
 			{
 				emit closed( );
@@ -188,18 +230,39 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 			else
 			{
 				QList<QVariant> formstack = m_ui->property("_w_formstack").toList();
+				QList<QVariant> statestack = m_ui->property("_w_statestack").toList();
+
 				if (!formstack.isEmpty())
 				{
-					qDebug() << "form stack before pop:" << formstack;
+					qDebug() << "form stack before pop (_CLOSE_):" << formstack;
+
+					// discard the top element of the form/state stack
 					formstack.pop_back();
+					if (!statestack.isEmpty())
+					{
+						statestack.pop_back();
+					}
 					if (formstack.isEmpty())
 					{
 						emit closed();
 					}
 					else
 					{
+						// fetch the predecessor of the form/state stack
+						// as next form+state
 						nextForm = formstack.back().toString();
+						if (!formstack.isEmpty())
+						{
+							formstack.pop_back();
+						}
+						if (!statestack.isEmpty())
+						{
+							m_formstate = statestack.back();
+							statestack.pop_back();
+						}
 						m_ui->setProperty( "_w_formstack", QVariant( formstack));
+						m_ui->setProperty( "_w_statestack", QVariant( statestack));
+
 						qDebug() << "load form from stack:" << nextForm;
 						loadForm( nextForm);
 					}
@@ -210,10 +273,24 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 				}
 			}
 		}
+		else if (m_modal)
+		{
+			qCritical() << "illegal form call in modal dialog (only _CLOSE_ as next form allowed)";
+		}
 		else
 		{
-			m_formstatemap[ m_form] = getWidgetStates();
-			m_formstatemap[ nextForm] = QVariant();
+			// before the load of the next form we store the current
+			// state of the form on the state stack so that the
+			// _CLOSE_ of the opened form can invoke a restore
+			// of the state
+			QList<QVariant> statestack = m_ui->property("_w_statestack").toList();
+			if (!statestack.isEmpty())
+			{
+				// replace state of the state stack:
+				statestack.pop_back();
+				statestack.push_back( getWidgetStates());
+				m_ui->setProperty( "_w_statestack", QVariant( statestack));
+			}
 			loadForm( nextForm );
 		}
 	}
@@ -563,11 +640,10 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 // initialize the form variables given by assignments
 	visitor.do_readAssignments();
 
-	// restore widget states if widget was opened with a '_CLOSE_'
-	QVariant formstate = m_formstatemap[ m_form];
-	if (formstate.isValid())
+	// restore widget states if form was opened with a '_CLOSE_'
+	if (m_formstate.isValid())
 	{
-		setWidgetStates( formstate);
+		setWidgetStates( m_formstate);
 	}
 
 // connect listener to signals converted to data signals
@@ -628,41 +704,20 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		}
 	}
 
-// push on form stack for back link, if form is not the same and differs only in parameters
+// push on form stack for back link
 	QList<QVariant> formstack;
+	QList<QVariant> statestack;
 	if( oldUi )
 	{
 		formstack = oldUi->property( "_w_formstack").toList();
+		statestack = oldUi->property( "_w_statestack").toList();
 	}
-	else
-	{
-		formstack.push_back( QVariant( QString( "init")));
-	}
-	if( !formstack.isEmpty( ) ) {
-		QString topform = formstack.back().toString();
-		int qmidx_c = m_form.indexOf( '?');
-		if (qmidx_c < 0) qmidx_c = m_form.size();
-		int qmidx_p = topform.indexOf( '?');
-		if (qmidx_p < 0) qmidx_p = topform.size();
-		if (qmidx_c != qmidx_p)
-		{
-			// ... form name differs (in size)
-			formstack.push_back( QVariant( m_form));
-		}
-		else if (m_form.mid( 0, qmidx_c) == topform.mid( 0, qmidx_c))
-		{
-			// ... form differs only in parameters
-			formstack.pop_back();
-			formstack.push_back( QVariant( m_form));
-		}
-		else
-		{
-			// ... form name differs
-			formstack.push_back( m_form);
-		}
-	}
+	formstack.push_back( m_form);
+	statestack.push_back( m_formstate );
+
 	qDebug() << "form stack for " << m_form << ":" << formstack;
 	m_ui->setProperty( "_w_formstack", QVariant( formstack));
+	m_ui->setProperty( "_w_statestack", QVariant( statestack));
 
 // loads the domains
 	WidgetMessageDispatcher dispatcher( m_ui);

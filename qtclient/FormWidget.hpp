@@ -65,6 +65,9 @@ class FormWidget : public QWidget
 		void setLanguage( QString language );
 		void executeMenuAction( QWidget *actionwidget, const QString& action);
 
+		QVariant getWidgetStates() const;
+		void setWidgetStates( const QVariant& state);
+
 	public:
 		QString form( ) const;
 		QIcon getWindowIcon( ) const;
@@ -92,7 +95,7 @@ class FormWidget : public QWidget
 		QTranslator m_translator;		// contains the translations for the current form
 		QHash<QString,QList<WidgetListenerR> > m_listeners;	// widget signal listeners for this form
 		QHash<QString,QList<WidgetEnablerR> > m_enablers;	// objects holding the logic for enabling buttons when conditions defined by properties referenced are met
-		QHash<QString,QVariant> m_formstatemap;
+		QVariant m_formstate;			// state of the form to be opened (after _CLOSE_)
 		bool m_debug;
 		bool m_modal;
 		QString m_formDir;
@@ -105,9 +108,6 @@ class FormWidget : public QWidget
 		void setPushButtonEnablers( QPushButton* pushButton);
 		///\brief Signal the push button enablers to recheck their state
 		void signalPushButtonEnablers();
-
-		QVariant getWidgetStates() const;
-		void setWidgetStates( const QVariant& state);
 
 		FormPluginInterface *formPlugin( QString name ) const;
 
