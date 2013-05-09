@@ -1181,6 +1181,7 @@ void MainWindow::logout( )
 
 	if( settings.mdi ) {
 		m_mdiArea->closeAllSubWindows( );
+		m_formWidget = 0; // because the last mdi window assigned this! See HACK above
 	} else {
 		delete m_formWidget;
 		m_formWidget = 0;
@@ -1221,7 +1222,7 @@ void MainWindow::openFormNew( )
 {
 	FormChooseDialog d( m_forms, this );
 	if( d.exec( ) == QDialog::Accepted ) {
-		(void)CreateMdiSubWindow( d.form( ) );
+		(void)CreateMdiSubWindow( d.form( ), true );
 	}
 }
 
