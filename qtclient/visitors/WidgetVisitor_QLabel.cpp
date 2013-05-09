@@ -41,7 +41,13 @@ WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
 
 void WidgetVisitorState_QLabel::clear()
 {
+	QVariant origtext = m_label->property( "_w_origtext");
+	if (!origtext.isValid())
+	{
+		origtext = m_label->text();
+	}
 	m_label->clear();
+	m_label->setText( origtext.toString());
 }
 
 QVariant WidgetVisitorState_QLabel::property( const QString& name)
@@ -64,7 +70,10 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 	{
 		QString subst("%");
 		subst.push_back( name.at(0));
-
+		if (!m_label->property( "_w_origtext").isValid())
+		{
+			m_label->setProperty( "_w_origtext", m_label->text());
+		}
 		m_label->setText( m_label->text().replace( subst, data.toString()));
 		return true;
 	}
@@ -74,7 +83,10 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 void WidgetVisitorState_QLabel::setState( const QVariant& state)
 {
 	qDebug() << "set state for label" << m_label->objectName();
-	m_label->setText( state.toString());
+	if (state.isValid())
+	{
+		m_label->setText( state.toString());
+	}
 }
 
 QVariant WidgetVisitorState_QLabel::getState() const
