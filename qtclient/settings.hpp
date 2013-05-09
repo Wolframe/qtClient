@@ -39,15 +39,17 @@
 #include <QPoint>
 #include <QSize>
 #include <QSettings>
+#include <QVariant>
 
 #include "serverDefinition.hpp"
 #include "LoadMode.hpp"
 
 struct WinState
 {
-	QString form;				///< last visible form
+	QString form;				///< last visible form (form call, parameters)
 	QPoint position;			///< last position (for MDI)
 	QSize size;				///< last size (for MDI)
+	QVariant widgetStates;			///< states of the widgets in the form
 };
 
 struct ApplicationSettings

@@ -122,6 +122,7 @@ void ApplicationSettings::write( QSettings &settings )
 		settings.setValue( "form", states[i].form );
 		settings.setValue( "position", states[i].position );
 		settings.setValue( "size", states[i].size );
+		settings.setValue( "widgetStates", states[i].widgetStates );
 	}
 	settings.endArray();
 }
@@ -191,7 +192,8 @@ void ApplicationSettings::read( QSettings &settings )
 		WinState state;
 		state.form = settings.value( "form" ).toString( );
 		state.position = settings.value( "position", QPoint( 0, 0 ) ).toPoint( );
-		state.size = settings.value( "size",QSize( 350, 350 ) ).toSize( );
+		state.size = settings.value( "size", QSize( 350, 350 ) ).toSize( );
+		state.widgetStates = settings.value( "widgetStates", QVariant( ) );
 
 		states.append( state );
 	}

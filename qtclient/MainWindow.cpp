@@ -708,7 +708,7 @@ void MainWindow::formNewWindow( QString name )
 {
 // open new MDI subwindow in MDI case (default, singletonWindow avoids this)
 	if( settings.mdi ) {
-		QMdiSubWindow *w = CreateMdiSubWindow( name, true );
+		(void)CreateMdiSubWindow( name, true );
 // kiosk mode, always load form normally in the only form widget there is
 	} else {
 		loadForm( name );
@@ -853,6 +853,8 @@ void MainWindow::restoreStateAndPositions( )
 				QMdiSubWindow *w = CreateMdiSubWindow( state.form, true );
 				w->move( state.position );
 				w->resize( state.size );
+				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
+				f->setWidgetStates( state.widgetStates );
 			}
 		} else {
 			(void)CreateMdiSubWindow( "init", true );
@@ -887,6 +889,7 @@ void MainWindow::storeStateAndPositions( )
 				state.form = f->formCall( );
 				state.position = w->pos( );
 				state.size = w->size( );
+				state.widgetStates = f->getWidgetStates( );
 				settings.states.append( state );
 			}
 		} else {
@@ -895,6 +898,7 @@ void MainWindow::storeStateAndPositions( )
 				state.form = m_formWidget->formCall( );
 				state.position = m_formWidget->pos( );
 				state.size = m_formWidget->size( );
+				state.widgetStates = m_formWidget->getWidgetStates( );
 				settings.states.append( state );
 			}
 		}
