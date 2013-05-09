@@ -678,11 +678,6 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 					qDebug() << "set" << chld->objectName() << "visible" << cond << "because of condition" << condexpr;
 					chld->setVisible( cond);
 				}
-				else if (nam == "invisible")
-				{
-					qDebug() << "set" << chld->objectName() << "invisible" << cond << "because of condition" << condexpr;
-					chld->setVisible( !cond);
-				}
 				else if (nam == "hidden")
 				{
 					qDebug() << "set" << chld->objectName() << "hidden" << cond << "because of condition" << condexpr;
