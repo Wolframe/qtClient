@@ -103,6 +103,7 @@ class MainWindow : public SkeletonMainWindow
 		QAction *m_openFormAction;
 		QAction *m_openFormNewWindowAction;
 		QDialog *m_modalDialog;
+		bool m_modalDialogClosed;
 		QList<QAction *> m_actions;	// custom menus for the current application and set of forms
 		QSignalMapper *m_menuSignalMapper; // for mapping form calls to parameterized form calls in the menus
 
