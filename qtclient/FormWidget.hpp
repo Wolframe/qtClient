@@ -57,7 +57,7 @@ class FormWidget : public QWidget
 	Q_OBJECT
 
 	public:		
-		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient );
+		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient, bool _mdi );
 		virtual ~FormWidget( );
 
 		void loadForm( QString name, bool modal = false, bool newWindow = false );
@@ -99,6 +99,7 @@ class FormWidget : public QWidget
 		bool m_debug;
 		bool m_modal;
 		bool m_newWindow;
+		bool m_mdi;
 		QString m_formDir;
 		WolframeClient *m_wolframeClient;
 
