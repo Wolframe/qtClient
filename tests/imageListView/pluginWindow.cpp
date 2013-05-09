@@ -5,6 +5,7 @@
 
 #include "ImageListViewDialog.hpp"
 
+// Create the test window
 PluginWindow::PluginWindow()
 {
 	createPluginGroupBox();
@@ -27,19 +28,22 @@ PluginWindow::PluginWindow()
 	setWindowTitle( tr( "Image List View/Widget Test" ));
 }
 
+// Plugin group (box)
 void PluginWindow::createPluginGroupBox()
 {
 	m_pluginGroupBox = new QGroupBox( tr( "ImageList" ));
 //!!!!!!!!!
-	m_selector = new ImageListViewDialog( m_imageFiles );
-	connect( m_selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
-	connect( m_selector, SIGNAL( doubleClicked( QModelIndex )), this, SLOT( itemSelected()) );
+	m_selector = new ImageListViewDialog();
+
+//	connect( m_selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
+//	connect( m_selector, SIGNAL( doubleClicked( QModelIndex )), this, SLOT( itemSelected()) );
 //!!!!!!!!!
 	m_pluginLayout = new QGridLayout;
 	m_pluginLayout->addWidget( m_selector, 0, 0, Qt::AlignCenter );
 	m_pluginGroupBox->setLayout( m_pluginLayout );
 }
 
+// Operations group (box)
 void PluginWindow::createOperationsGroupBox()
 {
 	m_operationsGroupBox = new QGroupBox( tr( "Operations" ));
@@ -88,6 +92,7 @@ void PluginWindow::createOperationsGroupBox()
 	m_operationsGroupBox->setLayout( opLayout );
 }
 
+// Show selected items group (box)
 void PluginWindow::createSelectedGroupBox()
 {
 	m_selectedGroupBox = new QGroupBox( tr( "Selected" ));
@@ -100,6 +105,7 @@ void PluginWindow::createSelectedGroupBox()
 	m_selectedGroupBox->setLayout( selectedLayout );
 }
 
+// Show properties group (box)
 void PluginWindow::createPropertiesGroupBox()
 {
 	m_propertiesGroupBox = new QGroupBox( tr( "Widget properties" ));
@@ -120,6 +126,7 @@ void PluginWindow::localeChanged( int index )
 	m_selector->setLocale( m_localeCombo->itemData( index ).toLocale() );
 }
 
+// Add image file(s)
 void PluginWindow::addImagesFromFiles()
 {
 	QFileDialog	fileDialog( this );
@@ -130,9 +137,9 @@ void PluginWindow::addImagesFromFiles()
 	QStringList	fileNames;
 	if ( fileDialog.exec() )	{
 		fileNames = fileDialog.selectedFiles();
-		m_imageFiles += fileNames;
+		for ( QStringList::const_iterator i = fileNames.begin(); i != fileNames.end(); i++ )
+			m_selector->addImage( *i, *i );
 	}
-	QMessageBox::critical( this, tr( "Plugin tester" ), tr( "Not implemented yet" ) );
 }
 
 void PluginWindow::removeSelectedImages()

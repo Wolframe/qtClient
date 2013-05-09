@@ -15,6 +15,7 @@ class QListWidget;
 QT_END_NAMESPACE
 class ImageListViewDialog;
 
+
 class PluginWindow : public QWidget
 {
 	Q_OBJECT
@@ -51,8 +52,6 @@ private:
 	QGroupBox		*m_propertiesGroupBox;
 	QLabel			*m_selectedItems;
 	QLabel			*m_totalItems;
-
-	QStringList		m_imageFiles;
 };
 
 #endif	// _WINDOW_HPP_INCLUDED

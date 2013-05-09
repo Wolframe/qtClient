@@ -44,18 +44,18 @@ class ImageListViewDialog : public QWidget
 	Q_OBJECT
 
 public:
-	explicit ImageListViewDialog( QStringList imageNamesList, QWidget *parent = 0 );
+	explicit ImageListViewDialog( QWidget *parent = 0 );
 	~ImageListViewDialog();
 
 public Q_SLOTS:
-	void showImage( int num );
+	void addImage( const QString imageFile, const QString toolTip );
 	void finished();
 
 	void imageClicked( QModelIndex index );
+	void imageDoubleClicked( QModelIndex index );
 
 private:
-	QStringList		m_imageNamesList;
-	QFutureWatcher<QImage>*	m_imageScaler;
+//	QFutureWatcher<QImage>*	m_imageScaler;
 	QListView*		m_imageListView;
 	QStandardItemModel*	m_standardModel;
 };
