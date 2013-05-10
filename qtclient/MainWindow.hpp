@@ -78,6 +78,7 @@ class MainWindow : public SkeletonMainWindow
 		virtual void authOk( );
 		virtual void login( );
 		virtual void logout( );
+		virtual void error( QString error );
 
 	private:
 		QTranslator m_translatorApp;	// contains the translations for this application

@@ -1201,6 +1201,18 @@ void MainWindow::logout( )
 	SkeletonMainWindow::logout( );
 }
 
+void MainWindow::error( QString error )
+{
+	SkeletonMainWindow::error( error );
+	
+	if( settings.mdi ) {
+		if( !m_wolframeClient->isConnected( ) ) {
+			m_mdiArea->closeAllSubWindows( );
+			m_formWidget = 0; // see above
+		}
+	}
+}
+
 // -- developer stuff
 
 void MainWindow::showDebugTerminal( bool checked )
