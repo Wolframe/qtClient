@@ -149,13 +149,14 @@ void WidgetTree::setWidgetStates( const QVariant& state)
 					else
 					{
 						visitor.setState( *itr);
-						QVariant initialFocus = widget->property( "initialFocus");
-						if (initialFocus.toBool()) widget->setFocus();
 					}
 					++itr;
 				}
 			}
 		}
+
+		QVariant initialFocus = widget->property( "initialFocus");
+		if (initialFocus.toBool()) widget->setFocus();
 	}
 }
 
@@ -235,6 +236,11 @@ void WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 				}
 			}
 		}
+	}
+
+	foreach (QWidget* chld, m_visitor.widget()->findChildren<QWidget *>()) {
+		QVariant initialFocus = chld->property( "initialFocus");
+		if (initialFocus.toBool()) chld->setFocus();
 	}
 
 	// connect listener to signals converted to data signals
