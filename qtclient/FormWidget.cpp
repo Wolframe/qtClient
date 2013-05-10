@@ -486,7 +486,7 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 	{
 		qDebug( ) << "Answer for form" << m_form << "and tag" << tag_;
 
-		if (!followform.isEmpty())
+		if (!followform.isEmpty() || rcp->property( "form").isValid())
 		{
 			WidgetVisitor actionvisitor( rcp);
 			FormWidget* THIS_ = actionvisitor.formwidget();
