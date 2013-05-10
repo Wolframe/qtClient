@@ -33,7 +33,7 @@ void PluginWindow::createPluginGroupBox()
 {
 	m_pluginGroupBox = new QGroupBox( tr( "ImageList" ));
 //!!!!!!!!!
-	m_selector = new ImageListViewDialog();
+	m_selector = new ImageListViewDialog( 120, 90 );
 
 //	connect( m_selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
 //	connect( m_selector, SIGNAL( doubleClicked( QModelIndex )), this, SLOT( itemSelected()) );

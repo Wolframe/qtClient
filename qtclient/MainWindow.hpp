@@ -78,6 +78,7 @@ class MainWindow : public SkeletonMainWindow
 		virtual void authOk( );
 		virtual void login( );
 		virtual void logout( );
+		virtual void error( QString error );
 
 	private:
 		QTranslator m_translatorApp;	// contains the translations for this application
@@ -103,6 +104,7 @@ class MainWindow : public SkeletonMainWindow
 		QAction *m_openFormAction;
 		QAction *m_openFormNewWindowAction;
 		QDialog *m_modalDialog;
+		bool m_modalDialogClosed;
 		QList<QAction *> m_actions;	// custom menus for the current application and set of forms
 		QSignalMapper *m_menuSignalMapper; // for mapping form calls to parameterized form calls in the menus
 

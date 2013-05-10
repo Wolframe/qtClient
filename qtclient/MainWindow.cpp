@@ -63,7 +63,7 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
 	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
-	m_modalDialog( 0 ), m_menuSignalMapper( 0 )
+	m_modalDialog( 0 ), m_modalDialogClosed( true ), m_menuSignalMapper( 0 )
 {
 // read parameters, first and only one is the optional configurartion files
 // containint the settings
@@ -136,6 +136,7 @@ void MainWindow::readSettings( )
 	}
 
 	m_serverDefs = settings.connectionParams;
+	m_defaultServer = settings.defaultServer;
 
 // set remember username and connection for the login dialog
 	if( settings.saveUsername ) {
@@ -686,6 +687,10 @@ void MainWindow::loadForm( QString name, const bool newWindow )
 
 void MainWindow::endModal( )
 {
+	if( m_modalDialogClosed ) return;
+
+	m_modalDialogClosed = true;
+	
 	qDebug( ) << "endModal";
 
 // restore wiring in main frame
@@ -700,8 +705,9 @@ void MainWindow::endModal( )
 	connect( m_formWidget,SIGNAL( destroyed( ) ),
 		this, SLOT( updateMenusAndToolbars( ) ) );
 
+// this triggers endModal a second time!
 	m_modalDialog->close( );
-	m_modalDialog->deleteLater( );
+	m_modalDialog->deleteLater( );	
 }
 
 void MainWindow::formNewWindow( QString name )
@@ -751,6 +757,8 @@ void MainWindow::formModal( QString name )
 	connect( m_modalDialog, SIGNAL( rejected( ) ),
 		this, SLOT( endModal( ) ) );
 
+	m_modalDialogClosed = false;
+	
 	m_modalDialog->show( );
 }
 
@@ -909,6 +917,7 @@ void MainWindow::storeSettings( )
 {
 // connection parameters
 	settings.connectionParams = m_serverDefs;
+	settings.defaultServer = m_defaultServer;
 
 // optionally remember last connection and username
 	if( settings.saveUsername ) {
@@ -1192,6 +1201,18 @@ void MainWindow::logout( )
 	}
 	
 	SkeletonMainWindow::logout( );
+}
+
+void MainWindow::error( QString error )
+{
+	SkeletonMainWindow::error( error );
+	
+	if( settings.mdi ) {
+		if( !m_wolframeClient->isConnected( ) ) {
+			m_mdiArea->closeAllSubWindows( );
+			m_formWidget = 0; // see above
+		}
+	}
 }
 
 // -- developer stuff
