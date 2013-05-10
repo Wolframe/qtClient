@@ -18,6 +18,7 @@ static const Test testDataTree[] =
 	{"doc { bli = 1.0; substruct{ bla='\"72 3974\"'}; oth { x {{abc}} }}","doc { bli = 1.0; substruct { bla = '\"72 3974\"' }; oth { x { {abc} } } }"},
 	{"doc { a[] {b} }","doc { a[] { b } }"},
 	{"form1 {first{{first}}}", "form1 { first { {first} } }"},
+	{"doc { bli={first}; {second}}", "doc { bli={first}; {second}}"},
 	{0,0}
 };
 
