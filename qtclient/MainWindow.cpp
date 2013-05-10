@@ -136,6 +136,7 @@ void MainWindow::readSettings( )
 	}
 
 	m_serverDefs = settings.connectionParams;
+	m_defaultServer = settings.defaultServer;
 
 // set remember username and connection for the login dialog
 	if( settings.saveUsername ) {
@@ -916,6 +917,7 @@ void MainWindow::storeSettings( )
 {
 // connection parameters
 	settings.connectionParams = m_serverDefs;
+	settings.defaultServer = m_defaultServer;
 
 // optionally remember last connection and username
 	if( settings.saveUsername ) {

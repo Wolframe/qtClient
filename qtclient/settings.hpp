@@ -62,6 +62,7 @@ struct ApplicationSettings
 	bool		saveUsername;		///< persistent username ?
 	QString		lastUsername;		///< last username in case of persisting it
 	QString		lastConnection;		///< name of the last used connection
+	QString		defaultServer;		///< default server for next login;
 
 	QVector< ServerDefinition >	connectionParams; ///< defined connections parameters
 
