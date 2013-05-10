@@ -70,11 +70,6 @@ WidgetRequest WidgetMessageDispatcher::getDomainLoadRequest( bool debugmode)
 	return getWidgetRequest( m_visitor, debugmode);
 }
 
-WidgetRequest WidgetMessageDispatcher::getFormActionRequest( bool debugmode)
-{
-	return getActionRequest( m_visitor, debugmode);
-}
-
 QList<QWidget*> WidgetMessageDispatcher::findRecipients( const QString& tag) const
 {
 	WidgetRequest request( tag);

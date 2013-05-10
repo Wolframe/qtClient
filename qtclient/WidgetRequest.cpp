@@ -193,7 +193,7 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 	return rt;
 }
 
-WidgetRequest getActionRequest( WidgetVisitor& visitor, bool debugmode)
+WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode, const QString& menuitem)
 {
 	WidgetRequest rt;
 	QWidget* widget = visitor.widget();
@@ -202,37 +202,17 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, bool debugmode)
 		qCritical() << "invalid request (no widget defined)";
 		return rt;
 	}
-	QVariant action_v = widget->property( "action");
-	if (!action_v.isValid())
+	rt = getWidgetRequest_( visitor, actiondef, debugmode);
+	if (menuitem.isEmpty())
 	{
-		qCritical() << "undefined request. action (property action) does not exist in" << visitor.className() << visitor.objectName();
-		return rt;
+		rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid());
+		qDebug() << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
 	}
-	rt = getWidgetRequest_( visitor, action_v, debugmode);
-	rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid());
-	qDebug() << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
-	return rt;
-}
-
-WidgetRequest getMenuActionRequest( WidgetVisitor& visitor, const QString& menuitem, bool debugmode)
-{
-	WidgetRequest rt;
-	QWidget* widget = visitor.widget();
-	if (!widget)
+	else
 	{
-		qCritical() << "menu action on non existing widget" << menuitem;
-		return rt;
+		rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid(), menuitem);
+		qDebug() << "menu" << menuitem << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
 	}
-	QByteArray propname = QByteArray("action:") + menuitem.toLatin1();
-	QVariant action_v = widget->property( propname);
-	if (!action_v.isValid())
-	{
-		qCritical() << "menu item action (property" << propname << ") does not exist for" << menuitem << "in" << visitor.className() << visitor.objectName();
-		return rt;
-	}
-	rt = getWidgetRequest_( visitor, action_v, debugmode);
-	rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid(), menuitem);
-	qDebug() << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
 	return rt;
 }
 
