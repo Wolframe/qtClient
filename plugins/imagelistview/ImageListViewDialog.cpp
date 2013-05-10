@@ -41,18 +41,28 @@
 
 static const int imageSize = 60;
 
-static QImage scale( const QString &imageFileName )
+static QImage scale( const QString& imageFileName, int x, int y )
 {
 	qDebug() << "image scaling " << imageFileName;
 	QImage image( imageFileName );
-	return image.scaled( QSize( imageSize, imageSize ),
+	return image.scaled( QSize( x, y ),
+			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+}
+
+static QImage scale( const QImage& image, int x, int y )
+{
+	return image.scaled( QSize( x, y ),
 			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
 }
 
 ImageListViewDialog::ImageListViewDialog( QWidget *parent )
-	: QWidget( parent )
 {
+	ImageListViewDialog( imageSize, imageSize, parent );
+}
 
+ImageListViewDialog::ImageListViewDialog( int x, int y, QWidget *parent )
+	: QWidget( parent ), m_sizeX( x ), m_sizeY( y )
+{
 	QGridLayout* m_gridLayout = new QGridLayout( this );
 	m_imageListView = new QListView( this );
 	m_gridLayout->addWidget( m_imageListView );
@@ -89,10 +99,20 @@ void ImageListViewDialog::addImage( const QString imageFile, const QString toolT
 //	m_imageScaler->setFuture( QtConcurrent::mapped( imageFile, scale ) );
 	QStandardItem* imageItem = new QStandardItem();
 //	imageItem->setIcon( QIcon( QPixmap::fromImage( m_imageScaler->result() ) ) );
-	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( imageFile ) ) ) );
-	imageItem->setToolTip( toolTip );
+	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( imageFile, m_sizeX, m_sizeY ) ) ) );
+	if ( ! toolTip.isEmpty() )
+		imageItem->setToolTip( toolTip );
 	m_standardModel->appendRow( imageItem );
 	qDebug() << "image '" << imageFile << "' available";
+}
+
+void ImageListViewDialog::addImage( const QImage image, const QString toolTip )
+{
+	QStandardItem* imageItem = new QStandardItem();
+	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( image, m_sizeX, m_sizeY ) ) ) );
+	if ( ! toolTip.isEmpty() )
+		imageItem->setToolTip( toolTip );
+	m_standardModel->appendRow( imageItem );
 }
 
 void ImageListViewDialog::finished()
