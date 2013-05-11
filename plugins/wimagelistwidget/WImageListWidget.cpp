@@ -38,18 +38,18 @@
 
 static const int imageSize = 60;
 
-static QImage scale( const QString& imageFileName, int x, int y )
+static QImage scale( const QString& imageFileName, int xSize, int ySize )
 {
 	qDebug() << "image scaling " << imageFileName;
 	QImage image( imageFileName );
-	return image.scaled( QSize( x, y ),
-			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+	return image.scaled( QSize( xSize, ySize ),
+			     Qt::KeepAspectRatio, Qt::SmoothTransformation );
 }
 
-static QImage scale( const QImage& image, int x, int y )
+static QImage scale( const QImage& image, int xSize, int ySize )
 {
-	return image.scaled( QSize( x, y ),
-			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+	return image.scaled( QSize( xSize, ySize ),
+			     Qt::KeepAspectRatio, Qt::SmoothTransformation );
 }
 
 WImageListWidget::WImageListWidget( QWidget *parent )
@@ -57,8 +57,8 @@ WImageListWidget::WImageListWidget( QWidget *parent )
     WImageListWidget( imageSize, imageSize, parent );
 }
 
-WImageListWidget::WImageListWidget( int x, int y, QWidget *parent )
-	: QWidget( parent ), m_sizeX( x ), m_sizeY( y )
+WImageListWidget::WImageListWidget( int xSize, int ySize, QWidget *parent )
+	: QWidget( parent ), m_sizeX( xSize ), m_sizeY( ySize )
 {
 	QGridLayout* m_gridLayout = new QGridLayout( this );
 	m_imageListView = new QListView( this );
@@ -71,6 +71,7 @@ WImageListWidget::WImageListWidget( int x, int y, QWidget *parent )
 	m_imageListView->setSelectionMode( QListView::SingleSelection );
 	m_imageListView->setEditTriggers( QAbstractItemView::NoEditTriggers );
 
+	m_imageListView->setIconSize( QSize( m_sizeX, m_sizeY ));
 	m_imageListView->setResizeMode( QListView::Adjust );
 
 	m_standardModel = new QStandardItemModel( this );

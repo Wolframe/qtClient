@@ -58,6 +58,8 @@ public:
 
 	void setIconSize( int xSize, int ySize )	{ m_sizeX = xSize; m_sizeY = ySize; }
 
+	int count() const				{ return m_standardModel->rowCount(); }
+
 	void addImage( const QString imageFile, const QString toolTip = 0,
 		       const QString statusTip = 0 );
 	void addImage( const QImage image, const QString toolTip = 0,

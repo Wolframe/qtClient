@@ -13,6 +13,7 @@ class QPushButton;
 class QListView;
 class QListWidget;
 QT_END_NAMESPACE
+
 class WImageListWidget;
 
 

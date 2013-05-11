@@ -170,7 +170,7 @@ void WidgetVisitorState_QTableWidget::fill_cell( int row, int col, int itemidx)
 	}
 	if (m_cellwidgets.at( itemidx))
 	{
-		m_tableWidget->setCellWidget( row, col, m_cellwidgets.at( itemidx));		
+		m_tableWidget->setCellWidget( row, col, m_cellwidgets.at( itemidx));
 		m_cellwidgets[ itemidx] = 0;
 	}
 }
@@ -233,7 +233,7 @@ bool WidgetVisitorState_QTableWidget::isArrayElement( const QString& name)
 	return false;
 }
 
-void WidgetVisitorState_QTableWidget::set_pixmap( int row, int itemidx, const QVariant& data)
+void WidgetVisitorState_QTableWidget::set_pixmap( int /*row*/, int itemidx, const QVariant& data)
 {
 	QByteArray decoded = QByteArray::fromBase64( data.toByteArray());
 	QPixmap pixmap;

@@ -3,7 +3,7 @@
 
 #include "pluginWindow.hpp"
 
-#include "ImageListViewDialog.hpp"
+#include "WImageListWidget.hpp"
 
 // Create the test window
 PluginWindow::PluginWindow()
@@ -33,7 +33,7 @@ void PluginWindow::createPluginGroupBox()
 {
 	m_pluginGroupBox = new QGroupBox( tr( "ImageList" ));
 //!!!!!!!!!
-	m_selector = new WImageListWidget( 120, 90 );
+	m_selector = new WImageListWidget( 90, 90 );
 
 //	connect( m_selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
 //	connect( m_selector, SIGNAL( doubleClicked( QModelIndex )), this, SLOT( itemSelected()) );
