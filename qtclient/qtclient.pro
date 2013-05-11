@@ -36,6 +36,7 @@ SOURCES += \
 	DataLoader.cpp \
 	FileDataLoader.cpp \
 	NetworkDataLoader.cpp \
+	WidgetTree.cpp \
 	WidgetVisitorObject.cpp \
 	WidgetVisitor.cpp \
 	WidgetEnabler.cpp \
@@ -85,6 +86,7 @@ HEADERS += \
 	DataLoader.hpp \
 	FileDataLoader.hpp \
 	NetworkDataLoader.hpp \
+	WidgetTree.hpp \
 	WidgetVisitorObject.hpp \
 	WidgetVisitor.hpp \
 	WidgetEnabler.hpp \

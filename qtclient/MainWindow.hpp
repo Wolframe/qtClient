@@ -59,8 +59,19 @@
 
 #include "SkeletonMainWindow.hpp"
 
+class MenuEntry : public QObject {
+	Q_OBJECT
+	
+	public:
+		MenuEntry( QString _form, bool _singleton ) :
+			form( _form ), singleton( _singleton ) { }
+			
+		QString form;
+		bool singleton;
+};
+
 class MainWindow : public SkeletonMainWindow
-{
+{	
 	Q_OBJECT
 
 	public:
@@ -148,7 +159,7 @@ class MainWindow : public SkeletonMainWindow
 		void formError( QString error );
 		void menuListLoaded( QStringList menus );
 		void menuLoaded( QString name, QByteArray form );
-		void loadMenuForm( QString form );
+		void loadMenuForm( QObject *object );
 
 // MDI slots
 		void subWindowSelected( QAction *action );

@@ -78,18 +78,31 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 // signal mapper for menu actions to load form calls with parameter
 	m_menuSignalMapper = new QSignalMapper( this );
 
-	connect( m_menuSignalMapper, SIGNAL( mapped( QString ) ),
-		this, SLOT( loadMenuForm( QString ) ) );
+	connect( m_menuSignalMapper, SIGNAL( mapped( QObject * ) ),
+		this, SLOT( loadMenuForm( QObject * ) ) );
 }
 
-void MainWindow::loadMenuForm( QString form )
+void MainWindow::loadMenuForm( QObject *obj )
 {
-	qDebug( ) << "MENU: form call" << form;
+	MenuEntry *menuEntry = qobject_cast<MenuEntry *>( obj );
+	
+	qDebug( ) << "MENU: form call" << menuEntry;
 
 	if( settings.mdi ) {
-		(void)CreateMdiSubWindow( form, true );
+		if( menuEntry->singleton ) {
+			foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
+				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
+				// found a window with the same form, so bring it to the front
+				if( menuEntry->form == FormCall::name( f->formCall( ) ) ) {
+					m_mdiArea->setActiveSubWindow( w );
+					return;
+				}
+			}
+		}
+		// no existing window
+		(void)CreateMdiSubWindow( menuEntry->form, true );
 	} else {
-		loadForm( form );
+		loadForm( menuEntry->form );
 	}
 }
 
@@ -649,7 +662,8 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 							qDebug( ) << "MENU: linking action" << action->text( ) << "to form call" << form;
 							connect( action, SIGNAL( triggered( ) ),
 								m_menuSignalMapper, SLOT( map( ) ) );
-							m_menuSignalMapper->setMapping( action, form );
+							MenuEntry *menuEntry = new MenuEntry( form, action->property( "singletonWindow" ).toBool( ) );
+							m_menuSignalMapper->setMapping( action, menuEntry );
 						}
 					}
 				}

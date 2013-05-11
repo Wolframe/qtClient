@@ -212,7 +212,7 @@ static QString widgetText( QWidget* widget, const QString& menuitem=QString())
 					condprops.push_back( cond);
 				}
 			}
-			request = getActionRequest( visitor, true);
+			request = getActionRequest( visitor, action, true);
 		}
 		if (qobject_cast<QPushButton*>( widget))
 		{
@@ -237,7 +237,7 @@ static QString widgetText( QWidget* widget, const QString& menuitem=QString())
 					condprops.push_back( cond);
 				}
 			}
-			request = getMenuActionRequest( visitor, menuitem, true);
+			request = getActionRequest( visitor, action, true, menuitem);
 		}
 		title = QString("for menu item '") + menuitem + "'";
 	}
