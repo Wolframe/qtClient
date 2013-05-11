@@ -13,7 +13,7 @@ class QPushButton;
 class QListView;
 class QListWidget;
 QT_END_NAMESPACE
-class ImageListViewDialog;
+class WImageListWidget;
 
 
 class PluginWindow : public QWidget
@@ -38,7 +38,7 @@ private:
 
 	QGroupBox		*m_pluginGroupBox;
 	QGridLayout		*m_pluginLayout;
-	ImageListViewDialog	*m_selector;
+	WImageListWidget	*m_selector;
 
 	QGroupBox		*m_operationsGroupBox;
 	QLabel			*m_localeLabel;

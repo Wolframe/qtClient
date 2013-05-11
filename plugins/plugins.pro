@@ -2,6 +2,6 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS = filechooser picturechooser imagelistview formtest
+SUBDIRS = filechooser picturechooser wimagelistwidget formtest
 
 picturechooser.depends = filechooser

@@ -31,35 +31,50 @@
 
 ************************************************************************/
 
-#ifndef _IMAGE_LIST_VIEW_PLUGIN_HPP_INCLUDED
-#define _IMAGE_LIST_VIEW_PLUGIN_HPP_INCLUDED
+#ifndef _WIMAGE_LIST_WIDGET_HPP_INCLUDED
+#define _WIMAGE_LIST_WIDGET_HPP_INCLUDED
 
-#include <QDesignerCustomWidgetInterface>
+#include <QWidget>
+// #include <QFutureWatcher>
+#include <QListView>
+#include <QStandardItemModel>
 
-class ImageListViewPlugin : public QObject, public QDesignerCustomWidgetInterface
+
+#ifdef BUILD_AS_PLUGIN
+#include <QDesignerExportWidget>
+#define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
+#else
+#define EXPORT_AS_PLUGIN X_EXPORT
+#endif
+
+class WImageListWidget : public QWidget
 {
 	Q_OBJECT
-	Q_INTERFACES( QDesignerCustomWidgetInterface )
-#if QT_VERSION >= 0x050000
-	Q_PLUGIN_METADATA( IID "org.qt-project.Qt.QDesignerCustomWidgetInterface" )
-#endif // QT_VERSION >= 0x050000
 
-	public:
-		ImageListViewPlugin( QObject *_parent = 0 );
-		bool isContainer( ) const;
-		bool isInitialized( ) const;
-		QIcon icon( ) const;
-		QString domXml( ) const;
-		QString group( ) const;
-		QString includeFile( ) const;
-		QString name( ) const;
-		QString toolTip( ) const;
-		QString whatsThis( ) const;
-		QWidget *createWidget( QWidget *_parent );
-		void initialize( QDesignerFormEditorInterface *_core );
+public:
+	WImageListWidget( QWidget *parent = 0 );
+	WImageListWidget( int xSize, int ySize, QWidget *parent = 0 );
+	~WImageListWidget();
 
-	private:
-		bool m_initialized;
+	void setIconSize( int xSize, int ySize )	{ m_sizeX = xSize; m_sizeY = ySize; }
+
+	void addImage( const QString imageFile, const QString toolTip = 0,
+		       const QString statusTip = 0 );
+	void addImage( const QImage image, const QString toolTip = 0,
+		       const QString statusTip = 0 );
+
+public Q_SLOTS:
+	void finished();
+
+	void imageClicked( QModelIndex index );
+	void imageDoubleClicked( QModelIndex index );
+
+private:
+	int			m_sizeX;
+	int			m_sizeY;
+//	QFutureWatcher<QImage>*	m_imageScaler;
+	QListView*		m_imageListView;
+	QStandardItemModel*	m_standardModel;
 };
 
-#endif // _IMAGE_LIST_VIEW_PLUGIN_HPP_INCLUDED
+#endif // _WIMAGE_LIST_WIDGET_HPP_INCLUDED
