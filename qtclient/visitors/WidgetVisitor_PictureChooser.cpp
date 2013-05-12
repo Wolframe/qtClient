@@ -1,6 +1,7 @@
 #include "WidgetVisitor_PictureChooser.hpp"
 #include "WidgetVisitor.hpp"
 #include "WidgetEnabler.hpp"
+#include <QDebug>
 
 WidgetVisitorState_PictureChooser::WidgetVisitorState_PictureChooser( QWidget* widget_)
 	:WidgetVisitorObject(widget_)

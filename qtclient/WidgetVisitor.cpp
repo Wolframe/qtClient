@@ -309,14 +309,32 @@ QWidget* WidgetVisitor::get_widget_reference( const QString& id)
 }
 
 WidgetVisitor::WidgetVisitor( QWidget* root, VisitorFlags flags_)
-	:m_useSynonyms(((int)flags_&(int)UseSynonyms) == (int)UseSynonyms)
-	,m_blockSignals(((int)flags_&(int)BlockSignals) == (int)BlockSignals)
+	:m_useSynonyms(false)
+	,m_blockSignals(false)
 {
+	if (((int)flags_&(int)UseSynonyms) == (int)UseSynonyms)
+	{
+		m_useSynonyms = true;
+	}
+	if (((int)flags_&(int)BlockSignals) == (int)BlockSignals)
+	{
+		m_blockSignals = true;
+	}
 	m_stk.push( State( WidgetVisitorObjectR( createWidgetVisitorObject( root)), m_blockSignals));
 }
 
 WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& obj, VisitorFlags flags_)
+	:m_useSynonyms(false)
+	,m_blockSignals(false)
 {
+	if (((int)flags_&(int)UseSynonyms) == (int)UseSynonyms)
+	{
+		m_useSynonyms = true;
+	}
+	if (((int)flags_&(int)BlockSignals) == (int)BlockSignals)
+	{
+		m_blockSignals = true;
+	}
 	m_stk.push( State( obj, flags_));
 }
 
