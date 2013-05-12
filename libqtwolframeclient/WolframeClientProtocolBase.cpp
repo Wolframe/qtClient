@@ -54,17 +54,22 @@ void WolframeClientProtocolBase::pushData( const char* buf, int bufsize)
 	m_buf.append( buf, bufsize);
 }
 
-QByteArray WolframeClientProtocolBase::getNextLine()
+bool WolframeClientProtocolBase::getNextLine( QByteArray& line)
 {
 	int eolnpos = m_buf.indexOf( '\n', m_bufpos);
 	if (eolnpos >= 0)
 	{
-		QByteArray rt = m_buf.mid( m_bufpos, eolnpos - m_bufpos);
-		if (rt.endsWith( '\r')) rt.resize( rt.size()-1);
+		line.clear();
+		line = m_buf.mid( m_bufpos, eolnpos - m_bufpos);
+		if (line.endsWith( '\r')) line.resize( line.size()-1);
 		m_bufpos = eolnpos+1;
-		return rt;
+		return true;
 	}
-	return QByteArray();
+	else
+	{
+		line.clear();
+		return false;
+	}
 }
 
 QByteArray WolframeClientProtocolBase::escapedContent( const QByteArray& data)
@@ -177,17 +182,13 @@ const WolframeClientProtocolBase::Item* WolframeClientProtocolBase::getNextItem(
 
 		case LineMode:
 		{
-			QByteArray line = getNextLine();
+			QByteArray line;
+			if (!getNextLine( line)) return 0;
 
 			if (line.isEmpty())
 			{
-				if (!hasData())
-				{
-					//... not enough data to complete the request, caller has to push more data
-					return 0;
-				}
-				qDebug() << "received line:" << line;
-				continue; //... an empty line is ignored
+				qDebug() << "received empty line";
+				continue; //... is ignored
 			}
 			else
 			{

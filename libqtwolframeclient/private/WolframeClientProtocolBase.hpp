@@ -69,7 +69,7 @@ public:
 	static QByteArray escapedContent( const QByteArray& data);
 
 private:
-	QByteArray getNextLine();
+	bool getNextLine( QByteArray& line);
 	bool hasData() const;
 	bool getItemDataUnescaped();
 

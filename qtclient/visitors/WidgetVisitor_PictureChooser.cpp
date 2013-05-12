@@ -27,7 +27,8 @@ QVariant WidgetVisitorState_PictureChooser::property( const QString& name)
 {
 	if (name == "filename")
 	{
-		return QVariant( m_pictureChooser->fileName());
+		QString fn = m_pictureChooser->fileName();
+		return fn.isEmpty() ? QVariant():QVariant( fn);
 	}
 	if (name == "size")
 	{
@@ -35,7 +36,8 @@ QVariant WidgetVisitorState_PictureChooser::property( const QString& name)
 	}
 	if (name == "base64")
 	{
-		return QVariant( m_pictureChooser->picture().toBase64());
+		QByteArray base64 = m_pictureChooser->picture().toBase64();
+		return base64.isEmpty() ? QVariant():QVariant( base64);
 	}
 	return QVariant();
 }
