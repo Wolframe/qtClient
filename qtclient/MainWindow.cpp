@@ -326,9 +326,11 @@ void MainWindow::create( )
 	if( settings.mdi ) {
 		m_mdiArea = findChild<QMdiArea *>( "centralWidget" );
 		if( m_mdiArea ) {
-// attach mdi area to some specific signals
 			m_mdiArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 			m_mdiArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+			m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
+
+// attach mdi area to some specific signals
 			connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow * ) ),
 				this, SLOT( subWindowChanged( QMdiSubWindow * ) ) );
 
@@ -754,7 +756,7 @@ void MainWindow::formModal( QString name )
 	connect( formWidget,SIGNAL( closed( ) ),
 		this, SLOT( endModal( ) ) );
 
-// we are modal, so tempoarily we have to disconnect the parent form from
+// we are modal, so temporaily we have to disconnect the parent form from
 // the main window in order not to trigger funny results
 	disconnect( m_formWidget, SIGNAL( formLoaded( QString ) ), 0, 0 );
 	disconnect( m_formWidget, SIGNAL( formModal( QString ) ), 0, 0 );
@@ -880,8 +882,6 @@ void MainWindow::restoreStateAndPositions( )
 			}
 		} else {
 			(void)CreateMdiSubWindow( "init", true );
-// default it tiling MDI subwindows, no better option
-			m_mdiArea->tileSubWindows( );
 		}
 	} else {
 		if( settings.saveRestoreState && settings.states.size( ) > 0 ) {
