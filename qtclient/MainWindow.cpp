@@ -880,6 +880,12 @@ void MainWindow::restoreStateAndPositions( )
 				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
 				f->setWidgetStates( state.widgetStates );
 			}
+			foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
+				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
+				if( f->formCall( ) == settings.focusedWindow ) {
+					m_mdiArea->setActiveSubWindow( w );
+				}
+			}
 		} else {
 			(void)CreateMdiSubWindow( "init", true );
 		}
@@ -908,6 +914,9 @@ void MainWindow::storeStateAndPositions( )
 			foreach( QMdiSubWindow *w, m_mdiArea->subWindowList( ) ) {
 				WinState state;
 				FormWidget *f = qobject_cast<FormWidget *>( w->widget( ) );
+				if( w == m_mdiArea->activeSubWindow( ) ) {
+					settings.focusedWindow = f->formCall( );
+				}
 				state.form = f->formCall( );
 				state.position = w->pos( );
 				state.size = w->size( );

@@ -79,6 +79,7 @@ struct ApplicationSettings
 
 	bool saveRestoreState;
 	QVector<WinState> states;		///< states of subwindow(s)
+	QString focusedWindow;			///< currently focused MDI subwindow
 
 public:
 	ApplicationSettings();
