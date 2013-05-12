@@ -420,7 +420,8 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 // if the window is not a singleton, the main window must open our form
 // in a new MDI window eventually
-	if( m_mdi && !m_modal && !m_newWindow && !m_ui->property( "singletonWindow" ).toBool( ) ) {
+	if( m_mdi && !m_modal && !m_newWindow && !m_ui->property( "singletonWindow" ).toBool( )
+		&& m_form != m_previousForm ) {
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
