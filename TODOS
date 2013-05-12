@@ -1,7 +1,6 @@
 now musts:
 - qtclient:
   - image selection plugin
-  - rewrite configurator form as form plugin
   - rewrite i18n support: one resource file, e.g. configurator.rcc, not
     per form
   - serverskeleton, write server session of server data, derive from
