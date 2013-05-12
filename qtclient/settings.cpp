@@ -126,6 +126,7 @@ void ApplicationSettings::write( QSettings &settings )
 		settings.setValue( "widgetStates", states[i].widgetStates );
 	}
 	settings.endArray();
+	settings.setValue( "focusedWindow", focusedWindow );
 }
 
 void ApplicationSettings::read( const QString &fileName )
@@ -200,4 +201,6 @@ void ApplicationSettings::read( QSettings &settings )
 		states.append( state );
 	}
 	settings.endArray( );
+
+	focusedWindow = settings.value( "focusedWindow", "" ).toString( );
 }
