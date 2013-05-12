@@ -31,35 +31,35 @@
 
 ************************************************************************/
 
-#include "ImageListViewPlugin.hpp"
-#include "ImageListView.hpp"
+#include "WImageListWidgetPlugin.hpp"
+#include "WImageListWidget.hpp"
 
 #include <QtPlugin>
 
-ImageListViewPlugin::ImageListViewPlugin( QObject *_parent )
+WImageListWidgetPlugin::WImageListWidgetPlugin( QObject *_parent )
 	: QObject( _parent ), m_initialized( false )
 {
 }
 
-bool ImageListViewPlugin::isContainer( ) const
+bool WImageListWidgetPlugin::isContainer( ) const
 {
 	return false;
 }
 
-bool ImageListViewPlugin::isInitialized( ) const
+bool WImageListWidgetPlugin::isInitialized( ) const
 {
 	return m_initialized;
 }
 
-QIcon ImageListViewPlugin::icon( ) const
+QIcon WImageListWidgetPlugin::icon( ) const
 {
 	return QIcon( );
 }
 
-QString ImageListViewPlugin::domXml( ) const
+QString WImageListWidgetPlugin::domXml( ) const
 {
 	return 	"<ui language=\"c++\">\n"
-		" <widget class=\"ImageListView\" name=\"imageListView\">\n"
+	" <widget class=\"WImageListWidget\" name=\"WImageListWidget\">\n"
 		"  <property name=\"geometry\">\n"
 		"   <rect>\n"
 		"    <x>0</x>\n"
@@ -72,38 +72,38 @@ QString ImageListViewPlugin::domXml( ) const
 		"</ui>\n";
 }
 
-QString ImageListViewPlugin::group( ) const
+QString WImageListWidgetPlugin::group( ) const
 {
 	return "Wolframe Widgets";
 }
 
-QString ImageListViewPlugin::includeFile( ) const
+QString WImageListWidgetPlugin::includeFile( ) const
 {
 	return "ImageListView.hpp";
 }
 
-QString ImageListViewPlugin::name( ) const
+QString WImageListWidgetPlugin::name( ) const
 {
 	return "ImageListView";
 }
 
-QString ImageListViewPlugin::toolTip( ) const
+QString WImageListWidgetPlugin::toolTip( ) const
 {
 	return "";
 }
 
-QString ImageListViewPlugin::whatsThis( ) const
+QString WImageListWidgetPlugin::whatsThis( ) const
 {
 	return "";
 }
 
-QWidget *ImageListViewPlugin::createWidget( QWidget *_parent )
+QWidget *WImageListWidgetPlugin::createWidget( QWidget *_parent )
 {
 	// is overridden by property
-	return new ImageListView( _parent );
+	return new WImageListWidget( _parent );
 }
 
-void ImageListViewPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
+void WImageListWidgetPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
 {
 	if( m_initialized ) return;
 
@@ -111,5 +111,5 @@ void ImageListViewPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
 }
 
 #if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2( imagelistview, ImageListViewPlugin )
+Q_EXPORT_PLUGIN2( wimagelistwidget, WImageListWidgetPlugin )
 #endif // QT_VERSION < 0x050000

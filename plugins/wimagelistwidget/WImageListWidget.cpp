@@ -30,38 +30,35 @@
  Project Wolframe.
 
 ************************************************************************/
-//
-//
-//
 
 #include <QGridLayout>
 #include <QtConcurrentMap>
 
-#include "ImageListViewDialog.hpp"
+#include "WImageListWidget.hpp"
 
 static const int imageSize = 60;
 
-static QImage scale( const QString& imageFileName, int x, int y )
+static QImage scale( const QString& imageFileName, int xSize, int ySize )
 {
 	qDebug() << "image scaling " << imageFileName;
 	QImage image( imageFileName );
-	return image.scaled( QSize( x, y ),
-			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+	return image.scaled( QSize( xSize, ySize ),
+			     Qt::KeepAspectRatio, Qt::SmoothTransformation );
 }
 
-static QImage scale( const QImage& image, int x, int y )
+static QImage scale( const QImage& image, int xSize, int ySize )
 {
-	return image.scaled( QSize( x, y ),
-			     Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+	return image.scaled( QSize( xSize, ySize ),
+			     Qt::KeepAspectRatio, Qt::SmoothTransformation );
 }
 
-ImageListViewDialog::ImageListViewDialog( QWidget *parent )
+WImageListWidget::WImageListWidget( QWidget *parent )
 {
-	ImageListViewDialog( imageSize, imageSize, parent );
+    WImageListWidget( imageSize, imageSize, parent );
 }
 
-ImageListViewDialog::ImageListViewDialog( int x, int y, QWidget *parent )
-	: QWidget( parent ), m_sizeX( x ), m_sizeY( y )
+WImageListWidget::WImageListWidget( int xSize, int ySize, QWidget *parent )
+	: QWidget( parent ), m_sizeX( xSize ), m_sizeY( ySize )
 {
 	QGridLayout* m_gridLayout = new QGridLayout( this );
 	m_imageListView = new QListView( this );
@@ -74,6 +71,7 @@ ImageListViewDialog::ImageListViewDialog( int x, int y, QWidget *parent )
 	m_imageListView->setSelectionMode( QListView::SingleSelection );
 	m_imageListView->setEditTriggers( QAbstractItemView::NoEditTriggers );
 
+	m_imageListView->setIconSize( QSize( m_sizeX, m_sizeY ));
 	m_imageListView->setResizeMode( QListView::Adjust );
 
 	m_standardModel = new QStandardItemModel( this );
@@ -87,13 +85,13 @@ ImageListViewDialog::ImageListViewDialog( int x, int y, QWidget *parent )
 	connect( m_imageListView, SIGNAL( doubleClicked( QModelIndex ) ), SLOT( imageDoubleClicked( QModelIndex ) ) );
 }
 
-ImageListViewDialog::~ImageListViewDialog()
+WImageListWidget::~WImageListWidget()
 {
 //	m_imageScaler->cancel();
 //	m_imageScaler->waitForFinished();
 }
 
-void ImageListViewDialog::addImage( const QString imageFile, const QString toolTip )
+void WImageListWidget::addImage( const QString imageFile, const QString toolTip, const QString statusTip )
 {
 	qDebug() << "show image " << imageFile;
 //	m_imageScaler->setFuture( QtConcurrent::mapped( imageFile, scale ) );
@@ -102,29 +100,35 @@ void ImageListViewDialog::addImage( const QString imageFile, const QString toolT
 	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( imageFile, m_sizeX, m_sizeY ) ) ) );
 	if ( ! toolTip.isEmpty() )
 		imageItem->setToolTip( toolTip );
+	if ( ! statusTip.isEmpty() )
+		imageItem->setToolTip( statusTip );
+
 	m_standardModel->appendRow( imageItem );
 	qDebug() << "image '" << imageFile << "' available";
 }
 
-void ImageListViewDialog::addImage( const QImage image, const QString toolTip )
+void WImageListWidget::addImage( const QImage image, const QString toolTip, const QString statusTip )
 {
 	QStandardItem* imageItem = new QStandardItem();
 	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( image, m_sizeX, m_sizeY ) ) ) );
 	if ( ! toolTip.isEmpty() )
 		imageItem->setToolTip( toolTip );
+	if ( ! statusTip.isEmpty() )
+		imageItem->setToolTip( statusTip );
+
 	m_standardModel->appendRow( imageItem );
 }
 
-void ImageListViewDialog::finished()
+void WImageListWidget::finished()
 {
 }
 
-void ImageListViewDialog::imageClicked( QModelIndex index )
+void WImageListWidget::imageClicked( QModelIndex index )
 {
 	qDebug() << "image clicked at " << index.row();
 }
 
-void ImageListViewDialog::imageDoubleClicked( QModelIndex index )
+void WImageListWidget::imageDoubleClicked( QModelIndex index )
 {
 	qDebug() << "image double clicked at " << index.row();
 }

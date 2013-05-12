@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-TARGET = imagelistview
+TARGET = wimagelistwidget
 
 CONFIG += qt warn_on plugin
 
@@ -33,11 +33,9 @@ build_all:!build_pass {
 
 # Input
 SOURCES += \
-    ImageListViewDialog.cpp \
-    ImageListView.cpp \
-    ImageListViewPlugin.cpp
+    WImageListWidgetPlugin.cpp \
+    WImageListWidget.cpp
 
 HEADERS += \
-    ImageListView.hpp \
-    ImageListViewDialog.hpp \
-    ImageListViewPlugin.hpp
+    WImageListWidgetPlugin.hpp \
+    WImageListWidget.hpp

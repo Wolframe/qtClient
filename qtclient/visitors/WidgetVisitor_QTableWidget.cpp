@@ -233,7 +233,7 @@ bool WidgetVisitorState_QTableWidget::isArrayElement( const QString& name)
 	return false;
 }
 
-void WidgetVisitorState_QTableWidget::set_pixmap( int row, int itemidx, const QVariant& data)
+void WidgetVisitorState_QTableWidget::set_pixmap( int /*row*/, int itemidx, const QVariant& data)
 {
 	QByteArray decoded = QByteArray::fromBase64( data.toByteArray());
 	QPixmap pixmap;
@@ -243,9 +243,6 @@ void WidgetVisitorState_QTableWidget::set_pixmap( int row, int itemidx, const QV
 	label->setFixedSize( pixmap.size());
 	if (m_cellwidgets.at( itemidx)) delete m_cellwidgets[ itemidx];
 	m_cellwidgets[ itemidx] = label;
-	// Aba, HACK: backport from configurator, force size of row to be at
-	// least 50px
-	m_tableWidget->setRowHeight( row, 50 );
 }
 
 QVariant WidgetVisitorState_QTableWidget::get_pixmap( int row, int col) const
@@ -505,7 +502,6 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 	{
 		m_tableWidget->resizeRowToContents( ii);
 	}
-	m_tableWidget->adjustSize();
 }
 
 QVariant WidgetVisitorState_QTableWidget::getState() const
