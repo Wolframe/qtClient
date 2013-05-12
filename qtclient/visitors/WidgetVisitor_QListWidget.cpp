@@ -113,8 +113,10 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 			if (name == "id")
 			{
 				QList<QVariant> rt;
-				foreach( QListWidgetItem *item, m_listWidget->findItems("", Qt::MatchStartsWith))
+				int ii=0, nn=m_listWidget->count();
+				for (; ii<nn; ++ii)
 				{
+					QListWidgetItem* item = m_listWidget->item( ii);
 					rt.push_back( item->data( Qt::UserRole));
 				}
 				return rt;
@@ -122,8 +124,10 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 			else if (name == "text")
 			{
 				QList<QVariant> rt;
-				foreach( QListWidgetItem *item, m_listWidget->findItems("", Qt::MatchStartsWith))
+				int ii=0, nn=m_listWidget->count();
+				for (; ii<nn; ++ii)
 				{
+					QListWidgetItem* item = m_listWidget->item( ii);
 					rt.push_back( QVariant( item->text()));
 				}
 				return rt;
