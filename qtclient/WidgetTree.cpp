@@ -379,7 +379,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 
 QWidget* WidgetTree::deliverError( const QString& tag, const QByteArray& /*content*/)
 {
-	QWidget* rt;
+	QWidget* rt = 0;
 	WidgetMessageDispatcher dispatcher( m_visitor);
 	WidgetRequest rq( tag);
 	QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());

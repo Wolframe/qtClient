@@ -822,7 +822,6 @@ QWidget* WidgetVisitor::uirootwidget() const
 	QObject* prn = wdg->parent();
 	for (; prn != 0; prn = prn->parent())
 	{
-		/*[-]*/qDebug() << "+++ PARENT" << prn->metaObject()->className() << prn->objectName();
 		if (qobject_cast<QWidget*>( prn))
 		{
 			wdg = qobject_cast<QWidget*>( prn);
@@ -1194,6 +1193,7 @@ QList<QWidget*> WidgetVisitor::findSubNodes( NodeProperty prop, const QVariant& 
 					QWidget* uiw = fw->mainwidget();
 					if (prop( uiw, cond)) rt.push_back( uiw);
 					ar.push_back( uiw);
+					continue;
 				}
 				if (prop( ww, cond)) rt.push_back( ww);
 				ar.push_back( ww);
