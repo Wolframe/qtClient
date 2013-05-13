@@ -155,6 +155,17 @@ void DataTree::setNodeValue( const QVariant& value_)
 	}
 }
 
+int DataTree::findNodeIndex( const QString& name_)
+{
+	int ii = 0;
+	QList<Node>::const_iterator li = m_nodear.begin(), le = m_nodear.end();
+	for (; li != le; ++ii,++li)
+	{
+		if (name_ == li->name) return ii;
+	}
+	return -1;
+}
+
 static void skipSpaces( QString::const_iterator& itr, const QString::const_iterator& end)
 {
 	for (; itr != end && itr->isSpace(); ++itr);

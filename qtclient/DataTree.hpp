@@ -63,6 +63,7 @@ public:
 	void setNode( const QString& name_, const DataTree& value_);
 	const DataTree& node( const QString& name_) const;
 
+	int findNodeIndex( const QString& name_);
 	const QString nodename( int idx) const			{return m_nodear.at(idx).name;}
 	const QSharedPointer<DataTree>& nodevalue(int i) const	{return m_nodear.at(i).value;}
 	bool isAttributeNode( int idx) const			{return (idx >= 0 && idx < m_nofattributes);}

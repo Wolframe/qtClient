@@ -38,7 +38,7 @@
 #include <QWidget>
 
 QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, QWidget* widget);
-QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWidget* widget);
+QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWidget* widget, const QList<DataSerializeItem>& answer);
 
 #endif
 

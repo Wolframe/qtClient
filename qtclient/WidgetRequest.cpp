@@ -225,7 +225,7 @@ struct WidgetAnswerStackElement
 	{}
 };
 
-static void XMLERROR( const QList<WidgetAnswerStackElement>& stk, const QString& message)
+static void logError( const QList<WidgetAnswerStackElement>& stk, const QString& message)
 {
 	QString path;
 	QList<WidgetAnswerStackElement>::const_iterator pi = stk.begin(), pe = stk.end();
@@ -261,7 +261,7 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 				TRACE_VALUE( "OPEN TAG", item.value());
 				if (!stk.isEmpty() && !stk.last().istag)
 				{
-					XMLERROR( stk, QString( "element not defined: '") + stk.last().name + "/" + item.value().toString() + "'");
+					logError( stk, QString( "element not defined: '") + stk.last().name + "/" + item.value().toString() + "'");
 					return false;
 				}
 				QWidget* prev_widget = visitor.widget();
@@ -274,7 +274,7 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 				TRACE_VALUE( "CLOSE TAG", "");
 				if (stk.isEmpty())
 				{
-					XMLERROR( stk, QString( "unexpected end element: XML tags not balanced"));
+					logError( stk, QString( "unexpected end element: XML tags not balanced"));
 					return false;
 				}
 				if (stk.last().ischild)
@@ -296,7 +296,7 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 					TRACE_ASSIGNMENT( "ATTRIBUTE", attributename, item.value());
 					if (!visitor.setProperty( attributename, item.value()))
 					{
-						XMLERROR( stk, QString( "failed to set property '") + attributename + "'");
+						logError( stk, QString( "failed to set property '") + attributename + "'");
 					}
 				}
 				else if (stk.last().istag)
@@ -304,7 +304,7 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 					TRACE_VALUE( "CONTENT", item.value());
 					if (!visitor.setProperty( "", item.value()))
 					{
-						XMLERROR( stk, "failed to set content element");
+						logError( stk, "failed to set content element");
 					}
 				}
 				else
@@ -312,7 +312,7 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 					TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
 					if (!visitor.setProperty( stk.last().name, item.value()))
 					{
-						XMLERROR( stk, QString( "failed to set property '") + stk.last().name + "'");
+						logError( stk, QString( "failed to set property '") + stk.last().name + "'");
 					}
 				}
 			break;
