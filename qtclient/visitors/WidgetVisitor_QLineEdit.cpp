@@ -94,7 +94,7 @@ void WidgetVisitorState_QLineEdit::connectDataSignals( WidgetListener::DataSigna
 	switch (dt)
 	{
 		case WidgetListener::SigChanged:
-			QObject::connect( m_lineEdit, SIGNAL( textEdited( const QString & text)), &listener, SLOT( changed()), Qt::UniqueConnection);
+			QObject::connect( m_lineEdit, SIGNAL( textEdited( const QString &)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			break;
 		case WidgetListener::SigActivated:
 		case WidgetListener::SigEntered:
