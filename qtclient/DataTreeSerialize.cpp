@@ -297,7 +297,7 @@ QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWi
 					bool commonPrefixSet = false;
 					QList<DataSerializeItem>::iterator di = rt.end();
 
-					while (taglevel != 0 && di != rt.begin())
+					while (di != rt.begin())
 					{
 						--di;
 						if (di->type() == DataSerializeItem::CloseTag)
@@ -310,6 +310,7 @@ QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWi
 							if (taglevel == 0)
 							{
 								*di = DataSerializeItem( DataSerializeItem::OpenTag, commonPrefix.join("."));
+								break;
 							}
 						}
 						if (taglevel == -1 && di->type() == DataSerializeItem::Attribute)
@@ -325,6 +326,33 @@ QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWi
 								int ii=0, nn=prefix.size();
 								for (; ii<nn && ii<commonPrefix.size() && prefix.at(ii)==commonPrefix.at(ii); ++ii);
 								while (ii < commonPrefix.size()) commonPrefix.removeLast();
+							}
+						}
+					}
+					if (!commonPrefix.isEmpty())
+					{
+						QString prefix = commonPrefix.join(".") + ".";
+						for (taglevel=0; di != rt.end(); ++di)
+						{
+							if (di->type() == DataSerializeItem::CloseTag)
+							{
+								--taglevel;
+							}
+							if (di->type() == DataSerializeItem::OpenTag)
+							{
+								++taglevel;
+							}
+							if (taglevel == 1 && di->type() == DataSerializeItem::Attribute)
+							{
+								QString name = di->value().toString();
+								if (!name.startsWith( prefix))
+								{
+									qCritical() << "internal error (getWidgetDataAssignments prefix calc)";
+								}
+								else
+								{
+									*di = DataSerializeItem( DataSerializeItem::Attribute, name.mid( prefix.size(), name.size() - prefix.size()));
+								}
 							}
 						}
 					}
