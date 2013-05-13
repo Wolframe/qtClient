@@ -77,6 +77,16 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 		m_label->setText( m_label->text().replace( subst, data.toString()));
 		return true;
 	}
+	else if( name == "base64" ) {
+		QPixmap p;
+		p.loadFromData( QByteArray::fromBase64( data.toByteArray( ) ) );
+		if( !p.isNull( ) ) {
+			int w = std::min( m_label->width( ), p.width( ) );
+			int h = std::min( m_label->height( ), p.height( ) );							
+			m_label->setPixmap( p.scaled( QSize( w, h ), Qt::KeepAspectRatio, Qt::SmoothTransformation ) );
+			m_label->adjustSize( );
+		}
+	}
 	return false;
 }
 
