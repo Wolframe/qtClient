@@ -94,13 +94,7 @@ void WidgetVisitorState_QLineEdit::connectDataSignals( WidgetListener::DataSigna
 	switch (dt)
 	{
 		case WidgetListener::SigChanged:
-			QObject::connect( m_lineEdit, SIGNAL( cursorPositionChanged(int,int)), &listener, SLOT( changed()), Qt::UniqueConnection);
-			QObject::connect( m_lineEdit, SIGNAL( editingFinished()), &listener, SLOT( changed()), Qt::UniqueConnection);
-			QObject::connect( m_lineEdit, SIGNAL( returnPressed()), &listener, SLOT( changed()), Qt::UniqueConnection);
-			QObject::connect( m_lineEdit, SIGNAL( selectionChanged()), &listener, SLOT( changed()), Qt::UniqueConnection);
-			QObject::connect( m_lineEdit, SIGNAL( textChanged( const QString & text)), &listener, SLOT( changed()), Qt::UniqueConnection);
-			// redundant (to textChanged):
-			// QObject::connect( m_lineEdit, SIGNAL( textEdited( const QString & text)), &listener, SLOT( changed()));
+			QObject::connect( m_lineEdit, SIGNAL( textEdited( const QString & text)), &listener, SLOT( changed()), Qt::UniqueConnection);
 			break;
 		case WidgetListener::SigActivated:
 		case WidgetListener::SigEntered:
@@ -113,7 +107,6 @@ void WidgetVisitorState_QLineEdit::connectDataSignals( WidgetListener::DataSigna
 
 void WidgetVisitorState_QLineEdit::connectWidgetEnabler( WidgetEnabler& enabler)
 {
-	QObject::connect( m_lineEdit, SIGNAL( selectionChanged()), &enabler, SLOT( changed()), Qt::UniqueConnection);
 	QObject::connect( m_lineEdit, SIGNAL( textEdited( const QString&)), &enabler, SLOT( changed()), Qt::UniqueConnection);
 }
 

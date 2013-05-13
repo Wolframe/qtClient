@@ -201,5 +201,9 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, Q
 	return rt;
 }
 
+QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWidget* widget)
+{
+}
+
 
 

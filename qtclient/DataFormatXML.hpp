@@ -30,15 +30,12 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
-#define _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
+#ifndef _DATA_FORMAT_XML_HPP_INCLUDED
+#define _DATA_FORMAT_XML_HPP_INCLUDED
 #include "DataSerializeItem.hpp"
-#include "DataTree.hpp"
 #include <QList>
-#include <QWidget>
 
-QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, QWidget* widget);
-QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWidget* widget);
+QByteArray getDataXML( const QString& docType, const QString& rootElement, bool isStandalone, const QList<DataSerializeItem>& elements, bool debugmode);
+QList<DataSerializeItem> getXMLSerialization( const QString& docType, const QString& rootElement, const QByteArray& content);
 
 #endif
-

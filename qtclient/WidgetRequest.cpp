@@ -35,9 +35,9 @@
 #include "DebugTerminal.hpp"
 #include "DataSerializeItem.hpp"
 #include "DataTreeSerialize.hpp"
-#include <QXmlStreamWriter>
+#include "DataFormatXML.hpp"
 #include <QVariant>
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "widget answer XML " << (TITLE) << (VALUE);
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "widget answer XML " << (TITLE) << (NAME) << "=" << (VALUE);
@@ -97,67 +97,6 @@ QString WidgetRequest::followform() const
 	}
 }
 
-static QByteArray getRequestXML( const QString& docType, const QString& rootElement, bool isStandalone, const QList<DataSerializeItem>& elements, bool debugmode)
-{
-	QByteArray rt;
-	QXmlStreamWriter xml( &rt);
-	if (debugmode)
-	{
-		xml.setAutoFormatting( true);
-		xml.setAutoFormattingIndent( 2);
-	}
-	xml.writeStartDocument( "1.0", isStandalone);
-	if (!isStandalone)
-	{
-		if (rootElement == docType)
-		{
-			xml.writeDTD( QString( "<!DOCTYPE %1>").arg( docType));
-		}
-		else
-		{
-			xml.writeDTD( QString( "<!DOCTYPE %1 SYSTEM '%2'>").arg( rootElement).arg( docType));
-		}
-		xml.writeStartElement( rootElement);
-	}
-	else
-	{
-		xml.writeStartElement( docType);
-	}
-	QList<DataSerializeItem>::const_iterator ie = elements.begin(), ee = elements.end();
-	for (; ie != ee; ++ie)
-	{
-		QVariant attribute;
-		switch (ie->type())
-		{
-			case DataSerializeItem::OpenTag:
-				xml.writeStartElement( ie->value().toString());
-				break;
-
-			case DataSerializeItem::CloseTag:
-				xml.writeEndElement();
-				break;
-
-			case DataSerializeItem::Attribute:
-				attribute = ie->value();
-				++ie;
-				if (ie == ee || ie->type() != DataSerializeItem::Value)
-				{
-					qCritical() << "producing illegal XML";
-					return QByteArray();
-				}
-				xml.writeAttribute( attribute.toString(), ie->value().toString());
-				break;
-
-			case DataSerializeItem::Value:
-				xml.writeCharacters( ie->value().toString());
-				break;
-		}
-	}
-	xml.writeEndElement();
-	xml.writeEndDocument();
-	return rt;
-}
-
 static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode)
 {
 	WidgetRequest rt;
@@ -189,7 +128,7 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 	}
 	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), widget);
 	rt.cmd = action.command();
-	rt.content = getRequestXML( docType, rootElement, isStandalone, elements, debugmode);
+	rt.content = getDataXML( docType, rootElement, isStandalone, elements, debugmode);
 	return rt;
 }
 
@@ -271,8 +210,8 @@ struct WidgetAnswerStackElement
 	bool istag;
 	bool ischild;
 
-	explicit WidgetAnswerStackElement( const QXmlStreamReader& xml, bool istag_, bool ischild_)
-		:name(xml.name().toString())
+	explicit WidgetAnswerStackElement( const QString& name_, bool istag_, bool ischild_)
+		:name(name_)
 		,tok()
 		,istag(istag_)
 		,ischild(ischild_)
@@ -286,9 +225,8 @@ struct WidgetAnswerStackElement
 	{}
 };
 
-static void XMLERROR( const QXmlStreamReader& xml, const QList<WidgetAnswerStackElement>& stk, const QString& message)
+static void XMLERROR( const QList<WidgetAnswerStackElement>& stk, const QString& message)
 {
-	QXmlStreamAttributes attributes;
 	QString path;
 	QList<WidgetAnswerStackElement>::const_iterator pi = stk.begin(), pe = stk.end();
 	for (; pi != pe; ++pi)
@@ -296,121 +234,90 @@ static void XMLERROR( const QXmlStreamReader& xml, const QList<WidgetAnswerStack
 		path.append( "/");
 		path.append( pi->name);
 	}
-	qCritical() << (message.isEmpty()?xml.errorString():message)
-		<< "in XML at line " << xml.lineNumber() << ", column " << xml.columnNumber()
-		<< " path " << path;
-}
-
-static void setAttributes( WidgetVisitor& visitor, const QList<WidgetAnswerStackElement>& stk, const QXmlStreamReader& xml, const QXmlStreamAttributes& attributes)
-{
-	QXmlStreamAttributes::const_iterator ai = attributes.begin(), ae = attributes.end();
-	for (; ai != ae; ++ai)
-	{
-		TRACE_ASSIGNMENT( "ATTRIBUTE", ai->name().toString(), ai->value().toString());
-		if (!visitor.setProperty( ai->name().toString(), ai->value().toString()))
-		{
-			XMLERROR( xml, stk, QString( "failed to set property '") + ai->name().toString() + "'");
-		}
-	}
+	qCritical() << (message.isEmpty()?QString("error"):message) << "in XML tag" << path;
 }
 
 bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 {
 	QList<WidgetAnswerStackElement> stk;
-	QXmlStreamReader xml( answer);
-	int taglevel = 0;
+	QList<DataSerializeItem> itemlist = getXMLSerialization( "", "", answer);
 
 	visitor.clear();
 	qDebug() << "feeding widget " << visitor.objectName() << "with XML";
 
-	for (xml.readNext(); !xml.atEnd(); xml.readNext())
-	{
-		if (xml.isStartElement())
-		{
-			++taglevel;
-			if (taglevel == 1)
-			{
-				setAttributes( visitor, stk, xml, xml.attributes());
-				//... ignore XML root element but set attributes
-				continue;
-			}
-			QString tagname = xml.name().toString();
-			TRACE_VALUE( "OPEN TAG", tagname);
-			if (!stk.isEmpty() && !stk.last().istag)
-			{
-				XMLERROR( xml, stk, QString( "element not defined: '") + stk.last().name + "/" + tagname + "'");
-				return false;
-			}
-			QWidget* prev_widget = visitor.widget();
-			bool istag = visitor.enter( tagname, true);
-			bool ischild = (prev_widget != visitor.widget());
-			stk.push_back( WidgetAnswerStackElement( xml, istag, ischild));
+	DataSerializeItem::Type prevType = DataSerializeItem::CloseTag;
+	QString attributename;
 
-			QXmlStreamAttributes attributes = xml.attributes();
-			if (istag)
-			{
-				setAttributes( visitor, stk, xml, attributes);
-			}
-			else
-			{
-				if (!attributes.isEmpty())
-				{
-					XMLERROR( xml, stk, QString( "substructure not defined: '") + tagname + "'");
-				}
-			}
-		}
-		else if (xml.isEndElement())
+	foreach( const DataSerializeItem& item, itemlist)
+	{
+		TRACE_ASSIGNMENT( "answer element", DataSerializeItem::typeName( item.type()), item.value())
+	}
+	foreach( const DataSerializeItem& item, itemlist)
+	{
+		switch (item.type())
 		{
-			--taglevel;
-			if (taglevel == 0)
+			case DataSerializeItem::OpenTag:
 			{
-				//... root element ignored. so is the end element belonging to root element.
-				continue;
-			}
-			TRACE_VALUE( "CLOSE TAG", "");
-			if (stk.isEmpty())
-			{
-				XMLERROR( xml, stk, QString( "unexpected end element: XML tags not balanced"));
-				return false;
-			}
-			QString::const_iterator ti = stk.last().tok.begin(), te = stk.last().tok.end();
-			for (; ti != te && ti->isSpace(); ++ti);
-			bool tokIsEmpty = (ti == te);
-			if (stk.last().istag)
-			{
-				TRACE_VALUE( "CONTENT", stk.last().tok);
-				if (!tokIsEmpty && !visitor.setProperty( "", stk.last().tok))
+				TRACE_VALUE( "OPEN TAG", item.value());
+				if (!stk.isEmpty() && !stk.last().istag)
 				{
-					XMLERROR( xml, stk, "failed to set content element");
+					XMLERROR( stk, QString( "element not defined: '") + stk.last().name + "/" + item.value().toString() + "'");
+					return false;
+				}
+				QWidget* prev_widget = visitor.widget();
+				bool istag = visitor.enter( item.value().toString(), true);
+				bool ischild = (prev_widget != visitor.widget());
+				stk.push_back( WidgetAnswerStackElement( item.value().toString(), istag, ischild));
+			}
+			break;
+			case DataSerializeItem::CloseTag:
+				TRACE_VALUE( "CLOSE TAG", "");
+				if (stk.isEmpty())
+				{
+					XMLERROR( stk, QString( "unexpected end element: XML tags not balanced"));
+					return false;
 				}
 				if (stk.last().ischild)
 				{
 					visitor.endofDataFeed();
 				}
-				visitor.leave( true);
-			}
-			else
-			{
-				TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, stk.last().tok);
-				if (!tokIsEmpty && !visitor.setProperty( stk.last().name, stk.last().tok))
+				if (stk.last().istag)
 				{
-					XMLERROR( xml, stk, QString( "failed to set property '") + stk.last().name + "'");
+					visitor.leave( true);
 				}
-			}
-			stk.removeLast();
+				stk.removeLast();
+			break;
+			case DataSerializeItem::Attribute:
+				attributename = item.value().toString();
+			break;
+			case DataSerializeItem::Value:
+				if (prevType == DataSerializeItem::Attribute)
+				{
+					TRACE_ASSIGNMENT( "ATTRIBUTE", attributename, item.value());
+					if (!visitor.setProperty( attributename, item.value()))
+					{
+						XMLERROR( stk, QString( "failed to set property '") + attributename + "'");
+					}
+				}
+				else if (stk.last().istag)
+				{
+					TRACE_VALUE( "CONTENT", item.value());
+					if (!visitor.setProperty( "", item.value()))
+					{
+						XMLERROR( stk, "failed to set content element");
+					}
+				}
+				else
+				{
+					TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
+					if (!visitor.setProperty( stk.last().name, item.value()))
+					{
+						XMLERROR( stk, QString( "failed to set property '") + stk.last().name + "'");
+					}
+				}
+			break;
 		}
-		else if (xml.isEntityReference())
-		{
-			XMLERROR( xml, stk, QString( "unexpected entity reference in content element: no entity references supported"));
-			return false;
-		}
-		else if (xml.isCDATA() || xml.isCharacters() || xml.isWhitespace())
-		{
-			if (!stk.isEmpty())
-			{
-				stk.last().tok.append( xml.text());
-			}
-		}
+		prevType = item.type();
 	}
 	visitor.endofDataFeed();
 	return true;
