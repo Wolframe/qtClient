@@ -24,7 +24,7 @@ make distclean
 mkdir /tmp/wolframe-qtclient-$VERSION
 cp -av * /tmp/wolframe-qtclient-$VERSION
 cd /tmp
-tar zcvf wolframe-qtclient-$VERSION.tar.gz *
+tar zcvf wolframe-qtclient-$VERSION.tar.gz wolframe-qtclient-$VERSION
 cd -
 mv /tmp/wolframe-qtclient-$VERSION.tar.gz .
 rm -rf /tmp/wolframe-qtclient-$VERSION
