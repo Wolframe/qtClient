@@ -7,7 +7,7 @@ license=('GPL3')
 arch=('i686' 'x86_64')
 url="http://wolframe.net/"
 depends=('qt4')
-makedepends=()
+makedepends=('mesa-libgl')
 source=(
   "${pkgname}_${pkgver}.tar.gz"
 )

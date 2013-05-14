@@ -92,6 +92,10 @@ Source: %{name}_%{version}.tar.gz
 %if %{rhel} || %{centos} || %{fedora}
 BuildRequires: qt4-devel >= 4.5
 Requires: qt4 >= 4.5
+# somehow there is no c++ compiler per default installed on RHEL6/Centos6
+%if %{rhel6} || %{centos6}
+BuildRequires: gcc-c++
+%endif
 %endif
 %if %{suse} || %{sles}
 BuildRequires: libqt4-devel >= 4.5
