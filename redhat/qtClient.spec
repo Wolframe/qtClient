@@ -98,6 +98,9 @@ BuildRequires: libqt4-devel >= 4.5
 Requires: libqt4 >= 4.5
 %endif
 
+# installation directory for designer plugins
+%define plugindir %_libdir/qt4/plugins
+
 %description
 Generic Qt client for the Wolframe system.
 
@@ -106,33 +109,38 @@ Generic Qt client for the Wolframe system.
 
 %build
 %if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
-qmake-qt4 qtClient.pro PREFIX=%{_prefix}
+qmake-qt4 qtClient.pro PREFIX=%{_prefix} LIBDIR=%{_libdir}
 %else
-qmake qtClient.pro PREFIX=%{_prefix}
+qmake qtClient.pro PREFIX=%{_prefix} LIBDIR=%{_libdir}
 %endif
-make %{?_smp_mflags}
+make %{?_smp_mflags} LIBDIR=%{_libdir}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make INSTALL_ROOT=$RPM_BUILD_ROOT install
+make INSTALL_ROOT=$RPM_BUILD_ROOT LIBDIR=%{_libdir} install
 
 %clean
 %{__rm} -rf $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
 
-%if %{with_qt4}
-%files qtclient
+%files
 %defattr( -, root, root )
 # funny, why?!
-%if !%{sles}
-%dir %{_bindir}
-%endif
+#%if !%{sles} && !%{fc18}
+#%dir %{_bindir}
+#%endif
 %{_bindir}/qtclient
-%dir %{_libdir}/wolframe/plugins/
-%{_libdir}/wolframe/plugins/libfilechooser.so
-%{_libdir}/wolframe/plugins/libpicturechooser.so
-%{_libdir}/wolframe/plugins/libwimagelistwidget.so
-%endif
+%{_libdir}/libskeleton.so.0.0.1
+%{_libdir}/libskeleton.so.0.0
+%{_libdir}/libskeleton.so.0
+%{_libdir}/libskeleton.so  
+%{_libdir}/libqtwolframeclient.so.0.0.1
+%{_libdir}/libqtwolframeclient.so.0.0
+%{_libdir}/libqtwolframeclient.so.0
+%{_libdir}/libqtwolframeclient.so    
+%plugindir/designer/libfilechooser.so
+%plugindir/designer/libpicturechooser.so
+%plugindir/designer/libwimagelistwidget.so
 
 
 %changelog

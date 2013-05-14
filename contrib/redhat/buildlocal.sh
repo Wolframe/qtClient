@@ -17,15 +17,19 @@ rm -rf $RPMBUILD/BUILDROOT $RPMBUILD/BUILD $RPMBUILD/RPMS/*/* \
 	$RPMBUILD/SRPMS/* $RPMBUILD/SPECS/log
 touch $RPMBUILD/SPECS/log
 
-rm -f wolframe_client-$VERSION.tar.gz
-rm -f $RPMBUILD/SOURCES/wolframe_client_$VERSION.tar.gz
+rm -f wolframe-qtclient-$VERSION.tar.gz
+rm -f $RPMBUILD/SOURCES/wolframe-qtclient_$VERSION.tar.gz
 
-make \
-	WITH_SSL=1 WITH_EXPECT=1 WITH_QT=1 WITH_PAM=1 WITH_SASL=1 \
-	WITH_SQLITE3=1 WITH_PGSQL=1 WITH_LUA=1 WITH_LIBXML2=1 WITH_LIBXSLT=1 \
-	WITH_ICU=1 dist-gz >/dev/null 2>&1
+make distclean
+mkdir /tmp/wolframe-qtclient-$VERSION
+cp -av * /tmp/wolframe-qtclient-$VERSION
+cd /tmp
+tar zcvf wolframe-qtclient-$VERSION.tar.gz *
+cd -
+mv /tmp/wolframe-qtclient-$VERSION.tar.gz .
+rm -rf /tmp/wolframe-qtclient-$VERSION
 
-cp wolframe_client-$VERSION.tar.gz $RPMBUILD/SOURCES/wolframe_client_$VERSION.tar.gz
+cp wolframe-qtclient-$VERSION.tar.gz $RPMBUILD/SOURCES/wolframe-qtclient_$VERSION.tar.gz
 cp redhat/qtClient.spec $RPMBUILD/SPECS/qtClient.spec
 
 cd $RPMBUILD/SPECS
