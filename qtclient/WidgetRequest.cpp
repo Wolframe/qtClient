@@ -43,7 +43,7 @@ static QVariant SHORTEN( const QVariant& val)
 	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "..."; else return val;
 }
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "widget answer XML " << (TITLE) << SHORTEN(VALUE);
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "widget answer XML " << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);

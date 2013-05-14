@@ -271,7 +271,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 					qCritical() << "element is defined as attribute in answer description:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
 					return false;
 				}
-				if (stk.back().schemanode->elemtype() == DataTree::Array)
+				if (stk.back().schemanode->nodetree(ni)->elemtype() == DataTree::Array)
 				{}
 				else if (stk.back().initialized.testBit( ni))
 				{
