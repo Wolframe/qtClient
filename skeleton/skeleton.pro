@@ -2,6 +2,13 @@ TEMPLATE = lib
 
 TARGET = skeleton
 
+isEmpty(LIBDIR) {
+  LIBDIR = $${PREFIX}/lib
+}
+
+target.path = $$LIBDIR
+INSTALLS += target
+
 VERSION = 0.0.1
 
 CONFIG += qt debug static_and_shared
@@ -26,19 +33,19 @@ SOURCES += \
 	SkeletonMainWindow.cpp \
 	loginDialog.cpp \
 	serverDefinitionDialog.cpp \
-    manageServerDefsDialog.cpp
+	manageServerDefsDialog.cpp
 	
 HEADERS += \
 	SkeletonMainWindow.hpp \
 	loginDialog.hpp \
 	serverDefinitionDialog.hpp \
-    manageServerDefsDialog.hpp
+	manageServerDefsDialog.hpp
 	
 FORMS += \
 	SkeletonMainWindow.ui \
 	loginDialog.ui \
 	serverDefinitionDialog.ui \
-    manageServerDefsDialog.ui
+	manageServerDefsDialog.ui
 
 RESOURCES = \
 	skeleton.qrc

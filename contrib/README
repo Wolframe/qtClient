@@ -1,1 +1,3 @@
+osc				- OpenSuse Build Service specific stuff
+
 Save gdbinit as ~/.gdbinit (printqstring for Qt QString)

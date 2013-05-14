@@ -2,6 +2,13 @@ TEMPLATE = lib
 
 TARGET = qtwolframeclient
 
+isEmpty(LIBDIR) {
+  LIBDIR = $${PREFIX}/lib
+}
+
+target.path = $$LIBDIR
+INSTALLS += target
+
 VERSION = 0.0.1
 
 CONFIG += qt debug static_and_shared
@@ -18,10 +25,10 @@ SOURCES += \
 	WolframeClient.cpp \
 	WolframeClientProtocolBase.cpp \
 	WolframeClientProtocol.cpp \
-    serverDefinition.cpp
+	serverDefinition.cpp
 
 HEADERS += \
 	WolframeClient.hpp \
 	private/WolframeClientProtocolBase.hpp \
 	private/WolframeClientProtocol.hpp \
-    serverDefinition.hpp
+	serverDefinition.hpp
