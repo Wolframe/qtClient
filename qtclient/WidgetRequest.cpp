@@ -37,10 +37,16 @@
 #include "DataTreeSerialize.hpp"
 #include "DataFormatXML.hpp"
 #include <QVariant>
+
+static QVariant SHORTEN( const QVariant& val)
+{
+	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "..."; else return val;
+}
+
 #define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "widget answer XML " << (TITLE) << (VALUE);
-#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "widget answer XML " << (TITLE) << (NAME) << "=" << (VALUE);
+#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "widget answer XML " << (TITLE) << SHORTEN(VALUE);
+#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "widget answer XML " << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
 #else
 #define TRACE_VALUE( TITLE, VALUE)
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)
@@ -333,95 +339,75 @@ struct AssignIterStackElem
 	AssignIterStackElem( const AssignIterStackElem& o)	:iter(o.iter),arraypos(o.arraypos){}
 };
 
-bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
+bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultschema, const QByteArray& answer)
 {
 	bool rt = true;
-	QWidget* widget = visitor.widget();
-	QVariant resultschema = widget->property( "answer");
-	if (resultschema.isValid())
+	ActionResultDefinition resultdef( resultschema);
+
+	QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
+
+	QList<WidgetDataAssignmentInstr> assignments = getWidgetDataAssignments( resultdef.structure(), itemlist);
+	QList<AssignIterStackElem> astk;
+
+	QList<WidgetDataAssignmentInstr>::const_iterator ai = assignments.begin(), ae = assignments.end();
+	for (; ai != ae; ++ai)
 	{
-		ActionResultDefinition resultdef( resultschema.toString());
-		QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
-
-		QList<WidgetDataAssignmentInstr> assignments = getWidgetDataAssignments( resultdef.structure(), itemlist);
-		QList<AssignIterStackElem> astk;
-
-		QList<WidgetDataAssignmentInstr>::const_iterator ai = assignments.begin(), ae = assignments.end();
-		for (; ai != ae; ++ai)
+		qDebug() << "widget assignment" << WidgetDataAssignmentInstr::typeName( ai->type) << "size=" << ai->arraysize << ":" << ai->name << "=" << SHORTEN( ai->value);
+	}
+	for (ai = assignments.begin(); ai != ae; ++ai)
+	{
+		switch (ai->type)
 		{
-			qDebug() << "widget assignment" << WidgetDataAssignmentInstr::typeName( ai->type) << "size=" << ai->arraysize << ":" << ai->name << "=" << ai->value;
-		}
-		for (ai = assignments.begin(); ai != ae; ++ai)
-		{
-			switch (ai->type)
-			{
-				case WidgetDataAssignmentInstr::Enter:
-					if (ai->arraysize > 0)
+			case WidgetDataAssignmentInstr::Enter:
+				if (ai->arraysize > 0)
+				{
+					visitor.enter( ai->name, true);
+					astk.push_back( AssignIterStackElem( ai));
+				}
+				else
+				{
+					qDebug() << "widget assignment skiping empty array" << ai->name;
+					//...if array is empty then skip it
+					int taglevel = 0;
+					QList<WidgetDataAssignmentInstr>::const_iterator ac = ai;
+					for (; ac != ae; ++ac)
 					{
-						visitor.enter( ai->name, true);
-						astk.push_back( AssignIterStackElem( ai));
-					}
-					else
-					{
-						qDebug() << "widget assignment skiping empty array" << ai->name;
-						//...if array is empty then skip it
-						int taglevel = 0;
-						QList<WidgetDataAssignmentInstr>::const_iterator ac = ai;
-						for (; ac != ae; ++ac)
+						if (ac->type == WidgetDataAssignmentInstr::Enter)
 						{
-							if (ac->type == WidgetDataAssignmentInstr::Enter)
-							{
-								++taglevel;
-							}
-							else if (ac->type == WidgetDataAssignmentInstr::Leave)
-							{
-								--taglevel;
-							}
-							if (taglevel == 0)
-							{
-								ai = ac;
-								break;
-							}
+							++taglevel;
 						}
-						if (ac == ae) break;
+						else if (ac->type == WidgetDataAssignmentInstr::Leave)
+						{
+							--taglevel;
+						}
+						if (taglevel == 0)
+						{
+							ai = ac;
+							break;
+						}
 					}
-					break;
+					if (ac == ae) break;
+				}
+				break;
 
-				case WidgetDataAssignmentInstr::Leave:
-					visitor.leave( true);
-					if (astk.back().arraypos < astk.back().iter->arraysize)
-					{
-						visitor.enter( ai->name, true);
-						astk.back().arraypos++;
-						ai = astk.back().iter;
-					}
-					else
-					{
-						astk.pop_back();
-					}
-					break;
+			case WidgetDataAssignmentInstr::Leave:
+				visitor.leave( true);
+				if (astk.back().arraypos < astk.back().iter->arraysize)
+				{
+					visitor.enter( ai->name, true);
+					astk.back().arraypos++;
+					ai = astk.back().iter;
+				}
+				else
+				{
+					astk.pop_back();
+				}
+				break;
 
-				case WidgetDataAssignmentInstr::Assign:
-					if (ai->value.type() == QVariant::List)
-					{
-						if (astk.isEmpty())
-						{
-							if (!visitor.setProperty( ai->name, ai->value))
-							{
-								qCritical() << "failed to set property" << ai->name;
-								rt = false;
-							}
-						}
-						else
-						{
-							if (!visitor.setProperty( ai->name, ai->value.toList().at( astk.back().arraypos)))
-							{
-								qCritical() << "failed to set property" << ai->name << "[" << astk.back().arraypos << "]";
-								rt = false;
-							}
-						}
-					}
-					else
+			case WidgetDataAssignmentInstr::Assign:
+				if (ai->value.type() == QVariant::List)
+				{
+					if (astk.isEmpty())
 					{
 						if (!visitor.setProperty( ai->name, ai->value))
 						{
@@ -429,10 +415,37 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 							rt = false;
 						}
 					}
-					break;
-			}
+					else
+					{
+						if (!visitor.setProperty( ai->name, ai->value.toList().at( astk.back().arraypos)))
+						{
+							qCritical() << "failed to set property" << ai->name << "[" << astk.back().arraypos << "]";
+							rt = false;
+						}
+					}
+				}
+				else
+				{
+					if (!visitor.setProperty( ai->name, ai->value))
+					{
+						qCritical() << "failed to set property" << ai->name;
+						rt = false;
+					}
+				}
+				break;
 		}
-		return rt;
+	}
+	return rt;
+}
+
+bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
+{
+	QWidget* widget = visitor.widget();
+	QVariant resultschema = widget->property( "answer");
+
+	if (resultschema.isValid())
+	{
+		return setValidatedWidgetAnswer( visitor, resultschema.toString(), answer);
 	}
 	else
 	{

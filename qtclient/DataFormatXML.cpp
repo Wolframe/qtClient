@@ -75,28 +75,13 @@ static void getXMLAttributes( QList<DataSerializeItem>& list, const QXmlStreamAt
 	}
 }
 
-QList<DataSerializeItem> getXMLSerialization( const QString& docType, const QString& rootElement, const QByteArray& content)
+QList<DataSerializeItem> getXMLSerialization( const QString& /*docType*/, const QString& rootElement, const QByteArray& content)
 {
 	QList<DataSerializeItem> rt;
 	QXmlStreamReader xml( content);
 	int taglevel = 0;
 	QString value;
 
-	if (!docType.isEmpty())
-	{
-		QString systemid = xml.dtdSystemId().toString();
-		if (systemid.isEmpty())
-		{
-			if (docType != xml.dtdName())
-			{
-				qCritical() << "document type (root)" << xml.dtdName() << "does not match to defined:" << docType;
-			}
-		}
-		else if (!systemid.replace( '.', QString("/")).split( '/').contains(docType))
-		{
-			qCritical() << "document type (system)" << xml.dtdSystemId() << "does not match to defined:" << docType;
-		}
-	}
 	for (xml.readNext(); !xml.atEnd(); xml.readNext())
 	{
 		if (xml.isStartElement())
@@ -112,6 +97,7 @@ QList<DataSerializeItem> getXMLSerialization( const QString& docType, const QStr
 			QString tagname = xml.name().toString();
 			if (taglevel == 1)
 			{
+				//TODO Check document type (!DOCTYPE)
 				if (!rootElement.isEmpty() && tagname != rootElement)
 				{
 					qCritical() << "XML root element" << tagname << "does not match to defined:" << rootElement;

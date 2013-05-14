@@ -271,15 +271,16 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 					qCritical() << "element is defined as attribute in answer description:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
 					return false;
 				}
-				stk.push_back( AssignStackElement( stk.back().schemanode->nodename( ni), stk.back().schemanode->nodetree(ni).data(), stk.back().datanode->nodetree(ni).data()));
 				if (stk.back().schemanode->elemtype() == DataTree::Array)
 				{}
-				else if (stk.back().initialized[ ni])
+				else if (stk.back().initialized.testBit( ni))
 				{
 					qCritical() << "duplicate single element:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
 					return false;
 				}
 				stk.back().initialized.setBit( ni, true);
+
+				stk.push_back( AssignStackElement( stk.back().schemanode->nodename( ni), stk.back().schemanode->nodetree(ni).data(), stk.back().datanode->nodetree(ni).data()));
 				break;
 			}
 			case DataSerializeItem::CloseTag:
@@ -287,7 +288,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				int ii=0, nn=stk.back().initialized.size();
 				for (; ii<nn; ++ii)
 				{
-					if (!stk.back().initialized[ii] && stk.back().schemanode->nodetree( ii)->elemtype() != DataTree::Array)
+					if (!stk.back().initialized.testBit( ii) && stk.back().schemanode->nodetree( ii)->elemtype() != DataTree::Array)
 					{
 						qCritical() << "element not initialized in answer:" << stk.back().schemanode->nodename( ii) << "at" << elementPath(stk);
 						return false;
@@ -306,7 +307,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				}
 				if (stk.back().schemanode->elemtype() == DataTree::Array)
 				{}
-				else if (stk.back().initialized[ ni])
+				else if (stk.back().initialized.testBit( ni))
 				{
 					qCritical() << "duplicate attribute:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
 					return false;
@@ -341,7 +342,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 					{
 						datanode->pushNodeValue( ai->value());
 					}
-					else if (ref == "?")
+					else if (ref == "{?}")
 					{
 					}
 					else
@@ -355,9 +356,9 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 		}
 		prevtype = ai->type();
 	}
-	if (!stk.isEmpty())
+	if (stk.isEmpty() || stk.size() != 1)
 	{
-		qCritical() << "tags not balanced in answer";
+		qCritical() << "tags not balanced in answer" << stk.size();
 		return false;
 	}
 	return true;
@@ -457,29 +458,28 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 
 	while (!stk.isEmpty())
 	{
-		if (stk.back().datanode->value().isValid())
+		int nodeidx = stk.back().nodeidx++;
+		if (nodeidx == 0 && stk.back().datanode->value().isValid())
 		{
 			QString varname( getVariableName( stk.back().schemanode->value().toString()));
-			QString prefix;
-			if (prefixstk.isEmpty()) prefix = prefixstk.back();
-			if (varname.startsWith( prefix))
+			if (!prefixstk.isEmpty())
 			{
-				varname = varname.mid( prefix.size(), varname.size() - prefix.size());
+				QString prefix = prefixstk.back();
+				if (varname.startsWith( prefix))
+				{
+					if (varname.size() == prefix.size())
+					{
+						varname = varname.mid( prefix.size(), varname.size() - prefix.size());
+					}
+					else if (varname.at( prefix.size()) == '.')
+					{
+						varname = varname.mid( prefix.size() + 1, varname.size() - prefix.size() -1);
+					}
+				}
 			}
 			rt.push_back( WidgetDataAssignmentInstr( varname, stk.back().datanode->value()));
 		}
-		int nodeidx = stk.back().nodeidx;
-		if (nodeidx >= stk.back().schemanode->size())
-		{
-			stk.pop_back();
-			const DataTree* schemanode = stk.back().schemanode->nodetree( nodeidx).data();
-			if (schemanode->elemtype() == DataTree::Array)
-			{
-				rt.push_back( WidgetDataAssignmentInstr());
-				prefixstk.pop_back();
-			}
-		}
-		else
+		if (nodeidx < stk.back().schemanode->size())
 		{
 			const DataTree* schemanode = stk.back().schemanode->nodetree( nodeidx).data();
 			DataTree* datanode = stk.back().datanode->nodetree( nodeidx).data();
@@ -491,9 +491,19 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 				int arraysize = -1;
 				getArraySize( arraysize, stk.back().datanode);
 				rt.push_back( WidgetDataAssignmentInstr( arraysize, prefix.toString()));
-				prefixstk.push_back( prefix.toString() + ".");
+				prefixstk.push_back( prefix.toString());
 			}
 			stk.push_back( JoinAssignStackElem( schemanode, datanode));
+		}
+		else
+		{
+			const DataTree* schemanode = stk.back().schemanode;
+			if (schemanode->elemtype() == DataTree::Array)
+			{
+				rt.push_back( WidgetDataAssignmentInstr());
+				prefixstk.pop_back();
+			}
+			stk.pop_back();
 		}
 	}
 	return rt;

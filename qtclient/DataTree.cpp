@@ -538,6 +538,10 @@ ActionDefinition::ActionDefinition( const QString& str)
 		QString::const_iterator start = itr+1;
 		skipBrk( itr, end);
 		m_structure = DataTree::fromString( start, itr);
+		if (m_structure.elemtype() == DataTree::Invalid)
+		{
+			qCritical() << "invalid action definition";
+		}
 	}
 }
 
@@ -585,6 +589,10 @@ ActionResultDefinition::ActionResultDefinition( const QString& str)
 		QString::const_iterator start = itr+1;
 		skipBrk( itr, end);
 		m_structure = DataTree::fromString( start, itr);
+		if (m_structure.elemtype() == DataTree::Invalid)
+		{
+			qCritical() << "invalid action result definition";
+		}
 	}
 }
 
