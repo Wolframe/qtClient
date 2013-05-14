@@ -102,7 +102,6 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 	WidgetRequest rt;
 	bool useSynonymsValue = visitor.useSynonyms( false);
 
-	QWidget* widget = visitor.widget();
 	QString actionstr( actiondef.toString());
 
 	ActionDefinition action( actionstr);
@@ -126,7 +125,7 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 		visitor.useSynonyms( useSynonymsValue);
 		return rt;
 	}
-	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), widget);
+	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), visitor);
 	rt.cmd = action.command();
 	rt.content = getDataXML( docType, rootElement, isStandalone, elements, debugmode);
 	return rt;
@@ -237,7 +236,7 @@ static void logError( const QList<WidgetAnswerStackElement>& stk, const QString&
 	qCritical() << (message.isEmpty()?QString("error"):message) << "in XML tag" << path;
 }
 
-bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
+static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 {
 	QList<WidgetAnswerStackElement> stk;
 	QList<DataSerializeItem> itemlist = getXMLSerialization( "", "", answer);
@@ -323,6 +322,123 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 	return true;
 }
 
+struct AssignIterStackElem
+{
+	typedef QList<WidgetDataAssignmentInstr>::const_iterator AssignIter;
+	AssignIter iter;
+	int arraypos;
+
+	AssignIterStackElem()					:arraypos(0){}
+	AssignIterStackElem( AssignIter iter_)			:iter(iter_),arraypos(0){}
+	AssignIterStackElem( const AssignIterStackElem& o)	:iter(o.iter),arraypos(o.arraypos){}
+};
+
+bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
+{
+	bool rt = true;
+	QWidget* widget = visitor.widget();
+	QVariant resultschema = widget->property( "answer");
+	if (resultschema.isValid())
+	{
+		ActionResultDefinition resultdef( resultschema.toString());
+		QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
+
+		QList<WidgetDataAssignmentInstr> assignments = getWidgetDataAssignments( resultdef.structure(), itemlist);
+		QList<AssignIterStackElem> astk;
+
+		QList<WidgetDataAssignmentInstr>::const_iterator ai = assignments.begin(), ae = assignments.end();
+		for (; ai != ae; ++ai)
+		{
+			qDebug() << "widget assignment" << WidgetDataAssignmentInstr::typeName( ai->type) << "size=" << ai->arraysize << ":" << ai->name << "=" << ai->value;
+		}
+		for (ai = assignments.begin(); ai != ae; ++ai)
+		{
+			switch (ai->type)
+			{
+				case WidgetDataAssignmentInstr::Enter:
+					if (ai->arraysize > 0)
+					{
+						visitor.enter( ai->name, true);
+						astk.push_back( AssignIterStackElem( ai));
+					}
+					else
+					{
+						qDebug() << "widget assignment skiping empty array" << ai->name;
+						//...if array is empty then skip it
+						int taglevel = 0;
+						QList<WidgetDataAssignmentInstr>::const_iterator ac = ai;
+						for (; ac != ae; ++ac)
+						{
+							if (ac->type == WidgetDataAssignmentInstr::Enter)
+							{
+								++taglevel;
+							}
+							else if (ac->type == WidgetDataAssignmentInstr::Leave)
+							{
+								--taglevel;
+							}
+							if (taglevel == 0)
+							{
+								ai = ac;
+								break;
+							}
+						}
+						if (ac == ae) break;
+					}
+					break;
+
+				case WidgetDataAssignmentInstr::Leave:
+					visitor.leave( true);
+					if (astk.back().arraypos < astk.back().iter->arraysize)
+					{
+						visitor.enter( ai->name, true);
+						astk.back().arraypos++;
+						ai = astk.back().iter;
+					}
+					else
+					{
+						astk.pop_back();
+					}
+					break;
+
+				case WidgetDataAssignmentInstr::Assign:
+					if (ai->value.type() == QVariant::List)
+					{
+						if (astk.isEmpty())
+						{
+							if (!visitor.setProperty( ai->name, ai->value))
+							{
+								qCritical() << "failed to set property" << ai->name;
+								rt = false;
+							}
+						}
+						else
+						{
+							if (!visitor.setProperty( ai->name, ai->value.toList().at( astk.back().arraypos)))
+							{
+								qCritical() << "failed to set property" << ai->name << "[" << astk.back().arraypos << "]";
+								rt = false;
+							}
+						}
+					}
+					else
+					{
+						if (!visitor.setProperty( ai->name, ai->value))
+						{
+							qCritical() << "failed to set property" << ai->name;
+							rt = false;
+						}
+					}
+					break;
+			}
+		}
+		return rt;
+	}
+	else
+	{
+		return setImplicitWidgetAnswer( visitor, answer);
+	}
+}
 
 
 

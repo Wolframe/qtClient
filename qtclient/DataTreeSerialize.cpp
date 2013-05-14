@@ -119,7 +119,7 @@ static int calcArraySize( WidgetVisitor& visitor, const QSharedPointer<DataTree>
 		}
 		else
 		{
-			stk.push_back( SerializeStackElement( QString(), stk.back().tree->nodevalue( ni)));
+			stk.push_back( SerializeStackElement( QString(), stk.back().tree->nodetree( ni)));
 		}
 	}
 	return rt;
@@ -138,7 +138,7 @@ static int getLastArrayIdx( const QList<SerializeStackElement>& stk)
 	return arrayidx;
 }
 
-QString getVariableName( const QString& value)
+static QString getVariableName( const QString& value)
 {
 	if (value.isEmpty()) return value;
 	if (value.at(0) == '{' && value.at(value.size()-1) == '}')
@@ -149,10 +149,9 @@ QString getVariableName( const QString& value)
 	return value;
 }
 
-QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, QWidget* widget)
+QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, WidgetVisitor& visitor)
 {
 	QList<DataSerializeItem> rt;
-	WidgetVisitor visitor( widget, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
 	QList<SerializeStackElement> stk;
 	stk.push_back( SerializeStackElement( QString(), datatree));
 	int arrayidx = -1;
@@ -186,10 +185,10 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, Q
 			}
 			continue;
 		}
-		else if (stk.back().tree->isAttribute( ni))
+		else if (stk.back().tree->isAttributeNode( ni))
 		{
 			rt.push_back( DataSerializeItem( DataSerializeItem::Attribute, stk.back().tree->nodename( ni)));
-			stk.push_back( SerializeStackElement( stk.back().tree->nodename( ni), stk.back().tree->nodevalue(ni)));
+			stk.push_back( SerializeStackElement( stk.back().tree->nodename( ni), stk.back().tree->nodetree(ni)));
 			if (stk.back().tree->elemtype() == DataTree::Array)
 			{
 				qCritical() << "illegal data tree description: attributes not allowed as array (" << stk.back().tree->nodename( ni) << ")";
@@ -202,7 +201,7 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, Q
 		else
 		{
 			rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, stk.back().tree->nodename( ni)));
-			stk.push_back( SerializeStackElement( stk.back().tree->nodename( ni), stk.back().tree->nodevalue(ni)));
+			stk.push_back( SerializeStackElement( stk.back().tree->nodename( ni), stk.back().tree->nodetree(ni)));
 
 			if (stk.back().tree->elemtype() == DataTree::Array)
 			{
@@ -217,18 +216,17 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, Q
 struct AssignStackElement
 {
 	QString name;
-	QSharedPointer<DataTree> tree;
+	const DataTree* schemanode;
+	DataTree* datanode;
 	int nodeidx;
 	QBitArray initialized;
 
 	AssignStackElement()
-		:nodeidx(0){}
-	AssignStackElement( const QString& name_, const DataTree& tree_)
-		:name(name_),tree( new DataTree( tree_)),nodeidx(0),initialized(tree_.size(), false){}
-	AssignStackElement( const QString& name_, const QSharedPointer<DataTree>& tree_)
-		:name(name_),tree(tree_),nodeidx(0),initialized(tree_->size(), false){}
+		:schemanode(0),datanode(0),nodeidx(0){}
+	AssignStackElement( const QString& name_, const DataTree* schemanode_, DataTree* datanode_)
+		:name(name_),schemanode( schemanode_),datanode( datanode_),nodeidx(0),initialized(schemanode->size(), false){}
 	AssignStackElement( const AssignStackElement& o)
-		:name(o.name),tree(o.tree),nodeidx(o.nodeidx),initialized(o.initialized){}
+		:name(o.name),schemanode(o.schemanode),datanode(o.datanode),nodeidx(o.nodeidx),initialized(o.initialized){}
 };
 
 static QString elementPath( const QList<AssignStackElement>& stk)
@@ -243,41 +241,45 @@ static QString elementPath( const QList<AssignStackElement>& stk)
 	return rt;
 }
 
-QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWidget* widget, const QList<DataSerializeItem>& answer)
+static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const QList<DataSerializeItem>& answer)
 {
-	QList<DataSerializeItem> rt;
-	WidgetVisitor visitor( widget, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
 	QList<AssignStackElement> stk;
-	stk.push_back( AssignStackElement( QString(), datatree));
-	QList<DataSerializeItem>::const_iterator ai = answer.begin(), ae = answer.end();
+	stk.push_back( AssignStackElement( QString(), &schematree, &datatree));
 
-	if (stk.back().tree->elemtype() == DataTree::Array)
+	if (schematree.elemtype() == DataTree::Array)
 	{
 		qCritical() << "illegal widget answer description: root node is array";
-		return rt;
+		return false;
 	}
+	DataSerializeItem::Type prevtype = DataSerializeItem::CloseTag;
+
+	QList<DataSerializeItem>::const_iterator ai = answer.begin(), ae = answer.end();
 	for (; ai != ae; ++ai)
 	{
 		switch (ai->type())
 		{
 			case DataSerializeItem::OpenTag:
 			{
-				int ni = stk.back().nodeidx = stk.back().tree->findNodeIndex( ai->value().toString());
+				int ni = stk.back().nodeidx = stk.back().schemanode->findNodeIndex( ai->value().toString());
 				if (ni < 0)
 				{
 					qCritical() << "element not defined in answer description:" << ai->value() << "at" << elementPath(stk);
-					return QList<DataSerializeItem>();
+					return false;
+				}
+				if (stk.back().schemanode->isAttributeNode( ni))
+				{
+					qCritical() << "element is defined as attribute in answer description:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
+					return false;
+				}
+				stk.push_back( AssignStackElement( stk.back().schemanode->nodename( ni), stk.back().schemanode->nodetree(ni).data(), stk.back().datanode->nodetree(ni).data()));
+				if (stk.back().schemanode->elemtype() == DataTree::Array)
+				{}
+				else if (stk.back().initialized[ ni])
+				{
+					qCritical() << "duplicate single element:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
+					return false;
 				}
 				stk.back().initialized.setBit( ni, true);
-				if (stk.back().tree->isAttributeNode( ni))
-				{
-					qCritical() << "element is defined as attribute in answer description:" << stk.back().tree->nodename( ni) << "at" << elementPath(stk);
-				}
-				stk.push_back( AssignStackElement( stk.back().tree->nodename( ni), stk.back().tree->nodevalue(ni)));
-				if (stk.back().tree->elemtype() == DataTree::Array)
-				{
-					rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, ""));
-				}
 				break;
 			}
 			case DataSerializeItem::CloseTag:
@@ -285,115 +287,214 @@ QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWi
 				int ii=0, nn=stk.back().initialized.size();
 				for (; ii<nn; ++ii)
 				{
-					if (!stk.back().initialized[ii] && stk.back().tree->nodevalue( ii)->elemtype() != DataTree::Array)
+					if (!stk.back().initialized[ii] && stk.back().schemanode->nodetree( ii)->elemtype() != DataTree::Array)
 					{
-						qCritical() << "element not initialized in answer:" << stk.back().tree->nodename( ii) << "at" << elementPath(stk);
+						qCritical() << "element not initialized in answer:" << stk.back().schemanode->nodename( ii) << "at" << elementPath(stk);
+						return false;
 					}
-				}
-				if (stk.back().tree->elemtype() == DataTree::Array)
-				{
-					int taglevel = -1;
-					QStringList commonPrefix;
-					bool commonPrefixSet = false;
-					QList<DataSerializeItem>::iterator di = rt.end();
-
-					while (di != rt.begin())
-					{
-						--di;
-						if (di->type() == DataSerializeItem::CloseTag)
-						{
-							--taglevel;
-						}
-						if (di->type() == DataSerializeItem::OpenTag)
-						{
-							++taglevel;
-							if (taglevel == 0)
-							{
-								*di = DataSerializeItem( DataSerializeItem::OpenTag, commonPrefix.join("."));
-								break;
-							}
-						}
-						if (taglevel == -1 && di->type() == DataSerializeItem::Attribute)
-						{
-							if (!commonPrefixSet)
-							{
-								commonPrefix = di->value().toString().split('.');
-								commonPrefixSet = true;
-							}
-							else
-							{
-								QStringList prefix = di->value().toString().split('.');
-								int ii=0, nn=prefix.size();
-								for (; ii<nn && ii<commonPrefix.size() && prefix.at(ii)==commonPrefix.at(ii); ++ii);
-								while (ii < commonPrefix.size()) commonPrefix.removeLast();
-							}
-						}
-					}
-					if (!commonPrefix.isEmpty())
-					{
-						QString prefix = commonPrefix.join(".") + ".";
-						for (taglevel=0; di != rt.end(); ++di)
-						{
-							if (di->type() == DataSerializeItem::CloseTag)
-							{
-								--taglevel;
-							}
-							if (di->type() == DataSerializeItem::OpenTag)
-							{
-								++taglevel;
-							}
-							if (taglevel == 1 && di->type() == DataSerializeItem::Attribute)
-							{
-								QString name = di->value().toString();
-								if (!name.startsWith( prefix))
-								{
-									qCritical() << "internal error (getWidgetDataAssignments prefix calc)";
-								}
-								else
-								{
-									*di = DataSerializeItem( DataSerializeItem::Attribute, name.mid( prefix.size(), name.size() - prefix.size()));
-								}
-							}
-						}
-					}
-					rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, commonPrefix.join(".")));
 				}
 				stk.pop_back();
+				break;
 			}
 			case DataSerializeItem::Attribute:
 			{
-				int ni = stk.back().nodeidx = stk.back().tree->findNodeIndex( ai->value().toString());
+				int ni = stk.back().nodeidx = stk.back().schemanode->findNodeIndex( ai->value().toString());
 				if (ni < 0)
 				{
 					qCritical() << "attribute not defined in answer description:" << ai->value().toString() << "at" << elementPath(stk);
-					return QList<DataSerializeItem>();
+					return false;
+				}
+				if (stk.back().schemanode->elemtype() == DataTree::Array)
+				{}
+				else if (stk.back().initialized[ ni])
+				{
+					qCritical() << "duplicate attribute:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
+					return false;
 				}
 				stk.back().initialized.setBit( ni, true);
-				if (!stk.back().tree->isAttributeNode( ni))
+				if (!stk.back().schemanode->isAttributeNode( ni))
 				{
 					qCritical() << "attribute is defined as element in answer description:" << ai->value().toString() << "at" << elementPath(stk);
+					return false;
 				}
 				break;
 			}
 			case DataSerializeItem::Value:
 			{
-				int ni = stk.back().nodeidx;
-				QVariant ref = stk.back().tree->nodevalue(ni)->value();
-				if (!ref.isValid())
+				DataTree* datanode = 0;
+				const DataTree* schemanode = 0;
+				if (prevtype == DataSerializeItem::Attribute)
 				{
-					qCritical() << "value not defined in answer description:" << stk.back().tree->nodename(ni) << "at" << elementPath(stk);
+					int ni = stk.back().nodeidx;
+					schemanode = stk.back().schemanode->nodetree(ni).data();
+					datanode = stk.back().datanode->nodetree(ni).data();
 				}
 				else
 				{
-					rt.push_back( DataSerializeItem( DataSerializeItem::Attribute, getVariableName( ref.toString())));
-					rt.push_back( DataSerializeItem( DataSerializeItem::Value, ai->value()));
+					schemanode = stk.back().schemanode;
+					datanode = stk.back().datanode;
 				}
+				if (schemanode && schemanode->value().isValid())
+				{
+					QString ref = schemanode->value().toString();
+					if (ref.size() && ref.at(0) == '{' && ref.at( ref.size()-1) == '}')
+					{
+						datanode->pushNodeValue( ai->value());
+					}
+					else if (ref == "?")
+					{
+					}
+					else
+					{
+						qCritical() << "illegal target variable definition in tree:" << ref;
+						return false;
+					}
+				}
+				break;
 			}
 		}
+		prevtype = ai->type();
 	}
 	if (!stk.isEmpty())
 	{
 		qCritical() << "tags not balanced in answer";
+		return false;
+	}
+	return true;
+}
+
+static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
+{
+	if (!prefix.isValid())
+	{
+		prefix = schemanode->value();
+	}
+	else if (schemanode->value().isValid())
+	{
+		QStringList p1 = prefix.toString().split('.');
+		QStringList p2 = getVariableName( schemanode->value().toString()).split('.');
+		QStringList::const_iterator i1 = p1.begin();
+		QStringList::const_iterator i2 = p2.begin();
+		int prefixlen = 0;
+		for (; i1 != p1.end() && i2 != p2.end(); ++i1,++i2,++prefixlen)
+		{
+			if (*i1 != *i2) break;
+		}
+		QString newprefix;
+		for (int pi=0; pi<prefixlen; ++pi)
+		{
+			if (pi) newprefix.push_back('.');
+			newprefix.append( p1.at( pi));
+		}
+		prefix = QVariant( newprefix);
+	}
+	int ii = 0, nn = schemanode->size();
+	for (; ii<nn; ++ii)
+	{
+		getCommonPrefix( prefix, schemanode->nodetree(ii).data());
+	}
+}
+
+static bool getArraySize( int& arraysize, const DataTree* datanode)
+{
+	if (datanode->value().type() == QVariant::List)
+	{
+		if (arraysize == -1)
+		{
+			arraysize = datanode->value().toList().size();
+		}
+		else
+		{
+			if (arraysize != datanode->value().toList().size())
+			{
+				qCritical() << "array size do not match" << "!=" << arraysize << datanode->value().toList().size();
+				return false;
+			}
+		}
+	}
+	int ii = 0, nn = datanode->size();
+	for (; ii<nn; ++ii)
+	{
+		if (datanode->nodetree(ii)->elemtype() != DataTree::Array)
+		{
+			if (!getArraySize( arraysize, datanode->nodetree(ii).data()))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+struct JoinAssignStackElem
+{
+	int nodeidx;
+	const DataTree* schemanode;
+	DataTree* datanode;
+
+	JoinAssignStackElem()
+		:nodeidx(0),schemanode(0),datanode(0){}
+	JoinAssignStackElem( const JoinAssignStackElem& o)
+		:nodeidx(o.nodeidx),schemanode(o.schemanode),datanode(o.datanode){}
+	JoinAssignStackElem( const DataTree* schemanode_, DataTree* datanode_)
+		:nodeidx(0),schemanode(schemanode_),datanode(datanode_){}
+};
+
+QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schematree, const QList<DataSerializeItem>& answer)
+{
+	QList<WidgetDataAssignmentInstr> rt;
+
+	DataTree datatree = schematree.copyStructure();
+	if (!fillDataTree( datatree, schematree, answer))
+	{
+		qCritical() << "failed to validate request answer";
+		return rt;
+	}
+	QList<JoinAssignStackElem> stk;
+	QStringList prefixstk;
+
+	stk.push_back( JoinAssignStackElem( &schematree, &datatree));
+
+	while (!stk.isEmpty())
+	{
+		if (stk.back().datanode->value().isValid())
+		{
+			QString varname( getVariableName( stk.back().schemanode->value().toString()));
+			QString prefix;
+			if (prefixstk.isEmpty()) prefix = prefixstk.back();
+			if (varname.startsWith( prefix))
+			{
+				varname = varname.mid( prefix.size(), varname.size() - prefix.size());
+			}
+			rt.push_back( WidgetDataAssignmentInstr( varname, stk.back().datanode->value()));
+		}
+		int nodeidx = stk.back().nodeidx;
+		if (nodeidx >= stk.back().schemanode->size())
+		{
+			stk.pop_back();
+			const DataTree* schemanode = stk.back().schemanode->nodetree( nodeidx).data();
+			if (schemanode->elemtype() == DataTree::Array)
+			{
+				rt.push_back( WidgetDataAssignmentInstr());
+				prefixstk.pop_back();
+			}
+		}
+		else
+		{
+			const DataTree* schemanode = stk.back().schemanode->nodetree( nodeidx).data();
+			DataTree* datanode = stk.back().datanode->nodetree( nodeidx).data();
+
+			if (schemanode->elemtype() == DataTree::Array)
+			{
+				QVariant prefix;
+				getCommonPrefix( prefix, stk.back().schemanode);
+				int arraysize = -1;
+				getArraySize( arraysize, stk.back().datanode);
+				rt.push_back( WidgetDataAssignmentInstr( arraysize, prefix.toString()));
+				prefixstk.push_back( prefix.toString() + ".");
+			}
+			stk.push_back( JoinAssignStackElem( schemanode, datanode));
+		}
 	}
 	return rt;
 }

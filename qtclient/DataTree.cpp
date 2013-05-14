@@ -50,32 +50,32 @@ static bool isAlphaNum( QChar ch)
 	return ch.isLetter() || ch == '_' || ch.isDigit();
 }
 
-void DataTree::addNode( const QString& name_, const DataTree& value_)
+void DataTree::addNode( const QString& name_, const DataTree& tree_)
 {
 	if (m_elemtype != Array)
 	{
-		m_nodear.push_back( Node( name_, value_));
+		m_nodear.push_back( Node( name_, tree_));
 	}
 }
 
-void DataTree::addAttribute( const QString& name_, const DataTree& value_)
+void DataTree::addAttribute( const QString& name_, const DataTree& tree_)
 {
 	if (m_nofattributes == m_nodear.size())
 	{
 		++m_nofattributes;
 	}
-	addNode( name_, value_);
+	addNode( name_, tree_);
 }
 
-void DataTree::addArrayElement( const DataTree& value_)
+void DataTree::addArrayElement( const DataTree& tree_)
 {
 	if (m_elemtype == Array)
 	{
-		m_nodear.push_back( Node( QString(""), value_));
+		m_nodear.push_back( Node( QString(""), tree_));
 	}
 }
 
-void DataTree::setNode( const QString& name_, const DataTree& value_)
+void DataTree::setNode( const QString& name_, const DataTree& tree_)
 {
 	if (m_elemtype != Array)
 	{
@@ -84,11 +84,11 @@ void DataTree::setNode( const QString& name_, const DataTree& value_)
 		{
 			if (ni->name == name_)
 			{
-				ni->value = QSharedPointer<DataTree>( new DataTree( value_));
+				ni->tree = QSharedPointer<DataTree>( new DataTree( tree_));
 				return;
 			}
 		}
-		addNode( name_, value_);
+		addNode( name_, tree_);
 	}
 }
 
@@ -97,7 +97,7 @@ const DataTree& DataTree::node( const QString& name_) const
 	static const DataTree inValidNode;
 	foreach (const Node& nd, m_nodear)
 	{
-		if (nd.name == name_) return *nd.value;
+		if (nd.name == name_) return *nd.tree;
 	}
 	return inValidNode;
 }
@@ -131,7 +131,7 @@ static void skipBrk( QString::const_iterator& itr, const QString::const_iterator
 	}
 }
 
-void DataTree::setNodeValue( const QVariant& value_)
+void DataTree::pushNodeValue( const QVariant& value_)
 {
 	if (m_value.isValid())
 	{
@@ -155,7 +155,7 @@ void DataTree::setNodeValue( const QVariant& value_)
 	}
 }
 
-int DataTree::findNodeIndex( const QString& name_)
+int DataTree::findNodeIndex( const QString& name_) const
 {
 	int ii = 0;
 	QList<Node>::const_iterator li = m_nodear.begin(), le = m_nodear.end();
@@ -230,7 +230,7 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 
 			if (is == es)
 			{
-				rt.setNodeValue( QVariant( nodename));
+				rt.pushNodeValue( QVariant( nodename));
 			}
 			else if (*is == '{')
 			{
@@ -295,14 +295,14 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 			else
 			{
 				TRACE_OBJECT( "fromString", "node value", nodename);
-				rt.setNodeValue( QVariant( nodename));
+				rt.pushNodeValue( QVariant( nodename));
 			}
 		}
 		else if (*is == '\'' || *is == '\"')
 		{
 			TRACE_STATE( "fromString", "open string");
 			QString nodevalue = parseString( is, es);
-			rt.setNodeValue( QVariant( nodevalue));
+			rt.pushNodeValue( QVariant( nodevalue));
 		}
 		else if (*is == '{')
 		{
@@ -314,7 +314,7 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 			nodevalue.append( QString( start, is-start).trimmed());
 			nodevalue.push_back( '}');
 			TRACE_OBJECT( "fromString", "curly bracket value", nodevalue);
-			rt.setNodeValue( nodevalue);
+			rt.pushNodeValue( nodevalue);
 			if (is != es)
 			{
 				++is;
@@ -413,17 +413,17 @@ bool DataTree::mapDataTreeToString( const DataTree& dt, QString& str)
 		{
 			TRACE_STATE( "toString", "attribute")
 			str.append( " = ");
-			if (!mapDataTreeToString( *ni->value, str)) return false;
+			if (!mapDataTreeToString( *ni->tree, str)) return false;
 		}
 		else
 		{
 			TRACE_STATE( "toString", "content")
-			if (ni->value->m_elemtype == Array)
+			if (ni->tree->m_elemtype == Array)
 			{
 				str.append( "[]");
 			}
 			str.append( " { ");
-			if (!mapDataTreeToString( *ni->value, str)) return false;
+			if (!mapDataTreeToString( *ni->tree, str)) return false;
 			str.append( " }");
 		}
 	}
@@ -436,6 +436,18 @@ QString DataTree::toString() const
 	if (!mapDataTreeToString( *this, rt))
 	{
 		qCritical() << "Failed to map tree to string (tree data may contain non escapable characters)";
+	}
+	return rt;
+}
+
+DataTree DataTree::copyStructure() const
+{
+	DataTree rt( m_elemtype);
+	rt.m_nofattributes = m_nofattributes;
+	QList<Node>::const_iterator ni = m_nodear.begin(), ne = m_nodear.end();
+	for (; ni != ne; ++ni)
+	{
+		rt.m_nodear.push_back( Node( ni->name, ni->tree->copyStructure()));
 	}
 	return rt;
 }
@@ -544,6 +556,46 @@ QString ActionDefinition::toString() const
 		rt.append( m_command);
 		rt.append( ": ");
 	}
+	rt.append( m_doctype);
+	rt.push_back( ' ');
+	rt.append( m_rootelement);
+	rt.push_back( ' ');
+	rt.push_back( '{');
+	rt.append( m_structure.toString());
+	rt.push_back( '}');
+	return rt;
+}
+
+ActionResultDefinition::ActionResultDefinition( const QString& str)
+{
+	QString::const_iterator itr = str.begin(), end = str.end();
+	skipSpaces( itr, end);
+	for (; itr != end && isAlphaNum(*itr); ++itr);
+	m_doctype = QString( str.begin(), itr-str.begin());
+	skipSpaces( itr, end);
+	if (itr != end && isAlphaNum(*itr))
+	{
+		QString::const_iterator rootstart = itr;
+		for (; itr != end && isAlphaNum(*itr); ++itr);
+		m_rootelement = QString( rootstart, itr-rootstart);
+		skipSpaces( itr, end);
+	}
+	if (itr != end && *itr == '{')
+	{
+		QString::const_iterator start = itr+1;
+		skipBrk( itr, end);
+		m_structure = DataTree::fromString( start, itr);
+	}
+}
+
+ActionResultDefinition::ActionResultDefinition( const ActionResultDefinition& o)
+	:m_doctype(o.m_doctype)
+	,m_rootelement(o.m_rootelement)
+	,m_structure(o.m_structure){}
+
+QString ActionResultDefinition::toString() const
+{
+	QString rt;
 	rt.append( m_doctype);
 	rt.push_back( ' ');
 	rt.append( m_rootelement);

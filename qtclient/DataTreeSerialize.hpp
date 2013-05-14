@@ -33,12 +33,37 @@
 #ifndef _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
 #define _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
 #include "DataSerializeItem.hpp"
+#include "WidgetVisitor.hpp"
 #include "DataTree.hpp"
 #include <QList>
 #include <QWidget>
 
-QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, QWidget* widget);
-QList<DataSerializeItem> getWidgetDataAssignments( const DataTree& datatree, QWidget* widget, const QList<DataSerializeItem>& answer);
+QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, WidgetVisitor& visitor);
+
+struct WidgetDataAssignmentInstr
+{
+	enum Type {Enter, Leave, Assign};
+	static const char* typeName( Type i)
+	{
+		const char* ar[] = {"Enter", "Leave", "Assign"};
+		return ar[ (int)i];
+	}
+	Type type;
+	int arraysize;
+	QString name;
+	QVariant value;
+
+	WidgetDataAssignmentInstr()
+		:type(Leave),arraysize(0){}
+	WidgetDataAssignmentInstr( int arraysize_, const QString& name_)
+		:type(Enter),arraysize(arraysize_),name(name_){}
+	WidgetDataAssignmentInstr( const QString& name_, const QVariant& value_)
+		:type(Assign),arraysize(0),name(name_),value(value_){}
+	WidgetDataAssignmentInstr( const WidgetDataAssignmentInstr& o)
+		:type(o.type),arraysize(o.arraysize),name(o.name),value(o.value){}
+};
+
+QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schematree, const QList<DataSerializeItem>& answer);
 
 #endif
 
