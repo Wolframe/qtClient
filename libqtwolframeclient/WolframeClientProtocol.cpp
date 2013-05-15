@@ -150,7 +150,9 @@ bool WolframeClientProtocol::process()
 
 	for (;;)
 	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "protocol state " << stateName(m_state);
+#endif
 		switch (m_state)
 		{
 			case Close:
@@ -254,6 +256,7 @@ bool WolframeClientProtocol::process()
 				{
 					m_gotAuthorize = false;
 					m_state = AuthorizedIdle;
+					qDebug() << "got authorized... answering requests now";
 					continue;
 				}
 				if (strcmp( item->m_tag, "ERR") == 0)

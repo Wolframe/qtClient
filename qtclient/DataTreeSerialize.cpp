@@ -239,7 +239,7 @@ struct AssignStackElement
 	AssignStackElement()
 		:schemanode(0),datanode(0),nodeidx(0){}
 	AssignStackElement( const QString& name_, const DataTree* schemanode_, DataTree* datanode_)
-		:name(name_),schemanode( schemanode_),datanode( datanode_),nodeidx(0),initialized(schemanode->size(), false),valueset(schemanode->size(), false){}
+		:name(name_),schemanode( schemanode_),datanode( datanode_),nodeidx(0),initialized(schemanode->size(), false),valueset(schemanode->size()+1, false){}
 	AssignStackElement( const AssignStackElement& o)
 		:name(o.name),schemanode(o.schemanode),datanode(o.datanode),nodeidx(o.nodeidx),initialized(o.initialized),valueset(o.valueset){}
 };
@@ -358,7 +358,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 
 					if (stk.back().valueset.testBit( ni))
 					{
-						qCritical() << "duplicate value element:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
+						qCritical() << "duplicate attribute element:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
 						return false;
 					}
 					stk.back().valueset.setBit( ni, true);
@@ -371,12 +371,14 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 					{
 						AssignStackElement* prev = &stk[ stk.size()-2];
 						int ni = prev->nodeidx;
-						if (prev->valueset.testBit( ni))
+						if (stk.back().valueset.testBit( stk.back().valueset.size()-1))
 						{
+							// ... speial index (last) in valueset used for checking duplicates only
 							qCritical() << "duplicate value element:" << prev->schemanode->nodename( ni) << "at" << elementPath(stk);
 							return false;
 						}
 						prev->valueset.setBit( ni, true);
+						stk.back().valueset.setBit( stk.back().valueset.size()-1, true);
 					}
 					else
 					{

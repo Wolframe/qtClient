@@ -328,7 +328,8 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 		else if (*is == '{')
 		{
 			TRACE_STATE( "fromString", "open value bracket");
-			QString::const_iterator start = ++is;
+			QString::const_iterator start = is+1;
+
 			skipBrk( is, es);
 			QString nodevalue;
 			QString nodevar = QString( start, is-start).trimmed();

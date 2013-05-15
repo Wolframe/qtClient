@@ -38,6 +38,8 @@
 #include "DataFormatXML.hpp"
 #include <QVariant>
 
+#define WOLFRAME_LOWLEVEL_DEBUG
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
 static QVariant SHORTEN( const QVariant& val)
 {
 	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "...";
@@ -52,9 +54,6 @@ static QVariant SHORTEN( const QVariant& val)
 	}
 	return val;
 }
-
-#undef WOLFRAME_LOWLEVEL_DEBUG
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << SHORTEN(VALUE);
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
 #else
