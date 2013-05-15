@@ -53,7 +53,7 @@ public:
 	explicit DataTree( ElementType elemtype_=Invalid)
 		:m_elemtype(elemtype_),m_nofattributes(0){}
 	DataTree( const DataTree& o)
-		:m_elemtype(o.m_elemtype),m_value(o.m_value),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
+		:m_elemtype(o.m_elemtype),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
 	DataTree( const QVariant& value_)
 		:m_elemtype(Single),m_value(value_),m_nofattributes(0){}
 
@@ -72,6 +72,7 @@ public:
 
 	int size() const					{return m_nodear.size();}
 	const QVariant& value() const				{return m_value;}
+	const QVariant& defaultvalue() const			{return m_defaultvalue;}
 	ElementType elemtype() const				{return m_elemtype;}
 
 	bool isValid() const					{return m_elemtype != Invalid;}
@@ -105,6 +106,7 @@ private:
 
 	ElementType m_elemtype;
 	QVariant m_value;
+	QVariant m_defaultvalue;
 	QList<Node> m_nodear;
 	int m_nofattributes;
 };

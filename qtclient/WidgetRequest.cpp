@@ -40,10 +40,20 @@
 
 static QVariant SHORTEN( const QVariant& val)
 {
-	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "..."; else return val;
+	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "...";
+	if (val.type() == QVariant::List)
+	{
+		QList<QVariant> rt;
+		foreach (const QVariant& vv, val.toList())
+		{
+			rt.push_back( SHORTEN( vv));
+		}
+		return QVariant(rt);
+	}
+	return val;
 }
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "widget answer XML " << (TITLE) << SHORTEN(VALUE);
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "widget answer XML " << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
@@ -256,9 +266,6 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 	foreach( const DataSerializeItem& item, itemlist)
 	{
 		TRACE_ASSIGNMENT( "answer element", DataSerializeItem::typeName( item.type()), item.value())
-	}
-	foreach( const DataSerializeItem& item, itemlist)
-	{
 		switch (item.type())
 		{
 			case DataSerializeItem::OpenTag:
@@ -350,8 +357,10 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 	QList<AssignIterStackElem> astk;
 
 	QList<WidgetDataAssignmentInstr>::const_iterator ai = assignments.begin(), ae = assignments.end();
+	QList<int> aidxposar;
 	for (; ai != ae; ++ai)
 	{
+		aidxposar.push_back(0);
 		qDebug() << "widget assignment" << WidgetDataAssignmentInstr::typeName( ai->type) << "size=" << ai->arraysize << ":" << ai->name << "=" << SHORTEN( ai->value);
 	}
 	for (ai = assignments.begin(); ai != ae; ++ai)
@@ -361,6 +370,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 			case WidgetDataAssignmentInstr::Enter:
 				if (ai->arraysize > 0)
 				{
+					TRACE_VALUE( "enter", ai->name)
 					visitor.enter( ai->name, true);
 					astk.push_back( AssignIterStackElem( ai));
 				}
@@ -391,10 +401,12 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 				break;
 
 			case WidgetDataAssignmentInstr::Leave:
+				TRACE_VALUE( "leave", ai->name)
 				visitor.leave( true);
-				if (astk.back().arraypos < astk.back().iter->arraysize)
+				if (astk.back().arraypos+1 < astk.back().iter->arraysize)
 				{
-					visitor.enter( ai->name, true);
+					TRACE_VALUE( "enter (again)", astk.back().iter->name)
+					visitor.enter( astk.back().iter->name, true);
 					astk.back().arraypos++;
 					ai = astk.back().iter;
 				}
@@ -417,11 +429,13 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 					}
 					else
 					{
-						if (!visitor.setProperty( ai->name, ai->value.toList().at( astk.back().arraypos)))
+						TRACE_ASSIGNMENT( "set property", ai->name, ai->value.toList().at( astk.back().arraypos))
+						if (!visitor.setProperty( ai->name, ai->value.toList().at( aidxposar[ ai-assignments.begin()])))
 						{
-							qCritical() << "failed to set property" << ai->name << "[" << astk.back().arraypos << "]";
+							qCritical() << "failed to set property" << ai->name << "[" << aidxposar.at( ai-assignments.begin()) << "]";
 							rt = false;
 						}
+						++aidxposar[ ai-assignments.begin()];
 					}
 				}
 				else

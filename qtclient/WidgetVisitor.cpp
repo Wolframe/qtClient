@@ -54,9 +54,13 @@
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
+static QVariant SHORTEN( const QVariant& val)
+{
+	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "..."; else return val;
+}
 #define TRACE_STATUS( TITLE, CLASS, OBJ, NAME)		qDebug() << "widget visit state" << (TITLE) << (CLASS) << (OBJ) << (NAME);
-#define TRACE_FETCH( TITLE, OBJ, NAME, VALUE)		qDebug() << "widget visit get" << (TITLE) << (OBJ) << (NAME) << "=" << (VALUE);
-#define TRACE_ASSIGNMENT( TITLE, OBJ, NAME, VALUE)	qDebug() << "widget visit set" << (TITLE) << (OBJ) << (NAME) << "=" << (VALUE);
+#define TRACE_FETCH( TITLE, OBJ, NAME, VALUE)		qDebug() << "widget visit get" << (TITLE) << (OBJ) << (NAME) << "=" << SHORTEN(VALUE);
+#define TRACE_ASSIGNMENT( TITLE, OBJ, NAME, VALUE)	qDebug() << "widget visit set" << (TITLE) << (OBJ) << (NAME) << "=" << SHORTEN(VALUE);
 #define TRACE_ENTER( TITLE, CLASS, OBJ, NAME)		qDebug() << "widget visit enter" << (TITLE) << (CLASS) << (OBJ) << "into" << (NAME);
 #define TRACE_LEAVE( TITLE)				qDebug() << "widget visit leave" << (TITLE);
 #else
@@ -1135,7 +1139,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 		prefix = name.mid( 0, followidx);
 		rest = name.mid( followidx+1, name.size()-followidx-1);
 		TRACE_STATUS( "structured property", name, prefix, rest)
-		if (enter( prefix, false, level))
+		if (enter( prefix, true, level))
 		{
 			subelem = true;
 		}

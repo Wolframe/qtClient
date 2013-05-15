@@ -4,6 +4,20 @@
 #include <QDebug>
 #include <QBitArray>
 
+#define WOLFRAME_LOWLEVEL_DEBUG
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+static QVariant SHORTEN( const QVariant& val)
+{
+	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "..."; else return val;
+}
+#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "data tree serialize " << (TITLE) << SHORTEN(VALUE);
+#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "data tree serialize " << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
+#else
+#define TRACE_VALUE( TITLE, VALUE)
+#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)
+#endif
+
+
 struct SerializeStackElement
 {
 	QString name;
@@ -143,7 +157,7 @@ static QString getVariableName( const QString& value)
 	if (value.isEmpty()) return value;
 	if (value.at(0) == '{' && value.at(value.size()-1) == '}')
 	{
-		QString res = value.mid( 1, value.size()-2);
+		QString res = value.mid( 1, value.size()-2).trimmed();
 		return res;
 	}
 	return value;
@@ -220,13 +234,14 @@ struct AssignStackElement
 	DataTree* datanode;
 	int nodeidx;
 	QBitArray initialized;
+	QBitArray valueset;
 
 	AssignStackElement()
 		:schemanode(0),datanode(0),nodeidx(0){}
 	AssignStackElement( const QString& name_, const DataTree* schemanode_, DataTree* datanode_)
-		:name(name_),schemanode( schemanode_),datanode( datanode_),nodeidx(0),initialized(schemanode->size(), false){}
+		:name(name_),schemanode( schemanode_),datanode( datanode_),nodeidx(0),initialized(schemanode->size(), false),valueset(schemanode->size(), false){}
 	AssignStackElement( const AssignStackElement& o)
-		:name(o.name),schemanode(o.schemanode),datanode(o.datanode),nodeidx(o.nodeidx),initialized(o.initialized){}
+		:name(o.name),schemanode(o.schemanode),datanode(o.datanode),nodeidx(o.nodeidx),initialized(o.initialized),valueset(o.valueset){}
 };
 
 static QString elementPath( const QList<AssignStackElement>& stk)
@@ -243,6 +258,7 @@ static QString elementPath( const QList<AssignStackElement>& stk)
 
 static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const QList<DataSerializeItem>& answer)
 {
+	bool rt = true;
 	QList<AssignStackElement> stk;
 	stk.push_back( AssignStackElement( QString(), &schematree, &datatree));
 
@@ -256,6 +272,8 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 	QList<DataSerializeItem>::const_iterator ai = answer.begin(), ae = answer.end();
 	for (; ai != ae; ++ai)
 	{
+		TRACE_VALUE( DataSerializeItem::typeName( ai->type()), ai->value())
+
 		switch (ai->type())
 		{
 			case DataSerializeItem::OpenTag:
@@ -269,7 +287,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				if (stk.back().schemanode->isAttributeNode( ni))
 				{
 					qCritical() << "element is defined as attribute in answer description:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
-					return false;
+					rt = false;
 				}
 				if (stk.back().schemanode->nodetree(ni)->elemtype() == DataTree::Array)
 				{}
@@ -290,8 +308,16 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				{
 					if (!stk.back().initialized.testBit( ii) && stk.back().schemanode->nodetree( ii)->elemtype() != DataTree::Array)
 					{
-						qCritical() << "element not initialized in answer:" << stk.back().schemanode->nodename( ii) << "at" << elementPath(stk);
-						return false;
+						if (getVariableName( stk.back().schemanode->nodetree(ii)->value().toString()) != "?")
+						{
+							qCritical() << "element not initialized in answer:" << stk.back().schemanode->nodename( ii) << "at" << elementPath(stk);
+						}
+						stk.back().datanode->nodetree( ii)->pushNodeValue( QVariant());
+					}
+					else if (!stk.back().valueset.testBit( ii)
+						&& stk.back().schemanode->nodetree(ii)->value().isValid())
+					{
+						stk.back().datanode->nodetree( ii)->pushNodeValue( QString());
 					}
 				}
 				stk.pop_back();
@@ -316,7 +342,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				if (!stk.back().schemanode->isAttributeNode( ni))
 				{
 					qCritical() << "attribute is defined as element in answer description:" << ai->value().toString() << "at" << elementPath(stk);
-					return false;
+					rt = false;
 				}
 				break;
 			}
@@ -329,26 +355,48 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 					int ni = stk.back().nodeidx;
 					schemanode = stk.back().schemanode->nodetree(ni).data();
 					datanode = stk.back().datanode->nodetree(ni).data();
+
+					if (stk.back().valueset.testBit( ni))
+					{
+						qCritical() << "duplicate value element:" << stk.back().schemanode->nodename( ni) << "at" << elementPath(stk);
+						return false;
+					}
+					stk.back().valueset.setBit( ni, true);
 				}
 				else
 				{
 					schemanode = stk.back().schemanode;
 					datanode = stk.back().datanode;
+					if (stk.size() > 1)
+					{
+						AssignStackElement* prev = &stk[ stk.size()-2];
+						int ni = prev->nodeidx;
+						if (prev->valueset.testBit( ni))
+						{
+							qCritical() << "duplicate value element:" << prev->schemanode->nodename( ni) << "at" << elementPath(stk);
+							return false;
+						}
+						prev->valueset.setBit( ni, true);
+					}
+					else
+					{
+						qCritical() << "value without enclosing tag";
+						return false;
+					}
 				}
 				if (schemanode && schemanode->value().isValid())
 				{
-					QString ref = schemanode->value().toString();
-					if (ref.size() && ref.at(0) == '{' && ref.at( ref.size()-1) == '}')
+					QString ref = getVariableName( schemanode->value().toString());
+					if (ref == "?")
+					{}
+					else if (!ref.isEmpty())
 					{
 						datanode->pushNodeValue( ai->value());
-					}
-					else if (ref == "{?}")
-					{
 					}
 					else
 					{
 						qCritical() << "illegal target variable definition in tree:" << ref;
-						return false;
+						rt = false;
 					}
 				}
 				break;
@@ -361,14 +409,14 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 		qCritical() << "tags not balanced in answer" << stk.size();
 		return false;
 	}
-	return true;
+	return rt;
 }
 
 static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
 {
-	if (!prefix.isValid())
+	if (!prefix.isValid() && schemanode->value().isValid())
 	{
-		prefix = schemanode->value();
+		prefix = getVariableName( schemanode->value().toString());
 	}
 	else if (schemanode->value().isValid())
 	{
@@ -402,11 +450,23 @@ static bool getArraySize( int& arraysize, const DataTree* datanode)
 	{
 		if (arraysize == -1)
 		{
-			arraysize = datanode->value().toList().size();
+			if (datanode->value().type() == QVariant::List)
+			{
+				arraysize = datanode->value().toList().size();
+			}
+			else
+			{
+				arraysize = 1;
+			}
 		}
 		else
 		{
-			if (arraysize != datanode->value().toList().size())
+			int osize = 1;
+			if (datanode->value().type() == QVariant::List)
+			{
+				osize = datanode->value().toList().size();
+			}
+			if (arraysize != osize)
 			{
 				qCritical() << "array size do not match" << "!=" << arraysize << datanode->value().toList().size();
 				return false;
@@ -452,6 +512,7 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 		return rt;
 	}
 	QList<JoinAssignStackElem> stk;
+	QList<int> arraydimar;
 	QStringList prefixstk;
 
 	stk.push_back( JoinAssignStackElem( &schematree, &datatree));
@@ -487,10 +548,16 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 			if (schemanode->elemtype() == DataTree::Array)
 			{
 				QVariant prefix;
-				getCommonPrefix( prefix, stk.back().schemanode);
+				getCommonPrefix( prefix, schemanode);
 				int arraysize = -1;
-				getArraySize( arraysize, stk.back().datanode);
-				rt.push_back( WidgetDataAssignmentInstr( arraysize, prefix.toString()));
+				int arrayinc = 1;
+				if (!getArraySize( arraysize, datanode))
+				{
+					return QList<WidgetDataAssignmentInstr>();
+				}
+				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
+				arraydimar.push_back( (arraysize>1)?arraysize:1);
+				rt.push_back( WidgetDataAssignmentInstr( arraysize/arrayinc, prefix.toString()));
 				prefixstk.push_back( prefix.toString());
 			}
 			stk.push_back( JoinAssignStackElem( schemanode, datanode));

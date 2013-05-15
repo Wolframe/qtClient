@@ -149,9 +149,15 @@ void DataTree::pushNodeValue( const QVariant& value_)
 			m_value = QVariant( lst);
 		}
 	}
-	else
+	else if (value_.isValid())
 	{
 		m_value = QVariant( value_);
+	}
+	else
+	{
+		QList<QVariant> lst;
+		lst.push_back( value_);
+		m_value = QVariant( lst);
 	}
 }
 
@@ -230,7 +236,12 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 
 			if (is == es)
 			{
-				rt.pushNodeValue( QVariant( nodename));
+				if (rt.m_value.isValid())
+				{
+					TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
+					return DataTree( Invalid);
+				}
+				rt.m_value = QVariant( nodename);
 			}
 			else if (*is == '{')
 			{
@@ -295,14 +306,24 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 			else
 			{
 				TRACE_OBJECT( "fromString", "node value", nodename);
-				rt.pushNodeValue( QVariant( nodename));
+				if (rt.m_value.isValid())
+				{
+					TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
+					return DataTree( Invalid);
+				}
+				rt.m_value = QVariant( nodename);
 			}
 		}
 		else if (*is == '\'' || *is == '\"')
 		{
 			TRACE_STATE( "fromString", "open string");
 			QString nodevalue = parseString( is, es);
-			rt.pushNodeValue( QVariant( nodevalue));
+			if (rt.m_value.isValid())
+			{
+				TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
+				return DataTree( Invalid);
+			}
+			rt.m_value = QVariant( nodevalue);
 		}
 		else if (*is == '{')
 		{
@@ -310,11 +331,24 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 			QString::const_iterator start = ++is;
 			skipBrk( is, es);
 			QString nodevalue;
+			QString nodevar = QString( start, is-start).trimmed();
+			int dd;
+			if ((dd=nodevar.indexOf(':')) >= 0)
+			{
+				rt.m_defaultvalue = QVariant( nodevar.mid( dd+1, nodevar.size()-dd-1));
+				nodevar = nodevar.mid( 0, dd);
+			}
 			nodevalue.push_back( '{');
-			nodevalue.append( QString( start, is-start).trimmed());
+			nodevalue.append( nodevar);
 			nodevalue.push_back( '}');
 			TRACE_OBJECT( "fromString", "curly bracket value", nodevalue);
-			rt.pushNodeValue( nodevalue);
+			TRACE_OBJECT( "fromString", "default value", rt.m_defaultvalue);
+			if (rt.m_value.isValid())
+			{
+				TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
+				return DataTree( Invalid);
+			}
+			rt.m_value = QVariant( nodevalue);
 			if (is != es)
 			{
 				++is;
@@ -570,6 +604,17 @@ QString ActionDefinition::toString() const
 	return rt;
 }
 
+static bool hasDefaultValue( const DataTree* node)
+{
+	if (node->defaultvalue().isValid()) return true;
+	int ii=0, nn=node->size();
+	for (; ii<nn; ++ii)
+	{
+		if (hasDefaultValue( node->nodetree( ii).data())) return true;
+	}
+	return false;
+}
+
 ActionResultDefinition::ActionResultDefinition( const QString& str)
 {
 	QString::const_iterator itr = str.begin(), end = str.end();
@@ -592,6 +637,10 @@ ActionResultDefinition::ActionResultDefinition( const QString& str)
 		if (m_structure.elemtype() == DataTree::Invalid)
 		{
 			qCritical() << "invalid action result definition";
+		}
+		if (hasDefaultValue( &m_structure))
+		{
+			qCritical() << "error: used default values in action result definition";
 		}
 	}
 }
