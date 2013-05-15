@@ -37,7 +37,7 @@ contains(TEMPLATE, ".*lib"):TARGET = $$qtLibraryTarget($$TARGET)
 target.path = $$[QT_INSTALL_PLUGINS]/designer
 INSTALLS += target
 
-QMAKE_RPATHDIR += $$[QT_INSTALL_PLUGINS]/designer
+unix:QMAKE_LFLAGS += -Wl,-rpath,$$[QT_INSTALL_PLUGINS]/designer
 
 build_all:!build_pass {
     CONFIG -= build_all

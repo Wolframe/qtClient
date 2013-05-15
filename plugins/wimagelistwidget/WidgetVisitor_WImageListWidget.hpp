@@ -31,16 +31,17 @@
 
 ************************************************************************/
 
-#ifndef _WIDGET_VISIOR_QListWidget_HPP_INCLUDED
-#define _WIDGET_VISIOR_QListWidget_HPP_INCLUDED
-#include "WidgetVisitorObject.hpp"
-#include <QListWidget>
+#ifndef _WIDGET_VISIOR_WImageListWidget_HPP_INCLUDED
+#define _WIDGET_VISIOR_WImageListWidget_HPP_INCLUDED
 
-class WidgetVisitorState_QListWidget
+#include "WidgetVisitorObject.hpp"
+#include "WImageListWidget.hpp"
+
+class WidgetVisitorState_WImageListWidget
 	:public WidgetVisitorObject
 {
 public:
-	WidgetVisitorState_QListWidget( QWidget* widget_);
+	WidgetVisitorState_WImageListWidget( QWidget* widget_);
 
 	virtual bool enter( const QString& name, bool writemode);
 	virtual bool leave( bool writemode);
@@ -66,4 +67,4 @@ private:
 	int m_row;
 };
 
-#endif
+#endif	// _WIDGET_VISIOR_WImageListWidget_HPP_INCLUDED

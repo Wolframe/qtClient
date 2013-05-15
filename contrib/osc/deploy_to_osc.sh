@@ -23,7 +23,7 @@ CHKSUM=`md5sum $OSC_HOME/wolframe-qtclient_$VERSION.tar.gz | cut -f 1 -d' '`
 
 
 cat contrib/osc/qtClient.dsc > $OSC_HOME/qtClient.dsc
-echo " $CHKSUM $SIZE wolframe-qtclient$VERSION.tar.gz" >> $OSC_HOME/qtClient.dsc
+echo " $CHKSUM $SIZE wolframe-qtclient_$VERSION.tar.gz" >> $OSC_HOME/qtClient.dsc
 
 cat contrib/osc/PKGBUILD > $OSC_HOME/PKGBUILD
 echo "md5sums=('$CHKSUM' '$CHKSUM2' '$CHKSUM3')" >> $OSC_HOME/PKGBUILD

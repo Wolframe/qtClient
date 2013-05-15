@@ -31,6 +31,8 @@ build_all:!build_pass {
     CONFIG += release
 }
 
+INCLUDEPATH += $$PWD/../../qtclient
+
 # Input
 SOURCES += \
     WImageListWidgetPlugin.cpp \

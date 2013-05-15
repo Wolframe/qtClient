@@ -266,6 +266,7 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 	foreach( const DataSerializeItem& item, itemlist)
 	{
 		TRACE_ASSIGNMENT( "answer element", DataSerializeItem::typeName( item.type()), item.value())
+
 		switch (item.type())
 		{
 			case DataSerializeItem::OpenTag:
