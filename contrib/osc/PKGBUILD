@@ -16,15 +16,15 @@ package() {
   cd ${srcdir}/${pkgname}-${pkgver}
 
   msg "Installing.."
-  make install
+  make install INSTALL_ROOT=${pkgdir}
 }
 
 build() {
   cd ${srcdir}/${pkgname}-${pkgver}
 
   msg "Generating makefiles.."
-  qmake-qt4
-
+  qmake-qt4 PREFIX=/usr
+  
   msg "Building..."
   make
 }
