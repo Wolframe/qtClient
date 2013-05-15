@@ -134,6 +134,7 @@ rm -rf $RPM_BUILD_ROOT
 #%dir %{_bindir}
 #%endif
 %{_bindir}/qtclient
+%dir %{_libdir}/wolframe
 %{_libdir}/wolframe/libskeleton.so.0.0.1
 %{_libdir}/wolframe/libskeleton.so.0
 %{_libdir}/wolframe/libqtwolframeclient.so.0.0.1
