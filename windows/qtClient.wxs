@@ -93,11 +93,11 @@ Project Wolframe.
 								<?ifdef var.debug?>
 									<File Id="filechooserd.dll" Name="filechooserd.dll" DiskId="1" Source="..\plugins\filechooser\$(var.builddir)\filechooserd.dll"/>
 									<File Id="picturechooserd.dll" Name="picturechooserd.dll" DiskId="1" Source="..\plugins\picturechooser\$(var.builddir)\picturechooserd.dll"/>
-									<File Id="imagelistviewd.dll" Name="imagelistviewd.dll" DiskId="1" Source="..\plugins\imagelistview\$(var.builddir)\imagelistviewd.dll"/>
+									<File Id="wimagelistwidgetd.dll" Name="wimagelistwidgetd.dll" DiskId="1" Source="..\plugins\wimagelistwidget\$(var.builddir)\wimagelistwidgetd.dll"/>
 								<?else?>
 									<File Id="filechooser.dll" Name="filechooser.dll" DiskId="1" Source="..\plugins\filechooser\$(var.builddir)\filechooser.dll"/>
 									<File Id="filechooser.dll" Name="picturechhoser.dll" DiskId="1" Source="..\plugins\picturechhoser\$(var.builddir)\picturechhoser.dll"/>
-									<File Id="imagelistview.dll" Name="imagelistview.dll" DiskId="1" Source="..\plugins\imagelistview\$(var.builddir)\imagelistview.dll"/>
+									<File Id="wimagelistwidget.dll" Name="wimagelistwidget.dll" DiskId="1" Source="..\plugins\wimagelistwidget\$(var.builddir)\wimagelistwidget.dll"/>
 								<?endif?>
 							</Component>
 							
