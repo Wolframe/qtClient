@@ -53,10 +53,10 @@ static QVariant SHORTEN( const QVariant& val)
 	return val;
 }
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "widget answer XML " << (TITLE) << SHORTEN(VALUE);
-#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "widget answer XML " << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
+#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << SHORTEN(VALUE);
+#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
 #else
 #define TRACE_VALUE( TITLE, VALUE)
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)
@@ -258,7 +258,7 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 	QList<DataSerializeItem> itemlist = getXMLSerialization( "", "", answer);
 
 	visitor.clear();
-	qDebug() << "feeding widget " << visitor.objectName() << "with XML";
+	qDebug() << "feeding widget " << visitor.objectName() << "with implicitely mapped answer";
 
 	DataSerializeItem::Type prevType = DataSerializeItem::CloseTag;
 	QString attributename;
@@ -354,6 +354,9 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 
 	QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
 
+	visitor.clear();
+	qDebug() << "feeding widget " << visitor.objectName() << "with validated answer";
+
 	QList<WidgetDataAssignmentInstr> assignments = getWidgetDataAssignments( resultdef.structure(), itemlist);
 	QList<AssignIterStackElem> astk;
 
@@ -362,7 +365,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 	for (; ai != ae; ++ai)
 	{
 		aidxposar.push_back(0);
-		qDebug() << "widget assignment" << WidgetDataAssignmentInstr::typeName( ai->type) << "size=" << ai->arraysize << ":" << ai->name << "=" << SHORTEN( ai->value);
+		TRACE_ASSIGNMENT( QString("answer assignment ") + WidgetDataAssignmentInstr::typeName( ai->type), ai->name, SHORTEN( ai->value));
 	}
 	for (ai = assignments.begin(); ai != ae; ++ai)
 	{

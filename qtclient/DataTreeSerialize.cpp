@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QBitArray>
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 static QVariant SHORTEN( const QVariant& val)
 {
