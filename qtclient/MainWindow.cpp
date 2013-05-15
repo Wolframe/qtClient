@@ -276,9 +276,13 @@ void MainWindow::create( )
 
 // a Qt UI loader for the main theme window and also used by all form widgets
 	m_uiLoader = new QUiLoader( );
-	//m_uiLoader->setLanguageChangeEnabled( true );
-	m_uiLoader->addPluginPath( "plugins" );
+	m_uiLoader->setLanguageChangeEnabled( true );
+// for Windows, to find plugins in local installation directory
 	m_uiLoader->addPluginPath( "." );
+// for running in git workspace (for development)
+	m_uiLoader->addPluginPath( "../plugins/filechooser" );
+	m_uiLoader->addPluginPath( "../plugins/picturechooser" );
+	m_uiLoader->addPluginPath( "../plugins/wimagelistwidget" );
 	QStringList paths = m_uiLoader->pluginPaths( );
 	qDebug( ) << "Will load custom widget plugins from" << paths;
 
