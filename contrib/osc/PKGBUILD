@@ -7,7 +7,7 @@ license=('GPL3')
 arch=('i686' 'x86_64')
 url="http://wolframe.net/"
 depends=('qt4')
-makedepends=('mesa-libgl')
+makedepends=('mesa-libgl' 'gdb')
 source=(
   "${pkgname}_${pkgver}.tar.gz"
 )
@@ -23,7 +23,7 @@ build() {
   cd ${srcdir}/${pkgname}-${pkgver}
 
   msg "Generating makefiles.."
-  qmake-qt4 PREFIX=/usr
+  qmake-qt4 -config release PREFIX=/usr
   
   msg "Building..."
   make
