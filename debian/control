@@ -15,6 +15,6 @@ Description: Wolframe Qt client
 
 Package: wolframe-qtclient-dev
 Architecture: any
-Depends: wolframe, ${shlibs:Depends}, ${misc:Depends}
+Depends: wolframe-qtclient, ${shlibs:Depends}, ${misc:Depends}
 Description: Wolframe Qt client development
  The Wolframe client SDK development files.
