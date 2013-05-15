@@ -253,10 +253,12 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 	DataSerializeItem::Type prevType = DataSerializeItem::CloseTag;
 	QString attributename;
 
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
 	foreach( const DataSerializeItem& item, itemlist)
 	{
 		TRACE_ASSIGNMENT( "answer element", DataSerializeItem::typeName( item.type()), item.value())
 	}
+#endif
 	foreach( const DataSerializeItem& item, itemlist)
 	{
 		switch (item.type())
