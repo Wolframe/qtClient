@@ -5,7 +5,7 @@ TARGET = qtclient
 target.path = $${PREFIX}/bin
 INSTALLS += target
 
-CONFIG += thread qt debug
+CONFIG += qt warn_on
 
 DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT SKELETON_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT
 
@@ -16,6 +16,7 @@ macx:LIBS += ../libqtwolframeclient/build/Release/libqtwolframeclient0.dylib ../
 INCLUDEPATH += ../libqtwolframeclient ../skeleton ../plugins/filechooser ../plugins/picturechooser
 
 unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so ../skeleton/libskeleton.so ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
+unix:QMAKE_LFLAGS += -Wl,-rpath,$$LIBDIR
 unix:QMAKE_LFLAGS += -Wl,-rpath,$$[QT_INSTALL_PLUGINS]/designer
 win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 macx:PRE_TARGETDEPS += ../libqtwolframeclient/build/release/libqtwolframeclient0.dylib ../skeleton/build/Release/skeleton0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
