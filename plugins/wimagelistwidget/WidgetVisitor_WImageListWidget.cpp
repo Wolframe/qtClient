@@ -30,29 +30,29 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "WidgetVisitor_QListWidget.hpp"
+#include "WidgetVisitor_WImageListWidget.hpp"
 #include "WidgetListener.hpp"
 #include "WidgetEnabler.hpp"
 #include <QDebug>
 
-WidgetVisitorState_QListWidget::WidgetVisitorState_QListWidget( QWidget* widget_)
+WidgetVisitorState_WImageListWidget::WidgetVisitorState_WImageListWidget( QWidget* widget_)
 	:WidgetVisitorObject(widget_)
 	,m_listWidget(qobject_cast<QListWidget*>(widget_))
 	,m_mode(Init)
 	,m_row(-1)
 {}
 
-void WidgetVisitorState_QListWidget::clear()
+void WidgetVisitorState_WImageListWidget::clear()
 {
 	m_listWidget->clear();
 }
 
-bool WidgetVisitorState_QListWidget::isArrayElement( const QString& name)
+bool WidgetVisitorState_WImageListWidget::isArrayElement( const QString& name)
 {
 	return name == "item";
 }
 
-bool WidgetVisitorState_QListWidget::enter( const QString& name, bool writemode)
+bool WidgetVisitorState_WImageListWidget::enter( const QString& name, bool writemode)
 {
 	static const QString item_str( "item");
 	if (m_mode == Init && name == item_str)
@@ -79,7 +79,7 @@ bool WidgetVisitorState_QListWidget::enter( const QString& name, bool writemode)
 	return false;
 }
 
-bool WidgetVisitorState_QListWidget::leave( bool /*writemode*/)
+bool WidgetVisitorState_WImageListWidget::leave( bool /*writemode*/)
 {
 	if (m_mode == Element)
 	{
@@ -90,7 +90,7 @@ bool WidgetVisitorState_QListWidget::leave( bool /*writemode*/)
 }
 
 
-QVariant WidgetVisitorState_QListWidget::property( const QString& name)
+QVariant WidgetVisitorState_WImageListWidget::property( const QString& name)
 {
 	switch (m_mode)
 	{
@@ -153,7 +153,7 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 	return QVariant();
 }
 
-bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVariant& data)
+bool WidgetVisitorState_WImageListWidget::setProperty( const QString& name, const QVariant& data)
 {
 	switch (m_mode)
 	{
@@ -185,7 +185,7 @@ bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVa
 	return false;
 }
 
-void WidgetVisitorState_QListWidget::setState( const QVariant& state)
+void WidgetVisitorState_WImageListWidget::setState( const QVariant& state)
 {
 	qDebug() << "set state for list widget" << m_listWidget->objectName();
 	for( int i = 0; i < m_listWidget->count( ); i++ )
@@ -205,7 +205,7 @@ void WidgetVisitorState_QListWidget::setState( const QVariant& state)
 	}
 }
 
-QVariant WidgetVisitorState_QListWidget::getState() const
+QVariant WidgetVisitorState_WImageListWidget::getState() const
 {
 	QList<QVariant> selected;
 	foreach (const QListWidgetItem* item, m_listWidget->selectedItems())
@@ -215,7 +215,7 @@ QVariant WidgetVisitorState_QListWidget::getState() const
 	return QVariant(selected);
 }
 
-void WidgetVisitorState_QListWidget::endofDataFeed()
+void WidgetVisitorState_WImageListWidget::endofDataFeed()
 {
 	QVariant selected = m_listWidget->property( "_w_selected");
 	if (selected.isValid())
@@ -240,7 +240,7 @@ void WidgetVisitorState_QListWidget::endofDataFeed()
 	}
 }
 
-void WidgetVisitorState_QListWidget::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
+void WidgetVisitorState_WImageListWidget::connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener)
 {
 	switch (dt)
 	{
@@ -258,7 +258,7 @@ void WidgetVisitorState_QListWidget::connectDataSignals( WidgetListener::DataSig
 	}
 }
 
-void WidgetVisitorState_QListWidget::connectWidgetEnabler( WidgetEnabler& enabler)
+void WidgetVisitorState_WImageListWidget::connectWidgetEnabler( WidgetEnabler& enabler)
 {
 	QObject::connect( m_listWidget, SIGNAL( currentItemChanged(QListWidgetItem*,QListWidgetItem*)), &enabler, SLOT( changed()), Qt::UniqueConnection);
 	QObject::connect( m_listWidget, SIGNAL( currentRowChanged(int)), &enabler, SLOT( changed()), Qt::UniqueConnection);
