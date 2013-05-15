@@ -89,6 +89,10 @@ License: Wolframe License
 Group: Application/Business
 Source: %{name}_%{version}.tar.gz
 
+URL: http://www.wolframe.net/
+
+BuildRoot: %{_tmppath}/%{name}-root
+
 %if %{rhel} || %{centos} || %{fedora}
 BuildRequires: qt4-devel >= 4.5
 Requires: qt4 >= 4.5
