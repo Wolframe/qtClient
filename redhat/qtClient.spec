@@ -113,11 +113,11 @@ Generic Qt client for the Wolframe system.
 
 %build
 %if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
-qmake-qt4 qtClient.pro PREFIX=%{_prefix} LIBDIR=%{_libdir}
+qmake-qt4 qtClient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %else
-qmake qtClient.pro PREFIX=%{_prefix} LIBDIR=%{_libdir}
+qmake qtClient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %endif
-make %{?_smp_mflags} LIBDIR=%{_libdir}
+make %{?_smp_mflags} LIBDIR=%{_libdir}/wolframe
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -134,18 +134,29 @@ rm -rf $RPM_BUILD_ROOT
 #%dir %{_bindir}
 #%endif
 %{_bindir}/qtclient
-%{_libdir}/libskeleton.so.0.0.1
-%{_libdir}/libskeleton.so.0.0
-%{_libdir}/libskeleton.so.0
-%{_libdir}/libskeleton.so  
-%{_libdir}/libqtwolframeclient.so.0.0.1
-%{_libdir}/libqtwolframeclient.so.0.0
-%{_libdir}/libqtwolframeclient.so.0
-%{_libdir}/libqtwolframeclient.so    
+%{_libdir}/wolframe/libskeleton.so.0.0.1
+%{_libdir}/wolframe/libskeleton.so.0
+%{_libdir}/wolframe/libqtwolframeclient.so.0.0.1
+%{_libdir}/wolframe/libqtwolframeclient.so.0
 %plugindir/designer/libfilechooser.so
 %plugindir/designer/libpicturechooser.so
 %plugindir/designer/libwimagelistwidget.so
 
+%package devel
+Summary: Wolframe Qt client development files
+Group: Application/Business
+
+%description devel
+The libraries and header files used for development with Wolframe.
+
+Requires: %{name} >= %{version}-%{release}
+
+%files devel
+%defattr( -, root, root )
+%{_libdir}/wolframe/libskeleton.so.0.0
+%{_libdir}/wolframe/libskeleton.so  
+%{_libdir}/wolframe/libqtwolframeclient.so.0.0
+%{_libdir}/wolframe/libqtwolframeclient.so    
 
 %changelog
 * Tue May 14 2013 Andreas Baumann <abaumann@yahoo.com> 0.0.1-0.1

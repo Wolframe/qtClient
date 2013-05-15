@@ -2,7 +2,7 @@ TEMPLATE = app
 
 TARGET = testDataTree
 
-CONFIG += qt debug
+CONFIG += qt warn_on
 
 INCLUDEPATH += ../../qtclient
 
