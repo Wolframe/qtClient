@@ -115,7 +115,6 @@ QString WidgetRequest::followform() const
 static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode)
 {
 	WidgetRequest rt;
-	bool useSynonymsValue = visitor.useSynonyms( false);
 
 	QString actionstr( actiondef.toString());
 
@@ -127,7 +126,6 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 		{
 			// one of the preconditions is not met, return empty (no) request
 			qDebug() << "suppressing action" << actionstr << "because condition" << cond << "is not met (condition not valid)";
-			visitor.useSynonyms( useSynonymsValue);
 			return rt;
 		}
 	}
@@ -137,7 +135,6 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 	if (!action.isValid())
 	{
 		qCritical() << "invalid request for action doctype=" << docType << "root=" << rootElement;
-		visitor.useSynonyms( useSynonymsValue);
 		return rt;
 	}
 	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), visitor);
@@ -251,6 +248,138 @@ static void logError( const QList<WidgetAnswerStackElement>& stk, const QString&
 	qCritical() << (message.isEmpty()?QString("error"):message) << "in XML tag" << path;
 }
 
+
+typedef QPair<QString,QString> RewriteRule;
+static QList<DataSerializeItem> rewriteSerialization( const QList<RewriteRule>& rewriteRules, const QList<DataSerializeItem>& itemlist)
+{
+	QList<DataSerializeItem> tempres( itemlist);
+	QList<DataSerializeItem> rt;
+	QList<RewriteRule>::const_iterator ri = rewriteRules.begin(), re = rewriteRules.end();
+	for (; ri != re; ++ri)
+	{
+		if (ri->first.isEmpty())
+		{
+			qCritical() << "rewrite rules with empty key element are not supported";
+		}
+		else if (ri->first.indexOf( '.') >= 0)
+		{
+			qCritical() << "rewrite rules with more than one key element are not supported:" << ri->first;
+			continue;
+		}
+		QList<DataSerializeItem>::iterator di = tempres.begin(), de = tempres.end();
+		for (; di != de; ++di)
+		{
+			if (di->type() == DataSerializeItem::OpenTag || di->type() == DataSerializeItem::Attribute)
+			{
+				if (di->value().toString() == ri->first)
+				{
+					if (ri->second.trimmed() == "?")
+					{
+						TRACE_VALUE( "DELETE", ri->first);
+						di->value() = QVariant();
+					}
+					else
+					{
+						TRACE_ASSIGNMENT( "REWRITE", ri->first, ri->second);
+						di->value() = QVariant( ri->second);
+					}
+				}
+			}
+		}
+	}
+	QList<int> closecnt_stk;
+	QList<DataSerializeItem>::iterator di = tempres.begin(), de = tempres.end();
+	for (; di != de; ++di)
+	{
+		if (di->type() == DataSerializeItem::Attribute)
+		{
+			if (di->value().isValid())
+			{
+				QList<QString> tags = di->value().toString().trimmed().split('.');
+				int ii=1, nn = tags.size();
+				for (; ii<nn; ++ii)
+				{
+					rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, tags.at(ii-1).trimmed()));
+				}
+				rt.push_back( DataSerializeItem( DataSerializeItem::Attribute, tags.back()));
+				++di;
+				if (di->type() != DataSerializeItem::Value)
+				{
+					qCritical() << "invalid data tree serialization (value expected after attribute)";
+					break;
+				}
+				rt.push_back( *di);
+				for (ii=1; ii<nn; ++ii)
+				{
+					rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, QVariant()));
+				}
+			}
+			else
+			{
+				++di;
+				if (di->type() != DataSerializeItem::Value)
+				{
+					qCritical() << "invalid data tree serialization (value expected after attribute)";
+					break;
+				}
+			}
+		}
+		else if (di->type() == DataSerializeItem::CloseTag)
+		{
+			if (closecnt_stk.isEmpty())
+			{
+				qCritical() << "tags not balanced (unexpected close tag)";
+				break;
+			}
+			int ii = 0, nn = closecnt_stk.back();
+			for (; ii<nn; ++ii)
+			{
+				rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, QVariant()));
+			}
+			closecnt_stk.pop_back();
+		}
+		else if (di->type() == DataSerializeItem::OpenTag)
+		{
+			if (di->value().isValid())
+			{
+				QList<QString> tags = di->value().toString().trimmed().split('.');
+				int ii = 0, nn = tags.size();
+				for (; ii<nn; ++ii)
+				{
+					rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, tags.at(ii).trimmed()));
+				}
+				closecnt_stk.push_back( nn);
+			}
+			else
+			{
+				int taglevel = 1;
+				for (++di; di != de; ++di)
+				{
+					if (di->type() == DataSerializeItem::OpenTag)
+					{
+						++taglevel;
+					}
+					else if (di->type() == DataSerializeItem::CloseTag)
+					{
+						--taglevel;
+						if (taglevel == 0) break;
+					}
+				}
+				if (di == de)
+				{
+					qCritical() << "tags not balanced (missing close tag)";
+					break;
+				}
+			}
+		}
+		else
+		{
+			rt.push_back( *di);
+		}
+	}
+	return rt;
+}
+
 static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 {
 	QList<WidgetAnswerStackElement> stk;
@@ -262,6 +391,24 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 	DataSerializeItem::Type prevType = DataSerializeItem::CloseTag;
 	QString attributename;
 
+	QList<RewriteRule> rewriteRules;
+	if (visitor.widget()) foreach (const QByteArray& prop, visitor.widget()->dynamicPropertyNames())
+	{
+		if (prop.indexOf(':') >= 0)
+		{
+			if (prop.startsWith( "synonym:"))
+			{
+				QString name = prop.mid( 8, prop.size()-8);
+				QVariant synonym = visitor.property( (const char*)prop);
+				rewriteRules.push_back( RewriteRule( name, synonym.toString()));
+				qDebug() << "found rewrite rule:" << name << "->" << synonym.toString();
+			}
+		}
+	}
+	if (!rewriteRules.isEmpty())
+	{
+		itemlist = rewriteSerialization( rewriteRules, itemlist);
+	}
 	foreach( const DataSerializeItem& item, itemlist)
 	{
 		TRACE_ASSIGNMENT( "answer element", DataSerializeItem::typeName( item.type()), item.value())

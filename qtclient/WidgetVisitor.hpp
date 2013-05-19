@@ -80,13 +80,11 @@ Internally happens the same.
 3 Symbol Resolving Algorithm
 
 3.1 Property Name Resolving
- [A] Check if a synonym is referenced and return its redirected property if yes
  [B] Check if an internal property of the widget is referenced return it if yes
  [C] Check if an multipart property is referenced and try to step into the substructures to return the property if yes (see "2.2")
  [D] Check if a dynamic property is referenced and return it if yes
 
 3.2 Step Into Substructures
- [A] Check if name is a synonym and follow it if yes
  [B] Check if name refers to a widget internal item and follow it if yes
  [C] Check if name refers to a symbolic link and follow the link if yes
  [D] On top level check if name refers to an ancessor or an ancessor child and follow it if yes
@@ -97,7 +95,6 @@ Internally happens the same.
 
 4.1 Used Dynamic Property Prefixes of widgets
  'global:IDENTIFIER'     Defines an assignment from a global variable IDENTIFIER at initialization and writing the global variable when closing the widget
- 'synonym:'              Rewrite rule for property "synonym:IDENTIFIER": look for the value if IDENTIFIER is selected with enter)
  'link:'                 Rewrite rule for property "link:IDENTIFIER": push the widget referenced as property value of "link:IDENTIFIER" if IDENTIFIER is selected with enter)
  'datasignal:IDENTIFIER' Defines a signal of type IDENTIFIER (domainchange,onload) with the destination slot identifer defined as property value of "datasignal:IDENTIFIER"
  'dataslot:IDENTIFIER'   Defines a slot for the signal of type IDENTIFIER (domainchange,onload) with the identifer defined as property value of "dataslot:IDENTIFIER"
@@ -187,7 +184,7 @@ class WidgetVisitor
 
 		///\enum Flags
 		///\brief Flags stearing behaviour
-		enum VisitorFlags {None=0x0,UseSynonyms=0x1, BlockSignals=0x2};
+		enum VisitorFlags {None=0x0,BlockSignals=0x1};
 
 		///\brief Constructor
 		///\param[in] root Root of widget tree visited
@@ -204,7 +201,7 @@ class WidgetVisitor
 
 		VisitorFlags flags() const
 		{
-			return (VisitorFlags)((int)(m_blockSignals?BlockSignals:None)|(int)(m_useSynonyms?UseSynonyms:None));
+			return (VisitorFlags)((int)(m_blockSignals?BlockSignals:None));
 		}
 
 		static void init_widgetids( QWidget* widget);
@@ -323,8 +320,6 @@ class WidgetVisitor
 		///\brief Create listener object for the widget and wire all data signals
 		WidgetListenerImpl* createListener( DataLoader* dataLoader);
 
-		bool useSynonyms( bool enable);
-
 	private:
 		///\brief Internal property get using 'level' to check property resolving step (B).
 		///\param[in] name name of the property
@@ -358,7 +353,6 @@ class WidgetVisitor
 			State( WidgetVisitorObjectR obj_, bool blockSignals_);
 
 		public://Common methods:
-			QVariant getSynonym( const QString& name) const;
 			QString getLink( const QString& name) const;
 			QVariant dynamicProperty( const QString& name) const;
 			bool setDynamicProperty( const QString&, const QVariant& value);
@@ -375,14 +369,13 @@ class WidgetVisitor
 			typedef QPair< QString,QString> Assignment;
 
 			WidgetVisitorObjectR m_obj;
-			QHash<QString,QString> m_synonyms;		//< synonym name map
 			QList<LinkDef> m_links;				//< symbolic links to other objects
 			QList<Assignment> m_assignments;		//< assignment done at initialization and destruction
 			QList<Assignment> m_globals;			//< assignment done at initialization and destruction
 			DataSignals m_datasignals;			//< datasignals to emit on certain state changes
 			QList<QString> m_dataslots;			//< dataslot to declare a receiver by name for being informed on certain state changes
 			QHash<QString,QVariant> m_dynamicProperties;	//< map of defined dynamic properties
-			int m_synonym_entercnt;				//< counter for how many stack elements to pop on a leave (for multipart synonyms)
+			int m_multipart_entercnt;			//< counter for how many stack elements to pop on a leave (for multipart elements)
 			int m_internal_entercnt;			//< counter for calling State::leave() before removing stack elements
 			bool m_blockSignals;
 			bool m_blockSignals_bak;
@@ -390,7 +383,6 @@ class WidgetVisitor
 
 	private:
 		QStack<State> m_stk;		//< stack of visited widgets. The current node is the top element
-		bool m_useSynonyms;		//< wheter to use synonyms in evaluation or not
 		bool m_blockSignals;		//< wheter to block signals or not
 };
 

@@ -85,20 +85,19 @@ static void logError( QWidget* widget, const char* msg, const QString& arg)
 
 WidgetVisitor::State::State( const State& o)
 	:m_obj(o.m_obj)
-	,m_synonyms(o.m_synonyms)
 	,m_links(o.m_links)
 	,m_assignments(o.m_assignments)
 	,m_datasignals(o.m_datasignals)
 	,m_dataslots(o.m_dataslots)
 	,m_dynamicProperties(o.m_dynamicProperties)
-	,m_synonym_entercnt(o.m_synonym_entercnt)
+	,m_multipart_entercnt(o.m_multipart_entercnt)
 	,m_internal_entercnt(o.m_internal_entercnt)
 	,m_blockSignals(o.m_blockSignals)
 	,m_blockSignals_bak(o.m_blockSignals_bak)
 {}
 
 WidgetVisitor::State::State()
-	:m_synonym_entercnt(1)
+	:m_multipart_entercnt(1)
 	,m_internal_entercnt(0)
 	,m_blockSignals(false)
 	,m_blockSignals_bak(false)
@@ -108,7 +107,7 @@ static qint64 g_cnt = 0;
 
 WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 	:m_obj(obj_)
-	,m_synonym_entercnt(1)
+	,m_multipart_entercnt(1)
 	,m_internal_entercnt(0)
 	,m_blockSignals(blockSignals_)
 	,m_blockSignals_bak(false)
@@ -117,12 +116,7 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 	{
 		if (prop.indexOf(':') >= 0)
 		{
-			if (prop.startsWith( "synonym:"))
-			{
-				QVariant synonym = m_obj->widget()->property( prop);
-				m_synonyms.insert( prop.mid( 8, prop.size()-8), synonym.toString().trimmed());
-			}
-			else if (prop.startsWith( "link:"))
+			if (prop.startsWith( "link:"))
 			{
 				QVariant link = m_obj->widget()->property( prop);
 				m_links.push_back( LinkDef( prop.mid( 5, prop.size()-5), link.toString().trimmed()));
@@ -219,14 +213,6 @@ bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVaria
 	return true;
 }
 
-QVariant WidgetVisitor::State::getSynonym( const QString& name) const
-{
-	static const QString empty;
-	QHash<QString,QString>::const_iterator syi = m_synonyms.find( name);
-	if (syi == m_synonyms.end()) return QVariant();
-	return QVariant( syi.value());
-}
-
 QString WidgetVisitor::State::getLink( const QString& name) const
 {
 	int ii = 0, nn = m_links.size();
@@ -313,13 +299,8 @@ QWidget* WidgetVisitor::get_widget_reference( const QString& id)
 }
 
 WidgetVisitor::WidgetVisitor( QWidget* root, VisitorFlags flags_)
-	:m_useSynonyms(false)
-	,m_blockSignals(false)
+	:m_blockSignals(false)
 {
-	if (((int)flags_&(int)UseSynonyms) == (int)UseSynonyms)
-	{
-		m_useSynonyms = true;
-	}
 	if (((int)flags_&(int)BlockSignals) == (int)BlockSignals)
 	{
 		m_blockSignals = true;
@@ -328,25 +309,13 @@ WidgetVisitor::WidgetVisitor( QWidget* root, VisitorFlags flags_)
 }
 
 WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& obj, VisitorFlags flags_)
-	:m_useSynonyms(false)
-	,m_blockSignals(false)
+	:m_blockSignals(false)
 {
-	if (((int)flags_&(int)UseSynonyms) == (int)UseSynonyms)
-	{
-		m_useSynonyms = true;
-	}
 	if (((int)flags_&(int)BlockSignals) == (int)BlockSignals)
 	{
 		m_blockSignals = true;
 	}
 	m_stk.push( State( obj, flags_));
-}
-
-bool WidgetVisitor::useSynonyms( bool enable)
-{
-	bool rt = m_useSynonyms;
-	m_useSynonyms = enable;
-	return rt;
 }
 
 bool WidgetVisitor::enter( const QString& name, bool writemode)
@@ -402,19 +371,6 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 	TRACE_STATUS( "try enter", className(), objectName(), name)
 	if (m_stk.empty()) return false;
 
-	if (m_useSynonyms)
-	{
-		// [A] check if name is a synonym and follow it if yes:
-		QVariant synonym = m_stk.top().getSynonym( name);
-		if (synonym.isValid())
-		{
-			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			m_useSynonyms = false;
-			bool rt = enter( synonym.toString(), writemode, level);
-			m_useSynonyms = true;
-			return rt;
-		}
-	}
 	// [A.1] check if name is a multipart reference and follow it if yes:
 	int followidx = name.indexOf( '.');
 	if (followidx >= 0)
@@ -444,7 +400,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 			prefix = rest.mid( 0, followidx);
 			rest = rest.mid( followidx+1, rest.size()-followidx-1);
 		} while (followidx >= 0);
-		m_stk.top().m_synonym_entercnt = entercnt;
+		m_stk.top().m_multipart_entercnt = entercnt;
 		return true;
 	}
 
@@ -505,7 +461,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 void WidgetVisitor::leave( bool writemode)
 {
 	if (m_stk.empty()) return;
-	int cnt = m_stk.top().m_synonym_entercnt;
+	int cnt = m_stk.top().m_multipart_entercnt;
 	while (cnt-- > 0)
 	{
 		if (m_stk.top().m_internal_entercnt)
@@ -923,19 +879,7 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name) const
 QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 {
 	if (m_stk.empty()) return 0;
-	// [A] check if a synonym is referenced and redirect to evaluate synonym value instead if yes
-	if (m_useSynonyms)
-	{
-		QVariant synonym = m_stk.top().getSynonym( name);
-		if (synonym.isValid())
-		{
-			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			m_useSynonyms = false;
-			QWidget* rt = getPropertyOwnerWidget( synonym.toString(), level);
-			m_useSynonyms = true;
-			return rt;
-		}
-	}
+
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
 	bool subelem = false;
 	QString prefix;
@@ -994,19 +938,7 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 	TRACE_STATUS( "try get property", className(), objectName(), name)
 
 	if (m_stk.empty()) return QVariant()/*invalid*/;
-	if (m_useSynonyms)
-	{
-		// [A] check if a synonym is referenced and redirect to evaluate synonym value instead if yes
-		QVariant synonym = m_stk.top().getSynonym( name);
-		if (synonym.isValid())
-		{
-			TRACE_ASSIGNMENT( "found synonym", objectName(), name, synonym);
-			m_useSynonyms = false;
-			QVariant rt = property( synonym.toString(), level);
-			m_useSynonyms = true;
-			return rt;
-		}
-	}
+
 	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
 	bool subelem = false;
 	QString prefix;
@@ -1116,19 +1048,6 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 {
 	if (m_stk.empty()) return false;
 
-	if (m_useSynonyms)
-	{
-		// [A] check if a synonym is referenced and redirect set the synonym value instead if yes
-		QVariant synonym = m_stk.top().getSynonym( name);
-		if (synonym.isValid())
-		{
-			TRACE_STATUS( "found synonym", synonym, name, value)
-			m_useSynonyms = false;
-			bool rt = setProperty( synonym.toString(), value, level);
-			m_useSynonyms = true;
-			return rt;
-		}
-	}
 	// [C] check if an multipart property is referenced and try to step into the substructures to set the property (must a single value and must not have any repeating elements) if yes
 	bool subelem = false;
 	QString prefix;

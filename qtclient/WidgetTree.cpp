@@ -343,7 +343,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 					blksig.push_back( Trace( cld->objectName(), cld->blockSignals(true)));
 				}
 			}
-			WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::UseSynonyms|WidgetVisitor::BlockSignals));
+			WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
 			if (!setWidgetAnswer( rcpvisitor, content))
 			{
 				qCritical() << "Failed assign request answer tag:" << tag << "data:" << content;

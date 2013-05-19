@@ -48,6 +48,7 @@ public:
 	}
 	Type type() const		{return m_type;}
 	const QVariant& value() const	{return m_value;}
+	QVariant& value()		{return m_value;}
 
 	DataSerializeItem( Type type_, const QVariant& value_)
 		:m_type(type_),m_value(value_){}

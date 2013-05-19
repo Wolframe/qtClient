@@ -39,6 +39,8 @@
 #include <QSharedPointer>
 #include <QHash>
 #include <QVariant>
+#include <QDebug>
+#include <cstring>
 
 ///\class WidgetEnabler
 ///\brief Structure to enable widgets based on a set of properties
@@ -81,7 +83,19 @@ public:
 		= {"changed", "activated", "entered", "pressed", "clicked", "doubleclicked", 0};
 		return ar[(int)ii];
 	}
-	static bool getDataSignalType( const char* name, DataSignalType& dt);
+	static bool getDataSignalType( const char* name, DataSignalType& dt)
+	{
+		const char* signame;
+		for (int ii=0; 0!=(signame=dataSignalTypeName((DataSignalType)ii)); ++ii)
+		{
+			if (std::strcmp( name, signame) == 0)
+			{
+				dt = (DataSignalType)ii;
+				return true;
+			}
+		}
+		return false;
+	}
 
 public:
 	///\brief Constructor
@@ -107,7 +121,8 @@ struct WidgetVisitorObject
 {
 public:
 	///\brief Constructor
-	explicit WidgetVisitorObject( QWidget* widget_);
+	explicit WidgetVisitorObject( QWidget* widget_)
+		:m_widget(widget_){}
 
 	///\brief Destructor
 	virtual ~WidgetVisitorObject(){}
@@ -135,7 +150,10 @@ public://Interface methods implemented for different widget types:
 	virtual bool isArrayElement( const QString&/*name*/)			{return false;}
 
 	///\brief Connect all widget signals that should trigger an event on a signal of type 'type'
-	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
+	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& /*listener*/)
+	{
+		qCritical() << "try to connect to signal not provided" << m_widget->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+	}
 	///\brief Connect widget signals that should trigger an event for enabling or disabling a data referencing widget
 	virtual void connectWidgetEnabler( WidgetEnabler& /*enabler*/){}
 

@@ -42,7 +42,6 @@ SOURCES += \
 	FileDataLoader.cpp \
 	NetworkDataLoader.cpp \
 	WidgetTree.cpp \
-	WidgetVisitorObject.cpp \
 	WidgetVisitor.cpp \
 	WidgetEnabler.cpp \
 	WidgetListener.cpp \
