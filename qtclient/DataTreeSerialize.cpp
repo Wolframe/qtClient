@@ -418,26 +418,34 @@ static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
 {
 	if (!prefix.isValid() && schemanode->value().isValid())
 	{
-		prefix = getVariableName( schemanode->value().toString());
+		QString varname = getVariableName( schemanode->value().toString());
+		if (varname != "?")
+		{
+			prefix = varname;
+		}
 	}
 	else if (schemanode->value().isValid())
 	{
-		QStringList p1 = prefix.toString().split('.');
-		QStringList p2 = getVariableName( schemanode->value().toString()).split('.');
-		QStringList::const_iterator i1 = p1.begin();
-		QStringList::const_iterator i2 = p2.begin();
-		int prefixlen = 0;
-		for (; i1 != p1.end() && i2 != p2.end(); ++i1,++i2,++prefixlen)
+		QString varname = getVariableName( schemanode->value().toString());
+		if (varname != "?")
 		{
-			if (*i1 != *i2) break;
+			QStringList p1 = prefix.toString().split('.');
+			QStringList p2 = varname.split('.');
+			QStringList::const_iterator i1 = p1.begin();
+			QStringList::const_iterator i2 = p2.begin();
+			int prefixlen = 0;
+			for (; i1 != p1.end() && i2 != p2.end(); ++i1,++i2,++prefixlen)
+			{
+				if (*i1 != *i2) break;
+			}
+			QString newprefix;
+			for (int pi=0; pi<prefixlen; ++pi)
+			{
+				if (pi) newprefix.push_back('.');
+				newprefix.append( p1.at( pi));
+			}
+			prefix = QVariant( newprefix);
 		}
-		QString newprefix;
-		for (int pi=0; pi<prefixlen; ++pi)
-		{
-			if (pi) newprefix.push_back('.');
-			newprefix.append( p1.at( pi));
-		}
-		prefix = QVariant( newprefix);
 	}
 	int ii = 0, nn = schemanode->size();
 	for (; ii<nn; ++ii)
