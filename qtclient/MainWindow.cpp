@@ -1233,6 +1233,7 @@ void MainWindow::error( QString error )
 		if( !m_wolframeClient->isConnected( ) ) {
 			m_mdiArea->closeAllSubWindows( );
 			m_formWidget = 0; // see above
+			removeApplicationMenus( );
 		}
 	}
 }
