@@ -49,9 +49,6 @@ static QImage scale( const QImage& image, const QSize size )
 WImageListWidget::WImageListWidget( QWidget *parent )
 	: QListWidget( parent )
 {
-//	QGridLayout* m_gridLayout = new QGridLayout( this );
-//	m_gridLayout->addWidget( this );
-
 	setViewMode( QListView::IconMode );
 	setUniformItemSizes( true );
 	setSelectionRectVisible( true );
@@ -110,13 +107,3 @@ void WImageListWidget::addImage( const QImage image, const QString toolTip, cons
 //void WImageListWidget::finished()
 //{
 //}
-
-void WImageListWidget::imageClicked( QModelIndex index )
-{
-	qDebug() << "image clicked at " << index.row();
-}
-
-void WImageListWidget::imageDoubleClicked( QModelIndex index )
-{
-	qDebug() << "image double clicked at " << index.row();
-}

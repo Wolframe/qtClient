@@ -31,40 +31,40 @@
 
 ************************************************************************/
 
-#ifndef _WIMAGE_LIST_WIDGET_HPP_INCLUDED
-#define _WIMAGE_LIST_WIDGET_HPP_INCLUDED
+#ifndef _WIDGET_VISIOR_WImageListWidget_HPP_INCLUDED
+#define _WIDGET_VISIOR_WImageListWidget_HPP_INCLUDED
 
-#include <QListWidget>
-// #include <QFutureWatcher>
+#include "WidgetVisitorObject.hpp"
+#include "WImageListWidget.hpp"
 
-#ifdef BUILD_AS_PLUGIN
-#include <QDesignerExportWidget>
-#define EXPORT_AS_PLUGIN QDESIGNER_WIDGET_EXPORT
-#else
-#define EXPORT_AS_PLUGIN X_EXPORT
-#endif
-
-class Q_GUI_EXPORT WImageListWidget : public QListWidget
+class WidgetVisitorState_WImageListWidget
+	:public WidgetVisitorObject
 {
-	Q_OBJECT
-
-	Q_PROPERTY( QSize iconSize READ iconSize WRITE setIconSize )
-
 public:
-	explicit WImageListWidget( QWidget *parent = 0 );
-	~WImageListWidget();
+	WidgetVisitorState_WImageListWidget( QWidget* widget_);
 
-	void setIconSize( QSize& size );
-	QSize iconSize() const			{ return QListView::iconSize(); }
-
-	void addImage( const QImage image, const QString toolTip = QString::null,
-		       const QString statusTip = QString::null );
-
-private Q_SLOTS:
-//	void finished();
+	virtual bool enter( const QString& name, bool writemode);
+	virtual bool leave( bool writemode);
+	virtual bool isArrayElement( const QString& name);
+	virtual void clear();
+	virtual QVariant property( const QString& name);
+	virtual bool setProperty( const QString& name, const QVariant& data);
+	virtual void setState( const QVariant& state);
+	virtual QVariant getState() const;
+	virtual void endofDataFeed();
+	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
+	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:
-//	QFutureWatcher<QImage>*	m_imageScaler;
+	QListWidget* m_listWidget;
+	enum Mode {Init,Element};
+	static const char* modeName( Mode i)
+	{
+		static const char* ar[] = {"Init","Element"};
+		return ar[(int)i];
+	}
+	Mode m_mode;
+	int m_row;
 };
 
-#endif // _WIMAGE_LIST_WIDGET_HPP_INCLUDED
+#endif	// _WIDGET_VISIOR_WImageListWidget_HPP_INCLUDED

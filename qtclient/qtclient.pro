@@ -9,11 +9,11 @@ CONFIG += qt warn_on
 
 DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT SKELETON_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_IMPORT
 
-unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../skeleton -lskeleton -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
+unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient -L../skeleton -lskeleton -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser -L../plugins/wimagelistwidget -lwimagelistwidget
 win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 macx:LIBS += ../libqtwolframeclient/build/Release/libqtwolframeclient0.dylib ../skeleton/build/Release/skeleton0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
-INCLUDEPATH += ../libqtwolframeclient ../skeleton ../plugins/filechooser ../plugins/picturechooser
+INCLUDEPATH += ../libqtwolframeclient ../skeleton ../plugins/filechooser ../plugins/picturechooser ../plugins/wimagelistwidget
 
 unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so ../skeleton/libskeleton.so ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
 unix:QMAKE_LFLAGS += -Wl,-rpath,$$LIBDIR
@@ -81,7 +81,8 @@ SOURCES += \
 	LoadMode.cpp \
 	DebugTerminal.cpp \
 	HistoryLineEdit.cpp \
-	qtclient.cpp
+	qtclient.cpp \
+	visitors/WidgetVisitor_WImageListWidget.cpp
 
 HEADERS += \
 	MainWindow.hpp \
@@ -131,7 +132,8 @@ HEADERS += \
 	settings.hpp \
 	LoadMode.hpp \
 	DebugTerminal.hpp \
-	HistoryLineEdit.hpp
+	HistoryLineEdit.hpp \
+	visitors/WidgetVisitor_WImageListWidget.hpp
 
 win32:RC_FILE=qtclient.rc
 
@@ -149,8 +151,8 @@ TRANSLATIONS += \
 	i18n/qtclient.ro_RO.ts
 
 isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
-    else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+	win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
+	else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 }
 updateqm.input = TRANSLATIONS
 updateqm.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
