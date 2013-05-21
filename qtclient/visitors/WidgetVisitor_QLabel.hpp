@@ -48,7 +48,7 @@ public:
 	virtual void setState( const QVariant& state);
 	virtual QVariant getState() const;
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
-
+	virtual void endofDataFeed();
 private:
 	QLabel* m_label;
 };

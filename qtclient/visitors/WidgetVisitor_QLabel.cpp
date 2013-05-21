@@ -34,6 +34,9 @@
 #include "WidgetListener.hpp"
 #include "WidgetEnabler.hpp"
 #include <QDebug>
+#include <QPainter>
+#include <QPixmap>
+#include <algorithm>
 
 WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
 	:WidgetVisitorObject(widget_)
@@ -41,6 +44,7 @@ WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
 
 void WidgetVisitorState_QLabel::clear()
 {
+	m_label->setProperty( "_w_pictures", QVariant());
 	QVariant origtext = m_label->property( "_w_origtext");
 	if (!origtext.isValid())
 	{
@@ -63,7 +67,26 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 {
 	if (name.isEmpty() || name == "text")
 	{
+		if (!m_label->property( "_w_origtext").isValid())
+		{
+			m_label->setProperty( "_w_origtext", m_label->text());
+		}
 		m_label->setText( data.toString());
+		return true;
+	}
+	if (name == "addtext")
+	{
+		if (!m_label->property( "_w_origtext").isValid())
+		{
+			m_label->setProperty( "_w_origtext", m_label->text());
+		}
+		QString sepstr = " ";
+		QVariant sep = m_label->property( "separator");
+		if (sep.isValid())
+		{
+			sepstr = sep.toString();
+		}
+		m_label->setText( m_label->text() + sepstr + data.toString());
 		return true;
 	}
 	else if (name.size() == 1 && name.at(0) >= '1' && name.at(0) <= '9')
@@ -87,6 +110,17 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 			m_label->adjustSize( );
 		}
 	}
+	else if (name == "addbase64")
+	{
+		QVariant pictures = m_label->property( "_w_pictures");
+		QList<QVariant> lst;
+		if (pictures.isValid() && pictures.type() == QVariant::List)
+		{
+			lst = pictures.toList();
+		}
+		lst.push_back( data);
+		m_label->setProperty( "_w_pictures", QVariant(lst));
+	}
 	return false;
 }
 
@@ -102,6 +136,50 @@ void WidgetVisitorState_QLabel::setState( const QVariant& state)
 QVariant WidgetVisitorState_QLabel::getState() const
 {
 	return QVariant( m_label->text());
+}
+
+void WidgetVisitorState_QLabel::endofDataFeed()
+{
+	QVariant pictures = m_label->property( "_w_pictures");
+	if (pictures.isValid() && pictures.type() == QVariant::List)
+	{
+		QList<QPixmap> pl;
+		foreach (QVariant pic, pictures.toList())
+		{
+			QPixmap px;
+			px.loadFromData( QByteArray::fromBase64( pic.toByteArray( ) ) );
+			if (!px.isNull())
+			{
+				pl.push_back( px);
+			}
+		}
+		if (pl.size() > 0)
+		{
+			QPixmap pic;
+			QPainter painter( &pic);
+
+			int ii = 0;
+			int ww = m_label->width();
+			int hh = m_label->height();
+			double dd = (ww / 2) / pl.size();
+			for (ii=0; ii<pl.size()-1; ++ii)
+			{
+				QRectF target( dd*ii, 0, dd*ii+dd, hh);
+				QRectF source( 0.0, 0.0, pl.at(ii).width()/pl.size(), pl.at(ii).height());
+
+				painter.drawPixmap( target, pl.at(ii), source);
+			}
+			QRectF target( ww/2, 0, ww, hh);
+			QRectF source( 0.0, 0.0, pl.at(ii).width(), pl.at(ii).height());
+
+			painter.drawPixmap( target, pl.at(ii), source);
+
+			ww = std::min( m_label->width( ), pic.width( ) );
+			hh = std::min( m_label->height( ), pic.height( ) );
+			m_label->setPixmap( pic.scaled( QSize( ww, hh ), Qt::KeepAspectRatio, Qt::SmoothTransformation ) );
+			m_label->adjustSize( );
+		}
+	}
 }
 
 void WidgetVisitorState_QLabel::connectWidgetEnabler( WidgetEnabler& /*enabler*/)
