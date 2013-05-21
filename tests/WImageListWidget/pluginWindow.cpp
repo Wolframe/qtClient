@@ -4,6 +4,8 @@
 #endif
 #include <QtGui>
 
+#include <QDebug>
+
 #include "pluginWindow.hpp"
 
 #include "WImageListWidget.hpp"
@@ -11,9 +13,13 @@
 // Create the test window
 PluginWindow::PluginWindow()
 {
+	qDebug() << "Create Plugin Group Box";
 	createPluginGroupBox();
+	qDebug() << "Create Operations Group Box";
 	createOperationsGroupBox();
+	qDebug() << "Create Selected Group Box";
 	createSelectedGroupBox();
+	qDebug() << "Create Properties Group Box";
 	createPropertiesGroupBox();
 
 	QGridLayout *layout = new QGridLayout;
@@ -36,7 +42,9 @@ void PluginWindow::createPluginGroupBox()
 {
 	m_pluginGroupBox = new QGroupBox( tr( "ImageList" ));
 //!!!!!!!!!
-	m_selector = new WImageListWidget( 90, 90 );
+	qDebug() << "Create selector";
+	m_selector = new WImageListWidget();
+	qDebug() << "Selector created";
 
 //	connect( m_selector, SIGNAL( clicked( QModelIndex )), this, SLOT( selectorClicked()) );
 //	connect( m_selector, SIGNAL( doubleClicked( QModelIndex )), this, SLOT( itemSelected()) );
@@ -44,39 +52,13 @@ void PluginWindow::createPluginGroupBox()
 	m_pluginLayout = new QGridLayout;
 	m_pluginLayout->addWidget( m_selector, 0, 0, Qt::AlignCenter );
 	m_pluginGroupBox->setLayout( m_pluginLayout );
+	qDebug() << "Plugin Group Box created";
 }
 
 // Operations group (box)
 void PluginWindow::createOperationsGroupBox()
 {
 	m_operationsGroupBox = new QGroupBox( tr( "Operations" ));
-// Build locale combo
-	m_localeCombo = new QComboBox;
-	int curLocaleIndex = -1;
-	int index = 0;
-	for ( int langIdx = QLocale::C; langIdx <= QLocale::LastLanguage; langIdx++ )	{
-		QLocale::Language lang = static_cast< QLocale::Language >( langIdx ) ;
-		QList< QLocale::Country > countries = QLocale::countriesForLanguage( lang );
-		for ( int i = 0; i < countries.count(); i++ )	{
-			QLocale::Country country = countries.at( i );
-			QString label = QLocale::languageToString( lang );
-			label += QLatin1Char( '/' );
-			label += QLocale::countryToString( country );
-			QLocale locale( lang, country );
-			if ( this->locale().language() == lang && this->locale().country() == country )
-				curLocaleIndex = index;
-			m_localeCombo->addItem( label, locale );
-			index++;
-		}
-	}
-	if ( curLocaleIndex != -1 )
-		m_localeCombo->setCurrentIndex( curLocaleIndex );
-	m_localeLabel = new QLabel( tr( "&Locale" ));
-	m_localeLabel->setBuddy( m_localeCombo );
-
-	connect( m_localeCombo, SIGNAL( currentIndexChanged( int )),
-		 this, SLOT( localeChanged( int )) );
-// End of locale combo
 
 // Buttons
 	m_addImage = new QPushButton( tr( "&Add image(s) from file(s)..." ));
@@ -87,12 +69,11 @@ void PluginWindow::createOperationsGroupBox()
 
 // Set elements into the grid
 	QGridLayout *opLayout = new QGridLayout;
-	opLayout->addWidget( m_localeLabel, 0, 0 );
-	opLayout->addWidget( m_localeCombo, 0, 1 );
 	opLayout->addWidget( m_addImage, 1, 1 );
 	opLayout->addWidget( m_removeImage, 2, 1 );
-
 	m_operationsGroupBox->setLayout( opLayout );
+
+	qDebug() << "Operations Group Box created";
 }
 
 // Show selected items group (box)
@@ -106,6 +87,8 @@ void PluginWindow::createSelectedGroupBox()
 	selectedLayout->addWidget( m_selectedList, 0, 0 );
 
 	m_selectedGroupBox->setLayout( selectedLayout );
+
+	qDebug() << "Selected Group Box created";
 }
 
 // Show properties group (box)
@@ -121,13 +104,10 @@ void PluginWindow::createPropertiesGroupBox()
 	propLayout->addWidget( m_totalItems, 1, 0 );
 
 	m_propertiesGroupBox->setLayout( propLayout );
+
+	qDebug() << "Properties Group Box created";
 }
 
-// Slots
-void PluginWindow::localeChanged( int index )
-{
-	m_selector->setLocale( m_localeCombo->itemData( index ).toLocale() );
-}
 
 // Add image file(s)
 void PluginWindow::addImagesFromFiles()
@@ -140,8 +120,10 @@ void PluginWindow::addImagesFromFiles()
 	QStringList	fileNames;
 	if ( fileDialog.exec() )	{
 		fileNames = fileDialog.selectedFiles();
-		for ( QStringList::const_iterator i = fileNames.begin(); i != fileNames.end(); i++ )
-			m_selector->addImage( *i, *i );
+		for ( QStringList::const_iterator i = fileNames.begin(); i != fileNames.end(); i++ )	{
+			QImage img( *i );
+			m_selector->addImage( img, *i );
+		}
 	}
 }
 
