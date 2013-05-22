@@ -79,12 +79,12 @@ QString WImageListWidgetPlugin::group( ) const
 
 QString WImageListWidgetPlugin::includeFile( ) const
 {
-	return "ImageListView.hpp";
+	return "WImageListWidget.hpp";
 }
 
 QString WImageListWidgetPlugin::name( ) const
 {
-	return "ImageListView";
+	return "WImageListWidget";
 }
 
 QString WImageListWidgetPlugin::toolTip( ) const
