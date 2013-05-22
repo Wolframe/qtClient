@@ -38,7 +38,7 @@
 #include "DataFormatXML.hpp"
 #include <QVariant>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 static QVariant SHORTEN( const QVariant& val)
 {

@@ -142,7 +142,7 @@ void WidgetTree::setWidgetStates( const QVariant& state)
 				++itr;
 				if (itr != statelist.end())
 				{
-					if (visitor.property( "action").isValid())
+					if (widget->property( "action").isValid())
 					{
 						widget->setProperty( "_w_state", *itr);
 					}
