@@ -172,6 +172,16 @@ bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVa
 				item->setData( Qt::UserRole, data);
 				return true;
 			}
+			else if (name == "icon")
+			{
+				if (m_row >= m_listWidget->count()) return false;
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				QByteArray decoded = QByteArray::fromBase64( data.toByteArray());
+				QPixmap pixmap;
+				pixmap.loadFromData( decoded);
+				item->setIcon( pixmap);
+				return true;
+			}
 			break;
 		case Init:
 			if (name == "selected")
