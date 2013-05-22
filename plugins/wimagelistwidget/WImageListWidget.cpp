@@ -32,57 +32,36 @@
 ************************************************************************/
 
 #include <QGridLayout>
-#include <QtConcurrentMap>
+//#include <QtConcurrentMap>
 
 #include "WImageListWidget.hpp"
 
+#include <QDebug>
+
 static const int imageSize = 60;
 
-static QImage scale( const QString& imageFileName, int xSize, int ySize )
+static QImage scale( const QImage& image, const QSize size )
 {
-	qDebug() << "image scaling " << imageFileName;
-	QImage image( imageFileName );
-	return image.scaled( QSize( xSize, ySize ),
-			     Qt::KeepAspectRatio, Qt::SmoothTransformation );
+	return image.scaled( size, Qt::KeepAspectRatio, Qt::SmoothTransformation );
 }
 
-static QImage scale( const QImage& image, int xSize, int ySize )
-{
-	return image.scaled( QSize( xSize, ySize ),
-			     Qt::KeepAspectRatio, Qt::SmoothTransformation );
-}
 
 WImageListWidget::WImageListWidget( QWidget *parent )
+	: QListWidget( parent )
 {
-    WImageListWidget( imageSize, imageSize, parent );
-}
+	setViewMode( QListView::IconMode );
+	setUniformItemSizes( true );
+	setSelectionRectVisible( true );
+	setMovement( QListView::Static );
+	setSelectionMode( QListView::SingleSelection );
+	setEditTriggers( QAbstractItemView::NoEditTriggers );
 
-WImageListWidget::WImageListWidget( int xSize, int ySize, QWidget *parent )
-	: QWidget( parent ), m_sizeX( xSize ), m_sizeY( ySize )
-{
-	QGridLayout* m_gridLayout = new QGridLayout( this );
-	m_imageListView = new QListView( this );
-	m_gridLayout->addWidget( m_imageListView );
-
-	m_imageListView->setViewMode( QListView::IconMode );
-	m_imageListView->setUniformItemSizes( true );
-	m_imageListView->setSelectionRectVisible( true );
-	m_imageListView->setMovement( QListView::Static );
-	m_imageListView->setSelectionMode( QListView::SingleSelection );
-	m_imageListView->setEditTriggers( QAbstractItemView::NoEditTriggers );
-
-	m_imageListView->setIconSize( QSize( m_sizeX, m_sizeY ));
-	m_imageListView->setResizeMode( QListView::Adjust );
-
-	m_standardModel = new QStandardItemModel( this );
-	m_imageListView->setModel( m_standardModel );
+	QListView::setIconSize( QSize( imageSize, imageSize ) );
+	setResizeMode( QListView::Adjust );
 
 //	m_imageScaler = new QFutureWatcher<QImage>( this );
 //	connect( m_imageScaler, SIGNAL( resultReadyAt( int ) ), SLOT( addImage( int ) ) );
 //	connect( m_imageScaler, SIGNAL( finished() ), SLOT( finished() ) );
-
-	connect( m_imageListView, SIGNAL( clicked( QModelIndex ) ), SLOT( imageClicked( QModelIndex ) ) );
-	connect( m_imageListView, SIGNAL( doubleClicked( QModelIndex ) ), SLOT( imageDoubleClicked( QModelIndex ) ) );
 }
 
 WImageListWidget::~WImageListWidget()
@@ -91,44 +70,40 @@ WImageListWidget::~WImageListWidget()
 //	m_imageScaler->waitForFinished();
 }
 
-void WImageListWidget::addImage( const QString imageFile, const QString toolTip, const QString statusTip )
-{
-	qDebug() << "show image " << imageFile;
-//	m_imageScaler->setFuture( QtConcurrent::mapped( imageFile, scale ) );
-	QStandardItem* imageItem = new QStandardItem();
-//	imageItem->setIcon( QIcon( QPixmap::fromImage( m_imageScaler->result() ) ) );
-	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( imageFile, m_sizeX, m_sizeY ) ) ) );
-	if ( ! toolTip.isEmpty() )
-		imageItem->setToolTip( toolTip );
-	if ( ! statusTip.isEmpty() )
-		imageItem->setToolTip( statusTip );
 
-	m_standardModel->appendRow( imageItem );
-	qDebug() << "image '" << imageFile << "' available";
+void WImageListWidget::setIconSize( QSize& size )
+{
+	QListView::setIconSize( size );
 }
+
+//void WImageListWidget::addImage( const QString imageFile, const QString toolTip, const QString statusTip )
+//{
+//	qDebug() << "show image " << imageFile;
+////	m_imageScaler->setFuture( QtConcurrent::mapped( imageFile, scale ) );
+//	QListWidgetItem* imageItem = new QListWidgetItem();
+////	imageItem->setIcon( QIcon( QPixmap::fromImage( m_imageScaler->result() ) ) );
+//	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( imageFile, QListView::iconSize() ) ) ) );
+//	if ( ! toolTip.isEmpty() )
+//		imageItem->setToolTip( toolTip );
+//	if ( ! statusTip.isEmpty() )
+//		imageItem->setToolTip( statusTip );
+
+//	addItem( imageItem );
+//	qDebug() << "image '" << imageFile << "' available";
+//}
 
 void WImageListWidget::addImage( const QImage image, const QString toolTip, const QString statusTip )
 {
-	QStandardItem* imageItem = new QStandardItem();
-	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( image, m_sizeX, m_sizeY ) ) ) );
+	QListWidgetItem* imageItem = new QListWidgetItem();
+	imageItem->setIcon( QIcon( QPixmap::fromImage( scale( image, QListView::iconSize() ) ) ) );
 	if ( ! toolTip.isEmpty() )
 		imageItem->setToolTip( toolTip );
 	if ( ! statusTip.isEmpty() )
 		imageItem->setToolTip( statusTip );
 
-	m_standardModel->appendRow( imageItem );
+	addItem( imageItem );
 }
 
-void WImageListWidget::finished()
-{
-}
-
-void WImageListWidget::imageClicked( QModelIndex index )
-{
-	qDebug() << "image clicked at " << index.row();
-}
-
-void WImageListWidget::imageDoubleClicked( QModelIndex index )
-{
-	qDebug() << "image double clicked at " << index.row();
-}
+//void WImageListWidget::finished()
+//{
+//}

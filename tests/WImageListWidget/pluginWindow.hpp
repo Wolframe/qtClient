@@ -25,7 +25,6 @@ public:
 	PluginWindow();
 
 private slots:
-	void localeChanged( int index );
 	void addImagesFromFiles();
 	void removeSelectedImages();
 	void selectorClicked();
@@ -42,8 +41,6 @@ private:
 	WImageListWidget	*m_selector;
 
 	QGroupBox		*m_operationsGroupBox;
-	QLabel			*m_localeLabel;
-	QComboBox		*m_localeCombo;
 	QPushButton		*m_addImage;
 	QPushButton		*m_removeImage;
 

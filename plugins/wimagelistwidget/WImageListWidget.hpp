@@ -34,11 +34,8 @@
 #ifndef _WIMAGE_LIST_WIDGET_HPP_INCLUDED
 #define _WIMAGE_LIST_WIDGET_HPP_INCLUDED
 
-#include <QWidget>
+#include <QListWidget>
 // #include <QFutureWatcher>
-#include <QListView>
-#include <QStandardItemModel>
-
 
 #ifdef BUILD_AS_PLUGIN
 #include <QDesignerExportWidget>
@@ -47,36 +44,27 @@
 #define EXPORT_AS_PLUGIN X_EXPORT
 #endif
 
-class WImageListWidget : public QWidget
+class Q_GUI_EXPORT WImageListWidget : public QListWidget
 {
 	Q_OBJECT
 
+	Q_PROPERTY( QSize iconSize READ iconSize WRITE setIconSize )
+
 public:
-	WImageListWidget( QWidget *parent = 0 );
-	WImageListWidget( int xSize, int ySize, QWidget *parent = 0 );
+	explicit WImageListWidget( QWidget *parent = 0 );
 	~WImageListWidget();
 
-	void setIconSize( int xSize, int ySize )	{ m_sizeX = xSize; m_sizeY = ySize; }
+	void setIconSize( QSize& size );
+	QSize iconSize() const			{ return QListView::iconSize(); }
 
-	int count() const				{ return m_standardModel->rowCount(); }
-
-	void addImage( const QString imageFile, const QString toolTip = QString::null,
-		       const QString statusTip = QString::null );
 	void addImage( const QImage image, const QString toolTip = QString::null,
 		       const QString statusTip = QString::null );
 
-public Q_SLOTS:
-	void finished();
-
-	void imageClicked( QModelIndex index );
-	void imageDoubleClicked( QModelIndex index );
+private Q_SLOTS:
+//	void finished();
 
 private:
-	int			m_sizeX;
-	int			m_sizeY;
 //	QFutureWatcher<QImage>*	m_imageScaler;
-	QListView*		m_imageListView;
-	QStandardItemModel*	m_standardModel;
 };
 
 #endif // _WIMAGE_LIST_WIDGET_HPP_INCLUDED
