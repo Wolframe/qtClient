@@ -72,11 +72,23 @@ static void logError( QWidget* widget, const char* msg, const QString& arg)
 {
 	if (widget)
 	{
-		qCritical() << "error widget visitor" << widget->metaObject()->className() << widget->objectName() << msg << (arg.isEmpty()?"":":") << arg;
+		qCritical() << "error widget visitor" << widget->metaObject()->className() << widget->objectName() << msg << ":" << arg;
 	}
 	else
 	{
-		qCritical() << "error " << msg << (arg.isEmpty()?"":":") << arg;
+		qCritical() << "error " << msg << ":" << arg;
+	}
+}
+
+static void logError( QWidget* widget, const char* msg)
+{
+	if (widget)
+	{
+		qCritical() << "error widget visitor" << widget->metaObject()->className() << widget->objectName() << msg;
+	}
+	else
+	{
+		qCritical() << "error " << msg;
 	}
 }
 
@@ -419,7 +431,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 			QWidget* lnkwdg = resolveLink( resolve( lnk).toString());
 			if (!lnkwdg)
 			{
-				ERROR( "failed to resolve symbolic link to widget");
+				ERROR( "failed to resolve symbolic link to widget (variable ", lnk + ") =>" + resolve( lnk).toString());
 				return false;
 			}
 			m_stk.push_back( State( WidgetVisitorObjectR( createWidgetVisitorObject( lnkwdg)), m_blockSignals));
@@ -1274,6 +1286,11 @@ void WidgetVisitor::connectWidgetEnabler( WidgetEnabler& enabler)
 void WidgetVisitor::ERROR( const char* msg, const QString& arg) const
 {
 	logError( widget(), msg, QString( arg));
+}
+
+void WidgetVisitor::ERROR( const char* msg) const
+{
+	logError( widget(), msg);
 }
 
 static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& cond)

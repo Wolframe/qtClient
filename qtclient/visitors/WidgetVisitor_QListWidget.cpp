@@ -144,7 +144,6 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 				QList<QVariant> rt;
 				foreach( QListWidgetItem *item, m_listWidget->selectedItems())
 				{
-					/*[-]*/qDebug() << "+++++selected" << item->data( Qt::UserRole);
 					rt.append( item->data( Qt::UserRole));
 				}
 				if (rt.isEmpty())

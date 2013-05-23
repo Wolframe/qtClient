@@ -341,7 +341,8 @@ class WidgetVisitor
 		///\param[in] level element index in path (element is first element of a path <=> level == 0)
 		bool enter( const QString& name, bool writemode, int level);
 
-		void ERROR( const char* msg, const QString& arg=QString()) const;
+		void ERROR( const char* msg, const QString& arg) const;
+		void ERROR( const char* msg) const;
 
 	private:
 		class State

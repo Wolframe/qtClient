@@ -35,8 +35,9 @@ struct SerializeStackElement
 		:name(o.name),tree(o.tree),arraysize(o.arraysize),arrayelemidx(o.arrayelemidx),nodeidx(o.nodeidx),arrayValueMap(o.arrayValueMap),initialized(o.initialized){}
 };
 
-static void mapValue( QList<DataSerializeItem>& rt, WidgetVisitor& visitor, QList<SerializeStackElement>& stk, int arrayidx)
+static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QList<SerializeStackElement>& stk, int arrayidx)
 {
+	bool rt = true;
 	QString value = stk.back().tree->value().toString();
 	if (value.size() > 1)
 	{
@@ -59,22 +60,22 @@ static void mapValue( QList<DataSerializeItem>& rt, WidgetVisitor& visitor, QLis
 				{
 					if (prop.toList().size() > ai)
 					{
-						rt.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toList().at(ai)));
+						res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toList().at(ai)));
 					}
 					else
 					{
-						qCritical() << "accessing array with index out of range:" << propkey;
-						rt.push_back( DataSerializeItem( DataSerializeItem::Value, ""));
+						if (ai != 0) qCritical() << "accessing array with index out of range:" << propkey;
+						rt = false;
 					}
 				}
 				else if (prop.isValid())
 				{
-					rt.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
+					res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
 				}
 				else
 				{
 					qCritical() << "accessing non existing property" << propkey;
-					rt.push_back( DataSerializeItem( DataSerializeItem::Value, QString()));
+					rt = false;
 				}
 			}
 			else
@@ -83,29 +84,30 @@ static void mapValue( QList<DataSerializeItem>& rt, WidgetVisitor& visitor, QLis
 				if (prop.type() == QVariant::List)
 				{
 					qCritical() << "referencing list of element in a single element context:" << propkey;
-					rt.push_back( DataSerializeItem( DataSerializeItem::Value, ""));
+					rt = false;
 				}
 				else if (prop.isValid())
 				{
-					rt.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
+					res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
 				}
 				else
 				{
 					qCritical() << "accessing non existing property" << propkey;
-					rt.push_back( DataSerializeItem( DataSerializeItem::Value, QString()));
+					rt = false;
 				}
 			}
 		}
 		else
 		{
 			QVariant resolved = visitor.resolve( value);
-			rt.push_back( DataSerializeItem( DataSerializeItem::Value, resolved.toString()));
+			res.push_back( DataSerializeItem( DataSerializeItem::Value, resolved.toString()));
 		}
 	}
 	else
 	{
-		rt.push_back( DataSerializeItem( DataSerializeItem::Value, value));
+		res.push_back( DataSerializeItem( DataSerializeItem::Value, value));
 	}
+	return rt;
 }
 
 static int calcArraySize( WidgetVisitor& visitor, const QSharedPointer<DataTree>& dt)
@@ -178,15 +180,21 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, W
 	}
 	while (!stk.isEmpty())
 	{
+		int ni = stk.back().nodeidx;
 		if (stk.back().tree->value().isValid())
 		{
-			mapValue( rt, visitor, stk, arrayidx);
+			if (!mapValue( rt, visitor, stk, arrayidx))
+			{
+				if (rt.back().type() == DataSerializeItem::OpenTag && ni >= stk.back().tree->size())
+				{
+					rt.pop_back();
+					continue;
+				}
+			}
 		}
-		int ni = stk.back().nodeidx;
 		if (ni >= stk.back().tree->size())
 		{
 			rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, ""));
-
 			if (stk.back().tree->elemtype() == DataTree::Array && ++stk.back().arrayelemidx < stk.back().arraysize)
 			{
 				rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, stk.back().name));
@@ -209,7 +217,10 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, W
 				qCritical() << "illegal data tree description: attributes not allowed as array (" << stk.back().tree->nodename( ni) << ")";
 				return QList<DataSerializeItem>();
 			}
-			mapValue( rt, visitor, stk, arrayidx);
+			if (!mapValue( rt, visitor, stk, arrayidx))
+			{
+				rt.pop_back();
+			}
 			stk.pop_back();
 			stk.back().nodeidx++;
 		}
