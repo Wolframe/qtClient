@@ -373,11 +373,14 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 	if (followidx >= 0)
 	{
 		// ... the referenced item is a multipart reference so it gets complicated
+		QString prefix;
+		QString rest;
 		int entercnt = 0;
-		QString prefix( name.mid( 0, followidx));
-		QString rest( name.mid( followidx+1, name.size()-followidx-1));
 		do
 		{
+			prefix = name.mid( 0, followidx);
+			rest = name.mid( followidx+1, name.size()-followidx-1);
+
 			if (!enter( prefix, writemode, level+entercnt))
 			{
 				for (; entercnt > 0; --entercnt) leave( writemode);
@@ -385,17 +388,6 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 			}
 			++entercnt;
 			followidx = rest.indexOf( '.');
-			if (followidx < 0)
-			{
-				if (!enter( rest, writemode, level+entercnt))
-				{
-					for (; entercnt > 0; --entercnt) leave( writemode);
-					return false;
-				}
-				++entercnt;
-			}
-			prefix = rest.mid( 0, followidx);
-			rest = rest.mid( followidx+1, rest.size()-followidx-1);
 		}
 		while (followidx >= 0);
 
@@ -1332,43 +1324,71 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 	TRACE_STATUS( "find datasignal receiver", className(), objectName(), receiverid);
 	QWidget* rcvwidget;
 	QList<QWidget*> wl;
-
-	if (is_widgetid( receiverid))
+	int atidx = receiverid.indexOf('@');
+	QString slotname;
+	QString address;
+	if (atidx >= 0)
 	{
-		WidgetVisitor mainvisitor( uirootwidget(), None);
-		wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, receiverid));
-		foreach (QWidget* rcvwidget, wl)
-		{
-			TRACE_STATUS( "found widget by address", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-			rt.push_back( SignalReceiver( "datasignal", rcvwidget));
-		}
-	}
-	else if ((rcvwidget = get_widget_reference( receiverid)) != 0)
-	{
-		TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-		rt.push_back( SignalReceiver( "datasignal", rcvwidget));
+		slotname = receiverid.mid( 0, atidx).trimmed();
+		address = receiverid.mid( atidx+1, receiverid.size() - (atidx+1)).trimmed();
 	}
 	else
 	{
+		address = receiverid;
+	}
+	if (is_widgetid( address))
+	{
+		WidgetVisitor mainvisitor( uirootwidget(), None);
+		wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, address));
+		foreach (QWidget* rcvwidget, wl)
+		{
+			TRACE_STATUS( "found widget by address", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+			rt.push_back( SignalReceiver( slotname, rcvwidget));
+		}
+	}
+	else if (address.indexOf('.') >= 0)
+	{
+		rcvwidget = get_widget_reference( address);
+		if (rcvwidget)
+		{
+			TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+			rt.push_back( SignalReceiver( slotname, rcvwidget));
+		}
+		else
+		{
+			qCritical() << "unable to resolve local widget reference:" << address;
+		}
+	}
+	else if ((rcvwidget = get_widget_reference( address)) != 0)
+	{
+		TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+		rt.push_back( SignalReceiver( slotname, rcvwidget));
+	}
+	else
+	{
+		if (slotname.isEmpty())
+		{
+			slotname = address;
+		}
 		WidgetVisitor mainvisitor( uirootwidget(), None);
 		QWidget* thiswidget = widget();
-		foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, receiverid))
+		foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, address))
 		{
 			if (rcvwidget != thiswidget)
 			{
-				QVariant sendercond = getDatasignalSender( rcvwidget, receiverid);
+				QVariant sendercond = getDatasignalSender( rcvwidget, address);
 				if (sendercond.isValid())
 				{
 					if (sendercond.toString() == widgetid())
 					{
 						TRACE_STATUS( "found widget by data slot identifier with sender id", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-						rt.push_back( SignalReceiver( receiverid, rcvwidget));
+						rt.push_back( SignalReceiver( slotname, rcvwidget));
 					}
 				}
 				else
 				{
 					TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
-					rt.push_back( SignalReceiver( receiverid, rcvwidget));
+					rt.push_back( SignalReceiver( slotname, rcvwidget));
 				}
 			}
 		}

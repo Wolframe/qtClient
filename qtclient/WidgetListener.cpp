@@ -95,9 +95,10 @@ void WidgetListenerImpl::setDebug( bool v)
 	m_debug = v;
 }
 
-void WidgetListenerImpl::trigger_reload( const QString& signame, QWidget* receiver)
+void WidgetListenerImpl::trigger_reload( const QString& slotname, QWidget* receiver)
 {
 	WidgetVisitor visitor( receiver, WidgetVisitor::None);
+	qDebug() << "reload triggered of" << visitor.className() << visitor.objectName() << "on dataslot" << slotname;
 	visitor.readAssignments();
 
 	QAbstractButton* button = qobject_cast<QAbstractButton*>( receiver);
@@ -106,7 +107,8 @@ void WidgetListenerImpl::trigger_reload( const QString& signame, QWidget* receiv
 		button->toggle();
 		button->click();
 	}
-	QVariant actiondef = receiver->property( QByteArray("action:") + signame.toLatin1());
+	QVariant actiondef;
+	actiondef = receiver->property( QByteArray("action:") + slotname.toLatin1());
 	if (!actiondef.isValid())
 	{
 		actiondef = receiver->property( "action");

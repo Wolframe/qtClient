@@ -149,6 +149,27 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 					return QVariant( rt);
 				}
 			}
+			else if (name == "unselected")
+			{
+				QList<QVariant> rt;
+				int ri = 0, re = m_listWidget->count();
+				for( ; ri < re; ++ri)
+				{
+					QListWidgetItem *item = m_listWidget->item( ri);
+					if (!item->isSelected())
+					{
+						rt.append( item->data( Qt::UserRole));
+					}
+				}
+				if (rt.isEmpty())
+				{
+					return QVariant();
+				}
+				else
+				{
+					return QVariant( rt);
+				}
+			}
 			break;
 	}
 	return QVariant();

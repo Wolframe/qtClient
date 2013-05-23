@@ -336,7 +336,8 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 			int dd;
 			if ((dd=nodevar.indexOf(':')) >= 0)
 			{
-				rt.m_defaultvalue = QVariant( nodevar.mid( dd+1, nodevar.size()-dd-1));
+				QString defaultvaluestr = nodevar.mid( dd+1, nodevar.size()-dd-1);
+				rt.m_defaultvalue = QVariant( defaultvaluestr);
 				nodevar = nodevar.mid( 0, dd);
 			}
 			nodevalue.push_back( '{');
