@@ -20,7 +20,6 @@
 #include "visitors/WidgetVisitor_QSlider.hpp"
 #include "visitors/WidgetVisitor_FileChooser.hpp"
 #include "visitors/WidgetVisitor_PictureChooser.hpp"
-#include "visitors/WidgetVisitor_WImageListWidget.hpp"
 
 
 typedef WidgetVisitorObjectR (*WidgetVisitorObjectConstructor)( QWidget* widget);
@@ -72,7 +71,6 @@ struct WidgetVisitorTypeMap :QHash<QString,WidgetVisitorObjectConstructor>
 		ADD_WidgetVisitorType( QSlider)
 		ADD_WidgetVisitorType( FileChooser)
 		ADD_WidgetVisitorType( PictureChooser)
-		ADD_WidgetVisitorType( WImageListWidget)
 	}
 };
 

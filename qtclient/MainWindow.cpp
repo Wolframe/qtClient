@@ -279,7 +279,6 @@ void MainWindow::create( )
 // for running in git workspace (for development)
 	m_uiLoader->addPluginPath( "../plugins/filechooser" );
 	m_uiLoader->addPluginPath( "../plugins/picturechooser" );
-	m_uiLoader->addPluginPath( "../plugins/wimagelistwidget" );
 	QStringList paths = m_uiLoader->pluginPaths( );
 	qDebug( ) << "Will load custom widget plugins from" << paths;
 
@@ -1214,6 +1213,10 @@ void MainWindow::logout( )
 	storeStateAndPositions( );
 	storeSettings( );
 
+	if( !m_modalDialogClosed ) {
+		endModal( );
+	}
+
 	if( settings.mdi ) {
 		m_mdiArea->closeAllSubWindows( );
 		m_formWidget = 0; // because the last mdi window assigned this! See HACK above
@@ -1231,6 +1234,9 @@ void MainWindow::error( QString error )
 	
 	if( settings.mdi ) {
 		if( !m_wolframeClient->isConnected( ) ) {
+			if( !m_modalDialogClosed ) {
+				endModal( );
+			}
 			m_mdiArea->closeAllSubWindows( );
 			m_formWidget = 0; // see above
 			removeApplicationMenus( );
