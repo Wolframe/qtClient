@@ -1,17 +1,14 @@
 #include "DataTreeSerialize.hpp"
 #include "DataTree.hpp"
 #include "WidgetVisitor.hpp"
+#include "DebugHelpers.hpp"
 #include <QDebug>
 #include <QBitArray>
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-static QVariant SHORTEN( const QVariant& val)
-{
-	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "..."; else return val;
-}
-#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "data tree serialize " << (TITLE) << SHORTEN(VALUE);
-#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "data tree serialize " << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
+#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "data tree serialize " << (TITLE) << shortenDebugMessageArgument(VALUE);
+#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "data tree serialize " << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(VALUE);
 #else
 #define TRACE_VALUE( TITLE, VALUE)
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)

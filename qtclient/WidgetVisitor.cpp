@@ -36,6 +36,7 @@
 #include "FileChooser.hpp"
 #include "PictureChooser.hpp"
 #include "FormWidget.hpp"
+#include "DebugHelpers.hpp"
 
 #include <QDebug>
 #include <QXmlStreamWriter>
@@ -54,13 +55,9 @@
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-static QVariant SHORTEN( const QVariant& val)
-{
-	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "..."; else return val;
-}
 #define TRACE_STATUS( TITLE, CLASS, OBJ, NAME)		qDebug() << "widget visit state" << (TITLE) << (CLASS) << (OBJ) << (NAME);
-#define TRACE_FETCH( TITLE, OBJ, NAME, VALUE)		qDebug() << "widget visit get" << (TITLE) << (OBJ) << (NAME) << "=" << SHORTEN(VALUE);
-#define TRACE_ASSIGNMENT( TITLE, OBJ, NAME, VALUE)	qDebug() << "widget visit set" << (TITLE) << (OBJ) << (NAME) << "=" << SHORTEN(VALUE);
+#define TRACE_FETCH( TITLE, OBJ, NAME, VALUE)		qDebug() << "widget visit get" << (TITLE) << (OBJ) << (NAME) << "=" << shortenDebugMessageArgument(VALUE);
+#define TRACE_ASSIGNMENT( TITLE, OBJ, NAME, VALUE)	qDebug() << "widget visit set" << (TITLE) << (OBJ) << (NAME) << "=" << shortenDebugMessageArgument(VALUE);
 #define TRACE_ENTER( TITLE, CLASS, OBJ, NAME)		qDebug() << "widget visit enter" << (TITLE) << (CLASS) << (OBJ) << "into" << (NAME);
 #define TRACE_LEAVE( TITLE)				qDebug() << "widget visit leave" << (TITLE);
 #else

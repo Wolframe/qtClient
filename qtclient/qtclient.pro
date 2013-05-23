@@ -34,6 +34,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 SOURCES += \
+	DebugHelpers.cpp \
 	MainWindow.cpp \
 	FormLoader.cpp \
 	FileFormLoader.cpp \
@@ -85,6 +86,7 @@ SOURCES += \
 	visitors/WidgetVisitor_WImageListWidget.cpp
 
 HEADERS += \
+	DebugHelpers.hpp \
 	MainWindow.hpp \
 	FormLoader.hpp \
 	FileFormLoader.hpp \

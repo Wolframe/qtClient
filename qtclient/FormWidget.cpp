@@ -36,6 +36,7 @@
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
 #include "global.hpp"
+#include "DebugHelpers.hpp"
 
 #include <QDebug>
 #include <QApplication>
@@ -473,7 +474,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 {
-	qDebug( ) << "Got answer, tag" << tag_ << ":\n" << data_;
+	qDebug( ) << "Got answer, tag" << tag_;
 	
 // hand-written plugin, custom request, pass it back directly, don't go over
 // generic widget answer part (TODO: there should be a registry map here perhaps)
@@ -487,7 +488,7 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 	QWidget* rcp = m_widgetTree.deliverAnswer( tag_, data_, followform);
 	if (rcp)
 	{
-		qDebug( ) << "Answer for form" << m_form << "and tag" << tag_;
+		qDebug( ) << "Answer for form" << m_form << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
 
 		if (!followform.isEmpty() || rcp->property( "form").isValid())
 		{

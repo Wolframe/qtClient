@@ -36,26 +36,13 @@
 #include "DataSerializeItem.hpp"
 #include "DataTreeSerialize.hpp"
 #include "DataFormatXML.hpp"
+#include "DebugHelpers.hpp"
 #include <QVariant>
 
 #define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-static QVariant SHORTEN( const QVariant& val)
-{
-	if (val.type() == QVariant::String && val.toString().size() > 200) return val.toString().mid( 0,200) + "...";
-	if (val.type() == QVariant::List)
-	{
-		QList<QVariant> rt;
-		foreach (const QVariant& vv, val.toList())
-		{
-			rt.push_back( SHORTEN( vv));
-		}
-		return QVariant(rt);
-	}
-	return val;
-}
-#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << SHORTEN(VALUE);
-#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << SHORTEN(VALUE);
+#define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << shortenDebugMessageArgument(QVariant(VALUE));
+#define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(QVariant(VALUE));
 #else
 #define TRACE_VALUE( TITLE, VALUE)
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)
@@ -511,7 +498,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 	for (; ai != ae; ++ai)
 	{
 		aidxposar.push_back(0);
-		TRACE_ASSIGNMENT( QString("answer assignment ") + WidgetDataAssignmentInstr::typeName( ai->type), ai->name, SHORTEN( ai->value));
+		TRACE_ASSIGNMENT( QString("answer assignment ") + WidgetDataAssignmentInstr::typeName( ai->type), ai->name, shortenDebugMessageArgument( ai->value));
 	}
 	for (ai = assignments.begin(); ai != ae; ++ai)
 	{
