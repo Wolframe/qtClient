@@ -1021,9 +1021,6 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, const bool n
 	if( openAtCursorPosition ) {
 		QPoint pos = m_mdiArea->mapFromGlobal( QCursor::pos( ) );
 		mdiSubWindow->move( pos );
-		//~ QMessageBox::critical( this, "mouse",
-			//~ QString( "(%1,%2)" ).arg( pos.x( ) ) 
-			//~ .arg( pos.y( ) ), QMessageBox::Ok );
 	}
 
 	connect( formWidget, SIGNAL( closed( ) ),
