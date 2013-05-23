@@ -730,7 +730,7 @@ void MainWindow::formNewWindow( QString name )
 {
 // open new MDI subwindow in MDI case (default, singletonWindow avoids this)
 	if( settings.mdi ) {
-		(void)CreateMdiSubWindow( name, true );
+		(void)CreateMdiSubWindow( name, true, true );
 // kiosk mode, always load form normally in the only form widget there is
 	} else {
 		loadForm( name );
@@ -1000,8 +1000,8 @@ void MainWindow::on_actionReload_triggered( )
 
 // -- MDI mode
 
-QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, bool newWindow )
-{
+QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, const bool newWindow, const bool openAtCursorPosition )
+{	
 	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.uiFormsDir, m_wolframeClient, settings.mdi );
 
 	connect( formWidget, SIGNAL( formLoaded( QString ) ),
@@ -1017,6 +1017,14 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, bool newWind
 
 	QMdiSubWindow *mdiSubWindow = m_mdiArea->addSubWindow( formWidget );
 	mdiSubWindow->setAttribute( Qt::WA_DeleteOnClose );
+
+	if( openAtCursorPosition ) {
+		QPoint pos = m_mdiArea->mapFromGlobal( QCursor::pos( ) );
+		mdiSubWindow->move( pos );
+		//~ QMessageBox::critical( this, "mouse",
+			//~ QString( "(%1,%2)" ).arg( pos.x( ) ) 
+			//~ .arg( pos.y( ) ), QMessageBox::Ok );
+	}
 
 	connect( formWidget, SIGNAL( closed( ) ),
 		mdiSubWindow, SLOT( close( ) ) );
