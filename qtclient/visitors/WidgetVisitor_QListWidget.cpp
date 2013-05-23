@@ -96,7 +96,7 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 	switch (m_mode)
 	{
 		case Element:
-			if (name.isEmpty())
+			if (name.isEmpty() || name == "text")
 			{
 				if (m_row >= m_listWidget->count()) return QVariant();
 				QListWidgetItem* item = m_listWidget->item( m_row);
@@ -107,6 +107,12 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 				if (m_row >= m_listWidget->count()) return false;
 				QListWidgetItem* item = m_listWidget->item( m_row);
 				return item->data( Qt::UserRole);
+			}
+			else if (name == "tooltip")
+			{
+				if (m_row >= m_listWidget->count()) return QVariant();
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				return QVariant( item->toolTip());
 			}
 			break;
 
@@ -138,6 +144,7 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 				QList<QVariant> rt;
 				foreach( QListWidgetItem *item, m_listWidget->selectedItems())
 				{
+					/*[-]*/qDebug() << "+++++selected" << item->data( Qt::UserRole);
 					rt.append( item->data( Qt::UserRole));
 				}
 				if (rt.isEmpty())
@@ -180,7 +187,7 @@ bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVa
 	switch (m_mode)
 	{
 		case Element:
-			if (name.isEmpty())
+			if (name.isEmpty() || name == "text")
 			{
 				if (m_row >= m_listWidget->count()) return false;
 				QListWidgetItem* item = m_listWidget->item( m_row);
@@ -202,6 +209,13 @@ bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVa
 				QPixmap pixmap;
 				pixmap.loadFromData( decoded);
 				item->setIcon( pixmap);
+				return true;
+			}
+			else if (name == "tooltip")
+			{
+				if (m_row >= m_listWidget->count()) return false;
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				item->setToolTip( data.toString());
 				return true;
 			}
 			break;
@@ -269,6 +283,7 @@ void WidgetVisitorState_QListWidget::endofDataFeed()
 				item->setSelected( true);
 			}
 		}
+		m_listWidget->setProperty( "_w_selected", QVariant());
 	}
 }
 

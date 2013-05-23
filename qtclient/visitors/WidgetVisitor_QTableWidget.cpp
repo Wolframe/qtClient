@@ -382,12 +382,17 @@ QVariant WidgetVisitorState_QTableWidget::property( const QString& name)
 			break;
 		case RowData:
 		case ColumnData:
-			if (name.isEmpty())
+			if (name.isEmpty() || name == "text")
 			{
 				item = m_tableWidget->item( m_row, m_column);
 				if (item) return item->data( Qt::UserRole);
 			}
-			if (name == "pixmap")
+			else if (name == "tooltip")
+			{
+				item = m_tableWidget->item( m_row, m_column);
+				return QVariant( item->toolTip());
+			}
+			else if (name == "pixmap")
 			{
 				return get_pixmap( m_row, m_column);
 			}
@@ -398,6 +403,7 @@ QVariant WidgetVisitorState_QTableWidget::property( const QString& name)
 bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QVariant& data)
 {
 	QHash<QString,int>::const_iterator itr;
+	QTableWidgetItem* item;
 	switch (m_mode)
 	{
 		case Init:
@@ -447,6 +453,12 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 				set_pixmap( m_row, m_column, data);
 				return true;
 			}
+			if (name == "tooltip")
+			{
+				item = m_tableWidget->item( m_row, m_column);
+				item->setToolTip( data.toString());
+				return true;
+			}
 			break;
 		case ColumnData:
 			if (name.isEmpty())
@@ -457,6 +469,12 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 			if (name == "pixmap")
 			{
 				set_pixmap( m_row, m_row, data);
+				return true;
+			}
+			if (name == "tooltip")
+			{
+				item = m_tableWidget->item( m_row, m_column);
+				item->setToolTip( data.toString());
 				return true;
 			}
 			break;
@@ -531,6 +549,7 @@ void WidgetVisitorState_QTableWidget::endofDataFeed()
 		if (row >= 0) m_tableWidget->setCurrentCell( row, 0);
 		int col = findSelectedColumn( selected);
 		if (col >= 0) m_tableWidget->setCurrentCell( 0, col);
+		m_tableWidget->setProperty( "_w_selected", QVariant());
 	}
 }
 

@@ -115,6 +115,7 @@ QVariant WidgetVisitorState_QTreeWidget::property( const QString& name)
 {
 	static const QString selected_str( "selected");
 	static const QString id_str( "id");
+	static const QString tooltip_str( "tooltip");
 	if (name == selected_str)
 	{
 		if (m_treeWidget->selectionMode() == QAbstractItemView::SingleSelection)
@@ -149,6 +150,10 @@ QVariant WidgetVisitorState_QTreeWidget::property( const QString& name)
 	{
 		return m_stk.top().item->data( 0, Qt::UserRole);
 	}
+	if (name == tooltip_str)
+	{
+		return m_stk.top().item->toolTip(0);
+	}
 	return QVariant();
 }
 
@@ -156,6 +161,7 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 {
 	static const QString id_str( "id");
 	static const QString selected_str( "selected");
+	static const QString tooltip_str( "tooltip");
 	if (m_stk.isEmpty()) return false;
 	int col = m_headers.indexOf( name);
 	if (col != -1)
@@ -166,6 +172,11 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 	if (name == id_str)
 	{
 		m_stk.top().item->setData( 0, Qt::UserRole, data);
+		return true;
+	}
+	else if (name == tooltip_str)
+	{
+		m_stk.top().item->setToolTip( 0,data.toString());
 		return true;
 	}
 	if (name == selected_str)
@@ -416,6 +427,7 @@ void WidgetVisitorState_QTreeWidget::endofDataFeed()
 				item->setSelected( true);
 			}
 		}
+		m_treeWidget->setProperty( "_w_selected", QVariant());
 	}
 }
 
