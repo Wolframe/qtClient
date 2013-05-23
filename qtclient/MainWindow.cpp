@@ -279,7 +279,6 @@ void MainWindow::create( )
 // for running in git workspace (for development)
 	m_uiLoader->addPluginPath( "../plugins/filechooser" );
 	m_uiLoader->addPluginPath( "../plugins/picturechooser" );
-	m_uiLoader->addPluginPath( "../plugins/wimagelistwidget" );
 	QStringList paths = m_uiLoader->pluginPaths( );
 	qDebug( ) << "Will load custom widget plugins from" << paths;
 
