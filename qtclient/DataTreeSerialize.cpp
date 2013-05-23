@@ -123,6 +123,10 @@ static int calcArraySize( WidgetVisitor& visitor, const QSharedPointer<DataTree>
 			int arsize = value.toList().size();
 			if (rt < arsize) rt = arsize;
 		}
+		else
+		{
+			if (rt == 0) rt = 1;
+		}
 		int ni = stk.back().nodeidx++;
 		if (ni >= stk.back().tree->size())
 		{
@@ -453,29 +457,26 @@ static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
 
 static bool getArraySize( int& arraysize, const DataTree* datanode)
 {
+	int osize = -1;
 	if (datanode->value().type() == QVariant::List)
+	{
+		osize = datanode->value().toList().size();
+	}
+	else if (datanode->value().isValid())
+	{
+		osize = 1;
+	}
+	if (osize >= 0)
 	{
 		if (arraysize == -1)
 		{
-			if (datanode->value().type() == QVariant::List)
-			{
-				arraysize = datanode->value().toList().size();
-			}
-			else
-			{
-				arraysize = 1;
-			}
+			arraysize = osize;
 		}
 		else
 		{
-			int osize = 1;
-			if (datanode->value().type() == QVariant::List)
-			{
-				osize = datanode->value().toList().size();
-			}
 			if (arraysize != osize)
 			{
-				qCritical() << "array size do not match" << "!=" << arraysize << datanode->value().toList().size();
+				qCritical() << "array size do not match" << "!=" << arraysize << osize;
 				return false;
 			}
 		}

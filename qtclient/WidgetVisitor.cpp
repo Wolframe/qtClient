@@ -396,8 +396,15 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 			}
 			prefix = rest.mid( 0, followidx);
 			rest = rest.mid( followidx+1, rest.size()-followidx-1);
-		} while (followidx >= 0);
-		m_stk.top().m_multipart_entercnt = entercnt;
+		}
+		while (followidx >= 0);
+
+		if (!enter( rest, writemode, level+entercnt))
+		{
+			for (; entercnt > 0; --entercnt) leave( writemode);
+			return false;
+		}
+		m_stk.top().m_multipart_entercnt = ++entercnt;
 		return true;
 	}
 

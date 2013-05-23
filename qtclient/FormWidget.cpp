@@ -480,6 +480,7 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 // generic widget answer part (TODO: there should be a registry map here perhaps)
 	FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
 	if( plugin ) {
+		qDebug( ) << "Anwer for form plugin" << plugin->name() << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
 		plugin->gotAnswer( tag_, data_ );
 		return;
 	}

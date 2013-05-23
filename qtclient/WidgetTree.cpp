@@ -1,6 +1,7 @@
 #include "WidgetTree.hpp"
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
+#include "DebugHelpers.hpp"
 #include <QDebug>
 #include <QPushButton>
 
@@ -307,7 +308,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 
 	if (rq.type() == WidgetRequest::Action)
 	{
-		qDebug() << "got action request answer tag=" << tag << "data=" << content;
+		qDebug() << "got action request answer tag=" << tag << "data=" << shortenDebugMessageArgument(content);
 		foreach (QWidget* actionwidget, rcpl)
 		{
 			QPushButton* button = qobject_cast<QPushButton*>( actionwidget);
@@ -346,7 +347,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 			WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
 			if (!setWidgetAnswer( rcpvisitor, content))
 			{
-				qCritical() << "Failed assign request answer tag:" << tag << "data:" << content;
+				qCritical() << "Failed to assign request answer tag:" << tag << "data:" << shortenDebugMessageArgument(content);
 			}
 			rcpvisitor.setState( rcp->property( "_w_state"));
 			QVariant initialFocus = rcp->property( "initialFocus");

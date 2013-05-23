@@ -39,7 +39,7 @@
 #include "DebugHelpers.hpp"
 #include <QVariant>
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << shortenDebugMessageArgument(QVariant(VALUE));
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(QVariant(VALUE));
@@ -508,7 +508,11 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 				if (ai->arraysize > 0)
 				{
 					TRACE_VALUE( "enter", ai->name)
-					visitor.enter( ai->name, true);
+					if (!visitor.enter( ai->name, true))
+					{
+						qCritical() << "failed to find widget substructure" << ai->name;
+						return false;
+					}
 					astk.push_back( AssignIterStackElem( ai));
 				}
 				else
@@ -558,6 +562,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 				{
 					if (astk.isEmpty())
 					{
+						TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
 						if (!visitor.setProperty( ai->name, ai->value))
 						{
 							qCritical() << "failed to set property" << ai->name;
@@ -566,10 +571,11 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 					}
 					else
 					{
-						TRACE_ASSIGNMENT( "set property", ai->name, ai->value.toList().at( astk.back().arraypos))
-						if (!visitor.setProperty( ai->name, ai->value.toList().at( aidxposar[ ai-assignments.begin()])))
+						int apos = aidxposar.at( ai-assignments.begin());
+						TRACE_ASSIGNMENT( "set property", ai->name, ai->value.toList().at( apos))
+						if (!visitor.setProperty( ai->name, ai->value.toList().at( apos)))
 						{
-							qCritical() << "failed to set property" << ai->name << "[" << aidxposar.at( ai-assignments.begin()) << "]";
+							qCritical() << "failed to set property" << ai->name << "[" << apos << "]";
 							rt = false;
 						}
 						++aidxposar[ ai-assignments.begin()];
@@ -577,6 +583,17 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 				}
 				else
 				{
+					if (!astk.isEmpty())
+					{
+						int apos = aidxposar.at( ai-assignments.begin());
+						if (apos)
+						{
+							qCritical() << "referencing element out of range" << ai->name << "(" << apos << ")";
+							break;
+						}
+						++aidxposar[ ai-assignments.begin()];
+					}
+					TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
 					if (!visitor.setProperty( ai->name, ai->value))
 					{
 						qCritical() << "failed to set property" << ai->name;
