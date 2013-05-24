@@ -77,7 +77,7 @@ public:
 		SigDestroyed
 	};
 
-	enum {NofDataSignalTypes=(int)SigDoubleClicked+1};
+	enum {NofDataSignalTypes=(int)SigDestroyed+1};
 	static const char* dataSignalTypeName( DataSignalType ii)
 	{
 		static const char* ar[]

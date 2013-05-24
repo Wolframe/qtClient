@@ -362,6 +362,14 @@ class WidgetVisitor
 			struct DataSignals
 			{
 				QList<QString> id[(int)WidgetListener::NofDataSignalTypes];
+				DataSignals(){}
+				DataSignals( const DataSignals& o)
+				{
+					for (int ii=0; ii<(int)WidgetListener::NofDataSignalTypes; ++ii)
+					{
+						id[ii] = o.id[ii];
+					}
+				}
 			};
 			friend class WidgetVisitorStackElement;
 			friend class WidgetVisitor;

@@ -1425,6 +1425,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetL
 
 	foreach (const QString& receiverprop, m_stk.top().m_datasignals.id[(int)type])
 	{
+		TRACE_STATUS( "resolve data signal receiver", className(), objectName(), receiverprop);
 		QVariant receiverid = resolve( receiverprop);
 		rt.append( get_datasignal_receivers( receiverid.toString()));
 	}
