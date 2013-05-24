@@ -167,7 +167,7 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 						rt.append( item->data( Qt::UserRole));
 					}
 				}
-				if (rt.isEmpty())
+				if (rt.isEmpty() && !m_listWidget->count())
 				{
 					return QVariant();
 				}
