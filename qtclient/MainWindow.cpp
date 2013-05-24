@@ -209,6 +209,7 @@ static void myMessageOutput( QtMsgType type, const QMessageLogContext &context, 
 }
 #else
 
+#ifdef _WIN32
 static LPWSTR s2ws( const char *s )
 {
 	int len;
@@ -220,6 +221,7 @@ static LPWSTR s2ws( const char *s )
 	buf[len] = 0;
 	return buf;
 }
+#endif
 
 static void myMessageOutput( QtMsgType type, const char *msg )
 {
