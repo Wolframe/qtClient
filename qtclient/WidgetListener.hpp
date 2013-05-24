@@ -59,6 +59,7 @@ public:
 	void blockSignals( bool v);
 
 private:
+	void trigger_close( QWidget* receiver);
 	void trigger_reload( const QString& signame, QWidget* receiver);
 	QList<QWidget*> get_forward_receivers( QWidget* receiver);
 

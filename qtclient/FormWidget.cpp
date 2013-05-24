@@ -533,4 +533,8 @@ void FormWidget::setWidgetStates( const QVariant& state)
 	m_widgetTree.setWidgetStates( state);
 }
 
+void FormWidget::triggerClose()
+{
+	emit closed();
+}
 
