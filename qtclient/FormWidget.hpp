@@ -55,7 +55,7 @@ class FormWidget : public QWidget
 {
 	Q_OBJECT
 
-	public:		
+	public:
 		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient, bool _mdi );
 		virtual ~FormWidget( );
 
@@ -66,6 +66,7 @@ class FormWidget : public QWidget
 
 		QVariant getWidgetStates() const;
 		void setWidgetStates( const QVariant& state);
+		void triggerClose();
 
 	public:
 		QString formCall( ) const;

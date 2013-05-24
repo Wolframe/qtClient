@@ -95,6 +95,16 @@ void WidgetListenerImpl::setDebug( bool v)
 	m_debug = v;
 }
 
+void WidgetListenerImpl::trigger_close( QWidget* receiver)
+{
+	FormWidget* formwidget = qobject_cast<FormWidget*>( receiver);
+	if (!formwidget) formwidget = qobject_cast<FormWidget*>( receiver->parent());
+	if (formwidget)
+	{
+		formwidget->triggerClose();
+	}
+}
+
 void WidgetListenerImpl::trigger_reload( const QString& slotname, QWidget* receiver)
 {
 	WidgetVisitor visitor( receiver, WidgetVisitor::None);
@@ -160,6 +170,7 @@ QList<QWidget*> WidgetListenerImpl::get_forward_receivers( QWidget* receiver)
 	return forwardlist;
 }
 
+
 void WidgetListenerImpl::handleDataSignal( DataSignalType dt)
 {
 	WidgetVisitor tv( m_state, WidgetVisitor::None);
@@ -168,10 +179,17 @@ void WidgetListenerImpl::handleDataSignal( DataSignalType dt)
 
 	foreach (const Receiver& receiver, tv.get_datasignal_receivers( dt))
 	{
-		trigger_reload( receiver.first, receiver.second);
-		foreach (QWidget* fwd, get_forward_receivers( receiver.second))
+		if (receiver.first == "close")
 		{
-			trigger_reload( receiver.first, fwd);
+			trigger_close( receiver.second);
+		}
+		else
+		{
+			trigger_reload( receiver.first, receiver.second);
+			foreach (QWidget* fwd, get_forward_receivers( receiver.second))
+			{
+				trigger_reload( receiver.first, fwd);
+			}
 		}
 	}
 }
