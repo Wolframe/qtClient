@@ -56,6 +56,8 @@
 #include <QList>
 #include <QAction>
 
+#include <algorithm>
+
 // built-in defaults
 MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_formWidget( 0 ), m_uiLoader( 0 ), m_formLoader( 0 ),
@@ -1018,11 +1020,6 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, const bool n
 	QMdiSubWindow *mdiSubWindow = m_mdiArea->addSubWindow( formWidget );
 	mdiSubWindow->setAttribute( Qt::WA_DeleteOnClose );
 
-	if( openAtCursorPosition ) {
-		QPoint pos = m_mdiArea->mapFromGlobal( QCursor::pos( ) );
-		mdiSubWindow->move( pos );
-	}
-
 	connect( formWidget, SIGNAL( closed( ) ),
 		mdiSubWindow, SLOT( close( ) ) );
 
@@ -1032,6 +1029,21 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, const bool n
 	loadForm( form, newWindow );
 
 	mdiSubWindow->resize( mdiSubWindow->sizeHint( ) );
+
+// do some move and resize tricks to make the new MDI window appear
+// completly visible and as close to the user cursor as possible
+	if( openAtCursorPosition ) {
+		QPoint pos = m_mdiArea->mapFromGlobal( QCursor::pos( ) );
+		QSize size = mdiSubWindow->widget( )->size( );
+		QSize areaSize = m_mdiArea->size( );
+		if( pos.y( ) + size.height( ) > areaSize.height( ) ) {
+			pos.setY( std::max( 0, areaSize.height( ) - size.height( ) - 50 ) );
+		}
+		if( pos.x( ) + size.width( ) > areaSize.width( ) ) {
+			pos.setX( std::max( 0, areaSize.width( ) - size.width( ) ) );
+		}
+		mdiSubWindow->move( pos );
+	}
 	
 	updateMdiMenusAndToolbars( );
 
