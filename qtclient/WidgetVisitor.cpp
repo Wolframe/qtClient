@@ -1260,9 +1260,14 @@ WidgetListenerImpl* WidgetVisitor::createListener( DataLoader* dataLoader)
 	WidgetListenerImpl* listener = 0;
 	if (!m_stk.isEmpty())
 	{
-		listener = new WidgetListenerImpl( m_stk.top().m_obj->widget(), dataLoader);
+		QWidget* widget = m_stk.top().m_obj->widget();
+		listener = new WidgetListenerImpl( widget, dataLoader);
 		if (listener)
 		{
+			if (!m_stk.top().m_datasignals.id[ WidgetListener::SigDestroyed].isEmpty())
+			{
+				QObject::connect( widget, SIGNAL( destroyed()), listener, SLOT( destroyed()), Qt::UniqueConnection);
+			}
 			for (int dt=0; dt<WidgetListener::NofDataSignalTypes; ++dt)
 			{
 				if (!m_stk.top().m_datasignals.id[ dt].isEmpty())

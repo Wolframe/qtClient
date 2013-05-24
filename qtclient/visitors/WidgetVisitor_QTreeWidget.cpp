@@ -444,6 +444,7 @@ void WidgetVisitorState_QTreeWidget::connectDataSignals( WidgetListener::DataSig
 		case WidgetListener::SigPressed: QObject::connect( m_treeWidget, SIGNAL( itemPressed( QTreeWidgetItem*,int)), &listener, SLOT( pressed()), Qt::UniqueConnection); break;
 		case WidgetListener::SigClicked: QObject::connect( m_treeWidget, SIGNAL( itemClicked( QTreeWidgetItem*,int)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
 		case WidgetListener::SigDoubleClicked: QObject::connect( m_treeWidget, SIGNAL( itemDoubleClicked( QTreeWidgetItem*,int)), &listener, SLOT( doubleclicked()), Qt::UniqueConnection); break;
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

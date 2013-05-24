@@ -301,6 +301,7 @@ void WidgetVisitorState_QListWidget::connectDataSignals( WidgetListener::DataSig
 		case WidgetListener::SigPressed: QObject::connect( m_listWidget, SIGNAL( itemPressed( QListWidgetItem*)), &listener, SLOT( pressed()), Qt::UniqueConnection); break;
 		case WidgetListener::SigClicked: QObject::connect( m_listWidget, SIGNAL( itemClicked( QListWidgetItem*)), &listener, SLOT( clicked()), Qt::UniqueConnection); break;
 		case WidgetListener::SigDoubleClicked: QObject::connect( m_listWidget, SIGNAL( itemDoubleClicked( QListWidgetItem*)), &listener, SLOT( doubleclicked()), Qt::UniqueConnection);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

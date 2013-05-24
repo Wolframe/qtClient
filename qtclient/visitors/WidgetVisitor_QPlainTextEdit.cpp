@@ -69,6 +69,7 @@ void WidgetVisitorState_QPlainTextEdit::connectDataSignals( WidgetListener::Data
 		case WidgetListener::SigClicked:
 		case WidgetListener::SigDoubleClicked:
 			qCritical() << "try to connect to signal not provided" << m_plainTextEdit->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

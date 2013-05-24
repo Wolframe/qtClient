@@ -141,6 +141,7 @@ void WidgetVisitorState_QButtonGroup::connectDataSignals( WidgetListener::DataSi
 		case WidgetListener::SigEntered:
 		case WidgetListener::SigDoubleClicked:
 			qCritical() << "try to connect to signal not provided" << m_buttonGroup->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

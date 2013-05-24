@@ -95,6 +95,7 @@ void WidgetVisitorState_QRadioButton::connectDataSignals( WidgetListener::DataSi
 		case WidgetListener::SigClicked:
 		case WidgetListener::SigDoubleClicked:
 			qCritical() << "try to connect to signal not provided" << m_radioButton->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

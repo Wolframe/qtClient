@@ -73,14 +73,15 @@ public:
 		SigEntered,
 		SigPressed,
 		SigClicked,
-		SigDoubleClicked
+		SigDoubleClicked,
+		SigDestroyed
 	};
 
 	enum {NofDataSignalTypes=(int)SigDoubleClicked+1};
 	static const char* dataSignalTypeName( DataSignalType ii)
 	{
 		static const char* ar[]
-		= {"changed", "activated", "entered", "pressed", "clicked", "doubleclicked", 0};
+		= {"changed", "activated", "entered", "pressed", "clicked", "doubleclicked", "destroyed", 0};
 		return ar[(int)ii];
 	}
 	static bool getDataSignalType( const char* name, DataSignalType& dt)
@@ -111,6 +112,7 @@ public slots:
 	void pressed()					{handleDataSignal( SigPressed);}
 	void clicked()					{handleDataSignal( SigClicked);}
 	void doubleclicked()				{handleDataSignal( SigDoubleClicked);}
+	void destroyed()				{handleDataSignal( SigDestroyed);}
 	void showContextMenu( const QPoint& pos)	{handleShowContextMenu( pos);}
 };
 

@@ -68,6 +68,7 @@ void WidgetVisitorState_QDoubleSpinBox::connectDataSignals( WidgetListener::Data
 		case WidgetListener::SigClicked:
 		case WidgetListener::SigDoubleClicked:
 			qCritical() << "try to connect to signal not provided" << m_doubleSpinBox->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

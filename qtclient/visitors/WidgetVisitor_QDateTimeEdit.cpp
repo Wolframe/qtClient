@@ -72,6 +72,7 @@ void WidgetVisitorState_QDateTimeEdit::connectDataSignals( WidgetListener::DataS
 		case WidgetListener::SigClicked:
 		case WidgetListener::SigDoubleClicked:
 			qCritical() << "try to connect to signal not provided" << m_dateTimeEdit->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

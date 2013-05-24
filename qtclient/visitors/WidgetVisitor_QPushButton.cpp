@@ -90,6 +90,7 @@ void WidgetVisitorState_QPushButton::connectDataSignals( WidgetListener::DataSig
 			break;
 		case WidgetListener::SigDoubleClicked:
 			break;
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

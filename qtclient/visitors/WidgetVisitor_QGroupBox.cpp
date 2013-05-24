@@ -141,6 +141,7 @@ void WidgetVisitorState_QGroupBox::connectDataSignals( WidgetListener::DataSigna
 		case WidgetListener::SigEntered:
 		case WidgetListener::SigDoubleClicked:
 			qCritical() << "try to connect to signal not provided" << m_groupBox->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 

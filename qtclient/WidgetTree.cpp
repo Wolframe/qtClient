@@ -155,9 +155,6 @@ void WidgetTree::setWidgetStates( const QVariant& state)
 				}
 			}
 		}
-
-		QVariant initialFocus = widget->property( "initialFocus");
-		if (initialFocus.toBool()) widget->setFocus();
 	}
 }
 
@@ -350,8 +347,6 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 				qCritical() << "Failed to assign request answer tag:" << tag << "data:" << shortenDebugMessageArgument(content);
 			}
 			rcpvisitor.setState( rcp->property( "_w_state"));
-			QVariant initialFocus = rcp->property( "initialFocus");
-			if (initialFocus.toBool()) rcp->setFocus();
 
 			//unblock blocked signals after assigning the answer
 			TraceList::const_iterator bi = blksig.begin(), be = blksig.end();

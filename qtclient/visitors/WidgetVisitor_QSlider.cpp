@@ -69,6 +69,7 @@ void WidgetVisitorState_QSlider::connectDataSignals( WidgetListener::DataSignalT
 		case WidgetListener::SigClicked:
 		case WidgetListener::SigDoubleClicked:
 			qCritical() << "try to connect to signal not provided" << m_slider->metaObject()->className() << WidgetListener::dataSignalTypeName(dt);
+		case WidgetListener::SigDestroyed: break;
 	}
 }
 
