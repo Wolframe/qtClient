@@ -56,6 +56,12 @@
 #include <QList>
 #include <QAction>
 
+#ifdef _WIN32
+#define WIN32_MEAN_AND_LEAN
+#include <windows.h>
+#undef max
+#endif
+
 #include <algorithm>
 
 // built-in defaults
@@ -170,19 +176,31 @@ static void myMessageOutput( QtMsgType type, const QMessageLogContext &context, 
 					_debugTerminal->sendComment( msg );
 				}
 				fprintf( stderr, "%s\n", qPrintable( msg ) );
+#ifdef _WIN32
+				OutputDebugString( qPrintable( msg ) );
+#endif
 			}
 			break;
 
 		case QtWarningMsg:
 			fprintf( stderr, "WARNING: %s\n", qPrintable( msg ) );
+#ifdef _WIN32
+			OutputDebugString( qPrintable( msg ) );
+#endif
 			break;
 
 		case QtCriticalMsg:
 			fprintf( stderr, "CRITICAL: %s\n", qPrintable( msg ) );
+#ifdef _WIN32
+			OutputDebugString( qPrintable( msg ) );
+#endif
 			break;
 
 		case QtFatalMsg:
 			fprintf( stderr, "FATAL: %s\n", qPrintable( msg ) );
+#ifdef _WIN32
+			OutputDebugString( qPrintable( msg ) );
+#endif
 			break;
 
 		default:
@@ -190,6 +208,19 @@ static void myMessageOutput( QtMsgType type, const QMessageLogContext &context, 
 	}
 }
 #else
+
+static LPWSTR s2ws( const char *s )
+{
+	int len;
+	int slength = (int)strlen( s );
+	len = MultiByteToWideChar( CP_ACP, 0, s, slength, 0, 0 );
+	wchar_t *buf = new wchar_t[len+1];
+	
+	MultiByteToWideChar( CP_ACP, 0, s, slength, buf, len );
+	buf[len] = 0;
+	return buf;
+}
+
 static void myMessageOutput( QtMsgType type, const char *msg )
 {
 	switch( type ) {
@@ -199,20 +230,40 @@ static void myMessageOutput( QtMsgType type, const char *msg )
 					_debugTerminal->sendComment( msg );
 				}
 				fprintf( stderr, "%s\n", msg );
+#ifdef _WIN32
+				LPWSTR wmsg = s2ws( msg );
+				OutputDebugString( wmsg );
+				delete[] wmsg;
+#endif
 			}
 			break;
 
-		case QtWarningMsg:
+		case QtWarningMsg: {
 			fprintf( stderr, "WARNING: %s\n", msg );
-			break;
+#ifdef _WIN32
+				LPWSTR wmsg = s2ws( msg );
+				OutputDebugString( wmsg );
+				delete[] wmsg;
+#endif
+			} break;
 
-		case QtCriticalMsg:
+		case QtCriticalMsg: {
 			fprintf( stderr, "CRITICAL: %s\n", msg );
-			break;
+#ifdef _WIN32
+				LPWSTR wmsg = s2ws( msg );
+				OutputDebugString( wmsg );
+				delete[] wmsg;
+#endif
+			} break;
 
-		case QtFatalMsg:
+		case QtFatalMsg: {
 			fprintf( stderr, "FATAL: %s\n", msg );
-			break;
+#ifdef _WIN32
+				LPWSTR wmsg = s2ws( msg );
+				OutputDebugString( wmsg );
+				delete[] wmsg;
+#endif
+			} break;
 
 		default:
 			break;
