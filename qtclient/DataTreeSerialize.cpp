@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QBitArray>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "data tree serialize " << (TITLE) << shortenDebugMessageArgument(VALUE);
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "data tree serialize " << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(VALUE);
@@ -318,18 +318,18 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				int ii=0, nn=stk.back().initialized.size();
 				for (; ii<nn; ++ii)
 				{
-					if (!stk.back().initialized.testBit( ii) && stk.back().schemanode->nodetree( ii)->elemtype() != DataTree::Array)
+					if (getVariableName( stk.back().schemanode->nodetree(ii)->value().toString()) != "?")
 					{
-						if (getVariableName( stk.back().schemanode->nodetree(ii)->value().toString()) != "?")
+						if (!stk.back().initialized.testBit( ii) && stk.back().schemanode->nodetree( ii)->elemtype() != DataTree::Array)
 						{
 							qCritical() << "element not initialized in answer:" << stk.back().schemanode->nodename( ii) << "at" << elementPath(stk);
+							stk.back().datanode->nodetree( ii)->pushNodeValue( QVariant());
 						}
-						stk.back().datanode->nodetree( ii)->pushNodeValue( QVariant());
-					}
-					else if (!stk.back().valueset.testBit( ii)
-						&& stk.back().schemanode->nodetree(ii)->value().isValid())
-					{
-						stk.back().datanode->nodetree( ii)->pushNodeValue( QString());
+						else if (!stk.back().valueset.testBit( ii)
+							&& stk.back().schemanode->nodetree(ii)->value().isValid())
+						{
+							stk.back().datanode->nodetree( ii)->pushNodeValue( QString());
+						}
 					}
 				}
 				stk.pop_back();
@@ -466,7 +466,7 @@ static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
 	}
 }
 
-static bool getArraySize( int& arraysize, const DataTree* datanode)
+static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTree* schemanode)
 {
 	int osize = -1;
 	if (datanode->value().type() == QVariant::List)
@@ -495,9 +495,13 @@ static bool getArraySize( int& arraysize, const DataTree* datanode)
 	int ii = 0, nn = datanode->size();
 	for (; ii<nn; ++ii)
 	{
+		if (getVariableName( schemanode->nodetree(ii)->value().toString()) == "?")
+		{
+			continue;
+		}
 		if (datanode->nodetree(ii)->elemtype() != DataTree::Array)
 		{
-			if (!getArraySize( arraysize, datanode->nodetree(ii).data()))
+			if (!getArraySize( arraysize, datanode->nodetree(ii).data(), schemanode->nodetree(ii).data()))
 			{
 				return false;
 			}
@@ -542,22 +546,25 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 		if (nodeidx == 0 && stk.back().datanode->value().isValid())
 		{
 			QString varname( getVariableName( stk.back().schemanode->value().toString()));
-			if (!prefixstk.isEmpty())
+			if (varname != "?")
 			{
-				QString prefix = prefixstk.back();
-				if (varname.startsWith( prefix))
+				if (!prefixstk.isEmpty())
 				{
-					if (varname.size() == prefix.size())
+					QString prefix = prefixstk.back();
+					if (varname.startsWith( prefix))
 					{
-						varname = varname.mid( prefix.size(), varname.size() - prefix.size());
-					}
-					else if (varname.at( prefix.size()) == '.')
-					{
-						varname = varname.mid( prefix.size() + 1, varname.size() - prefix.size() -1);
+						if (varname.size() == prefix.size())
+						{
+							varname = varname.mid( prefix.size(), varname.size() - prefix.size());
+						}
+						else if (varname.at( prefix.size()) == '.')
+						{
+							varname = varname.mid( prefix.size() + 1, varname.size() - prefix.size() -1);
+						}
 					}
 				}
+				rt.push_back( WidgetDataAssignmentInstr( varname, stk.back().datanode->value()));
 			}
-			rt.push_back( WidgetDataAssignmentInstr( varname, stk.back().datanode->value()));
 		}
 		if (nodeidx < stk.back().schemanode->size())
 		{
@@ -570,7 +577,7 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 				getCommonPrefix( prefix, schemanode);
 				int arraysize = -1;
 				int arrayinc = 1;
-				if (!getArraySize( arraysize, datanode))
+				if (!getArraySize( arraysize, datanode, schemanode))
 				{
 					return QList<WidgetDataAssignmentInstr>();
 				}

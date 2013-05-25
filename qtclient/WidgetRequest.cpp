@@ -442,7 +442,7 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 					TRACE_ASSIGNMENT( "ATTRIBUTE", attributename, item.value());
 					if (!visitor.setProperty( attributename, item.value()))
 					{
-						logError( stk, QString( "failed to set property '") + attributename + "'");
+						logError( stk, QString( "failed to set property (attribute)'") + attributename + "'");
 					}
 				}
 				else if (stk.last().istag)
@@ -458,7 +458,7 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 					TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
 					if (!visitor.setProperty( stk.last().name, item.value()))
 					{
-						logError( stk, QString( "failed to set property '") + stk.last().name + "'");
+						logError( stk, QString( "failed to set property (content value)'") + stk.last().name + "'");
 					}
 				}
 			break;
@@ -565,7 +565,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 						TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
 						if (!visitor.setProperty( ai->name, ai->value))
 						{
-							qCritical() << "failed to set property" << ai->name;
+							qCritical() << "failed to set property (list assignment)" << ai->name;
 							rt = false;
 						}
 					}
@@ -575,7 +575,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 						TRACE_ASSIGNMENT( "set property", ai->name, ai->value.toList().at( apos))
 						if (!visitor.setProperty( ai->name, ai->value.toList().at( apos)))
 						{
-							qCritical() << "failed to set property" << ai->name << "[" << apos << "]";
+							qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "]";
 							rt = false;
 						}
 						++aidxposar[ ai-assignments.begin()];
@@ -596,7 +596,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 					TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
 					if (!visitor.setProperty( ai->name, ai->value))
 					{
-						qCritical() << "failed to set property" << ai->name;
+						qCritical() << "failed to set property (single element in array)" << ai->name;
 						rt = false;
 					}
 				}
