@@ -506,21 +506,19 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 			endofDataFeed();
 		}
 	}
-	// Aba: done as property in the UI (horizontalHeaderStretchLastSection)
-	//~ m_tableWidget->horizontalHeader()->setStretchLastSection(true);
 
-	// Aba: this makes the manual resizing of the first column impossible
+	// Aba: this makes the manual resizing of the first column impossible, maybe
+	// TODO: make this a dynamic property if needed
 //~ #if QT_VERSION >= 0x050000
 	//~ m_tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 //~ #else
 	//~ m_tableWidget->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
 //~ #endif
 
-	// dito
-	//~ for( int ii = 0; ii < m_tableWidget->columnCount(); ii++)
-	//~ {
-		//~ m_tableWidget->resizeColumnToContents( ii);
-	//~ }
+	for( int ii = 0; ii < m_tableWidget->columnCount(); ii++)
+	{
+		m_tableWidget->resizeColumnToContents( ii);
+	}
 	
 	// make the data fit in height
 	for( int ii = 0; ii < m_tableWidget->rowCount(); ii++)
@@ -535,7 +533,7 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 		QVariant propValue = m_tableWidget->property( propName.toLatin1( ) );
 		if( propValue.isValid( ) && propValue.toUInt( ) > 0 ) {
 			m_tableWidget->setColumnWidth( i, propValue.toUInt( ) );
-		}
+		}		
 	}			
 }
 
