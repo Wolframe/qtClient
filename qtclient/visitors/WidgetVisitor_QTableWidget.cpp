@@ -506,20 +506,37 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 			endofDataFeed();
 		}
 	}
-	m_tableWidget->horizontalHeader()->setStretchLastSection(true);
-#if QT_VERSION >= 0x050000
-	m_tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-#else
-	m_tableWidget->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
-#endif
-	for( int ii = 0; ii < m_tableWidget->columnCount(); ii++)
-	{
-		m_tableWidget->resizeColumnToContents( ii);
-	}
+	// Aba: done as property in the UI (horizontalHeaderStretchLastSection)
+	//~ m_tableWidget->horizontalHeader()->setStretchLastSection(true);
+
+	// Aba: this makes the manual resizing of the first column impossible
+//~ #if QT_VERSION >= 0x050000
+	//~ m_tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+//~ #else
+	//~ m_tableWidget->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
+//~ #endif
+
+	// dito
+	//~ for( int ii = 0; ii < m_tableWidget->columnCount(); ii++)
+	//~ {
+		//~ m_tableWidget->resizeColumnToContents( ii);
+	//~ }
+	
+	// make the data fit in height
 	for( int ii = 0; ii < m_tableWidget->rowCount(); ii++)
 	{
 		m_tableWidget->resizeRowToContents( ii);
 	}
+	
+	// apply explicit sizes here (from dynamic properties), found no other
+	// way to do this (there is only horizontalHeaderDefaultSectionSize)
+	for( int i = 0; i < m_tableWidget->rowCount( ); i++ ) {
+		QString propName = QString( "column:%1:width" ).arg( i );
+		QVariant propValue = m_tableWidget->property( propName.toLatin1( ) );
+		if( propValue.isValid( ) && propValue.toUInt( ) > 0 ) {
+			m_tableWidget->setColumnWidth( i, propValue.toUInt( ) );
+		}
+	}			
 }
 
 QVariant WidgetVisitorState_QTableWidget::getState() const
