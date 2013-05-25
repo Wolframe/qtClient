@@ -1098,7 +1098,7 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, const bool n
 		mdiSubWindow->move( pos );
 	}
 	
-	updateMdiMenusAndToolbars( );
+	updateMenusAndToolbars( );
 
 	return mdiSubWindow;
 }
