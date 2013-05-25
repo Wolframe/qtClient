@@ -62,6 +62,8 @@ public:
 private:
 	void setEnablers( QWidget* widget, const QList<WidgetEnablerImpl::Trigger>& trigger);
 	void setPushButtonEnablers( QPushButton* pushButton);
+	///\brief sets the enablers declared with 'state:..' properties
+	void setDeclaredEnablers( QWidget* widget);
 	void signalEnablers();
 
 private:

@@ -58,16 +58,26 @@ public:
 		return ar[i];
 	}
 
+	enum Operator {Valid,Eq,Ne,Gt,Lt,Ge,Le};
+	static const char* operatorName( Operator i)
+	{
+		static const char* ar[] = {"valid","==","!=",">","<",">=","<="};
+		return ar[i];
+	}
+
 	struct Condition
 	{
 		QString property;
+		Operator op;
 		QVariant value;
 
-		Condition();
+		Condition(){}
 		Condition( const Condition& o)
-			:property(o.property),value(o.value){}
-		Condition( const QString& property_, const QVariant& value_)
-			:property(property_),value(value_){}
+			:property(o.property),op(o.op),value(o.value){}
+		explicit Condition( const QString& property_)
+			:property(property_),op(Valid),value(QVariant()){}
+		Condition( const QString& property_, const Operator& op_, const QVariant& value_)
+			:property(property_),op(op_),value(value_){}
 	};
 
 	struct Trigger
@@ -75,12 +85,18 @@ public:
 		State state;
 		Condition condition;
 
-		Trigger();
+		Trigger(){}
 		Trigger( const Trigger& o)
 			:state(o.state),condition(o.condition){}
-		Trigger( const State& state_, const QString& property_, const QVariant& value_=QVariant())
-			:state(state_), condition( property_, value_) {}
+		Trigger( const State& state_, const Condition& condition_)
+			:state(state_), condition( condition_) {}
+		Trigger( const State& state_, const QString& property_)
+			:state(state_), condition( property_) {}
+		Trigger( const State& state_, const QString& property_, const Operator& op_, const QVariant& value_)
+			:state(state_), condition( property_, op_, value_) {}
 	};
+
+	static bool parseCondition( Condition& cond, const QString& expr);
 
 	///\brief Constructor
 	WidgetEnablerImpl( QWidget* widget_, const QList<Trigger>& trigger_);

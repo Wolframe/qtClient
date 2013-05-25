@@ -38,6 +38,184 @@
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 
+static bool parseOperator( WidgetEnablerImpl::Operator& op, QString::const_iterator& ci, const QString::const_iterator end)
+{
+	op = WidgetEnablerImpl::Valid;
+	QString::const_iterator xi = ci;
+	for (; xi != end && xi->isSpace(); ++xi);
+	if (xi == end) return false;
+
+	if (*xi == '>')
+	{
+		++xi;
+		if (xi != end && *xi == '=')
+		{
+			op = WidgetEnablerImpl::Ge;
+			++xi;
+		}
+		else
+		{
+			op = WidgetEnablerImpl::Gt;
+		}
+	}
+	else if (*xi == '<')
+	{
+		++xi;
+		if (xi != end && *xi == '=')
+		{
+			op = WidgetEnablerImpl::Le;
+			++xi;
+		}
+		else if (xi != end && *xi == '>')
+		{
+			op = WidgetEnablerImpl::Ne;
+			++xi;
+		}
+		else
+		{
+			op = WidgetEnablerImpl::Lt;
+		}
+	}
+	else if (*xi == '!')
+	{
+		++xi;
+		if (xi != end && *xi == '=')
+		{
+			op = WidgetEnablerImpl::Ne;
+			++xi;
+		}
+	}
+	else if (*xi == '=')
+	{
+		++xi;
+		if (xi != end && *xi == '=')
+		{
+			++xi;
+		}
+		op = WidgetEnablerImpl::Eq;
+	}
+	if (op != WidgetEnablerImpl::Valid)
+	{
+		ci = xi;
+		return true;
+	}
+	return false;
+}
+
+bool parseCondVariable( QString& var, QString::const_iterator& ci, const QString::const_iterator end)
+{
+	QString::const_iterator xi = ci;
+	for (; xi != end && xi->isSpace(); ++xi);
+	if (xi == end) return false;
+
+	var.clear();
+	if (*xi == '{')
+	{
+		for (++xi; xi != end && *xi != '{' && *xi != '}'; ++xi)
+		{
+			var.push_back( *xi);
+		}
+		if (xi == end || *xi != '}')
+		{
+			qCritical() << "illegal variable reference in conditional expression:" << QString( ci, end-ci);
+			return false;
+		}
+		else
+		{
+			++xi;
+		}
+	}
+	else
+	{
+		qCritical() << "expected variable refernce in conditional expression:" << QString( ci, end-ci);
+	}
+	ci = xi;
+	return true;
+}
+
+static bool getOperand( QVariant& opr, QString::const_iterator& xi, const QString::const_iterator xe)
+{
+	opr = QVariant();
+	QString rt;
+	for (; xi != xe && xi->isSpace(); ++xi);
+	if (xi != xe)
+	{
+		if (*xi == '\'' || *xi == '"')
+		{
+			QChar eb = *xi;
+			for (++xi; xi != xe && *xi != eb; ++xi)
+			{
+				rt.push_back( *xi);
+			}
+			if (xi == xe)
+			{
+				qCritical() << "string not terminated in expression";
+			}
+			else
+			{
+				++xi;
+			}
+			opr = QVariant(rt);
+			return true;
+		}
+		else
+		{
+			for (; xi != xe && xi->isSpace(); ++xi);
+			for (; xi != xe && !xi->isSpace() && *xi != '=' && *xi != '!' && *xi != '>' && *xi != '<'; ++xi)
+			{
+				rt.push_back( *xi);
+			}
+			if (rt.isEmpty()) return false;
+			opr = QVariant(rt);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool WidgetEnablerImpl::parseCondition( Condition& cond, const QString& expr)
+{
+	QString condvar;
+	Operator condop;
+	QVariant condopr;
+	QString::const_iterator xi = expr.begin(), xe = expr.end();
+
+	if (!parseCondVariable( condvar, xi, xe))
+	{
+		if (xi == xe) qCritical() << "empty condition expression";
+		return false;
+	}
+	if (!parseOperator( condop, xi, xe))
+	{
+		if (xi == xe)
+		{
+			cond = Condition( condvar);
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "parsed conditional expression" << condvar << "(is valid)";
+#endif
+			return true;
+		}
+		qCritical() << "failed to parse condition expression operator:" << expr;
+		return false;
+	}
+	if (!getOperand( condopr, xi, xe))
+	{
+		qCritical() << "failed to parse condition expression operand:" << expr;
+		return false;
+	}
+	for (; xi != xe && xi->isSpace(); ++xi);
+	if (xi != xe)
+	{
+		qCritical() << "unexpected characters at end of condition expression:" << expr;
+		return false;
+	}
+	cond = Condition( condvar, condop, condopr);
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "parsed conditional expression" << condvar << exprOperatorName(condop) << condopr;
+#endif
+	return true;
+}
+
 WidgetEnablerImpl::WidgetEnablerImpl( QWidget* widget_, const QList<Trigger>& trigger_)
 	:WidgetEnabler()
 	,m_state(createWidgetVisitorObject(widget_))
@@ -80,36 +258,36 @@ void WidgetEnablerImpl::handle_changed()
 			case Hidden: setter = &hidden; break;
 			case Visible: setter = &visible; break;
 		}
-		if (trg.condition.value.isValid())
+		QVariant propval = visitor.property( trg.condition.property);
+		QVariant cmpval = trg.condition.value;
+
+		bool res = false;
+		switch (trg.condition.op)
 		{
-			QString propval = visitor.property( trg.condition.property).toString().trimmed();
-			QString cmpval = trg.condition.value.toString().trimmed();
-			if (propval == cmpval)
-			{
-				if (visitor.getPropertyOwnerWidget( trg.condition.property))
-				{
-					qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid: " << propval << "==" << cmpval << ")";
-				}
-				else
-				{
-					qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid - owner undefined)";
-				}
-				*setter = 0;
-			}
-			else if (*setter == 2)
-			{
-				*setter = 1;
-			}
+			case Valid: res = propval.isValid(); break;
+			case Eq: res = (propval.toString().trimmed() == cmpval.toString().trimmed()); break;
+			case Ne: res = (propval.toString().trimmed() != cmpval.toString().trimmed()); break;
+			case Lt: res = (propval.toInt() < cmpval.toInt()); break;
+			case Gt: res = (propval.toInt() > cmpval.toInt()); break;
+			case Le: res = (propval.toInt() <= cmpval.toInt()); break;
+			case Ge: res = (propval.toInt() >= cmpval.toInt()); break;
 		}
-		else if (!visitor.property( trg.condition.property).isValid())
+		if (!res)
 		{
 			if (visitor.getPropertyOwnerWidget( trg.condition.property))
 			{
-				qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid: property undefined)";
+				if (trg.condition.op != Valid)
+				{
+					qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid: " << propval << operatorName(trg.condition.op) << cmpval << ")";
+				}
+				else
+				{
+					qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid: property undefined)";
+				}
 			}
 			else
 			{
-				qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid - property owner undefined)";
+				qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid - owner undefined)";
 			}
 			*setter = 0;
 		}

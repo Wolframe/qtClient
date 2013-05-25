@@ -86,7 +86,6 @@ void WidgetTree::setEnablers( QWidget* widget, const QList<WidgetEnablerImpl::Tr
 	}
 }
 
-
 void WidgetTree::setPushButtonEnablers( QPushButton* pushButton)
 {
 	typedef WidgetEnablerImpl::Trigger Trigger;
@@ -108,6 +107,52 @@ void WidgetTree::setPushButtonEnablers( QPushButton* pushButton)
 		if (!enable_props.contains( prop)) enable_props.push_back( prop);
 	}
 	setEnablers( pushButton, triggers);
+}
+
+void WidgetTree::setDeclaredEnablers( QWidget* widget)
+{
+	QList<WidgetEnablerImpl::Trigger> triggers;
+	foreach (const QByteArray& prop, widget->dynamicPropertyNames())
+	{
+		if (prop.startsWith( "state:"))
+		{
+			WidgetVisitor vv( widget);
+
+			QByteArray nam = prop.mid( 6, prop.size()-6);
+			QVariant condexpr = widget->property( prop);
+			WidgetEnablerImpl::Condition cond;
+
+			if (!WidgetEnablerImpl::parseCondition( cond, condexpr.toString()))
+			{
+				qCritical() << "failed to set enabler definewd by property" << prop << "of widget" << widget->metaObject()->className() << widget->objectName();
+			}
+			if (nam == "visible")
+			{
+				WidgetEnablerImpl::Trigger trg( WidgetEnablerImpl::Visible, cond);
+				triggers.push_back( trg);
+			}
+			else if (nam == "hidden")
+			{
+				WidgetEnablerImpl::Trigger trg( WidgetEnablerImpl::Hidden, cond);
+				triggers.push_back( trg);
+			}
+			else if (nam == "enabled")
+			{
+				WidgetEnablerImpl::Trigger trg( WidgetEnablerImpl::Enabled, cond);
+				triggers.push_back( trg);
+			}
+			else if (nam == "disabled")
+			{
+				WidgetEnablerImpl::Trigger trg( WidgetEnablerImpl::Disabled, cond);
+				triggers.push_back( trg);
+			}
+			else
+			{
+				qCritical() << "unknown state property name" << prop;
+			}
+		}
+	}
+	setEnablers( widget, triggers);
 }
 
 void WidgetTree::signalEnablers()
@@ -211,41 +256,7 @@ void WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	// set widget state according to 'state:..' properties and their conditionals
 	foreach (QWidget* chld, m_visitor.widget()->findChildren<QWidget *>())
 	{
-		foreach (const QByteArray& prop, chld->dynamicPropertyNames())
-		{
-			if (prop.startsWith( "state:"))
-			{
-				WidgetVisitor vv( chld);
-
-				QByteArray nam = prop.mid( 6, prop.size()-6);
-				QVariant condexpr = chld->property( prop);
-				bool cond = vv.evalCondition( condexpr);
-				if (nam == "visible")
-				{
-					qDebug() << "set" << chld->objectName() << "visible" << cond << "because of condition" << condexpr;
-					chld->setVisible( cond);
-				}
-				else if (nam == "hidden")
-				{
-					qDebug() << "set" << chld->objectName() << "hidden" << cond << "because of condition" << condexpr;
-					chld->setHidden( cond);
-				}
-				else if (nam == "enabled")
-				{
-					qDebug() << "set" << chld->objectName() << "enabled" << cond << "because of condition" << condexpr;
-					chld->setEnabled( cond);
-				}
-				else if (nam == "disabled")
-				{
-					qDebug() << "set" << chld->objectName() << "disabled" << cond << "because of condition" << condexpr;
-					chld->setDisabled( cond);
-				}
-				else
-				{
-					qCritical() << "unknown state property name" << prop;
-				}
-			}
-		}
+		setDeclaredEnablers( chld);
 	}
 
 	foreach (QWidget* chld, m_visitor.widget()->findChildren<QWidget *>()) {
@@ -486,11 +497,4 @@ void WidgetTree::saveWidgetStates()
 		m_visitor.widget()->setProperty( "_w_statestack", QVariant( statestack));
 	}
 }
-
-
-
-
-
-
-
 
