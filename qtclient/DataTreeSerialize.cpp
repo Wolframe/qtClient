@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QBitArray>
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "data tree serialize " << (TITLE) << shortenDebugMessageArgument(VALUE);
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "data tree serialize " << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(VALUE);
