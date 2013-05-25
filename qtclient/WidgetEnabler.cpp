@@ -38,10 +38,10 @@
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 
-WidgetEnablerImpl::WidgetEnablerImpl( QWidget* widget_, const QList<QString>& properties_)
+WidgetEnablerImpl::WidgetEnablerImpl( QWidget* widget_, const QList<Trigger>& trigger_)
 	:WidgetEnabler()
 	,m_state(createWidgetVisitorObject(widget_))
-	,m_properties(properties_)
+	,m_trigger(trigger_)
 {}
 
 void WidgetEnablerImpl::blockSignals( bool v)
@@ -59,28 +59,85 @@ void WidgetEnablerImpl::handle_changed()
 		return;
 	}
 	WidgetVisitor visitor( m_state, WidgetVisitor::None);
-	bool enabled = true;
-	foreach (const QString& prop, m_properties)
+	int enabled = 2;
+	int disabled = 2;
+	int hidden = 2;
+	int visible = 2;
+	const char* statename = stateName( Enabled);
+
+	foreach (const Trigger& trg, m_trigger)
 	{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "handle changed of widget" << widget->objectName() << "check condition" << prop;
 #endif
-		if (!visitor.property( prop).isValid())
+		int* setter = &enabled;
+		statename = stateName( trg.state);
+
+		switch (trg.state)
 		{
-			if (visitor.getPropertyOwnerWidget( prop))
+			case Enabled: setter = &enabled; break;
+			case Disabled: setter = &disabled; break;
+			case Hidden: setter = &hidden; break;
+			case Visible: setter = &visible; break;
+		}
+		if (trg.condition.value.isValid())
+		{
+			QString propval = visitor.property( trg.condition.property).toString().trimmed();
+			QString cmpval = trg.condition.value.toString().trimmed();
+			if (propval == cmpval)
 			{
-				qDebug() << "widget" << widget->objectName() << "disabled because condition" << prop << "is not met (condition not valid)";
+				if (visitor.getPropertyOwnerWidget( trg.condition.property))
+				{
+					qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid: " << propval << "==" << cmpval << ")";
+				}
+				else
+				{
+					qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid - owner undefined)";
+				}
+				*setter = 0;
+			}
+			else if (*setter == 2)
+			{
+				*setter = 1;
+			}
+		}
+		else if (!visitor.property( trg.condition.property).isValid())
+		{
+			if (visitor.getPropertyOwnerWidget( trg.condition.property))
+			{
+				qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid: property undefined)";
 			}
 			else
 			{
-				qDebug() << "widget" << widget->objectName() << "disabled because condition" << prop << "is not met (condition not valid - owner undefined)";
+				qDebug() << "widget" << widget->objectName() << "not set to" << statename << "because condition" << trg.condition.property << "is not met (condition not valid - property owner undefined)";
 			}
-			enabled = false;
-			break;
+			*setter = 0;
+		}
+		else if (*setter == 2)
+		{
+			*setter = 1;
 		}
 	}
-	if (enabled) qDebug() << "widget" << widget->objectName() << "enabled";
-	widget->setEnabled( enabled);
+	if (enabled != 2)
+	{
+		if (enabled) qDebug() << "widget" << widget->objectName() << "set to enabled (all conditions met)";
+		widget->setEnabled( enabled != 0);
+	}
+	if (disabled != 2)
+	{
+		if (disabled) qDebug() << "widget" << widget->objectName() << "set to disabled (all conditions met)";
+		widget->setDisabled( disabled != 0);
+	}
+	if (hidden != 2)
+	{
+		if (hidden) qDebug() << "widget" << widget->objectName() << "set to hidden (all conditions met)";
+		widget->setHidden( hidden != 0);
+	}
+	if (visible != 2)
+	{
+		if (visible) qDebug() << "widget" << widget->objectName() << "set to visible (all conditions met)";
+		widget->setVisible( visible != 0);
+	}
 }
 
 

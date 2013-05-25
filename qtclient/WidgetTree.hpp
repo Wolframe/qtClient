@@ -60,8 +60,9 @@ public:
 	QString popPreviousForm();	//< for _CLOSE_
 
 private:
+	void setEnablers( QWidget* widget, const QList<WidgetEnablerImpl::Trigger>& trigger);
 	void setPushButtonEnablers( QPushButton* pushButton);
-	void signalPushButtonEnablers();
+	void signalEnablers();
 
 private:
 	FormCall m_formCall;

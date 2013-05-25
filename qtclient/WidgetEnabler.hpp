@@ -45,12 +45,49 @@
 class WidgetEnablerImpl :public WidgetEnabler
 {
 public:
+	enum State
+	{
+		Enabled,
+		Disabled,
+		Hidden,
+		Visible
+	};
+	static const char* stateName( State i)
+	{
+		static const char* ar[] = {"Enabled","Disabled","Hidden","Visible"};
+		return ar[i];
+	}
+
+	struct Condition
+	{
+		QString property;
+		QVariant value;
+
+		Condition();
+		Condition( const Condition& o)
+			:property(o.property),value(o.value){}
+		Condition( const QString& property_, const QVariant& value_)
+			:property(property_),value(value_){}
+	};
+
+	struct Trigger
+	{
+		State state;
+		Condition condition;
+
+		Trigger();
+		Trigger( const Trigger& o)
+			:state(o.state),condition(o.condition){}
+		Trigger( const State& state_, const QString& property_, const QVariant& value_=QVariant())
+			:state(state_), condition( property_, value_) {}
+	};
+
 	///\brief Constructor
-	WidgetEnablerImpl( QWidget* widget_, const QList<QString>& properties_);
+	WidgetEnablerImpl( QWidget* widget_, const QList<Trigger>& trigger_);
 	virtual ~WidgetEnablerImpl(){}
 
 	QWidget* actionwidget() const			{return m_state->widget();}
-	const QList<QString>& actionproperties() const	{return m_properties;}
+	const QList<Trigger>& actiontrigger() const	{return m_trigger;}
 
 	virtual void handle_changed();
 
@@ -58,7 +95,7 @@ public:
 
 private:
 	WidgetVisitorObjectR m_state;
-	const QList<QString> m_properties;
+	const QList<Trigger> m_trigger;
 };
 
 typedef QSharedPointer<WidgetEnablerImpl> WidgetEnablerR;

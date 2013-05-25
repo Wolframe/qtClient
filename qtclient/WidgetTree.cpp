@@ -40,71 +40,83 @@ WidgetTree::WidgetTree( DataLoader *_dataLoader, QHash<QString,QVariant>* _globa
 	,m_dataLoader(_dataLoader)
 	,m_debug(debug_){}
 
-void WidgetTree::setPushButtonEnablers( QPushButton* pushButton)
+
+
+void WidgetTree::setEnablers( QWidget* widget, const QList<WidgetEnablerImpl::Trigger>& trigger)
 {
-	QList<QString> enable_props;
-	WidgetVisitor button_visitor( pushButton);
+	WidgetVisitor visitor( widget);
+	QHash<QString,WidgetEnablerR> enablermap;
 
-	foreach (const QString& prop, getActionRequestProperties( button_visitor))
+	foreach (const WidgetEnablerImpl::Trigger& trg, trigger)
 	{
-		if (!enable_props.contains( prop)) enable_props.push_back( prop);
-	}
-	foreach (const QString& prop, getFormCallProperties( pushButton->property( "form").toString()))
-	{
-		if (!enable_props.contains( prop)) enable_props.push_back( prop);
-	}
-
-	bool enabled = true;
-	QHash<QString,WidgetEnablerR> button_enablermap;
-
-	foreach (const QString& prop, enable_props)
-	{
-		QWidget* ownerwidget = button_visitor.getPropertyOwnerWidget( prop);
+		QWidget* ownerwidget = visitor.getPropertyOwnerWidget( trg.condition.property);
 		if (ownerwidget)
 		{
 			WidgetEnablerR enabler;
 			QString objName = ownerwidget->objectName();
 
-			QHash<QString,WidgetEnablerR>::const_iterator eni = button_enablermap.find( objName);
-			if (eni != button_enablermap.end())
+			QHash<QString,WidgetEnablerR>::const_iterator eni = enablermap.find( objName);
+			if (eni != enablermap.end())
 			{
 				enabler = eni.value();
 			}
 			else
 			{
-				enabler = WidgetEnablerR( new WidgetEnablerImpl( pushButton, enable_props));
+				enabler = WidgetEnablerR( new WidgetEnablerImpl( widget, trigger));
 				QHash<QString,QList<WidgetEnablerR> >::const_iterator fi = m_enablers.find( objName), fe = m_enablers.end();
 				if (fi == fe)
 				{
 					m_enablers.insert( objName, QList<WidgetEnablerR>());
 				}
-				button_enablermap[ objName] = enabler;
+				enablermap[ objName] = enabler;
 				m_enablers[ objName].push_back( enabler);
 			}
 			WidgetVisitor ownervisitor( ownerwidget);
 			ownervisitor.connectWidgetEnabler( *enabler);
-
-			if (!button_visitor.property( prop).isValid())
-			{
-				enabled = false;
-			}
 		}
 		else
 		{
-			qCritical() << "could not evaluate widget delivering property" << prop;
-			enabled = false;
+			qCritical() << "could not evaluate widget delivering property" << trg.condition.property;
 		}
 	}
-	pushButton->setEnabled( enabled);
+	QHash<QString,WidgetEnablerR>::iterator bi = enablermap.begin(), be = enablermap.end();
+	for (; bi != be; ++bi)
+	{
+		bi.value()->handle_changed();
+	}
 }
 
-void WidgetTree::signalPushButtonEnablers()
+
+void WidgetTree::setPushButtonEnablers( QPushButton* pushButton)
+{
+	typedef WidgetEnablerImpl::Trigger Trigger;
+	QList<Trigger> triggers;
+	QList<QString> enable_props;
+	WidgetVisitor button_visitor( pushButton);
+
+	foreach (const QString& prop, getActionRequestProperties( button_visitor))
+	{
+		if (!enable_props.contains( prop))
+		{
+			triggers.push_back( Trigger( WidgetEnablerImpl::Enabled, prop));
+			enable_props.push_back( prop);
+		}
+	}
+	foreach (const QString& prop, getFormCallProperties( pushButton->property( "form").toString()))
+	{
+		triggers.push_back( Trigger( WidgetEnablerImpl::Enabled, prop));
+		if (!enable_props.contains( prop)) enable_props.push_back( prop);
+	}
+	setEnablers( pushButton, triggers);
+}
+
+void WidgetTree::signalEnablers()
 {
 	QHash<QString,QList<WidgetEnablerR> >::iterator li = m_enablers.begin(), le = m_enablers.end();
 	for (; li != le; ++li)
 	{
 		QList<WidgetEnablerR>::iterator ei = li->begin(), ee = li->end();
-		for (; ei != ee; ++ei) ei->data()->changed();
+		for (; ei != ee; ++ei) ei->data()->handle_changed();
 	}
 }
 
@@ -368,7 +380,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 				}
 			}
 		}
-		signalPushButtonEnablers();
+		signalEnablers();
 	}
 	return rt;
 }
