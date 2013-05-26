@@ -22,7 +22,13 @@ bool WidgetVisitorState_QCheckBox::leave( bool /*writemode*/)
 
 void WidgetVisitorState_QCheckBox::clear()
 {
+	QVariant origtext = m_checkBox->property( "_w_origtext");
+	if (!origtext.isValid())
+	{
+		origtext = m_checkBox->text();
+	}
 	m_checkBox->setChecked( false);
+	m_checkBox->setText( origtext.toString());
 }
 
 QVariant WidgetVisitorState_QCheckBox::property( const QString& name)
@@ -53,7 +59,12 @@ bool WidgetVisitorState_QCheckBox::setProperty( const QString& name, const QVari
 	{
 		QString subst("%");
 		subst.push_back( name.at(0));
+		if (!m_checkBox->property( "_w_origtext").isValid())
+		{
+			m_checkBox->setProperty( "_w_origtext", m_checkBox->text());
+		}
 		m_checkBox->setText( m_checkBox->text().replace( subst, data.toString()));
+		m_checkBox->adjustSize();
 		return true;
 	}
 	return false;

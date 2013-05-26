@@ -22,7 +22,13 @@ bool WidgetVisitorState_QRadioButton::leave( bool /*writemode*/)
 
 void WidgetVisitorState_QRadioButton::clear()
 {
+	QVariant origtext = m_radioButton->property( "_w_origtext");
+	if (!origtext.isValid())
+	{
+		origtext = m_radioButton->text();
+	}
 	m_radioButton->setChecked( false);
+	m_radioButton->setText( origtext.toString());
 }
 
 QVariant WidgetVisitorState_QRadioButton::property( const QString& name)
@@ -54,7 +60,12 @@ bool WidgetVisitorState_QRadioButton::setProperty( const QString& name, const QV
 		QString subst("%");
 		subst.push_back( name.at(0));
 
+		if (!m_radioButton->property( "_w_origtext").isValid())
+		{
+			m_radioButton->setProperty( "_w_origtext", m_radioButton->text());
+		}
 		m_radioButton->setText( m_radioButton->text().replace( subst, data.toString()));
+		m_radioButton->adjustSize();
 		return true;
 	}
 	return false;

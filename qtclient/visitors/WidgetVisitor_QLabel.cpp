@@ -72,6 +72,7 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 			m_label->setProperty( "_w_origtext", m_label->text());
 		}
 		m_label->setText( data.toString());
+		m_label->adjustSize();
 		return true;
 	}
 	if (name == "addtext")
@@ -87,6 +88,7 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 			sepstr = sep.toString();
 		}
 		m_label->setText( m_label->text() + sepstr + data.toString());
+		m_label->adjustSize();
 		return true;
 	}
 	else if (name.size() == 1 && name.at(0) >= '1' && name.at(0) <= '9')
@@ -108,7 +110,7 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 			int w = std::min( m_label->width( ), p.width( ) );
 			int h = std::min( m_label->height( ), p.height( ) );							
 			m_label->setPixmap( p.scaled( QSize( w, h ), Qt::KeepAspectRatio, Qt::SmoothTransformation ) );
-			m_label->adjustSize( );
+			m_label->adjustSize();
 		}
 	}
 	else if (name == "addbase64")
@@ -121,6 +123,7 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 		}
 		lst.push_back( data);
 		m_label->setProperty( "_w_pictures", QVariant(lst));
+		m_label->adjustSize();
 	}
 	return false;
 }
