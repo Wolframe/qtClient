@@ -98,6 +98,7 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 			m_label->setProperty( "_w_origtext", m_label->text());
 		}
 		m_label->setText( m_label->text().replace( subst, data.toString()));
+		m_label->adjustSize();
 		return true;
 	}
 	else if( name == "base64" ) {
@@ -130,6 +131,7 @@ void WidgetVisitorState_QLabel::setState( const QVariant& state)
 	if (state.isValid())
 	{
 		m_label->setText( state.toString());
+		m_label->adjustSize();
 	}
 }
 
