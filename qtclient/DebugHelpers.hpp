@@ -37,4 +37,11 @@ QString shortenDebugMessageArgument( const QString& msg);
 QByteArray shortenDebugMessageArgument( const QByteArray& msg);
 QVariant shortenDebugMessageArgument( const QVariant& msg);
 
-
+class UniqueEnter
+{
+public:
+	UniqueEnter();
+	bool operator()( const QString& tag);
+private:
+	int taghash;
+};

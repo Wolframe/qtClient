@@ -55,6 +55,8 @@ public:
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:
+	void initSelected( const QVariant& selected);
+
 	struct StackElement
 	{
 		int readpos;

@@ -182,7 +182,7 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 	if (name == selected_str)
 	{
 		m_treeWidget->setProperty( "_w_selected", data);
-		endofDataFeed();
+		initSelected( data);
 		return true;
 	}
 	return false;
@@ -388,36 +388,20 @@ QVariant WidgetVisitorState_QTreeWidget::getState() const
 	return QVariant(rt);
 }
 
-void WidgetVisitorState_QTreeWidget::endofDataFeed()
+void WidgetVisitorState_QTreeWidget::initSelected( const QVariant& selected)
 {
-	QVariant selected = m_treeWidget->property( "_w_selected");
-	if (selected.isValid())
-	{
-		static const QString id_str( "id");
-		QStack<StackElement> stk;
-		int keyidx = m_headers.indexOf( id_str);
-		if (keyidx < 0) keyidx = 0; //... first element is key if "id" not defined
-		QTreeWidgetItem* root = m_treeWidget->invisibleRootItem();
+	static const QString id_str( "id");
+	QStack<StackElement> stk;
+	int keyidx = m_headers.indexOf( id_str);
+	if (keyidx < 0) keyidx = 0; //... first element is key if "id" not defined
+	QTreeWidgetItem* root = m_treeWidget->invisibleRootItem();
 
-		if (selected.type() == QVariant::List)
+	if (selected.type() == QVariant::List)
+	{
+		QList<QVariant> selectedlist = selected.toList();
+		foreach (const QVariant& sel, selectedlist)
 		{
-			QList<QVariant> selectedlist = selected.toList();
-			foreach (const QVariant& sel, selectedlist)
-			{
-				QTreeWidgetItem* item = findsubnode( root, keyidx, sel);
-				if (item)
-				{
-					for (QTreeWidgetItem* prn = item->parent(); prn && prn != root; prn = prn->parent())
-					{
-						prn->setExpanded( true);
-					}
-					item->setSelected( true);
-				}
-			}
-		}
-		else
-		{
-			QTreeWidgetItem* item = findsubnode( root, keyidx, selected);
+			QTreeWidgetItem* item = findsubnode( root, keyidx, sel);
 			if (item)
 			{
 				for (QTreeWidgetItem* prn = item->parent(); prn && prn != root; prn = prn->parent())
@@ -427,6 +411,27 @@ void WidgetVisitorState_QTreeWidget::endofDataFeed()
 				item->setSelected( true);
 			}
 		}
+	}
+	else
+	{
+		QTreeWidgetItem* item = findsubnode( root, keyidx, selected);
+		if (item)
+		{
+			for (QTreeWidgetItem* prn = item->parent(); prn && prn != root; prn = prn->parent())
+			{
+				prn->setExpanded( true);
+			}
+			item->setSelected( true);
+		}
+	}
+}
+
+void WidgetVisitorState_QTreeWidget::endofDataFeed()
+{
+	QVariant selected = m_treeWidget->property( "_w_selected");
+	if (selected.isValid())
+	{
+		initSelected( selected);
 		m_treeWidget->setProperty( "_w_selected", QVariant());
 	}
 }

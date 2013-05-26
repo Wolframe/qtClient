@@ -474,8 +474,13 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 {
-	qDebug( ) << "Got answer, tag" << tag_;
-	
+	static UniqueEnter firstGotAnswer;
+	if (firstGotAnswer( tag_))
+	{
+		//... report this debug message only once and not one per window open
+		qDebug( ) << "Got answer, tag" << tag_;
+	}
+
 // hand-written plugin, custom request, pass it back directly, don't go over
 // generic widget answer part (TODO: there should be a registry map here perhaps)
 	FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );

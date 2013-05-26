@@ -67,3 +67,28 @@ QVariant shortenDebugMessageArgument( const QVariant& val)
 	return val;
 }
 
+static int hashTag( const QString& tag_)
+{
+	int ii=0, nn=tag_.size(), rt = 1237 * (nn + 13);
+	for (; ii<nn; ++ii)
+	{
+		int ee = tag_.at(ii).unicode();
+		rt = (rt << 5) + (rt >> 2) + ee;
+	}
+	return rt;
+}
+
+UniqueEnter::UniqueEnter()
+{
+	taghash = 0;
+}
+
+bool UniqueEnter::operator()( const QString& tag)
+{
+	int newtaghash = hashTag( tag);
+	if (newtaghash == taghash) return false;
+	taghash = newtaghash;
+	return true;
+}
+
+
