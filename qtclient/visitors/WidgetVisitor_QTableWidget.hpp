@@ -70,6 +70,7 @@ private:
 	int findSelectedData( const char* propertyname, QVariant value);
 	int findSelectedRow( QVariant value);
 	int findSelectedColumn( QVariant value);
+	void initSelected( const QVariant& selected);
 
 private:
 	struct StackElement

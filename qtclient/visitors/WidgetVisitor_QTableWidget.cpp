@@ -410,7 +410,7 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 			if (name == "selected")
 			{
 				m_tableWidget->setProperty( "_w_selected", data);
-				endofDataFeed();
+				initSelected( data);
 				return true;
 			}
 			break;
@@ -503,7 +503,7 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 		else
 		{
 			m_tableWidget->setProperty( "_w_selected", elem);
-			endofDataFeed();
+			initSelected( elem);
 		}
 	}
 
@@ -555,15 +555,20 @@ QVariant WidgetVisitorState_QTableWidget::getState() const
 	return QVariant(rt);
 }
 
+void WidgetVisitorState_QTableWidget::initSelected( const QVariant& selected)
+{
+	int row = findSelectedRow( selected);
+	if (row >= 0) m_tableWidget->setCurrentCell( row, 0);
+	int col = findSelectedColumn( selected);
+	if (col >= 0) m_tableWidget->setCurrentCell( 0, col);
+}
+
 void WidgetVisitorState_QTableWidget::endofDataFeed()
 {
 	QVariant selected = m_tableWidget->property( "_w_selected");
 	if (selected.isValid())
 	{
-		int row = findSelectedRow( selected);
-		if (row >= 0) m_tableWidget->setCurrentCell( row, 0);
-		int col = findSelectedColumn( selected);
-		if (col >= 0) m_tableWidget->setCurrentCell( 0, col);
+		initSelected( selected);
 		m_tableWidget->setProperty( "_w_selected", QVariant());
 	}
 }

@@ -55,6 +55,9 @@ public:
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:
+	void initSelected( const QVariant& selected);
+
+private:
 	QListWidget* m_listWidget;
 	enum Mode {Init,Element};
 	static const char* modeName( Mode i)

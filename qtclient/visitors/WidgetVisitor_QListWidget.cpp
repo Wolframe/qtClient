@@ -222,7 +222,7 @@ bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVa
 			if (name == "selected")
 			{
 				m_listWidget->setProperty( "_w_selected", data);
-				endofDataFeed();
+				initSelected( data);
 				return true;
 			}
 			break;
@@ -260,28 +260,33 @@ QVariant WidgetVisitorState_QListWidget::getState() const
 	return QVariant(selected);
 }
 
+void WidgetVisitorState_QListWidget::initSelected( const QVariant& selected)
+{
+	if (selected.type() == QVariant::List)
+	{
+		foreach (const QVariant& sel, selected.toList())
+		{
+			foreach( QListWidgetItem *item, m_listWidget->findItems( sel.toString(), Qt::MatchExactly))
+			{
+				item->setSelected( true);
+			}
+		}
+	}
+	else
+	{
+		foreach( QListWidgetItem *item, m_listWidget->findItems( selected.toString(), Qt::MatchExactly))
+		{
+			item->setSelected( true);
+		}
+	}
+}
+
 void WidgetVisitorState_QListWidget::endofDataFeed()
 {
 	QVariant selected = m_listWidget->property( "_w_selected");
 	if (selected.isValid())
 	{
-		if (selected.type() == QVariant::List)
-		{
-			foreach (const QVariant& sel, selected.toList())
-			{
-				foreach( QListWidgetItem *item, m_listWidget->findItems( sel.toString(), Qt::MatchExactly))
-				{
-					item->setSelected( true);
-				}
-			}
-		}
-		else
-		{
-			foreach( QListWidgetItem *item, m_listWidget->findItems( selected.toString(), Qt::MatchExactly))
-			{
-				item->setSelected( true);
-			}
-		}
+		initSelected( selected);
 		m_listWidget->setProperty( "_w_selected", QVariant());
 	}
 }

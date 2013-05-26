@@ -143,7 +143,7 @@ bool WidgetVisitorState_QComboBox::setProperty( const QString& name, const QVari
 			if (name == "selected")
 			{
 				m_comboBox->setProperty( "_w_selected", data);
-				endofDataFeed();
+				initSelected( data);
 				return true;
 			}
 			return false;
@@ -197,14 +197,20 @@ QVariant WidgetVisitorState_QComboBox::getState() const
 	return m_comboBox->itemData( m_comboBox->currentIndex(), Qt::UserRole);
 }
 
+void WidgetVisitorState_QComboBox::initSelected( const QVariant& selected)
+{
+	int idx = m_comboBox->findData( selected, Qt::UserRole, Qt::MatchExactly);
+	if (idx < 0) return;
+	m_comboBox->setCurrentIndex( idx);
+}
+
 void WidgetVisitorState_QComboBox::endofDataFeed()
 {
 	QVariant selected = m_comboBox->property( "_w_selected");
 	if (selected.isValid())
 	{
-		int idx = m_comboBox->findData( selected, Qt::UserRole, Qt::MatchExactly);
-		if (idx < 0) return;
-		m_comboBox->setCurrentIndex( idx);
+		initSelected( selected);
+		m_comboBox->setProperty( "_w_selected", QVariant());
 	}
 	m_comboBox->setSizeAdjustPolicy( QComboBox::AdjustToContents);
 }

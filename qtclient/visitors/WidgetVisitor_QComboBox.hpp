@@ -55,6 +55,9 @@ public:
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
 
 private:
+	void initSelected( const QVariant& selected);
+
+private:
 	enum Mode {None,Value,Select};
 	Mode m_mode;
 	QComboBox* m_comboBox;
