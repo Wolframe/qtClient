@@ -575,7 +575,7 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 			{
 				QVariant prefix;
 				getCommonPrefix( prefix, schemanode);
-				if (prefix.toString().isEmpty())
+				if (prefix.isValid() && prefix.toString().isEmpty())
 				{
 					qCritical() << "no common prefix for elements in array";
 				}
