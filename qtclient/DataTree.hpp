@@ -51,11 +51,11 @@ public:
 	}
 
 	explicit DataTree( ElementType elemtype_=Invalid)
-		:m_elemtype(elemtype_),m_nofattributes(0){}
+		:m_elemtype(elemtype_),m_value_initialized(false),m_nofattributes(0){}
 	DataTree( const DataTree& o)
-		:m_elemtype(o.m_elemtype),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
+		:m_elemtype(o.m_elemtype),m_value_initialized(o.m_value_initialized),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
 	DataTree( const QVariant& value_)
-		:m_elemtype(Single),m_value(value_),m_nofattributes(0){}
+		:m_elemtype(Single),m_value_initialized(true),m_value(value_),m_nofattributes(0){}
 
 	void addNode( const QString& name_, const DataTree& tree_);
 	void addAttribute( const QString& name_, const DataTree& tree_);
@@ -73,6 +73,7 @@ public:
 	int size() const					{return m_nodear.size();}
 	const QVariant& value() const				{return m_value;}
 	const QVariant& defaultvalue() const			{return m_defaultvalue;}
+	bool value_initialized() const				{return m_value_initialized;}
 	ElementType elemtype() const				{return m_elemtype;}
 
 	bool isValid() const					{return m_elemtype != Invalid;}
@@ -105,6 +106,7 @@ private:
 	};
 
 	ElementType m_elemtype;
+	bool m_value_initialized;
 	QVariant m_value;
 	QVariant m_defaultvalue;
 	QList<Node> m_nodear;

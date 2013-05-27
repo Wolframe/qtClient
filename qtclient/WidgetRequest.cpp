@@ -439,26 +439,47 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 			case DataSerializeItem::Value:
 				if (prevType == DataSerializeItem::Attribute)
 				{
-					TRACE_ASSIGNMENT( "ATTRIBUTE", attributename, item.value());
-					if (!visitor.setProperty( attributename, item.value()))
+					if (item.value().isValid())
 					{
-						logError( stk, QString( "failed to set property (attribute)'") + attributename + "'");
+						TRACE_ASSIGNMENT( "ATTRIBUTE", attributename, item.value());
+						if (!visitor.setProperty( attributename, item.value()))
+						{
+							logError( stk, QString( "failed to set property (attribute)'") + attributename + "'");
+						}
+					}
+					else
+					{
+						TRACE_VALUE( "SKIP STATEMENT TO", attributename);
 					}
 				}
 				else if (stk.last().istag)
 				{
-					TRACE_VALUE( "CONTENT", item.value());
-					if (!visitor.setProperty( "", item.value()))
+					if (item.value().isValid())
 					{
-						logError( stk, "failed to set content element");
+						TRACE_VALUE( "CONTENT", item.value());
+						if (!visitor.setProperty( "", item.value()))
+						{
+							logError( stk, "failed to set content element");
+						}
+					}
+					else
+					{
+						TRACE_VALUE( "SKIP STATEMENT TO", "(content)");
 					}
 				}
 				else
 				{
-					TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
-					if (!visitor.setProperty( stk.last().name, item.value()))
+					if (item.value().isValid())
 					{
-						logError( stk, QString( "failed to set property (content value)'") + stk.last().name + "'");
+						TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
+						if (!visitor.setProperty( stk.last().name, item.value()))
+						{
+							logError( stk, QString( "failed to set property (content value)'") + stk.last().name + "'");
+						}
+					}
+					else
+					{
+						TRACE_VALUE( "SKIP STATEMENT TO", stk.last().name);
 					}
 				}
 			break;
@@ -572,11 +593,19 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 					else
 					{
 						int apos = aidxposar.at( ai-assignments.begin());
-						TRACE_ASSIGNMENT( "set property", ai->name, ai->value.toList().at( apos))
-						if (!visitor.setProperty( ai->name, ai->value.toList().at( apos)))
+						QVariant aelem = ai->value.toList().at( apos);
+						if (aelem.isValid())
 						{
-							qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "]";
-							rt = false;
+							TRACE_ASSIGNMENT( "set property", ai->name, aelem)
+							if (!visitor.setProperty( ai->name, aelem))
+							{
+								qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "] value=" << aelem;
+								rt = false;
+							}
+						}
+						else
+						{
+							TRACE_VALUE( "skip set property (undefined value)", ai->name)
 						}
 						++aidxposar[ ai-assignments.begin()];
 					}

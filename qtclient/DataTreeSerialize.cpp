@@ -473,7 +473,7 @@ static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTr
 	{
 		osize = datanode->value().toList().size();
 	}
-	else if (datanode->value().isValid())
+	else if (datanode->value_initialized())
 	{
 		osize = 1;
 	}
@@ -575,6 +575,10 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 			{
 				QVariant prefix;
 				getCommonPrefix( prefix, schemanode);
+				if (prefix.toString().isEmpty())
+				{
+					qCritical() << "no common prefix for elements in array";
+				}
 				int arraysize = -1;
 				int arrayinc = 1;
 				if (!getArraySize( arraysize, datanode, schemanode))

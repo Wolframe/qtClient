@@ -149,15 +149,10 @@ void DataTree::pushNodeValue( const QVariant& value_)
 			m_value = QVariant( lst);
 		}
 	}
-	else if (value_.isValid())
-	{
-		m_value = QVariant( value_);
-	}
 	else
 	{
-		QList<QVariant> lst;
-		lst.push_back( value_);
-		m_value = QVariant( lst);
+		m_value = QVariant( value_);
+		m_value_initialized = true;
 	}
 }
 
