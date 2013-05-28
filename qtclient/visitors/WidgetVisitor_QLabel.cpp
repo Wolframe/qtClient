@@ -64,6 +64,10 @@ QVariant WidgetVisitorState_QLabel::property( const QString& name)
 	{
 		return QVariant( m_label->toolTip());
 	}
+	else if (name == "id")
+	{
+		return property( "_w_id");
+	}
 	return QVariant();
 }
 
@@ -132,6 +136,10 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 	else if (name == "tooltip")
 	{
 		m_label->setToolTip( data.toString());
+	}
+	else if (name == "id")
+	{
+		m_label->setProperty( "_w_id", data);
 	}
 	return false;
 }
