@@ -114,6 +114,12 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 				QListWidgetItem* item = m_listWidget->item( m_row);
 				return QVariant( item->toolTip());
 			}
+			else if (name == "statustip")
+			{
+				if (m_row >= m_listWidget->count()) return QVariant();
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				return QVariant( item->statusTip());
+			}
 			break;
 
 		case Init:
@@ -215,6 +221,13 @@ bool WidgetVisitorState_QListWidget::setProperty( const QString& name, const QVa
 				if (m_row >= m_listWidget->count()) return false;
 				QListWidgetItem* item = m_listWidget->item( m_row);
 				item->setToolTip( data.toString());
+				return true;
+			}
+			else if (name == "statustip")
+			{
+				if (m_row >= m_listWidget->count()) return false;
+				QListWidgetItem* item = m_listWidget->item( m_row);
+				item->setStatusTip( data.toString());
 				return true;
 			}
 			break;
