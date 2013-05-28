@@ -836,6 +836,17 @@ QWidget* WidgetVisitor::resolveLink( const QString& link)
 	return wdglist.at(0);
 }
 
+FormWidget* WidgetVisitor::findFormWidgetWithWidgetid( const QString& wid)
+{
+	QWidget* wdg = uirootwidget();
+	foreach (FormWidget* fw, wdg->findChildren<FormWidget*>())
+	{
+		WidgetVisitor formvisitor( fw->mainwidget());
+		if (formvisitor.property( "widgetid") == wid) return fw;
+	}
+	return 0;
+}
+
 QVariant WidgetVisitor::getState()
 {
 	QVariant state;
