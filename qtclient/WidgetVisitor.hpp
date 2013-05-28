@@ -282,6 +282,10 @@ class WidgetVisitor
 		///\param[in] link name of symbolic link to resolve
 		QWidget* resolveLink( const QString& link);
 
+		///\brief Find form widget by widgetid
+		///\param[in] widget id to search for
+		FormWidget* findFormWidgetWithWidgetid( const QString& wid);
+
 		///\brief Get the current widget state
 		QVariant getState();
 		///\brief Set the current widget state
