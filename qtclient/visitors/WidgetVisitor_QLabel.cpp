@@ -60,6 +60,10 @@ QVariant WidgetVisitorState_QLabel::property( const QString& name)
 	{
 		return QVariant( m_label->text());
 	}
+	else if (name == "tooltip")
+	{
+		return QVariant( m_label->toolTip());
+	}
 	return QVariant();
 }
 
@@ -124,6 +128,10 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 		lst.push_back( data);
 		m_label->setProperty( "_w_pictures", QVariant(lst));
 		m_label->adjustSize();
+	}
+	else if (name == "tooltip")
+	{
+		m_label->setToolTip( data.toString());
 	}
 	return false;
 }
