@@ -147,18 +147,29 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 			}
 			else if (name == "selected")
 			{
-				QList<QVariant> rt;
-				foreach( QListWidgetItem *item, m_listWidget->selectedItems())
+				if (m_listWidget->selectionMode() == QAbstractItemView::SingleSelection)
 				{
-					rt.append( item->data( Qt::UserRole));
-				}
-				if (rt.isEmpty())
-				{
+					foreach( QListWidgetItem *item, m_listWidget->selectedItems())
+					{
+						return item->data( Qt::UserRole);
+					}
 					return m_listWidget->property( "_w_selected");
 				}
 				else
 				{
-					return QVariant( rt);
+					QList<QVariant> rt;
+					foreach( QListWidgetItem *item, m_listWidget->selectedItems())
+					{
+						rt.append( item->data( Qt::UserRole));
+					}
+					if (rt.isEmpty())
+					{
+						return m_listWidget->property( "_w_selected");
+					}
+					else
+					{
+						return QVariant( rt);
+					}
 				}
 			}
 			else if (name == "unselected")
