@@ -40,18 +40,22 @@
 
 WidgetVisitorState_QLabel::WidgetVisitorState_QLabel( QWidget* widget_)
 	:WidgetVisitorObject(widget_)
-	,m_label(qobject_cast<QLabel*>(widget_)){}
+	,m_label(qobject_cast<QLabel*>(widget_))
+{}
 
 void WidgetVisitorState_QLabel::clear()
 {
 	m_label->setProperty( "_w_pictures", QVariant());
 	QVariant origtext = m_label->property( "_w_origtext");
-	if (!origtext.isValid())
+	if (origtext.isValid())
 	{
-		origtext = m_label->text();
+		m_label->clear();
+		m_label->setText( origtext.toString());
 	}
-	m_label->clear();
-	m_label->setText( origtext.toString());
+	else
+	{
+		m_label->clear();
+	}
 }
 
 QVariant WidgetVisitorState_QLabel::property( const QString& name)
@@ -75,20 +79,12 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 {
 	if (name.isEmpty() || name == "text")
 	{
-		if (!m_label->property( "_w_origtext").isValid())
-		{
-			m_label->setProperty( "_w_origtext", m_label->text());
-		}
 		m_label->setText( data.toString());
 		m_label->adjustSize();
 		return true;
 	}
 	if (name == "addtext")
 	{
-		if (!m_label->property( "_w_origtext").isValid())
-		{
-			m_label->setProperty( "_w_origtext", m_label->text());
-		}
 		QString sepstr = " ";
 		QVariant sep = m_label->property( "separator");
 		if (sep.isValid())
@@ -156,7 +152,7 @@ void WidgetVisitorState_QLabel::setState( const QVariant& state)
 
 QVariant WidgetVisitorState_QLabel::getState() const
 {
-	return QVariant( m_label->text());
+	return QVariant();
 }
 
 void WidgetVisitorState_QLabel::endofDataFeed()

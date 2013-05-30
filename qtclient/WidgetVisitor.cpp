@@ -217,6 +217,14 @@ QVariant WidgetVisitor::State::dynamicProperty( const QString& name) const
 
 bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVariant& value)
 {
+	if (!name.startsWith( "_w_"))
+	{
+		QHash<QString,QVariant>::const_iterator di = m_dynamicProperties.find( name);
+		if (di == m_dynamicProperties.end())
+		{
+			qCritical() << "set a dynamic property of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName() << "that is not predefined:" << name << value;
+		}
+	}
 	m_dynamicProperties.insert( name, value);
 	m_obj->widget()->setProperty( name.toLatin1(), value);
 	return true;
