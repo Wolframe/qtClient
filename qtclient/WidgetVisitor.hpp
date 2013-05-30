@@ -53,16 +53,16 @@ a path [Widget Path].
 
 2 Widget Path
 A widget path is a list of identifiers separated by dot '.'.
-The identifiers of a path are either reserved identifiers (like 'main'
+The identifiers of a path are either reserved identifiers ('main'
 for the current window root widget), symbolic links to other
 widgets declared as dynamic properties (link:<name> := <widgetid>)
 or name references to immediate children widgets.
 
 2.1. Widget Path Resolving
-The widget visitors tree iterator is implemented as stack.
-The widget stack grows with one element every time a widget references
-another widget (a child or parent widget or a widget referenced by a symbolic link).
-Internal states are managed by the WidgetVisitorObject implementation.
+The widget visitors tree iterator is implemented as stack of widget
+visitor object references (a child or parent widget or a widget
+referenced by a symbolic link).
+Internal paths are managed by the WidgetVisitorObject implementation.
 
 2.1.2 Widget Path Resolving Example
 For resolving a property
