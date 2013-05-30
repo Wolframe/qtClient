@@ -108,14 +108,20 @@ Internally happens the same.
 
 3. Dynamic Properties Used
 
-3.1 Reserved Dynamic Properties of Widgets
  'contextmenu'           Defines a context menu with a comma separated list of identifiers of actions defined as propery value. Two following commas without menu entry identifier are used to define a separator (QMenu::addSeparator())
  'contextmenu:NAME'      Defines the (translatable) text of a context menu entry. NAME refers to a non empty name in the list of context menu entries
 
  'action'                Defines an action. This can either be
                          a) load action request for a widget that is not a push button
                          b) action without answer than OK/ERROR for a push button
- 'action:IDENTIFIER'     Defines an action either related to a context menu entry (when clicked) or related to a dataslot declaration of this widget named with IDENTIFIER.
+ 'action:IDENTIFIER'     Defines an action either
+                         a) related to a context menu entry (when clicked) or
+                         b) related to a dataslot declaration of this widget named with IDENTIFIER.
+
+ 'form'                  Defines a form to be opened on click (push button).
+                         If the widget has an action defined, then the action is executed before and the form is opened when the action succeeds and not opened when it fails.
+ 'form:IDENTIFIER'       Defines a form related to a context menu entry (when clicked)
+			 If the context menu entry has also an action defined, then the action is executed before and the form is opened when the action succeeds and not opened when it fails.
 
  'answer'                Defines the format of a validated load action answer
 
@@ -142,6 +148,7 @@ Internally happens the same.
  'dataslot'              Defines a comma separated list of slots for the signal of with the property value as slot identifer and optionally a sender widget id in '(..)' brackets.
  'widgetid'              Unique identifier of the widget used for identifying it (resolving symbolic links, address of a request aswer)
 
+
 3.1 Reserved Internal Dynamic Properties of Widgets
 The '_w_' prefix is used for internal widget properties not of interest for the user.
  '_w_state'              Internal WidgetVistitorObject state representation
@@ -155,7 +162,7 @@ The '_w_' prefix is used for internal widget properties not of interest for the 
  '_w_id'                 Used to store an identifier for later use
 
 
-4. Actions
+4. Order of Events and Actions
 
 4.1. Form Load
     (1) set form parameters  (URL syntax of form call)
@@ -174,14 +181,14 @@ The '_w_' prefix is used for internal widget properties not of interest for the 
     (6) initialize with delivered answer
     (7) restore widget state
 
-Widget Request Error
+4.3. Widget Request Error
     (1) show error
     (2) emit data load error if defined
 
-Refresh With Domain Load Request
+4.3. Refresh With Domain Load Request
     (1) emit domain load request if defined
 
-Refresh Without Domain Load Request
+4.3. Refresh Without Domain Load Request
     (1) save widget state
     (2) clear widget data
     (3) read globals
