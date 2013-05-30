@@ -23,15 +23,12 @@ bool WidgetVisitorState_QCheckBox::leave( bool /*writemode*/)
 void WidgetVisitorState_QCheckBox::clear()
 {
 	QVariant origtext = m_checkBox->property( "_w_origtext");
-	if (origtext.isValid())
+	if (!origtext.isValid())
 	{
-		m_checkBox->setChecked( false);
-		m_checkBox->setText( origtext.toString());
+		m_checkBox->setProperty( "_w_origtext", origtext = m_label->text());
 	}
-	else
-	{
-		m_checkBox->setChecked( false);
-	}
+	m_checkBox->setChecked( false);
+	m_checkBox->setText( origtext.toString());
 }
 
 QVariant WidgetVisitorState_QCheckBox::property( const QString& name)

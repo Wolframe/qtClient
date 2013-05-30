@@ -47,15 +47,13 @@ void WidgetVisitorState_QLabel::clear()
 {
 	m_label->setProperty( "_w_pictures", QVariant());
 	QVariant origtext = m_label->property( "_w_origtext");
-	if (origtext.isValid())
+	if (!origtext.isValid())
 	{
-		m_label->clear();
-		m_label->setText( origtext.toString());
+		m_label->setProperty( "_w_origtext", origtext = m_label->text());
 	}
-	else
-	{
-		m_label->clear();
-	}
+	m_label->clear();
+	m_label->setText( origtext.toString());
+	/*[-]*/qDebug() << "SET TEXT CLEAR" << m_label->text();
 }
 
 QVariant WidgetVisitorState_QLabel::property( const QString& name)
@@ -81,6 +79,7 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 	{
 		m_label->setText( data.toString());
 		m_label->adjustSize();
+		/*[-]*/qDebug() << "SET TEXT PROP" << m_label->text();
 		return true;
 	}
 	if (name == "addtext")
@@ -104,6 +103,7 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 			m_label->setProperty( "_w_origtext", m_label->text());
 		}
 		m_label->setText( m_label->text().replace( subst, data.toString()));
+		/*[-]*/qDebug() << "SET TEXT SUBST" << m_label->text();
 		m_label->adjustSize();
 		return true;
 	}
@@ -146,6 +146,7 @@ void WidgetVisitorState_QLabel::setState( const QVariant& state)
 	if (state.isValid())
 	{
 		m_label->setText( state.toString());
+		/*[-]*/qDebug() << "SET TEXT STATE" << m_label->text();
 		m_label->adjustSize();
 	}
 }

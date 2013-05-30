@@ -23,15 +23,12 @@ bool WidgetVisitorState_QRadioButton::leave( bool /*writemode*/)
 void WidgetVisitorState_QRadioButton::clear()
 {
 	QVariant origtext = m_radioButton->property( "_w_origtext");
-	if (origtext.isValid())
+	if (!origtext.isValid())
 	{
-		m_radioButton->setChecked( false);
-		m_radioButton->setText( origtext.toString());
+		m_radioButton->setProperty( "_w_origtext", origtext = m_label->text());
 	}
-	else
-	{
-		m_radioButton->setChecked( false);
-	}
+	m_radioButton->setChecked( false);
+	m_radioButton->setText( origtext.toString());
 }
 
 QVariant WidgetVisitorState_QRadioButton::property( const QString& name)

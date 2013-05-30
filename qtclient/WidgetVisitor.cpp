@@ -217,7 +217,7 @@ QVariant WidgetVisitor::State::dynamicProperty( const QString& name) const
 
 bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVariant& value)
 {
-	if (!name.startsWith( "_w_"))
+	if (!name.startsWith( "_w_") && !name.isEmpty() && !name.at(0).isDigit() && name != "widgetid")
 	{
 		QHash<QString,QVariant>::const_iterator di = m_dynamicProperties.find( name);
 		if (di == m_dynamicProperties.end())
