@@ -45,15 +45,26 @@
 /** Implementation Documentation:
 
 1 Introduction
-The WidgetVisitor iterates on a tree of widget nodes and their internal states.
-It uses a stack of WidgetState references and a counter for the internal states
-of widgets visited for keeping track of its position in the widget tree and its state.
+The WidgetVisitor implements an Iterator on a widget tree. It can access
+internal Widget properties (setter and getter methods of the
+WidgetVisitorObject interface) or dynamic properties of the widget.
+Additionally there are mechanisms to address widgets in the context by
+a path [Widget Path].
 
-2 Widget Stack
-The widget stack grows with one element every time a widget references something across its own borders.
-Such an element can be a child widget or a widget referenced by a symbolic link to another widget.
+2 Widget Path
+A widget path is a list of identifiers separated by dot '.'.
+The identifiers of a path are either reserved identifiers (like 'main'
+for the current window root widget), symbolic links to other
+widgets declared as dynamic properties (link:<name> := <widgetid>)
+or name references to immediate children widgets.
 
-2.1 Widget stack example
+2.1. Widget Path Resolving
+The widget visitors tree iterator is implemented as stack.
+The widget stack grows with one element every time a widget references
+another widget (a child or parent widget or a widget referenced by a symbolic link).
+Internal states are managed by the WidgetVisitorObject implementation.
+
+2.1.2 Widget Path Resolving Example
 For resolving a property
          'customertable.customer.address.name'
 where address refers to a customer subwidget and name defines a symbolic link, we
@@ -67,6 +78,9 @@ We get to this state calling:
     WidgetVisitor visitor( <customertable widget>* )
     visitor.enter( "customer");
     visitor.enter( "address");
+or
+    WidgetVisitor visitor( <customertable widget>* )
+    visitor.enter( "customer.address");
 
 We can access the property name with:
     QVariant name = visitor.property( "name");
@@ -77,65 +91,72 @@ If we are just interested in the property only, we can also call instead:
 Internally happens the same.
 
 
-3 Symbol Resolving Algorithm
+2.2. Widget Path Resolving Algorithm
 
-3.1 Property Name Resolving
+2.2.1 Property Path Resolving (property,setProperty)
+ [A] Check if an multipart property is referenced and try to step into the substructures to return the property if yes (see "2.2")
  [B] Check if an internal property of the widget is referenced return it if yes
- [C] Check if an multipart property is referenced and try to step into the substructures to return the property if yes (see "2.2")
- [D] Check if a dynamic property is referenced and return it if yes
+ [C] Check if a dynamic property is referenced and return it if yes
 
-3.2 Step Into Substructures
+2.2.2 Widget Path Resolving (enter,leave)
+ [A] Check if an multipart property is referenced and try to step into the substructures to return the property if yes (see "2.2")
  [B] Check if name refers to a widget internal item and follow it if yes
  [C] Check if name refers to a symbolic link and follow the link if yes
  [D] On top level check if name refers to an ancessor or an ancessor child and follow it if yes
  [E] Check if name refers to a child and follow it if yes
 
 
-4. Dynamic Properties Used
+3. Dynamic Properties Used
 
-4.1 Used Dynamic Property Prefixes of widgets
- 'global:IDENTIFIER'     Defines an assignment from a global variable IDENTIFIER at initialization and writing the global variable when closing the widget
- 'link:'                 Rewrite rule for property "link:IDENTIFIER": push the widget referenced as property value of "link:IDENTIFIER" if IDENTIFIER is selected with enter)
- 'datasignal:IDENTIFIER' Defines a signal of type IDENTIFIER (domainchange,onload) with the destination slot identifer defined as property value of "datasignal:IDENTIFIER"
- 'dataslot:IDENTIFIER'   Defines a slot for the signal of type IDENTIFIER (domainchange,onload) with the identifer defined as property value of "dataslot:IDENTIFIER"
- 'assign:PROP'           Defines an assingment of property PROP to the property defined as value "assign:PROP" on an avent. Used to update linked values on signal
- '_w_'                   Prefix for a Wolframe internal property not of interest for the user
-
- 4.2 Used Dynamic Properties of widgets
+3.1 Reserved Dynamic Properties of Widgets
+ 'global:IDENTIFIER'     Defines an assignment from a global variable IDENTIFIER at initialization and writing the global variable when closing the widget (WidgetVisitor::readGlobals()/writeGlobals())
+ 'assign:PROP'           Defines an assingment of property PROP to the property defined as value "assign:PROP" on data load and refresh (WidgetVisitor::readAssignments()/writeAssignments())
+ 'link:'                 Defines a symbolic link to another widget.
+                         Defining the property "link:<name>" = <widgetid>: defines <name> to be a reference to the widget with the widgetid set to <widgetid>.
+                         Used to read data from other widgets. The widgetid can be passed as parameter for children to reference or defined hardcoded for singleton widgets.
+ 'datasignal:IDENTIFIER' Defines a signal of type IDENTIFIER (clicked,doubleclicked,destroyed,signaled,...) with the destination defined as property value of "datasignal:IDENTIFIER"
+                         Datasignal destinations can be defined as follows
+                         a) As widgetid (Attention HACK: If something is a widgetid is decided by searching for a ':' !!! Do not use ':' in slot identifiers.
+                         b) As slot identifier (declared with 'dataslot')
+                         c) widget path
+ 'dataslot'              Defines a comma separated list of slots for the signal of with the property value as slot identifer and optionally a sender widget id in '(..)' brackets.
  'widgetid'              Unique identifier of the widget used for identifying it (resolving symbolic links, address of a request aswer)
 
+3.1 Reserved Internal Dynamic Properties of Widgets
+The '_w_' prefix is used for internal widget properties not of interest for the user.
+ '_w_state'              Internal WidgetVistitorObject state representation
+ '_w_formstack'          Stack of parent form calls to be opened with _CLOSE_ resp. _RESET_
+ '_w_statestack'         Stack of parent form states to be refreshed with _CLOSE_ resp. _RESET_ (array parallel to '_w_formstack')
+ '_w_selected'           Used by widget visitor objects to store the selection set by 'selected' to establish independency of load data and selection (the selection can be made before loading the data, for example passed by form parameters)
+ '_w_rowvalue'           Used by the table widget visitor to the table row ids for selection in case of a row oriended table definition
+ '_w_columnvalue'        Used by the table widget visitor to the table columns ids for selection in case of a column oriended table definition
+ '_w_origtext'           Original text of the label before '%1','%2',... substitutions
+ '_w_pictures'           List of pictures for the case of putting many pictures in one label (not implemented yet)
+ '_w_id'                 Used to store an identifier for later use
 
-5. Mapping XML to and from Widgets
-The module WidgetRequest uses the visitors defined here to iterate on the widget structure
-to set and get the elements in the XML of a request/answer or some other representation
-of the widget data.
 
+4. Actions
 
-6. Actions
-
-Form/Widget Load
-    (1) set form parameters
+4.1. Form Load
+    (1) set form parameters  (URL syntax of form call)
     (2) read globals         ('global:VAR')
     (3) read assignments     ('assign:VAR')
-              (disabled show UI here)
     (4) initiate form localization load
     (5) connect event signal/slots
     (6) issue all domain load requests in reverse order of depht (children widgets first)
 
-Widget Request Answer
-    (1) *** find form and check if all domain load requests were successful,
-            if yes show form and hide old one, if not close form
+4.2. Widget Request Answer
+    (1) find recipient widget
     (2) save widget state
     (3) clear widget data
     (4) read globals
     (5) read assignments
-    (6) load answer
+    (6) initialize with delivered answer
     (7) restore widget state
 
 Widget Request Error
-    (1) *** find form and increment error counter (last answer closes form)
-    (2) show error
-    (3) emit data load error if defined
+    (1) show error
+    (2) emit data load error if defined
 
 Refresh With Domain Load Request
     (1) emit domain load request if defined
@@ -147,17 +168,9 @@ Refresh Without Domain Load Request
     (4) read assignments
     (5) restore widget state
 
-Additional Signals
-    (a) emit onchange signal if defined the recipient issues a self refresh
-    (b) emit onclose signal if defined the recipient issues a self refresh
-
 Remark:
-    (a) subsequent data requests with same tag are deleted if not sent yet to
+    Subsequent data requests with same tag are deleted if not sent yet to
         the server (only the last one is sent)
-
-Use Cases:
-a) Sharing Data between widgets: A widget can read the data of a subwidget
-by a declared assignment and a refresh issued onclose or onchange by the subwidget.
 
 **/
 

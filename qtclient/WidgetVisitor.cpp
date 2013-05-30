@@ -380,7 +380,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 	TRACE_STATUS( "try enter", className(), objectName(), name)
 	if (m_stk.empty()) return false;
 
-	// [A.1] check if name is a multipart reference and follow it if yes:
+	// [A] check if name is a multipart reference and follow it if yes:
 	int followidx = name.indexOf( '.');
 	if (followidx >= 0)
 	{
@@ -899,7 +899,7 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 {
 	if (m_stk.empty()) return 0;
 
-	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
+	// [A] check if an multipart property is referenced and try to step into the substructure to get the property if yes
 	bool subelem = false;
 	QString prefix;
 	QString rest;
@@ -938,7 +938,7 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 			return m_stk.top().m_obj->widget();
 		}
 
-		// [D] check if a dynamic property is referenced and return its value if yes
+		// [C] check if a dynamic property is referenced and return its value if yes
 		if (m_stk.top().m_internal_entercnt == 0)
 		{
 			rt = m_stk.top().dynamicProperty( name);
@@ -958,7 +958,7 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 
 	if (m_stk.empty()) return QVariant()/*invalid*/;
 
-	// [C] check if an multipart property is referenced and try to step into the substructure to get the property if yes
+	// [A] check if an multipart property is referenced and try to step into the substructure to get the property if yes
 	bool subelem = false;
 	QString prefix;
 	QString rest;
@@ -1014,7 +1014,7 @@ QVariant WidgetVisitor::property( const QString& name, int level)
 			return resolve( rt);
 		}
 
-		// [D] check if a dynamic property is referenced and return its value if yes
+		// [C] check if a dynamic property is referenced and return its value if yes
 		if (m_stk.top().m_internal_entercnt == 0)
 		{
 			rt = m_stk.top().dynamicProperty( name);
@@ -1067,7 +1067,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 {
 	if (m_stk.empty()) return false;
 
-	// [C] check if an multipart property is referenced and try to step into the substructures to set the property (must a single value and must not have any repeating elements) if yes
+	// [A] check if an multipart property is referenced and try to step into the substructures to set the property (must a single value and must not have any repeating elements) if yes
 	bool subelem = false;
 	QString prefix;
 	QString rest;
@@ -1119,7 +1119,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 		}
 
 		TRACE_STATUS( "try to set dynamic property", className(), objectName(), name)
-		// [D] check if a dynamic property is referenced and set its value if yes
+		// [C] check if a dynamic property is referenced and set its value if yes
 		if (m_stk.top().m_internal_entercnt == 0)
 		{
 			TRACE_ASSIGNMENT( "dynamic property", objectName(), name, value)
