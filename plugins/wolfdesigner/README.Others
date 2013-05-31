@@ -1,0 +1,10 @@
+ideality: IDEA reprogrammed framework to build something like a designer,
+can embedd Qt toolbars, not quite sure, if this is the way to go. Xinx
+seems to use it.
+
+Xinx is a good example of how to create your own plugin system as for
+the paint example and as used for the visitors of Wolframe. Xinx looks
+like extensions to Qt Designer, but isn't. It rather uses ideality to
+form a similar IDE.
+
+
