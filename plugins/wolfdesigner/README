@@ -1,0 +1,51 @@
+Qt experiments
+
+Qt desginer extensions
+
+QDesignerCustomWidgetInterface - expose a custom widget to the designer
+QDesignerCustomWidgetCollectionInterface - a collection of custom widgets
+  
+QDesignerContainerExtension
+QDesignerMemberSheetExtension
+
+QDesignerTaskMenuExtension:
+- add a menu to tasks, maybe here there is a good hook as for
+  "Inspect answer..", "Inspect request.."
+- overwrites always the "Edit/Default" action of the widget, can't
+  set the preferredAction back to the one of the original widget
+- menues are generated once on click, never again, so we can't store
+  states or ask for the existence of properties there
+- we need a pseudo-widget just to have something to be loaded which
+  generates the menues
+
+QDesignerPropertySheetExtension:
+- interface to properties, also dynamic ones, we can manipulate all
+  of them (everything which is a Q_PROPERTY or a dynamic property)
+  
+subclasses of  QExtensionFactory as factories for extensions
+
+QDesignerFormEditorInterface: retrieve interface from the designer
+running:
+
+QDesignerActionEditorInterface: focus specific actions, this may come
+in handy for a ui menu editor. the ui menu is a custom container extension
+which is just there to edit a menu.
+
+QDesignerObjectInspectorInterface: set object, in request/answer we can
+show the widget which is involved in the reqest/answer maybe
+
+QDesignerPropertyEditorInterface: query and set properties, add slots
+for property values to change. This we will use heavily in all extension
+to add Wolframe custom properties everywhere where needed.
+
+QDesignerWidgetBoxInterface
+
+QDesignerFormWindowManagerInterface: access to currently edited forms,
+create new forms, 
+
+QDesignerFormWindowInterface: let designer manage widgets or not,
+handle selections of widgets,
+change contents, maube later for a wolframe server mode of designing.
+
+QDesignerFormWindowCursorInterface: move cursor, set properties of widgets
+
