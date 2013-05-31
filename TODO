@@ -1,18 +1,27 @@
 now musts:
-- qtclient:
-  - image selection plugin
-  - rewrite i18n support: one resource file, e.g. configurator.rcc, not
-    per form
-  - serverskeleton, write server session of server data, derive from
-    this class, add sessions for qtclient
+- selection in table widget (PF)
+- reload leads to a second form in MDI window, cancel
+  closes the first form!
+  (dito reset) (PF,ABa)
+- status handling (ABa)
+  - show a '*' edited/modified in window title
+  - make window.title a widget path for setting the name of the edited
+    object (MDI standard)
+  - storing of the current state (data) should be optional and only
+    enabled if there is a dynamic boolean property on the window 'storeState'
+  - ask the user whether he wants to logout with windows in state
+    modified/edited
   
 later (cleanups):
+  - recheck dynamic i18n support
+  - serverskeleton, write server session of server data, derive from
+    this class, add sessions for qtclient
   - libqtwolframeclient cleanup
   - libraries for request construction and answer interpretation
     - the one using visitors
   - plugins using visitors, how to respect plugin interface there?
 
-unsorted from here:
+unsorted or maybe obsolete from here:
 
 musts:
 - multi-line plain text fields (like desription in recipe) loose newlines
