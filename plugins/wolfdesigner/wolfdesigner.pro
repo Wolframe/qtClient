@@ -21,8 +21,8 @@ QTDIR_build:DESTDIR = $$QT_BUILD_TREE/plugins/designer
 contains(TEMPLATE, ".*lib"):TARGET = $$qtLibraryTarget($$TARGET)
 
 # install
-target.path = $$[QT_INSTALL_PLUGINS]/designer
-INSTALLS += target
+#target.path = $$[QT_INSTALL_PLUGINS]/designer
+#INSTALLS += target
 
 build_all:!build_pass {
 	CONFIG -= build_all
