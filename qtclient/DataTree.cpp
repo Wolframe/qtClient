@@ -496,6 +496,8 @@ static QList<QString> getConditionProperties( const QString& str)
 		{
 			++itr;
 			skipSpaces( itr, end);
+			if (itr == end) break;
+
 			if (*itr == '{')
 			{
 				isValue = true;
@@ -506,6 +508,11 @@ static QList<QString> getConditionProperties( const QString& str)
 		{
 			++itr;
 			skipSpaces( itr, end);
+			if (itr == end)
+			{
+				qCritical() << "Syntax error in request answer specification (brackets not balanced):" << str;
+				break;
+			}
 			if (*itr == '{')
 			{
 				isValue = true;
