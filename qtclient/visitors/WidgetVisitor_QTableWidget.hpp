@@ -66,12 +66,14 @@ private:
 	void setColumnValue( int col, QVariant value);
 	QVariant getDataValue( const char* propertyname, int idx) const;
 	void setDataValue( const char* propertyname, int idx, QVariant value);
+
 	QVariant getSelectedValue() const;
-	int findSelectedData( const char* propertyname, QVariant value);
 	int findSelectedRow( QVariant value);
 	int findSelectedColumn( QVariant value);
 	void initSelected( const QVariant& selected);
 
+	int findColHeader( const QString& name) const;
+	int findRowHeader( const QString& name) const;
 private:
 	struct StackElement
 	{
@@ -83,8 +85,6 @@ private:
 	};
 
 	QTableWidget* m_tableWidget;
-	QHash<QString,int> m_colheaders;
-	QHash<QString,int> m_rowheaders;
 	enum Mode {Init,Row,Column,RowData,ColumnData};
 	static const char* modeName( Mode i)
 	{
@@ -98,6 +98,7 @@ private:
 	int m_column;
 	int m_rowcount;
 	int m_columncount;
+	int m_valueidx;
 };
 
 #endif

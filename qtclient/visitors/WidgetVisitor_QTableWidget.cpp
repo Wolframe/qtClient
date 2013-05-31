@@ -41,6 +41,28 @@
 #include <QSignalMapper>
 #include <QWidget>
 
+int WidgetVisitorState_QTableWidget::findRowHeader( const QString& name) const
+{
+	int re = m_rowcount;
+	for (int ri=0; ri<re; ++ri)
+	{
+		QTableWidgetItem* item = m_tableWidget->verticalHeaderItem( ri);
+		if (item && item->text() == name) return ri;
+	}
+	return -1;
+}
+
+int WidgetVisitorState_QTableWidget::findColHeader( const QString& name) const
+{
+	int ce = m_columncount;
+	for (int ci=0; ci<ce; ++ci)
+	{
+		QTableWidgetItem* item = m_tableWidget->horizontalHeaderItem( ci);
+		if (item && item->text() == name) return ci;
+	}
+	return -1;
+}
+
 WidgetVisitorState_QTableWidget::WidgetVisitorState_QTableWidget( QWidget* widget_)
 	:WidgetVisitorObject(widget_)
 	,m_tableWidget(qobject_cast<QTableWidget*>(widget_))
@@ -49,23 +71,30 @@ WidgetVisitorState_QTableWidget::WidgetVisitorState_QTableWidget( QWidget* widge
 	,m_column(-1)
 	,m_rowcount(0)
 	,m_columncount(0)
+	,m_valueidx(-1)
 {
-	m_rowcount = m_tableWidget->rowCount();
-	for (int rr=0; rr<m_rowcount; ++rr)
+	while (m_tableWidget->verticalHeaderItem( m_rowcount)) ++m_rowcount;
+	while (m_tableWidget->horizontalHeaderItem( m_columncount)) ++m_columncount;
+	QVariant vc = m_tableWidget->property( "_w_valueidx");
+	if (vc.isValid())
 	{
-		QTableWidgetItem* item = m_tableWidget->verticalHeaderItem( rr);
-		if (item)
-		{
-			m_rowheaders[ item->text().toLatin1()] = rr;
-		}
+		m_valueidx = vc.toInt();
 	}
-	m_columncount = m_tableWidget->columnCount();
-	for (int cc=0; cc<m_columncount; ++cc)
+	else
 	{
-		QTableWidgetItem* item = m_tableWidget->horizontalHeaderItem( cc);
-		if (item)
+		if (m_rowcount)
 		{
-			m_colheaders[ item->text().toLatin1()] = cc;
+			m_valueidx = m_rowcount++;
+			m_tableWidget->insertRow( m_valueidx);
+			m_tableWidget->setRowHidden( m_valueidx, true);
+			m_tableWidget->setProperty( "_w_valueidx", m_valueidx);
+		}
+		else if (m_columncount)
+		{
+			m_valueidx = m_columncount++;
+			m_tableWidget->insertColumn( m_valueidx);
+			m_tableWidget->setColumnHidden( m_valueidx, true);
+			m_tableWidget->setProperty( "_w_valueidx", m_valueidx);
 		}
 	}
 }
@@ -78,14 +107,13 @@ WidgetVisitorState_QTableWidget::~WidgetVisitorState_QTableWidget()
 void WidgetVisitorState_QTableWidget::clear()
 {
 	m_tableWidget->clearContents();
-	for( int i = m_tableWidget->rowCount( ) - 1; i >= 0; i-- ) {
-		m_tableWidget->removeRow( i );
+	for (int i = m_tableWidget->rowCount()-1; i >= 0; i--)
+	{
+		m_tableWidget->removeRow( i);
 	}
 	m_mode = Init;
 	m_row = -1;
 	m_column = -1;
-	m_rowcount = m_tableWidget->rowCount();
-	m_columncount = m_tableWidget->columnCount();
 }
 
 bool WidgetVisitorState_QTableWidget::enter( const QString& name, bool writemode)
@@ -98,11 +126,11 @@ bool WidgetVisitorState_QTableWidget::enter( const QString& name, bool writemode
 			{
 				if (writemode)
 				{
-					m_row = m_rowcount; //... default insertion at bottom of table
+					m_row = m_tableWidget->rowCount(); //... default insertion at bottom of table
 				}
 				else
 				{
-					if (++m_row >= m_rowcount) return false;
+					if (++m_row >= m_tableWidget->rowCount()) return false;
 				}
 				m_mode = Row;
 				return true;
@@ -111,11 +139,11 @@ bool WidgetVisitorState_QTableWidget::enter( const QString& name, bool writemode
 			{
 				if (writemode)
 				{
-					m_column = m_columncount; //... default insertion at end of table
+					m_column = m_tableWidget->columnCount(); //... default insertion at end of table
 				}
 				else
 				{
-					if (++m_column >= m_columncount) return false;
+					if (++m_column >= m_tableWidget->columnCount()) return false;
 				}
 				m_mode = Column;
 				return true;
@@ -124,9 +152,9 @@ bool WidgetVisitorState_QTableWidget::enter( const QString& name, bool writemode
 		}
 		case Row:
 		{
-			QHash<QString,int>::const_iterator itr = m_colheaders.find( name);
-			if (itr == m_colheaders.end()) return false;
-			m_column = itr.value();
+			int ci = findColHeader( name);
+			if (ci == -1) return false;
+			m_column = ci;
 			if (writemode)
 			{
 				while (m_column >= m_items.size()) m_items.push_back( QVariant());
@@ -137,9 +165,9 @@ bool WidgetVisitorState_QTableWidget::enter( const QString& name, bool writemode
 		}
 		case Column:
 		{
-			QHash<QString,int>::const_iterator itr = m_rowheaders.find( name);
-			if (itr == m_rowheaders.end()) return false;
-			m_row = itr.value();
+			int ci = findRowHeader( name);
+			if (ci == -1) return false;
+			m_row = ci;
 			if (writemode)
 			{
 				while (m_row >= m_items.size()) m_items.push_back( QVariant());
@@ -184,9 +212,9 @@ bool WidgetVisitorState_QTableWidget::leave( bool writemode)
 		case Row:
 			if (writemode)
 			{
-				if (m_row == m_rowcount)
+				if (m_row == m_tableWidget->rowCount())
 				{
-					m_tableWidget->insertRow( m_rowcount++);
+					m_tableWidget->insertRow( m_row);
 				}
 				for (int col=0; col<m_items.size(); ++col)
 				{
@@ -202,9 +230,9 @@ bool WidgetVisitorState_QTableWidget::leave( bool writemode)
 		case Column:
 			if (writemode)
 			{
-				if (m_column == m_columncount)
+				if (m_column == m_tableWidget->columnCount())
 				{
-					m_tableWidget->insertColumn( m_columncount++);
+					m_tableWidget->insertColumn( m_column);
 				}
 				for (int row=0; row<m_items.size(); ++row)
 				{
@@ -286,56 +314,199 @@ void WidgetVisitorState_QTableWidget::setDataValue( const char* propertyname, in
 
 QVariant WidgetVisitorState_QTableWidget::getRowValue( int row) const
 {
-	return getDataValue( "_w_rowvalue", row);
+	int ci = findColHeader( "id");
+	if (ci < 0)
+	{
+		ci = (m_columncount?m_valueidx:0);
+	}
+	QTableWidgetItem* item = m_tableWidget->item( row, ci);
+	if (!item)
+	{
+		qCritical() << "failed to get table value on row" << row << "column" << ci;
+		return QVariant();
+	}
+	else
+	{
+		return item->data( Qt::UserRole);
+	}
 }
 
 void WidgetVisitorState_QTableWidget::setRowValue( int row, QVariant value)
 {
-	setDataValue( "_w_rowvalue", row, value);
+	int ci = findColHeader( "id");
+	if (ci < 0)
+	{
+		ci = (m_columncount?m_valueidx:0);
+	}
+	QTableWidgetItem* item = m_tableWidget->item( row, ci);
+	if (!item)
+	{
+		while (ci >= m_items.size()) m_items.push_back( QVariant());
+		m_items[ ci] = value;
+		while (ci >= m_cellwidgets.size()) m_cellwidgets.push_back( 0);
+	}
+	else
+	{
+		item->setData( Qt::UserRole, value);
+	}
 }
 
 QVariant WidgetVisitorState_QTableWidget::getColumnValue( int col) const
 {
-	return getDataValue( "_w_columnvalue", col);
+	int ri = findRowHeader( "id");
+	if (ri < 0)
+	{
+		ri = (m_rowcount?m_valueidx:0);
+	}
+	QTableWidgetItem* item = m_tableWidget->item( ri, col);
+	if (!item)
+	{
+		qCritical() << "failed to get table value on column" << col << "row" << ri;
+		return QVariant();
+	}
+	else
+	{
+		return item->data( Qt::UserRole);
+	}
 }
 
 void WidgetVisitorState_QTableWidget::setColumnValue( int col, QVariant value)
 {
-	setDataValue( "_w_columnvalue", col, value);
-}
-
-int WidgetVisitorState_QTableWidget::findSelectedData( const char* propertyname, QVariant value)
-{
-	QVariant values_p = m_tableWidget->property( propertyname);
-	if (!values_p.isValid()) return -1;
-	return values_p.toList().indexOf( value);
+	int ri = findRowHeader( "id");
+	if (ri < 0)
+	{
+		ri = (m_rowcount?m_valueidx:0);
+	}
+	QTableWidgetItem* item = m_tableWidget->item( ri, col);
+	if (!item)
+	{
+		while (ri >= m_items.size()) m_items.push_back( QVariant());
+		m_items[ ri] = value;
+	}
+	else
+	{
+		item->setData( Qt::UserRole, value);
+	}
 }
 
 int WidgetVisitorState_QTableWidget::findSelectedRow( QVariant value)
 {
-	return findSelectedData( "_w_rowvalue", value);
+	int ci = findColHeader( "id");
+	if (ci < 0)
+	{
+		ci = (m_columncount?m_valueidx:0);
+	}
+	int ri=0, re=m_tableWidget->rowCount();
+	for (; ri < re; ++ri)
+	{
+		QTableWidgetItem* item = m_tableWidget->item( ri, ci);
+		if (item && item->data( Qt::UserRole) == value) return ri;
+	}
+	return -1;
 }
 
 int WidgetVisitorState_QTableWidget::findSelectedColumn( QVariant value)
 {
-	return findSelectedData( "_w_columnvalue", value);
+	int ri = findRowHeader( "id");
+	if (ri < 0)
+	{
+		ri = (m_rowcount?m_valueidx:0);
+	}
+	int ci=0, ce=m_tableWidget->columnCount();
+	for (; ci < ce; ++ci)
+	{
+		QTableWidgetItem* item = m_tableWidget->item( ri, ci);
+		if (item && item->data( Qt::UserRole) == value) return ci;
+	}
+	return -1;
 }
 
 QVariant WidgetVisitorState_QTableWidget::getSelectedValue() const
 {
-	int row = m_tableWidget->currentRow();
-	int col = m_tableWidget->currentColumn();
-	if (m_tableWidget->property( "_w_rowvalue").isValid())
+	QVariant val = m_tableWidget->property( "_w_selected");
+	if (val.isValid()) return val;
+	if (m_tableWidget->selectionMode() == QAbstractItemView::NoSelection)
 	{
-		return getRowValue( row);
+		return QVariant();
 	}
-	else if (m_tableWidget->property( "_w_columnvalue").isValid())
+	QList<QTableWidgetItem*> sel_items = m_tableWidget->selectedItems();
+	int idx = 0;
+	if (m_rowcount)
 	{
-		return getColumnValue( col);
+		int ri = findRowHeader( "id");
+		if (ri >= 0)
+		{
+			idx = ri;
+		}
+		else
+		{
+			idx = m_valueidx;
+		}
+	}
+	else if (m_columncount)
+	{
+		int ci = findColHeader( "id");
+		if (ci >= 0)
+		{
+			idx = ci;
+		}
+		else
+		{
+			idx = m_valueidx;
+		}
+	}
+	if (m_tableWidget->selectionMode() == QAbstractItemView::SingleSelection)
+	{
+		if (sel_items.isEmpty()) return QVariant();
+		QTableWidgetItem* item = sel_items.at(0);
+		if (!item) return QVariant();
+		QVariant rt;
+		if (m_rowcount)
+		{
+			rt = getColumnValue( item->column());
+		}
+		else if (m_columncount)
+		{
+			rt = getRowValue( item->row());
+		}
+		else
+		{
+			rt = item->data( Qt::UserRole);
+		}
+		return rt;
 	}
 	else
 	{
-		return m_tableWidget->property( "_w_selected");
+		QList<QVariant> rt;
+		foreach (QTableWidgetItem* item, sel_items)
+		{
+			if (item)
+			{
+				if (m_rowcount)
+				{
+					if (idx == item->row())
+					{
+						rt.push_back( item->data( Qt::UserRole));
+					}
+				}
+				else if (m_columncount)
+				{
+					if (idx == item->column())
+					{
+						rt.push_back( item->data( Qt::UserRole));
+					}
+				}
+				else
+				{
+					rt.push_back( item->data( Qt::UserRole));
+				}
+			}
+			else
+			{
+				rt.push_back( QVariant());
+			}
+		}
+		return rt.isEmpty()?QVariant():rt;
 	}
 }
 
@@ -417,9 +588,9 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 		case Row:
 			if (name == "title")
 			{
-				itr = m_rowheaders.find( data.toByteArray());
-				if (m_row >= 0 || itr == m_rowheaders.end()) return false;
-				m_row = itr.value();
+				int ci = findRowHeader( data.toString());
+				if (m_row >= 0 || ci < 0) return false;
+				m_row = ci;
 				return true;
 			}
 			else if (name == "id")
@@ -431,9 +602,9 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 		case Column:
 			if (name == "title")
 			{
-				itr = m_colheaders.find( data.toByteArray());
-				if (m_column >= 0 || itr == m_colheaders.end()) return false;
-				m_column = itr.value();
+				int ci = findColHeader( data.toString());
+				if (m_column >= 0 || ci < 0) return false;
+				m_column = ci;
 				return true;
 			}
 			else if (name == "id")
@@ -485,26 +656,16 @@ bool WidgetVisitorState_QTableWidget::setProperty( const QString& name, const QV
 void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 {
 	qDebug() << "set state for table" << m_tableWidget->objectName();
-	QTableWidgetSelectionRange all( 0, 0, m_tableWidget->rowCount(), m_tableWidget->columnCount());
-	m_tableWidget->setRangeSelected( all, false);
-
-	foreach (const QVariant& elem, state.toList())
+	if (state.type() == QVariant::List)
 	{
-		if (elem.type() == QVariant::Line)
+		if (state.toList().size() >= 1)
 		{
-			QLine range = elem.toLine();
-			int top = range.p1().x();
-			int left = range.p1().y();
-			int bottom = range.p2().x();
-			int right = range.p2().y();
-			QTableWidgetSelectionRange selected( top, left, bottom, right);
-			m_tableWidget->setRangeSelected( selected, true);
+			initSelected( state.toList().at(0));
 		}
-		else
-		{
-			m_tableWidget->setProperty( "_w_selected", elem);
-			initSelected( elem);
-		}
+	}
+	else if (state.isValid())
+	{
+		initSelected( state);
 	}
 
 	// Aba: this makes the manual resizing of the first column impossible, maybe
@@ -542,25 +703,51 @@ QVariant WidgetVisitorState_QTableWidget::getState() const
 	QList<QVariant> rt;
 	QVariant selected = getSelectedValue();
 	rt.push_back( selected);
-
-	foreach (const QTableWidgetSelectionRange& selected, m_tableWidget->selectedRanges())
-	{
-		int top = selected.topRow();
-		int left = selected.leftColumn();
-		int bottom = selected.bottomRow();
-		int right = selected.rightColumn();
-		QLine range( QPoint( top, left), QPoint( bottom, right));
-		rt.push_back( QVariant( range));
-	}
 	return QVariant(rt);
 }
 
 void WidgetVisitorState_QTableWidget::initSelected( const QVariant& selected)
 {
-	int row = findSelectedRow( selected);
-	if (row >= 0) m_tableWidget->setCurrentCell( row, 0);
-	int col = findSelectedColumn( selected);
-	if (col >= 0) m_tableWidget->setCurrentCell( 0, col);
+	QTableWidgetSelectionRange all( 0, 0, m_tableWidget->rowCount(), m_tableWidget->columnCount());
+	m_tableWidget->setRangeSelected( all, false);
+	if (selected.type() == QVariant::List)
+	{
+		foreach (QVariant elem, selected.toList())
+		{
+			initSelected( elem);
+		}
+	}
+	if (m_columncount)
+	{
+		int row = findSelectedRow( selected);
+		int col = findColHeader( "id");
+		if (col < 0)
+		{
+			col = 0;
+		}
+		if (row >= 0)
+		{
+			QTableWidgetSelectionRange line( row, 0, row, m_columncount-1);
+			m_tableWidget->setRangeSelected( line, true);
+		}
+		return;
+	}
+	if (m_rowcount)
+	{
+		int col = findSelectedColumn( selected);
+		int row = findRowHeader( "id");
+		if (row < 0)
+		{
+			row = 0;
+		}
+		if (col >= 0)
+		{
+			QTableWidgetSelectionRange line( 0, col, m_rowcount-1, col);
+			m_tableWidget->setRangeSelected( line, true);
+		}
+		return;
+	}
+	qCritical() << "cannot find selected line in table:" << selected;
 }
 
 void WidgetVisitorState_QTableWidget::endofDataFeed()

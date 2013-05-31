@@ -17,12 +17,12 @@ static QVariant parseValue( const QString& callstr, int& idx)
 	{
 		if (*itr == '\'')
 		{
-			while (itr != end)
+			for (++itr; itr != end; ++itr)
 			{
 				if (*itr == '\'')
 				{
 					++itr;
-					if (*itr == '\'')
+					if (itr != end && *itr == '\'')
 					{
 						//... escaped quote
 						val.push_back( '\'');
@@ -34,7 +34,9 @@ static QVariant parseValue( const QString& callstr, int& idx)
 						break;
 					}
 				}
+				if (itr == end) break;
 			}
+			if (itr == end) break;
 		}
 		else if (*itr == ',')
 		{
