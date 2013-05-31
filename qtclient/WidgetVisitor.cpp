@@ -208,7 +208,7 @@ bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVaria
 		QHash<QString,QVariant>::const_iterator di = m_dynamicProperties.find( name);
 		if (di == m_dynamicProperties.end())
 		{
-			qCritical() << "set a dynamic property of" << m_obj->widget()->metaObject()->className() << WidgetVisitor::widgetPath( m_obj->widget()) << "that is not predefined:" << name << value;
+			qCritical() << "set a dynamic property of" << m_obj->widget()->metaObject()->className() << WidgetVisitor::widgetPath( m_obj->widget()) << "that is not predefined:" << name << shortenDebugMessageArgument( value);
 		}
 	}
 	m_dynamicProperties.insert( name, value);
