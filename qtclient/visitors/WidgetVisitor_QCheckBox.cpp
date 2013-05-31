@@ -25,7 +25,7 @@ void WidgetVisitorState_QCheckBox::clear()
 	QVariant origtext = m_checkBox->property( "_w_origtext");
 	if (!origtext.isValid())
 	{
-		m_checkBox->setProperty( "_w_origtext", origtext = m_label->text());
+		m_checkBox->setProperty( "_w_origtext", origtext = m_checkBox->text());
 	}
 	m_checkBox->setChecked( false);
 	m_checkBox->setText( origtext.toString());
