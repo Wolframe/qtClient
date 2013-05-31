@@ -599,7 +599,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 							TRACE_ASSIGNMENT( "set property", ai->name, aelem)
 							if (!visitor.setProperty( ai->name, aelem))
 							{
-								qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "] value=" << aelem;
+								qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "] value=" << shortenDebugMessageArgument(aelem);
 								rt = false;
 							}
 						}
