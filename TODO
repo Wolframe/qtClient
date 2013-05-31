@@ -20,6 +20,8 @@ later (cleanups):
   - libraries for request construction and answer interpretation
     - the one using visitors
   - plugins using visitors, how to respect plugin interface there?
+  - CRITICAL: element not defined in answer description: QVariant(QString, "picture") at "" 
+    => add the name of the affected widget here!
 
 unsorted or maybe obsolete from here:
 
