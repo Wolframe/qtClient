@@ -25,7 +25,7 @@ void WidgetVisitorState_QRadioButton::clear()
 	QVariant origtext = m_radioButton->property( "_w_origtext");
 	if (!origtext.isValid())
 	{
-		m_radioButton->setProperty( "_w_origtext", origtext = m_label->text());
+		m_radioButton->setProperty( "_w_origtext", origtext = m_radioButton->text());
 	}
 	m_radioButton->setChecked( false);
 	m_radioButton->setText( origtext.toString());

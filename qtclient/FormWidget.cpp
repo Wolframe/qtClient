@@ -174,12 +174,13 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 
 		if (nextForm == "_RESET_")
 		{
+			emit closed();
+
 			//... _RESET_ calls loadForm with the top form of the
 			//     form stack and an empty formstate
 			if (m_modal)
 			{
 				qCritical() << "illegal _RESET_ load of modal dialog";
-				emit closed( );
 			}
 			else
 			{
@@ -197,18 +198,15 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 		}
 		else if (nextForm == "_CLOSE_")
 		{
+			emit closed();
+
 			if (m_modal || m_newWindow)
 			{
-				emit closed();
 			}
 			else
 			{
 				nextForm = m_widgetTree.popPreviousForm();
-				if (nextForm.isEmpty())
-				{
-					emit closed();
-				}
-				else
+				if (!nextForm.isEmpty())
 				{
 					loadForm( nextForm);
 				}

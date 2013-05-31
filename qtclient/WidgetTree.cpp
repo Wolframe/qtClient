@@ -76,7 +76,7 @@ void WidgetTree::setEnablers( QWidget* widget, const QList<WidgetEnablerImpl::Tr
 		}
 		else
 		{
-			qCritical() << "could not evaluate widget delivering property" << trg.condition.property;
+			qCritical() << "could not evaluate widget delivering property" << trg.condition.property << "for widget" << visitor.widgetPath();
 		}
 	}
 	QHash<QString,WidgetEnablerR>::iterator bi = enablermap.begin(), be = enablermap.end();
@@ -124,7 +124,7 @@ void WidgetTree::setDeclaredEnablers( QWidget* widget)
 
 			if (!WidgetEnablerImpl::parseCondition( cond, condexpr.toString()))
 			{
-				qCritical() << "failed to set enabler definewd by property" << prop << "of widget" << widget->metaObject()->className() << widget->objectName();
+				qCritical() << "failed to set enabler defined by property" << prop << "of widget" << widget->metaObject()->className() << vv.widgetPath();
 			}
 			if (nam == "visible")
 			{
@@ -148,7 +148,7 @@ void WidgetTree::setDeclaredEnablers( QWidget* widget)
 			}
 			else
 			{
-				qCritical() << "unknown state property name" << prop;
+				qCritical() << "unknown state property name" << prop << "in widget" << vv.widgetPath();
 			}
 		}
 	}
@@ -229,6 +229,8 @@ void WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	m_listeners.clear();
 
 	// initialize the form variables given by globals
+	bool rudpflag_bk = m_visitor.allowUndefDynPropsInit( true);
+
 	WidgetVisitor::init_widgetids( m_visitor.widget());
 	m_visitor.do_readGlobals( *m_globals);
 
@@ -246,6 +248,7 @@ void WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	}
 	// initialize the form variables given by assignments
 	m_visitor.do_readAssignments();
+	m_visitor.allowUndefDynPropsInit( rudpflag_bk);
 
 	// restore widget states if form was opened with a '_CLOSE_'
 	if (m_state.isValid())
@@ -367,7 +370,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 			WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
 			if (!setWidgetAnswer( rcpvisitor, content))
 			{
-				qCritical() << "Failed to assign request answer tag:" << tag << "data:" << shortenDebugMessageArgument(content);
+				qCritical() << "Failed to assign request answer to widget:" << rcpvisitor.widgetPath() << "message tag:" << tag << "message data:" << shortenDebugMessageArgument(content);
 			}
 			rcpvisitor.setState( rcp->property( "_w_state"));
 

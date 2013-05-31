@@ -68,28 +68,14 @@
 #define TRACE_LEAVE( TITLE)
 #endif
 
-static void logError( QWidget* widget, const char* msg, const QString& arg)
+static void logError( const WidgetVisitor& visitor, const char* msg, const QString& arg)
 {
-	if (widget)
-	{
-		qCritical() << "error widget visitor" << widget->metaObject()->className() << widget->objectName() << msg << ":" << arg;
-	}
-	else
-	{
-		qCritical() << "error " << msg << ":" << arg;
-	}
+	qCritical() << "error widget visitor" << (visitor.widget()?visitor.widget()->metaObject()->className():QString()) << visitor.widgetPath() << msg << ":" << arg;
 }
 
-static void logError( QWidget* widget, const char* msg)
+static void logError( const WidgetVisitor& visitor, const char* msg)
 {
-	if (widget)
-	{
-		qCritical() << "error widget visitor" << widget->metaObject()->className() << widget->objectName() << msg;
-	}
-	else
-	{
-		qCritical() << "error " << msg;
-	}
+	qCritical() << "error widget visitor" << (visitor.widget()?visitor.widget()->metaObject()->className():QString()) << visitor.widgetPath() << msg;
 }
 
 WidgetVisitor::State::State( const State& o)
@@ -158,7 +144,7 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 					}
 					else
 					{
-						qCritical() << "error widget visitor state" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName() << ": defined unknown data signal name" << prop;
+						qCritical() << "error widget visitor state" << m_obj->widget()->metaObject()->className() << WidgetVisitor::widgetPath(m_obj->widget()) << ": defined unknown data signal name" << prop;
 					}
 				}
 			}
@@ -215,14 +201,14 @@ QVariant WidgetVisitor::State::dynamicProperty( const QString& name) const
 	return di.value();
 }
 
-bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVariant& value)
+bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVariant& value, bool allowUndefDynPropsInit)
 {
-	if (!name.startsWith( "_w_") && !name.isEmpty() && !name.at(0).isDigit() && name != "widgetid")
+	if (!allowUndefDynPropsInit && !name.startsWith( "_w_") && !name.isEmpty() && !name.at(0).isDigit() && name != "widgetid")
 	{
 		QHash<QString,QVariant>::const_iterator di = m_dynamicProperties.find( name);
 		if (di == m_dynamicProperties.end())
 		{
-			qCritical() << "set a dynamic property of" << m_obj->widget()->metaObject()->className() << m_obj->widget()->objectName() << "that is not predefined:" << name << value;
+			qCritical() << "set a dynamic property of" << m_obj->widget()->metaObject()->className() << WidgetVisitor::widgetPath( m_obj->widget()) << "that is not predefined:" << name << value;
 		}
 	}
 	m_dynamicProperties.insert( name, value);
@@ -317,20 +303,30 @@ QWidget* WidgetVisitor::get_widget_reference( const QString& id)
 
 WidgetVisitor::WidgetVisitor( QWidget* root, VisitorFlags flags_)
 	:m_blockSignals(false)
+	,m_allowUndefDynPropsInit(false)
 {
 	if (((int)flags_&(int)BlockSignals) == (int)BlockSignals)
 	{
 		m_blockSignals = true;
+	}
+	if (((int)flags_&(int)AllowUndefDynPropsInit) == (int)AllowUndefDynPropsInit)
+	{
+		m_allowUndefDynPropsInit = true;
 	}
 	m_stk.push( State( WidgetVisitorObjectR( createWidgetVisitorObject( root)), m_blockSignals));
 }
 
 WidgetVisitor::WidgetVisitor( const WidgetVisitorObjectR& obj, VisitorFlags flags_)
 	:m_blockSignals(false)
+	,m_allowUndefDynPropsInit(false)
 {
 	if (((int)flags_&(int)BlockSignals) == (int)BlockSignals)
 	{
 		m_blockSignals = true;
+	}
+	if (((int)flags_&(int)AllowUndefDynPropsInit) == (int)AllowUndefDynPropsInit)
+	{
+		m_allowUndefDynPropsInit = true;
 	}
 	m_stk.push( State( obj, flags_));
 }
@@ -556,7 +552,7 @@ static QVariant variable_value( WidgetVisitor& visitor, const QString& var)
 		{
 			if (!ch.isDigit() && !ch.isLetter() && ch != '_')
 			{
-				qCritical() << "illegal character in default value (currently only non negative numbers and alphanumeric or empty value allowed):" << ch << value;
+				qCritical() << "illegal character in default value (currently only non negative numbers and alphanumeric or empty value allowed):" << ch << value << "(widget" << visitor.widgetPath() << ")";
 				break;
 			}
 		}
@@ -578,14 +574,14 @@ static QVariant expand_variable_references( WidgetVisitor& visitor, const QStrin
 	{
 		if (endidx < substidx)
 		{
-			logError( visitor.widget(), "brackets { } not balanced", value);
+			logError( visitor, "brackets { } not balanced", value);
 			break;
 		}
 		rt.append( value.mid( startidx, substidx-startidx));
 		int sb = value.indexOf( '{', substidx+1);
 		if (sb > 0 && sb < endidx)
 		{
-			logError( visitor.widget(), "brackets { { nested", value);
+			logError( visitor, "brackets { { nested", value);
 			break;
 		}
 		substidx++;
@@ -751,12 +747,12 @@ bool WidgetVisitor::evalCondition( const QVariant& expr)
 	for (; xi != xe && xi->isSpace(); ++xi);
 	if (xi != xe)
 	{
-		qCritical() << "superfluos characters at end of expression";
+		qCritical() << "superfluos characters at end of expression" << "(widget" << widgetPath() << ")";
 	}
 	switch (opr)
 	{
 		case ExprOpInvalid:
-			qCritical() << "invalid operator in conditional expression";
+			qCritical() << "invalid operator in conditional expression" << "(widget" << widgetPath() << ")";
 			return false;
 		case ExprOpEq:
 			return op1.toString() == op2.toString();
@@ -822,6 +818,30 @@ QWidget* WidgetVisitor::uirootwidget() const
 		}
 	}
 	return wdg;
+}
+
+QString WidgetVisitor::widgetPath( const QWidget* widget)
+{
+	QStringList pt;
+	const QObject* prn = widget;
+	for (; prn != 0; prn = prn->parent())
+	{
+		if (qobject_cast<const FormWidget*>( prn)) break;
+		if (qobject_cast<const QWidget*>( prn) && !prn->objectName().isEmpty())
+		{
+			pt.push_back( prn->objectName());
+		}
+	}
+	for(int kk = 0, nn = pt.size(); kk < (nn/2); kk++)
+	{
+		pt.swap( kk, nn-(1+kk));
+	}
+	return pt.join( ".");
+}
+
+QString WidgetVisitor::widgetPath() const
+{
+	return widgetPath( widget());
 }
 
 static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& cond)
@@ -1131,7 +1151,7 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 		if (m_stk.top().m_internal_entercnt == 0)
 		{
 			TRACE_ASSIGNMENT( "dynamic property", objectName(), name, value)
-			if (m_stk.top().setDynamicProperty( name, value)) return true;
+			if (m_stk.top().setDynamicProperty( name, value, m_allowUndefDynPropsInit)) return true;
 		}
 	}
 	return false;
@@ -1274,6 +1294,13 @@ void WidgetVisitor::do_writeAssignments()
 	}
 }
 
+bool WidgetVisitor::allowUndefDynPropsInit( bool value)
+{
+	bool rt = m_allowUndefDynPropsInit;
+	m_allowUndefDynPropsInit = value;
+	return rt;
+}
+
 WidgetListenerImpl* WidgetVisitor::createListener( DataLoader* dataLoader)
 {
 	WidgetListenerImpl* listener = 0;
@@ -1309,12 +1336,12 @@ void WidgetVisitor::connectWidgetEnabler( WidgetEnabler& enabler)
 
 void WidgetVisitor::ERROR( const char* msg, const QString& arg) const
 {
-	logError( widget(), msg, QString( arg));
+	logError( *this, msg, QString( arg));
 }
 
 void WidgetVisitor::ERROR( const char* msg) const
 {
-	logError( widget(), msg);
+	logError( *this, msg);
 }
 
 static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& cond)
@@ -1397,7 +1424,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 		}
 		else
 		{
-			qCritical() << "unable to resolve local widget reference:" << address;
+			ERROR( "unable to resolve local widget reference:", address);
 		}
 	}
 	else if ((rcvwidget = get_widget_reference( address)) != 0)

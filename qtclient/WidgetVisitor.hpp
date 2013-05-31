@@ -224,7 +224,7 @@ class WidgetVisitor
 
 		///\enum Flags
 		///\brief Flags stearing behaviour
-		enum VisitorFlags {None=0x0,BlockSignals=0x1};
+		enum VisitorFlags {None=0x0,BlockSignals=0x1,AllowUndefDynPropsInit=0x2};
 
 		///\brief Constructor
 		///\param[in] root Root of widget tree visited
@@ -234,14 +234,16 @@ class WidgetVisitor
 		///\brief Copy constructor
 		///\param[in] o object to copy
 		WidgetVisitor( const WidgetVisitor& o)
-			:m_stk(o.m_stk){}
+			:m_stk(o.m_stk)
+			,m_blockSignals(o.m_blockSignals)
+			,m_allowUndefDynPropsInit(o.m_allowUndefDynPropsInit){}
 
 		///\brief Constructor by object
 		explicit WidgetVisitor( const WidgetVisitorObjectR& obj, VisitorFlags flags);
 
 		VisitorFlags flags() const
 		{
-			return (VisitorFlags)((int)(m_blockSignals?BlockSignals:None));
+			return (VisitorFlags)((int)(m_blockSignals?BlockSignals:None)|(int)(m_allowUndefDynPropsInit?AllowUndefDynPropsInit:None));
 		}
 
 		static void init_widgetids( QWidget* widget);
@@ -317,6 +319,9 @@ class WidgetVisitor
 		QWidget* uirootwidget() const;
 		///\brief Get the UI root widget
 		QWidget* predecessor( const QString& name) const;
+		///\brief Get the complete path of the widget for error messages
+		QString widgetPath() const;
+		static QString widgetPath( const QWidget* widget);
 
 		///\brief Resolve a symbolic link to a widget
 		///\param[in] link name of symbolic link to resolve
@@ -364,6 +369,9 @@ class WidgetVisitor
 		///\brief Create listener object for the widget and wire all data signals
 		WidgetListenerImpl* createListener( DataLoader* dataLoader);
 
+		///\brief sets the AllowUndefDynPropsInit flag to value and return the previous value of it
+		bool allowUndefDynPropsInit( bool value);
+
 	private:
 		///\brief Internal property get using 'level' to check property resolving step (B).
 		///\param[in] name name of the property
@@ -400,7 +408,7 @@ class WidgetVisitor
 		public://Common methods:
 			QString getLink( const QString& name) const;
 			QVariant dynamicProperty( const QString& name) const;
-			bool setDynamicProperty( const QString&, const QVariant& value);
+			bool setDynamicProperty( const QString&, const QVariant& value, bool reportUndefined);
 
 		private:
 			struct DataSignals
@@ -437,6 +445,7 @@ class WidgetVisitor
 	private:
 		QStack<State> m_stk;		//< stack of visited widgets. The current node is the top element
 		bool m_blockSignals;		//< wheter to block signals or not
+		bool m_allowUndefDynPropsInit;	//< true, if flag AllowUndefDynPropsInit is set: error log is suppressed for setting a not predefined dynamic properties
 };
 
 #endif
