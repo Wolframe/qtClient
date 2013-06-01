@@ -941,6 +941,10 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 			level += 1;
 			subelem = true;
 		}
+		else
+		{
+			return 0;
+		}
 	}
 	else
 	{

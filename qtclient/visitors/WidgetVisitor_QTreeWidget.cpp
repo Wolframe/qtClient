@@ -64,6 +64,7 @@ void WidgetVisitorState_QTreeWidget::clear()
 bool WidgetVisitorState_QTreeWidget::enter( const QString& name, bool writemode)
 {
 	static const QString item_str( "item");
+	static const QString row_str( "row");
 	if (m_mode != List && name == item_str)
 	{
 		if (writemode)
@@ -78,7 +79,7 @@ bool WidgetVisitorState_QTreeWidget::enter( const QString& name, bool writemode)
 		m_mode = Tree;
 		return true;
 	}
-	else if (m_mode != Tree && name == m_elementname)
+	else if (m_mode != Tree && name == row_str)
 	{
 		if (m_stk.size() != 1) return false;
 		if (writemode)
@@ -106,8 +107,9 @@ bool WidgetVisitorState_QTreeWidget::leave( bool /*writemode*/)
 bool WidgetVisitorState_QTreeWidget::isArrayElement( const QString& name)
 {
 	static const QString item_str( "item");
+	static const QString row_str( "row");
 	if (m_mode != List && name == item_str) return true;
-	if (m_mode != Tree && name == m_elementname) return true;
+	if (m_mode != Tree && name == row_str) return true;
 	return false;
 }
 

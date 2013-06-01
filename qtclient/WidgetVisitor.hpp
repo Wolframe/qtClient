@@ -147,6 +147,7 @@ Internally happens the same.
                          Remark: For 'action' definitions there are conditional state triggers ('state:enabled') installed automatically for all referenced action properties without default value
  'dataslot'              Defines a comma separated list of slots for the signal of with the property value as slot identifer and optionally a sender widget id in '(..)' brackets.
  'widgetid'              Unique identifier of the widget used for identifying it (resolving symbolic links, address of a request aswer)
+ 'synonym:NAME'          Defines a mapping from the identifier NAME to the property value. The map is used to describe a renaming of an answer tag of an implicitely mapped request answer (when no 'answer' is defined. used only for recursive structures)
 
 
 3.1 Reserved Internal Dynamic Properties of Widgets

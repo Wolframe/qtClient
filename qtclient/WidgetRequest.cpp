@@ -501,7 +501,19 @@ struct AssignIterStackElem
 	AssignIterStackElem( const AssignIterStackElem& o)	:iter(o.iter),arraypos(o.arraypos){}
 };
 
-bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultschema, const QByteArray& answer)
+static const char* getPropertyAccessErrorReason( WidgetVisitor& visitor, const QString& prop)
+{
+	if (!visitor.getPropertyOwnerWidget( prop))
+	{
+		return "owner widget undefined (invalid widget path)";
+	}
+	else
+	{
+		return "accessor function failed";
+	}
+}
+
+static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultschema, const QByteArray& answer)
 {
 	bool rt = true;
 	ActionResultDefinition resultdef( resultschema);
@@ -531,7 +543,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 					TRACE_VALUE( "enter", ai->name)
 					if (!visitor.enter( ai->name, true))
 					{
-						qCritical() << "failed to find widget substructure" << ai->name;
+						qCritical() << "failed to find widget substructure" << ai->name << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
 						return false;
 					}
 					astk.push_back( AssignIterStackElem( ai));
@@ -586,7 +598,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 						TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
 						if (!visitor.setProperty( ai->name, ai->value))
 						{
-							qCritical() << "failed to set property (list assignment)" << ai->name;
+							qCritical() << "failed to set property (list assignment)" << ai->name  << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
 							rt = false;
 						}
 					}
@@ -599,7 +611,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 							TRACE_ASSIGNMENT( "set property", ai->name, aelem)
 							if (!visitor.setProperty( ai->name, aelem))
 							{
-								qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "] value=" << shortenDebugMessageArgument(aelem);
+								qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "] value=" << shortenDebugMessageArgument(aelem)  << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
 								rt = false;
 							}
 						}
@@ -625,7 +637,7 @@ bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultsche
 					TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
 					if (!visitor.setProperty( ai->name, ai->value))
 					{
-						qCritical() << "failed to set property (single element in array)" << ai->name;
+						qCritical() << "failed to set property (single element in array)" << ai->name << ai->value << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
 						rt = false;
 					}
 				}
