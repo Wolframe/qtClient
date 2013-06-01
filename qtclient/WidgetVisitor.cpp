@@ -548,6 +548,10 @@ static QVariant variable_value( WidgetVisitor& visitor, const QString& var)
 			if (val.isValid()) return val;
 			value = var.mid( dpidx+1, var.size()-(dpidx+1)).trimmed();
 		}
+		if (value == "?")
+		{
+			return QVariant();
+		}
 		foreach (QChar ch, value)
 		{
 			if (!ch.isDigit() && !ch.isLetter() && ch != '_')

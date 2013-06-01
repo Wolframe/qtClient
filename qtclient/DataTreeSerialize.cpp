@@ -43,7 +43,20 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 	{
 		if (value.at(0) == '{' && value.at(value.size()-1) == '}')
 		{
-			QString propkey = value.mid( 1, value.size()-2);
+			QString propkey = value.mid( 1, value.size()-2).trimmed();
+			bool hasDefaultPropValue = false;
+			QVariant defaultPropValue;
+			int dvidx;
+			if ((dvidx=propkey.indexOf(':')) >= 0)
+			{
+				hasDefaultPropValue = true;
+				QString dv( propkey.mid( dvidx+1, propkey.size()-(dvidx+1)).trimmed());
+				if (dv != "?")
+				{
+					defaultPropValue = dv;
+				}
+				propkey = propkey.mid( 0, dvidx).trimmed();
+			}
 			QVariant prop;
 			if (arrayidx >= 0)
 			{
@@ -89,6 +102,17 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 				else if (prop.isValid())
 				{
 					res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
+				}
+				else if (hasDefaultPropValue)
+				{
+					if (defaultPropValue.isValid())
+					{
+						res.push_back( DataSerializeItem( DataSerializeItem::Value, defaultPropValue.toString()));
+					}
+					else
+					{
+						rt = false;
+					}
 				}
 				else
 				{
