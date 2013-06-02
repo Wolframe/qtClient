@@ -26,7 +26,9 @@ later (cleanups):
 - received line: "@
   CRITICAL: "protocol error. ANSWER/ERR/BYE expected, got: @" 
   => happens if -D DATA is given to wolframd
-  
+  received line: "PT·Server is shutting down. :P" 
+  CRITICAL: "protocol error. ANSWER/ERR/BYE expected, got: PT·SERVER" 
+
 unsorted or maybe obsolete from here:
 
 musts:
