@@ -116,6 +116,7 @@ bool WidgetVisitorState_QTreeWidget::isArrayElement( const QString& name)
 QVariant WidgetVisitorState_QTreeWidget::property( const QString& name)
 {
 	static const QString selected_str( "selected");
+	static const QString unselected_str( "unselected");
 	static const QString id_str( "id");
 	static const QString tooltip_str( "tooltip");
 	if (name == selected_str)
@@ -141,6 +142,20 @@ QVariant WidgetVisitorState_QTreeWidget::property( const QString& name)
 			}
 			return QVariant( idlist);
 		}
+	}
+	else if (name == unselected_str)
+	{
+		QList<QVariant> idlist;
+		QTreeWidgetItemIterator it( m_treeWidget);
+		while (*it)
+		{
+			if (!(*it)->isSelected())
+			{
+				idlist.push_back( (*it)->data( 0, Qt::UserRole));
+			}
+			++it;
+		}
+		return QVariant( idlist);
 	}
 	if (m_stk.isEmpty()) return QVariant();
 	int col = m_headers.indexOf( name);
