@@ -41,6 +41,10 @@
 
 #include "serverDefinitionDialog.hpp"
 
+// if set, when a definition management dialog is created
+// and there are no definitions, a new definition dialog
+// is automatically called
+static const bool AUTO_NEW_DEF_ON_EMPTY = true;
 
 // model
 QVariant ManageServerDefsDialog::DefsListModel::data( const QModelIndex &index, int role ) const
@@ -94,6 +98,8 @@ bool ManageServerDefsDialog::DefsListModel::removeServerDefinition( int position
 		return false;
 }
 
+
+// the dialog
 ManageServerDefsDialog::ManageServerDefsDialog( QVector<ServerDefinition>& params,
 						QString& defaultServer, QWidget *parent ) :
 	QDialog( parent ), ui( new Ui::ManageServerDefsDialog ),
@@ -119,6 +125,15 @@ ManageServerDefsDialog::ManageServerDefsDialog( QVector<ServerDefinition>& param
 ManageServerDefsDialog::~ManageServerDefsDialog()
 {
 	delete ui;
+}
+
+
+// override exec()
+int ManageServerDefsDialog::exec()
+{
+	if ( AUTO_NEW_DEF_ON_EMPTY && m_localParams.empty() )
+		newServerDefinition();
+	return QDialog::exec();
 }
 
 void ManageServerDefsDialog::done( int retCode )

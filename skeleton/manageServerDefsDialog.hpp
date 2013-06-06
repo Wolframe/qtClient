@@ -52,6 +52,9 @@ public:
 					 QString& defaultServer, QWidget *parent = 0 );
 	~ManageServerDefsDialog();
 
+	// override exec()
+	int exec();
+
 private slots:
 	void done( int retCode );
 

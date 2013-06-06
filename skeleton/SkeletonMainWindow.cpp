@@ -224,7 +224,7 @@ void SkeletonMainWindow::login( )
 	LoginDialog* loginDlg = new LoginDialog( username, lastConn,
 						 m_serverDefs, m_defaultServer );
 						 
-	if( loginDlg->specificExec( ) == QDialog::Accepted ) {
+	if( loginDlg->exec( ) == QDialog::Accepted ) {
 // user choose nothing, bail out
 		if( !loginDlg->hasSelectedServer( ) ) {
 			QMessageBox::critical( this, tr( "Parameters error"),

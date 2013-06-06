@@ -73,7 +73,7 @@ LoginDialog::~LoginDialog()
 	delete ui;
 }
 
-int LoginDialog::specificExec()
+int LoginDialog::exec()
 {
 	while ( m_serverDefs.size() == 0 )	{
 		if ( QMessageBox::Ok == QMessageBox::information( this, tr( "Login" ),
@@ -83,7 +83,7 @@ int LoginDialog::specificExec()
 		else
 			return QDialog::Rejected;
 	}
-	return this->exec();
+	return QDialog::exec();
 }
 
 void LoginDialog::manageServers()

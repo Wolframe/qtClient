@@ -56,7 +56,7 @@ public:
 	QString username() const;
 
 public slots:
-	int specificExec();
+	int exec();
 
 private slots:
 	void manageServers();
