@@ -11,7 +11,14 @@ now musts:
     enabled if there is a dynamic boolean property on the window 'storeState'
   - ask the user whether he wants to logout with windows in state
     modified/edited
-  
+
+bugs:
+- sort order is not part of state in table, tree and list widget
+- table[] { x:0; y:0; z:0 } crashes with !isEmpty
+  at DataTreeSerialize.cpp:212
+  212 if (rt.back().type() == DataSerializeItem::OpenTag && ni >= stk.back().tree->size())
+  dito with ? instead of 0, so we can't fake an empty element in a list
+
 later (cleanups):
   - recheck dynamic i18n support
   - serverskeleton, write server session of server data, derive from
