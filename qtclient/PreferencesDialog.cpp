@@ -180,8 +180,8 @@ void PreferencesDialog::loadSettings( )
 			break;
 	}
 
-	m_developer->debug->setChecked( m_settings.debug );
-	m_developer->developer->setChecked( m_settings.developEnabled );
+	m_developer->verboseDebug->setChecked( m_settings.debug );
+	m_developer->developerMode->setChecked( m_settings.developEnabled );
 
 	m_developer->uiFormsDir->setFileName( m_settings.uiFormsDir );
 	m_developer->uiFormTranslationsDir->setFileName( m_settings.uiFormTranslationsDir );
@@ -220,8 +220,8 @@ void PreferencesDialog::apply( )
 	} else if( m_developer->dataLoadModeNetwork->isChecked( ) ) {
 		m_settings.dataLoadMode = LoadMode::NETWORK;
 	}
-	m_settings.debug = m_developer->debug->isChecked( );
-	m_settings.developEnabled = m_developer->developer->isChecked( );
+	m_settings.debug = m_developer->verboseDebug->isChecked( );
+	m_settings.developEnabled = m_developer->developerMode->isChecked( );
 	m_settings.uiFormsDir = m_developer->uiFormsDir->fileName( );
 	m_settings.uiFormTranslationsDir = m_developer->uiFormTranslationsDir->fileName( );
 	m_settings.uiFormResourcesDir = m_developer->uiFormResourcesDir->fileName( );
@@ -287,8 +287,8 @@ void PreferencesDialog::restoreDefaults( )
 		case LoadMode::UNDEFINED:
 			break;
 	}
-	m_developer->debug->setChecked( false );
-	m_developer->developer->setChecked( false );
+	m_developer->verboseDebug->setChecked( false );
+	m_developer->developerMode->setChecked( false );
 	m_developer->uiFormsDir->setFileName( DEFAULT_UI_FORMS_DIR );
 	m_developer->uiFormTranslationsDir->setFileName( DEFAULT_UI_FORM_TRANSLATIONS_DIR );
 	m_developer->uiFormResourcesDir->setFileName( DEFAULT_UI_FORM_RESOURCES_DIR );
