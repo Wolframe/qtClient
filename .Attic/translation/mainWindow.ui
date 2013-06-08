@@ -48,6 +48,7 @@
     </property>
     <addaction name="action_New_Window"/>
     <addaction name="separator"/>
+    <addaction name="actionE_xit"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -80,14 +81,14 @@
     <string>Show the About Qt window</string>
    </property>
   </action>
-  <action name="actionE_xit">
-   <property name="text">
-    <string>E&amp;xit</string>
-   </property>
-  </action>
   <action name="action_New_Window">
    <property name="text">
     <string>&amp;New Window</string>
+   </property>
+  </action>
+  <action name="actionE_xit">
+   <property name="text">
+    <string>E&amp;xit</string>
    </property>
   </action>
  </widget>
