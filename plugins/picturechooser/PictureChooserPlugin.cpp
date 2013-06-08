@@ -111,5 +111,13 @@ void PictureChooserPlugin::initialize( QDesignerFormEditorInterface* /* core */ 
 }
 
 #if QT_VERSION < 0x050000
+#ifdef _WIN32
+#ifdef QT_NO_DEBUG
 Q_EXPORT_PLUGIN2( picturechooser, PictureChooserPlugin )
+#else
+Q_EXPORT_PLUGIN2( picturechooserd, PictureChooserPlugin )
+#endif
+#else
+Q_EXPORT_PLUGIN2( picturechooser, PictureChooserPlugin )
+#endif
 #endif // QT_VERSION < 0x050000

@@ -199,5 +199,13 @@ void FormTestPlugin::gotError( const QString& _tag, const QByteArray& _error )
 }
 
 #if QT_VERSION < 0x050000
+#ifdef _WIN32
+#ifdef QT_NO_DEBUG
 Q_EXPORT_PLUGIN2( formtest, FormTestPlugin )
+#else
+Q_EXPORT_PLUGIN2( formtestd, FormTestPlugin )
+#endif
+#else
+Q_EXPORT_PLUGIN2( formtest, FormTestPlugin )
+#endif
 #endif // QT_VERSION < 0x050000
