@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>322</width>
+    <width>492</width>
     <height>132</height>
    </rect>
   </property>
@@ -17,16 +17,16 @@
    <item row="0" column="0">
     <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="TextRow1_label">
        <property name="text">
         <string>This is a text on the %1 window</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="TextRow2_label">
        <property name="text">
-        <string>This is another text on the %1 window</string>
+        <string>This is another text on the %1 window, in the Default language</string>
        </property>
       </widget>
      </item>
@@ -36,7 +36,7 @@
      <item row="3" column="0" colspan="2">
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="standardButtons">
-        <set>QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Apply|QDialogButtonBox::Close</set>
        </property>
       </widget>
      </item>

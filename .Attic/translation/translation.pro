@@ -8,14 +8,13 @@ SOURCES	=	main.cpp \
 		application.cpp \
 		mainWindow.cpp
 
-FORMS =		mainwindow.ui \
-		mainWindow.ui \
-    childWindow.ui
+FORMS =		mainWindow.ui \
+		childWindow.ui
 
 TRANSLATIONS =	langs/de_de.ts \
 		langs/de_ch.ts \
 		langs/en_gb.ts \
-		langs/en_us.ts \
-		langs/ro_ro.ts \
+		langs/en.ts \
+		langs/ro_ro.ts
 
 RESOURCES =	translation.qrc

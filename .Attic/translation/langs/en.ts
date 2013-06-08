@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_GB">
+<TS version="2.0" language="en">
 <context>
     <name>Dialog</name>
     <message>
@@ -16,7 +16,7 @@
     <message>
         <location filename="../childWindow.ui" line="29"/>
         <source>This is another text on the %1 window, in the Default language</source>
-        <translation>This is another text on the %1 window, in Great Britain English</translation>
+        <translation>This is another text on the %1 window, in English, unspecified country</translation>
     </message>
 </context>
 <context>
