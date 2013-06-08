@@ -144,6 +144,7 @@ class MainWindow : public SkeletonMainWindow
 		void restoreStateAndPositions( );
 		void addDeveloperMenu( );
 		void removeApplicationMenus( );
+		void addGlueMenuAction( QMenu *menu );
 		
 	private slots:
 // menu slots
