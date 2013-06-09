@@ -28,7 +28,7 @@ void Application::loadTranslations( const QDir& dir )
 	QString filter = "*.qm";
 	QDir::Filters filters = QDir::Files | QDir::Readable;
 	QDir::SortFlags sort = QDir::Name;
-	qDebug() << "Translations directory:"<< dir.path();
+	qDebug() << "Translations directory:"<< dir.absolutePath() << "(" << dir.path() << ")";
 	QFileInfoList entries = dir.entryInfoList( QStringList() << filter, filters, sort );
 	foreach ( QFileInfo file, entries )
 	{
