@@ -691,6 +691,7 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 			qDebug( ) << "MENU:" << name << "is a menu, integrating it into menu bar";
 			QList<QMenu *> menus = bar->findChildren<QMenu *>( );
 			foreach( QMenu *menu, menus ) {
+				addGlueMenuAction( menu );
 				QString beforeMenuName = bar->property( "beforeMenu" ).toString( );
 				QAction *glueAction = 0;
 				if( beforeMenuName.isEmpty( ) ) {
@@ -699,7 +700,6 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 				} else {
 					QList<QMenu *> existingMenus = menuBar( )->findChildren<QMenu *>( );
 					foreach( QMenu *m, existingMenus ) {
-// MBa: not needed ?				QAction *action = m->menuAction( );
 						if( m->objectName( ) == beforeMenuName ) {
 							qDebug( ) << "MENU: glueing menu" << menu->title( ) << "before main menu entry" << m->objectName( );
 							glueAction = menuBar( )->insertMenu( m->menuAction( ), menu );
@@ -712,19 +712,23 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 				}
 				if( glueAction ) {
 					m_actions.push_back( glueAction );
-// read dynamic property 'form' and connect it to loadForm calls
-					foreach( QAction *action, menu->actions( ) ) {
-						QString form = action->property( "form" ).toString( );
-						if( !form.isEmpty( ) ) {
-							qDebug( ) << "MENU: linking action" << action->text( ) << "to form call" << form;
-							connect( action, SIGNAL( triggered( ) ),
-								m_menuSignalMapper, SLOT( map( ) ) );
-							MenuEntry *menuEntry = new MenuEntry( form, action->property( "singletonWindow" ).toBool( ) );
-							m_menuSignalMapper->setMapping( action, menuEntry );
-						}
-					}
 				}
 			}
+		}
+	}
+}
+
+void MainWindow::addGlueMenuAction( QMenu *menu )
+{
+// read dynamic property 'form' and connect it to loadForm calls
+	foreach( QAction *action, menu->actions( ) ) {
+		QString form = action->property( "form" ).toString( );
+		if( !form.isEmpty( ) ) {
+			qDebug( ) << "MENU: linking action" << action->text( ) << "to form call" << form;
+			connect( action, SIGNAL( triggered( ) ),
+				m_menuSignalMapper, SLOT( map( ) ) );
+			MenuEntry *menuEntry = new MenuEntry( form, action->property( "singletonWindow" ).toBool( ) );
+			m_menuSignalMapper->setMapping( action, menuEntry );
 		}
 	}
 }
