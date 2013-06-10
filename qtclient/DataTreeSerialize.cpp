@@ -39,6 +39,7 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 {
 	bool rt = true;
 	QString value = stk.back().tree->value().toString();
+	qDebug( ) << "VALUE" << value;
 	if (value.size() > 1)
 	{
 		if (value.at(0) == '{' && value.at(value.size()-1) == '}')
@@ -119,7 +120,7 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 						rt = false;
 					}
 				}
-				else
+				else if( !isOptionalArgument )
 				{
 					qCritical() << "accessing non existing property" << propkey;
 					rt = false;

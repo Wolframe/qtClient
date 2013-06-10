@@ -107,6 +107,11 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 
 	ActionDefinition action( actionstr);
 	qDebug() << "checking action condition properties" << action.condProperties();
+	if( actionstr != action.toString( ) ) {
+		qCritical() << "action is not the same:\n"
+			<< actionstr << "\n"
+			<< action.toString( );
+	}
 	foreach (const QString& cond, action.condProperties())
 	{
 		if (!visitor.property( cond).isValid())
