@@ -39,7 +39,6 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 {
 	bool rt = true;
 	QString value = stk.back().tree->value().toString();
-	qDebug( ) << "VALUE" << value;
 	if (value.size() > 1)
 	{
 		if (value.at(0) == '{' && value.at(value.size()-1) == '}')
@@ -48,7 +47,6 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 			bool hasDefaultPropValue = false;
 			QVariant defaultPropValue;
 			int dvidx;
-			bool isOptionalArgument = false;
 			if ((dvidx=propkey.indexOf(':')) >= 0)
 			{
 				hasDefaultPropValue = true;
@@ -56,10 +54,6 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 				if (dv != "?")
 				{
 					defaultPropValue = dv;
-				}
-				else
-				{
-					isOptionalArgument = true;
 				}
 				propkey = propkey.mid( 0, dvidx).trimmed();
 			}
@@ -91,7 +85,7 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 				{
 					res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
 				}
-				else if( !isOptionalArgument )
+				else
 				{
 					qCritical() << "accessing non existing property" << propkey;
 					rt = false;
@@ -120,7 +114,7 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 						rt = false;
 					}
 				}
-				else if( !isOptionalArgument )
+				else
 				{
 					qCritical() << "accessing non existing property" << propkey;
 					rt = false;

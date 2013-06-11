@@ -32,7 +32,7 @@
 ************************************************************************/
 #include "DataTree.hpp"
 #include <QDebug>
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_ERROR( COMP, TITLE, LINE)			qDebug() << "DataTree" << (COMP) << "error" << (TITLE) << "at line" << (LINE);
 #define TRACE_STATE( COMP, TITLE)			qDebug() << "DataTree" << (COMP) << "state" << (TITLE);
@@ -281,21 +281,8 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 					QString::const_iterator start = is;
 					skipBrk( is, es);
 					if (is != es) is++;
-					QString attrvar = QString( start, is-start).trimmed();
-					int dd;
-					if ((dd=attrvar.indexOf(':')) >= 0)
-					{
-						QString defaultvaluestr = attrvar.mid( dd+1, attrvar.size()-dd-2);
-						rt.m_defaultvalue = QVariant( defaultvaluestr);
-						rt.m_defaultValue_initialized = true;
-						attrvar = attrvar.mid( 0, dd);
-						attrvar.append( "}");
-					}
-					TRACE_OBJECT( "fromString", "brk attribute", attrvar);
-					if( rt.m_defaultValue_initialized) {
-						TRACE_OBJECT( "fromString", "default attribute value", rt.m_defaultvalue);
-					}
-					rt.addAttribute( nodename, DataTree( QVariant( attrvar)));
+					TRACE_OBJECT( "fromString", "brk attribute", QString( start, is-start));
+					rt.addAttribute( nodename, DataTree( QVariant( QString( start, is-start))));
 				}
 				else
 				{
@@ -346,16 +333,13 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 			{
 				QString defaultvaluestr = nodevar.mid( dd+1, nodevar.size()-dd-1);
 				rt.m_defaultvalue = QVariant( defaultvaluestr);
-				rt.m_defaultValue_initialized = true;
 				nodevar = nodevar.mid( 0, dd);
 			}
 			nodevalue.push_back( '{');
 			nodevalue.append( nodevar);
 			nodevalue.push_back( '}');
 			TRACE_OBJECT( "fromString", "curly bracket value", nodevalue);
-			if( rt.m_defaultValue_initialized) {
-				TRACE_OBJECT( "fromString", "default value", rt.m_defaultvalue);
-			}
+			TRACE_OBJECT( "fromString", "default value", rt.m_defaultvalue);
 			if (rt.m_value.isValid())
 			{
 				TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
@@ -392,7 +376,7 @@ DataTree DataTree::fromString( const QString& str)
 	return fromString( str.begin(), str.end());
 }
 
-bool DataTree::mapDataValueToString( const QVariant& val, const QVariant& def, bool defValid, QString& str)
+bool DataTree::mapDataValueToString( const QVariant& val, QString& str)
 {
 	TRACE_ITEM( "toString", "value variant", val)
 	QString valstr = val.toString();
@@ -414,17 +398,7 @@ bool DataTree::mapDataValueToString( const QVariant& val, const QVariant& def, b
 	if (vi == ve && !hasSQuotes && !hasDQuotes)
 	{
 		TRACE_OBJECT( "toString", "value without spaces", valstr)
-		// why does valstr contain '{', '}', isn't that part of the grammar?!
-		if( !defValid)
-		{
-			str.append( '{');
-			str.append( valstr.mid( 1, valstr.size()-2));
-			str.append( ':');
-			str.append( def.toString());
-			str.append( '}');
-		} else {
-			str.append( valstr );
-		}
+		str.append( valstr);
 	}
 	else if (!hasDQuotes)
 	{
@@ -445,11 +419,6 @@ bool DataTree::mapDataValueToString( const QVariant& val, const QVariant& def, b
 		TRACE_OBJECT( "toString", "value in curly brackets", valstr)
 		str.push_back( '{');
 		str.append( valstr);
-		if( !defValid)
-		{
-			str.append( ':');
-			str.append( def.toString());
-		}
 		str.push_back( '}');
 	}
 	return true;
@@ -460,7 +429,7 @@ bool DataTree::mapDataTreeToString( const DataTree& dt, QString& str)
 	if (dt.m_value.isValid())
 	{
 		TRACE_STATE( "toString", "map node value")
-		return mapDataValueToString( dt.m_value, dt.m_defaultvalue, dt.m_defaultValue_initialized, str);
+		return mapDataValueToString( dt.m_value, str);
 	}
 	QList<DataTree::Node>::const_iterator ni = dt.m_nodear.begin(), ne = dt.m_nodear.end();
 	for (; ni != ne; ++ni)

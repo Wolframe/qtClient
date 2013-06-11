@@ -51,7 +51,7 @@ public:
 	}
 
 	explicit DataTree( ElementType elemtype_=Invalid)
-		:m_elemtype(elemtype_),m_value_initialized(false),m_defaultValue_initialized(false),m_nofattributes(0){}
+		:m_elemtype(elemtype_),m_value_initialized(false),m_nofattributes(0){}
 	DataTree( const DataTree& o)
 		:m_elemtype(o.m_elemtype),m_value_initialized(o.m_value_initialized),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
 	DataTree( const QVariant& value_)
@@ -89,7 +89,7 @@ public:
 private:
 	static QString parseString( QString::const_iterator& itr, const QString::const_iterator& end);
 	static bool mapDataTreeToString( const DataTree& dt, QString& str);
-	static bool mapDataValueToString( const QVariant& val, const QVariant& def, bool defValid, QString& str);
+	static bool mapDataValueToString( const QVariant& val, QString& str);
 	static ElementType parseNodeHeader( QString& nodename, QString::const_iterator& itr, const QString::const_iterator& end);
 
 private:
@@ -108,7 +108,6 @@ private:
 	ElementType m_elemtype;
 	bool m_value_initialized;
 	QVariant m_value;
-	bool m_defaultValue_initialized;
 	QVariant m_defaultvalue;
 	QList<Node> m_nodear;
 	int m_nofattributes;
