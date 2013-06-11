@@ -107,7 +107,9 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 
 	ActionDefinition action( actionstr);
 	qDebug() << "checking action condition properties" << action.condProperties();
-	if( actionstr != action.toString( ) ) {
+	QString a = actionstr;	
+	QString b = action.toString( );
+	if( a.replace( " ", "" ) != b.replace( " ", "" ) ) {
 		qCritical() << "action is not the same:\n"
 			<< actionstr << "\n"
 			<< action.toString( );
