@@ -215,10 +215,6 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, W
 		{
 			if (!mapValue( rt, visitor, stk, arrayidx))
 			{
-				if (rt.isEmpty())
-				{
-					// what to do here?
-				}
 				if (rt.back().type() == DataSerializeItem::OpenTag && ni >= stk.back().tree->size())
 				{
 					rt.pop_back();
