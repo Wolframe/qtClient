@@ -49,10 +49,13 @@ QByteArray getDataXML( const QString& docType, const QString& rootElement, bool 
 				++ie;
 				if (ie == ee || ie->type() != DataSerializeItem::Value)
 				{
-					qCritical() << "producing illegal XML: expecting an actual value for attribute " << attribute.toString( );
-					return QByteArray();
+					// not having a value for a key is not fatal, we just don't produce
+					// the attribute into the elemend
 				}
-				xml.writeAttribute( attribute.toString(), ie->value().toString());
+				else
+				{
+					xml.writeAttribute( attribute.toString(), ie->value().toString());
+				}
 				break;
 
 			case DataSerializeItem::Value:
