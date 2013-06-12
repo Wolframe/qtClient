@@ -52,7 +52,7 @@ AGAIN:
 				if (ie == ee || ie->type() != DataSerializeItem::Value)
 				{
 					// not having a value for a key is not fatal, we just don't produce
-					// the attribute into the elemend
+					// the attribute into the element
 					goto AGAIN;
 				}
 				else
