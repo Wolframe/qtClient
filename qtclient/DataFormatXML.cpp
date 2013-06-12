@@ -33,6 +33,8 @@ QByteArray getDataXML( const QString& docType, const QString& rootElement, bool 
 	QList<DataSerializeItem>::const_iterator ie = elements.begin(), ee = elements.end();
 	for (; ie != ee; ++ie)
 	{
+AGAIN:
+		qDebug() << "element" << (*ie).toString( );
 		QVariant attribute;
 		switch (ie->type())
 		{
@@ -51,6 +53,7 @@ QByteArray getDataXML( const QString& docType, const QString& rootElement, bool 
 				{
 					// not having a value for a key is not fatal, we just don't produce
 					// the attribute into the elemend
+					goto AGAIN;
 				}
 				else
 				{

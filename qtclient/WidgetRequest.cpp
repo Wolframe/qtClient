@@ -133,6 +133,9 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 	}
 	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), visitor);
 	rt.cmd = action.command();
+	foreach( DataSerializeItem element, elements ) {
+		qDebug() << "element" << element.toString();
+	}
 	rt.content = getDataXML( docType, rootElement, isStandalone, elements, debugmode);
 	return rt;
 }
