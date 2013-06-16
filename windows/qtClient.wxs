@@ -91,11 +91,13 @@ Project Wolframe.
 
 							<Component Id="WolframeQtPlugins" Guid="{c56a06a0-4437-4a27-b347-63e61c38c26c}">
 								<?ifdef var.debug?>
+									<File Id="filechooser.dll" Name="filechooser.dll" DiskId="1" Source="..\plugins\filechooser\$(var.builddir)\filechooserd.dll"/>
+									<File Id="picturechooser.dll" Name="picturechooser.dll" DiskId="1" Source="..\plugins\picturechooser\$(var.builddir)\picturechooserd.dll"/>
 									<File Id="filechooserd.dll" Name="filechooserd.dll" DiskId="1" Source="..\plugins\filechooser\$(var.builddir)\filechooserd.dll"/>
 									<File Id="picturechooserd.dll" Name="picturechooserd.dll" DiskId="1" Source="..\plugins\picturechooser\$(var.builddir)\picturechooserd.dll"/>
 								<?else?>
 									<File Id="filechooser.dll" Name="filechooser.dll" DiskId="1" Source="..\plugins\filechooser\$(var.builddir)\filechooser.dll"/>
-									<File Id="filechooser.dll" Name="picturechhoser.dll" DiskId="1" Source="..\plugins\picturechhoser\$(var.builddir)\picturechhoser.dll"/>
+									<File Id="picturechooser.dll" Name="picturechhoser.dll" DiskId="1" Source="..\plugins\picturechhoser\$(var.builddir)\picturechhoser.dll"/>
 								<?endif?>
 							</Component>
 							

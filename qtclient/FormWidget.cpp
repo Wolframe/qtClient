@@ -174,12 +174,11 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 
 		if (nextForm == "_RESET_")
 		{
-			emit closed();
-
 			//... _RESET_ calls loadForm with the top form of the
 			//     form stack and an empty formstate
 			if (m_modal)
 			{
+				// Aba: why should that be illegal!?
 				qCritical() << "illegal _RESET_ load of modal dialog";
 			}
 			else

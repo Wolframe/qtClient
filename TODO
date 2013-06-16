@@ -1,16 +1,4 @@
 now musts:
-- selection in table widget (PF)
-- reload leads to a second form in MDI window, cancel
-  closes the first form!
-  (dito reset) (PF,ABa)
-- status handling (ABa)
-  - show a '*' edited/modified in window title
-  - make window.title a widget path for setting the name of the edited
-    object (MDI standard)
-  - storing of the current state (data) should be optional and only
-    enabled if there is a dynamic boolean property on the window 'storeState'
-  - ask the user whether he wants to logout with windows in state
-    modified/edited
 
 bugs:
 - sort order is not part of state in table, tree and list widget
@@ -18,21 +6,55 @@ bugs:
   at DataTreeSerialize.cpp:212
   212 if (rt.back().type() == DataSerializeItem::OpenTag && ni >= stk.back().tree->size())
   dito with ? instead of 0, so we can't fake an empty element in a list
+- we can have multiple selection boxes for the same edit window with
+  lost link behaviour, leads also to error message:
+  CRITICAL: error widget visitor "QLabel" "component_edit.manufacturer" ambiguus widget link reference : "component_edit:1281_manufacturer" 
+- seen races between closing of windows (when clicking very fast,
+  hard to reproduce)
+- extremly funny messages, aren't '?' values default values there
+  to substitute the value, if the property doesn't exist:  
+  CRITICAL: element not initialized in answer: "image" at "/picture" 
+  CRITICAL: accessing non existing property "main.image.size:?" 
+  CRITICAL: accessing non existing property "main.tags.item.id:?" 
+  CRITICAL: accessing non existing property "main.image.size:?" 
+  CRITICAL: accessing non existing property "main.image.size:?" 
+- hard to understand for a developer to put certain dynamic properties
+  to widget to avoid error messages like:
+  CRITICAL: set a dynamic property of QLabel "picture_info_form.image" that is not predefined: "base64" QVariant(QString, "/9j/4AAQSkZJRgABAgAAZABkAAD/7AARRHVja3kAAQAEAAAAPAAA/+4ADkFk...") 
+  CRITICAL: ERROR:  "-add:266" "REQUEST error in transaction addPicture: invalid input syntax for integer: "" LINE 1: ...NSERT INTO PictureTag( pictureID, tagID ) VALUES( '79', '' )                                                                    ^" 
+  CRITICAL: ERROR:  "-save:326" "REQUEST error in transaction updatePicture: invalid input syntax for integer: "" LINE 1: ...NSERT INTO PictureTag( pictureID, tagID ) VALUES( '80', '' )                                             
+- state:enabled is ignored if there is a 'form' dyn. property (or better put: the
+  form condition takes precedence over the explicit state condition)
+- syntax error: code {?}; leads to completly misleading error message:
+  CRITICAL: attribute not defined in answer description: "id" at ""
 
 later (cleanups):
-  - recheck dynamic i18n support
-  - serverskeleton, write server session of server data, derive from
-    this class, add sessions for qtclient
-  - libqtwolframeclient cleanup
-  - libraries for request construction and answer interpretation
-    - the one using visitors
-  - plugins using visitors, how to respect plugin interface there?
-  - CRITICAL: element not defined in answer description: QVariant(QString, "picture") at "" 
-    => add the name of the affected widget here!
-
+- readd status indicator (hourglass cursor)
+- how things are coupled in two multiple request cases:
+  'answer' should fit to 'action'
+  'action:select_picture' to 'answer:select_picture'
+- status handling (ABa)
+  - QTableWidget: state contains the manually changed rulers in the header
+    (for column size), not kept
+  - show a '*' edited/modified in window title
+  - make window.title a widget path for setting the name of the edited
+    object (MDI standard)
+  - storing of the current state (data) should be optional and only
+    enabled if there is a dynamic boolean property on the window 'storeState'
+  - ask the user whether he wants to logout with windows in state
+    modified/edited
+- recheck dynamic i18n support
+- serverskeleton, write server session of server data, derive from
+  this class, add sessions for qtclient
+- libqtwolframeclient cleanup
+- libraries for request construction and answer interpretation
+  - the one using visitors
+- plugins using visitors, how to respect plugin interface there?
+- CRITICAL: element not defined in answer description: QVariant(QString, "picture") at "" 
+  => add the name of the affected widget here!
 - received line: "@
   CRITICAL: "protocol error. ANSWER/ERR/BYE expected, got: @" 
-  => happens if -D DATA is given to wolframd
+ => happens if -D DATA is given to wolframd
   received line: "PT·Server is shutting down. :P" 
   CRITICAL: "protocol error. ANSWER/ERR/BYE expected, got: PT·SERVER" 
 

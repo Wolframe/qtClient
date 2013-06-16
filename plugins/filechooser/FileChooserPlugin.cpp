@@ -111,13 +111,5 @@ void FileChooserPlugin::initialize( QDesignerFormEditorInterface* /* core */ )
 }
 
 #if QT_VERSION < 0x050000
-#ifdef _WIN32
-#ifdef QT_NO_DEBUG
 Q_EXPORT_PLUGIN2( filechooser, FileChooserPlugin )
-#else
-Q_EXPORT_PLUGIN2( filechooserd, FileChooserPlugin )
-#endif
-#else
-Q_EXPORT_PLUGIN2( filechooser, FileChooserPlugin )
-#endif
 #endif // QT_VERSION < 0x050000

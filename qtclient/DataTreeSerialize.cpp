@@ -47,6 +47,7 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 			bool hasDefaultPropValue = false;
 			QVariant defaultPropValue;
 			int dvidx;
+			bool isOptionalPropValue = false;
 			if ((dvidx=propkey.indexOf(':')) >= 0)
 			{
 				hasDefaultPropValue = true;
@@ -54,6 +55,11 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 				if (dv != "?")
 				{
 					defaultPropValue = dv;
+					isOptionalPropValue = false;
+				}
+				else
+				{
+					isOptionalPropValue = true;
 				}
 				propkey = propkey.mid( 0, dvidx).trimmed();
 			}
@@ -85,7 +91,7 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 				{
 					res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
 				}
-				else
+				else if (!isOptionalPropValue)
 				{
 					qCritical() << "accessing non existing property" << propkey;
 					rt = false;

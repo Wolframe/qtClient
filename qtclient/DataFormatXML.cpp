@@ -33,6 +33,8 @@ QByteArray getDataXML( const QString& docType, const QString& rootElement, bool 
 	QList<DataSerializeItem>::const_iterator ie = elements.begin(), ee = elements.end();
 	for (; ie != ee; ++ie)
 	{
+AGAIN:
+		qDebug() << "element" << (*ie).toString( );
 		QVariant attribute;
 		switch (ie->type())
 		{
@@ -49,10 +51,14 @@ QByteArray getDataXML( const QString& docType, const QString& rootElement, bool 
 				++ie;
 				if (ie == ee || ie->type() != DataSerializeItem::Value)
 				{
-					qCritical() << "producing illegal XML";
-					return QByteArray();
+					// not having a value for a key is not fatal, we just don't produce
+					// the attribute into the element
+					goto AGAIN;
 				}
-				xml.writeAttribute( attribute.toString(), ie->value().toString());
+				else
+				{
+					xml.writeAttribute( attribute.toString(), ie->value().toString());
+				}
 				break;
 
 			case DataSerializeItem::Value:
