@@ -537,7 +537,7 @@ static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTr
 			}
 		}
 	}
-	qDebug( ) << "computed array size for" << datanode->toString( ) << "as" << arraysize;
+	//~ qDebug( ) << "computed array size for" << datanode->toString( ) << "as" << arraysize;
 	return true;
 }
 
@@ -618,8 +618,8 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 				}
 				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
 				arraydimar.push_back( (arraysize>1)?arraysize:1);
-				qDebug( ) << "prefix" << prefix.toString( ) <<", arraysize" << arraysize << ", arrayinc" << arrayinc << ", division" << arraysize/arrayinc;
-				rt.push_back( WidgetDataAssignmentInstr( arraysize/arrayinc, prefix.toString()));
+				//~ qDebug( ) << "prefix" << prefix.toString( ) <<", arraysize" << arraysize << ", arrayinc" << arrayinc << ", division" << arraysize/arrayinc;
+				rt.push_back( WidgetDataAssignmentInstr( arraysize /* Aba: don't get the point !! /arrayinc*/, prefix.toString()));
 				prefixstk.push_back( prefix.toString());
 			}
 			stk.push_back( JoinAssignStackElem( schemanode, datanode));
