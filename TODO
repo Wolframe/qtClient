@@ -29,6 +29,9 @@ bugs:
   CRITICAL: attribute not defined in answer description: "id" at ""
 
 later (cleanups):
+- QTreeWidget:
+  - width of columns are adapted when data changes, this is not always
+    what you want (see category_edit feature associations)
 - better syntax and model for
   - selected_min, select_id:
     - selected.id, selected.<property>, can't access properties for	!!
