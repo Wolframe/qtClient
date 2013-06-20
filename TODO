@@ -29,6 +29,11 @@ bugs:
   CRITICAL: attribute not defined in answer description: "id" at ""
 
 later (cleanups):
+- better syntax and model for
+  - selected_min, select_id:
+    - selected.id, selected.<property>, can't access properties for	!!
+      the selected row/item. better would be a syntax like
+      widget.selected_row.id, widget.selected_row.id.minQuantity, etc.
 - readd status indicator (hourglass cursor)
 - how things are coupled in two multiple request cases:
   'answer' should fit to 'action'

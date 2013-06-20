@@ -142,6 +142,21 @@ QVariant WidgetVisitorState_QTreeWidget::property( const QString& name)
 			}
 			return QVariant( idlist);
 		}
+// ABa: This needs discussion and a better model (and syntax)
+	} else if( name.startsWith( "selected_" ) ) {
+		QList<QString> parts = name.split( '_' );
+		if( m_treeWidget->selectionMode( ) == QAbstractItemView::SingleSelection ) {
+			int col = m_headers.indexOf( parts[1] );
+			foreach( const QTreeWidgetItem* sel, m_treeWidget->selectedItems( ) ) {
+				if( col != -1 ) {
+					return sel->data( col, Qt::DisplayRole );
+				} else if( parts[1] == "id" ) {
+					return sel->data( 0, Qt::UserRole );
+				}
+			}
+		} else {
+			qCritical( ) << "Multiple selection subproperties not supported";
+		}
 	}
 	else if (name == unselected_str)
 	{
