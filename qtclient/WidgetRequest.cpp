@@ -524,13 +524,13 @@ static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& res
 {
 	bool rt = true;
 	ActionResultDefinition resultdef( resultschema);
-	//~ qDebug( ) << "answer (as string): " << resultschema;
-	//~ qDebug( ) << "answer (structure, tostring): " << resultdef.toString( );	
+	qDebug( ) << "answer (as string): " << resultschema;
+	qDebug( ) << "answer (structure, tostring): " << resultdef.toString( );	
 
 	QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
-	//~ foreach( DataSerializeItem item, itemlist ) {
-		//~ qDebug( ) << "data serialization structure: " << item.toString( );
-	//~ }
+	foreach( DataSerializeItem item, itemlist ) {
+		qDebug( ) << "data serialization structure: " << item.toString( );
+	}
 	
 	visitor.clear();
 	qDebug() << "feeding widget " << visitor.objectName() << "with validated answer";
