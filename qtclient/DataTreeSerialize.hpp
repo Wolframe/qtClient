@@ -61,6 +61,13 @@ struct WidgetDataAssignmentInstr
 		:type(Assign),arraysize(0),name(name_),value(value_){}
 	WidgetDataAssignmentInstr( const WidgetDataAssignmentInstr& o)
 		:type(o.type),arraysize(o.arraysize),name(o.name),value(o.value){}
+
+public:
+	QString toString() const {
+		return QString( "type: %1, arrsize: %2, name: %3, value: %4" )
+			.arg( typeName( type ) )
+			.arg( arraysize ).arg( name ).arg( value.toString( ) );
+	}
 };
 
 QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schematree, const QList<DataSerializeItem>& answer);
