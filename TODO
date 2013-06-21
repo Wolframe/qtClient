@@ -5,6 +5,10 @@ now musts:
   (if that option is choosen)
   
 bugs:
+- state of toolbars (enabled/disabled) is not stored into the settings
+  and restored from them
+- answer: can't ignore subtrees with a question mark on a higher
+  level element, would be nice
 - sort order is not part of state in table, tree and list widget
 - table[] { x:0; y:0; z:0 } crashes with !isEmpty
   at DataTreeSerialize.cpp:212
