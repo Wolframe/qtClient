@@ -1,5 +1,9 @@
 now musts:
-
+- selection in QTable still doesn't work after sort operations
+- illegal use of Qt::UserRole and no Qt::DisplayRole to show elements, must
+  be Qt::DisplayRole for all normal data, Qt::UserRole for hidden id only
+  (if that option is choosen)
+  
 bugs:
 - sort order is not part of state in table, tree and list widget
 - table[] { x:0; y:0; z:0 } crashes with !isEmpty
