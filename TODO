@@ -5,6 +5,9 @@ now musts:
   (if that option is choosen)
   
 bugs:
+- viewport in QTableWidget doesn't show currently selected item
+- non-existing dataslots get triggered without warning:
+  reload triggered of "QTreeWidget" "required_components" on dataslot "add_component_required" 
 - state of toolbars (enabled/disabled) is not stored into the settings
   and restored from them
 - answer: can't ignore subtrees with a question mark on a higher
