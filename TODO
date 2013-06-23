@@ -1,10 +1,26 @@
 now musts:
+
+bugs:
+- form plugin:
+  - how can we execute form calls, like _CLOSE_ (the one we need now)
+  - respect WindowModality flag of generated widget
 - selection in QTable still doesn't work after sort operations
 - illegal use of Qt::UserRole and no Qt::DisplayRole to show elements, must
   be Qt::DisplayRole for all normal data, Qt::UserRole for hidden id only
   (if that option is choosen)
-  
-bugs:
+- segfault when configurator plugin is open and wolframed runs away, this is
+  iterating widget for states which are never defined for the handwritten plugin:
+#0  0xb6b1d020 in qt_qFindChildren_helper(QObject const*, QString const&, QRegExp const*, QMetaObject const&, QList<void*>*) () from /usr/lib/libQtCore.so.4
+#1  0x0807b3c7 in QObject::findChildren<QWidget*> (this=0x92684c0, aName=...)
+    at /usr/include/qt4/QtCore/qobject.h:170
+#2  0x08076f3d in WidgetTree::getWidgetStates (this=0x9248c68) at WidgetTree.cpp:171
+#3  0x080bf335 in FormWidget::getWidgetStates (this=0x9248c20) at FormWidget.cpp:530
+#4  0x08067047 in MainWindow::storeStateAndPositions (this=0xbfc21a8c) at MainWindow.cpp:982
+#5  0x080690b6 in MainWindow::logout (this=0xbfc21a8c) at MainWindow.cpp:1287
+#6  0xb7765bf0 in SkeletonMainWindow::on_actionLogout_triggered (this=0xbfc21a8c)
+    at SkeletonMainWindow.cpp:277
+#7  0xb7775acf in SkeletonMainWindow::qt_static_metacall (_o=0xbfc21a8c, 
+    _c=QMetaObject::InvokeMetaMethod, _id=9, _a=0xbfc21088) at moc_SkeletonMainWindow.cpp:74
 - QLabel: id is not part of the state (see category_add with recipe.id)
 - viewport in QTableWidget doesn't show currently selected item
 - non-existing dataslots get triggered without warning:
