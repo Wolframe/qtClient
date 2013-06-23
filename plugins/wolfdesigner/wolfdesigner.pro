@@ -34,7 +34,7 @@ SOURCES += \
 	WolfDesignerPlugin.cpp \
 	WolfDesignerMenu.cpp \
 	WolfDesignerDialog.cpp
-	
+
 HEADERS += \
 	WolfDesignerPlugin.hpp \
 	WolfDesignerMenu.hpp \

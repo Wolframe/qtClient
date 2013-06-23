@@ -1,7 +1,7 @@
 - qtrans set when storing values over the form cursor
 - how to create new dynamic properties, when they don't
   exist yet
-- how to not set teh default action to the new action
+- how to not set the default action to the new action
   (e.g. keep the default edit action as "edit text")
 - how to notify the property sheet that something has
   changed and how to trigger that (the cursor doesn't!)?

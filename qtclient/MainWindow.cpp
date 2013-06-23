@@ -93,7 +93,7 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 void MainWindow::loadMenuForm( QObject *obj )
 {
 	MenuEntry *menuEntry = qobject_cast<MenuEntry *>( obj );
-	
+
 	qDebug( ) << "MENU: form call" << menuEntry;
 
 	if( settings.mdi ) {
@@ -216,7 +216,7 @@ static LPWSTR s2ws( const char *s )
 	int slength = (int)strlen( s );
 	len = MultiByteToWideChar( CP_ACP, 0, s, slength, 0, 0 );
 	wchar_t *buf = new wchar_t[len+1];
-	
+
 	MultiByteToWideChar( CP_ACP, 0, s, slength, buf, len );
 	buf[len] = 0;
 	return buf;
@@ -318,7 +318,7 @@ void MainWindow::parseArgs( )
 void MainWindow::create( )
 {
 	SkeletonMainWindow::create( );
-	
+
 // install custom output handler (mainly for Unix debugging)
 #if QT_VERSION >= 0x050000
 	qInstallMessageHandler( &myMessageOutput );
@@ -421,7 +421,7 @@ void MainWindow::create( )
 	loadLanguages( );
 
 // load language resources, repaints the whole interface if necessary
-	loadLanguage( m_language );	
+	loadLanguage( m_language );
 }
 
 void MainWindow::CreateFormWidget( const QString &name )
@@ -531,18 +531,18 @@ void MainWindow::disconnected( )
 		delete m_dataLoader;
 		m_dataLoader = 0;
 	}
-	
+
 	if( m_terminating ) {
 		close( );
 	}
-	
+
 	SkeletonMainWindow::disconnected( );
 }
 
 void MainWindow::authOk( )
 {
 	SkeletonMainWindow::authOk( );
-	
+
 // create network based form ...
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
 		m_formLoader = new NetworkFormLoader( m_wolframeClient );
@@ -683,7 +683,7 @@ void MainWindow::menuLoaded( QString name, QByteArray menu )
 	QWidget *ui = m_uiLoader->load( &buf, 0 );
 
 // read the UI and glue the menu into the main menu bar
-// TODO: a menu can be edited only in a QMainWindow for now	
+// TODO: a menu can be edited only in a QMainWindow for now
 	QMainWindow *w = qobject_cast<QMainWindow *>( ui );
 	if( w ) {
 		QMenuBar *bar = qobject_cast<QMenuBar *>( w->menuWidget( ) );
@@ -748,7 +748,7 @@ void MainWindow::menuListLoaded( QStringList menus )
 	foreach( QString menu, menus ) {
 		m_formLoader->initiateMenuLoad( menu );
 	}
-	
+
 	disconnect( m_formLoader, SIGNAL( menuLoaded( QString, QByteArray ) ),
 		this, SLOT( menuLoaded( QString, QByteArray ) ) );
 }
@@ -765,7 +765,7 @@ void MainWindow::endModal( )
 	if( m_modalDialogClosed ) return;
 
 	m_modalDialogClosed = true;
-	
+
 	qDebug( ) << "endModal";
 
 // restore wiring in main frame
@@ -782,7 +782,7 @@ void MainWindow::endModal( )
 
 // this triggers endModal a second time!
 	m_modalDialog->close( );
-	m_modalDialog->deleteLater( );	
+	m_modalDialog->deleteLater( );
 }
 
 void MainWindow::formNewWindow( QString name )
@@ -833,7 +833,7 @@ void MainWindow::formModal( QString name )
 		this, SLOT( endModal( ) ) );
 
 	m_modalDialogClosed = false;
-	
+
 	m_modalDialog->show( );
 }
 
@@ -916,7 +916,7 @@ void MainWindow::on_actionExit_triggered( )
 
 		close( );
 	}
-	
+
 	storeSettings( );
 }
 
@@ -1008,7 +1008,7 @@ void MainWindow::storeSettings( )
 	}
 
 // store them to the configuration file or the default configuration
-// file respectively registry	
+// file respectively registry
 	if( m_settings.isEmpty( ) ) {
 		settings.write( ORGANIZATION_NAME, APPLICATION_NAME );
 	} else {
@@ -1060,7 +1060,7 @@ void MainWindow::on_actionReload_triggered( )
 // -- MDI mode
 
 QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, const bool newWindow, const bool openAtCursorPosition )
-{	
+{
 	FormWidget *formWidget = new FormWidget( m_formLoader, m_dataLoader, &m_globals, m_uiLoader, this, settings.debug, settings.uiFormsDir, m_wolframeClient, settings.mdi );
 
 	connect( formWidget, SIGNAL( formLoaded( QString ) ),
@@ -1101,7 +1101,7 @@ QMdiSubWindow *MainWindow::CreateMdiSubWindow( const QString &form, const bool n
 		}
 		mdiSubWindow->move( pos );
 	}
-	
+
 	updateMenusAndToolbars( );
 
 	return mdiSubWindow;
@@ -1159,7 +1159,7 @@ int MainWindow::nofSubWindows( ) const
 void MainWindow::updateMdiMenusAndToolbars( )
 {
 	if( !m_mdiArea ) return;
-	
+
 // present new form menu entry if logged in
 	activateAction( "actionOpenFormNewWindow",
 		( settings.uiLoadMode == LoadMode::FILE && settings.dataLoadMode == LoadMode::FILE ) ||
@@ -1259,7 +1259,7 @@ void MainWindow::updateMenusAndToolbars( )
 void MainWindow::login( )
 {
 	SkeletonMainWindow::login( );
-	
+
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
 		m_debugTerminal = new DebugTerminal( m_wolframeClient, this );
@@ -1298,14 +1298,14 @@ void MainWindow::logout( )
 		delete m_formWidget;
 		m_formWidget = 0;
 	}
-	
+
 	SkeletonMainWindow::logout( );
 }
 
 void MainWindow::error( QString error )
 {
 	SkeletonMainWindow::error( error );
-	
+
 	if( settings.mdi ) {
 		if( !m_wolframeClient->isConnected( ) ) {
 			if( !m_modalDialogClosed ) {
@@ -1363,15 +1363,15 @@ void MainWindow::addDeveloperMenu( )
 	m_debugTerminalAction->setCheckable( true );
 	m_debugTerminalAction->setShortcut( QKeySequence( "Ctrl+Alt+D" ) );
 	developerMenu->addAction( m_debugTerminalAction );
-	
+
 	developerMenu->addSeparator( );
-	
+
 	QAction *m_openFormAction = new QAction( tr( "&Open form" ), this );
 	m_openFormAction->setObjectName( QString::fromUtf8( "actionOpenForm") );
 	m_openFormAction->setStatusTip( tr( "Open form in current window" ) );
 	m_openFormAction->setEnabled( false );
 	developerMenu->addAction( m_openFormAction );
-	
+
 	QAction *m_openFormNewWindowAction = new QAction( tr( "Open form in &new window" ), this );
 	m_openFormNewWindowAction->setStatusTip( tr( "Open form in a new window" ) );
 	m_openFormNewWindowAction->setObjectName( QString::fromUtf8( "actionOpenFormNewWindow") );

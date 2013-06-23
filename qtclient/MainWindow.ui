@@ -36,7 +36,7 @@
      <x>0</x>
      <y>0</y>
      <width>607</width>
-     <height>19</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -164,18 +164,6 @@
    <addaction name="actionPreviousWindow"/>
    <addaction name="actionNextWindow"/>
   </widget>
-  <action name="actionOpen">
-   <property name="icon">
-    <iconset>
-     <normaloff>../../../../../../../../../../home/abaumann/.designer/backup/open.png</normaloff>../../../../../../../../../../home/abaumann/.designer/backup/open.png</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Open</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
   <action name="actionExit">
    <property name="icon">
     <iconset resource="qtclient.qrc">
@@ -213,20 +201,6 @@
     <enum>QAction::AboutQtRole</enum>
    </property>
   </action>
-  <action name="actionDebugTerminal">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Debug Terminal</string>
-   </property>
-   <property name="iconText">
-    <string>Debug Terminal</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+D</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="icon">
     <iconset resource="qtclient.qrc">
@@ -243,19 +217,6 @@
    </property>
    <property name="defaultShortcut" stdset="0">
     <string notr="true">QKeySequence::Preferences</string>
-   </property>
-  </action>
-  <action name="actionManageStorage">
-   <property name="text">
-    <string>&amp;Manage Storage</string>
-   </property>
-  </action>
-  <action name="actionRestart">
-   <property name="text">
-    <string>&amp;Restart</string>
-   </property>
-   <property name="toolTip">
-    <string>Restart the Wolframe client</string>
    </property>
   </action>
   <action name="actionContents">
@@ -546,7 +507,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="qtclient.qrc">
+    <iconset resource="../example/example.qrc">
      <normaloff>:/images/login.png</normaloff>:/images/login.png</iconset>
    </property>
    <property name="text">
@@ -561,7 +522,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="qtclient.qrc">
+    <iconset resource="../example/example.qrc">
      <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
    </property>
    <property name="text">
@@ -605,16 +566,9 @@
     <string>English</string>
    </property>
   </action>
-  <action name="action_Close_form">
-   <property name="text">
-    <string>&amp;Close form</string>
-   </property>
-   <property name="defaultShortcut" stdset="0">
-    <string>QKeySequence::Close</string>
-   </property>
-  </action>
  </widget>
  <resources>
+  <include location="../example/example.qrc"/>
   <include location="qtclient.qrc"/>
  </resources>
  <connections/>

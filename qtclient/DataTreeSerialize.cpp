@@ -611,14 +611,14 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 					qCritical() << "no common prefix for elements in array";
 				}
 				int arraysize = -1;
-				int arrayinc = 1;
+//~				int arrayinc = 1;
 				if (!getArraySize( arraysize, datanode, schemanode))
 				{
 					return QList<WidgetDataAssignmentInstr>();
 				}
-				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
+//~				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
 				arraydimar.push_back( (arraysize>1)?arraysize:1);
-				//~ qDebug( ) << "prefix" << prefix.toString( ) <<", arraysize" << arraysize << ", arrayinc" << arrayinc << ", division" << arraysize/arrayinc;
+//~				qDebug( ) << "prefix" << prefix.toString( ) <<", arraysize" << arraysize << ", arrayinc" << arrayinc << ", division" << arraysize/arrayinc;
 				rt.push_back( WidgetDataAssignmentInstr( arraysize /* Aba: don't get the point !! /arrayinc*/, prefix.toString()));
 				prefixstk.push_back( prefix.toString());
 			}
