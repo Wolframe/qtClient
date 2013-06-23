@@ -5,6 +5,7 @@ now musts:
   (if that option is choosen)
   
 bugs:
+- QLabel: id is not part of the state (see category_add with recipe.id)
 - viewport in QTableWidget doesn't show currently selected item
 - non-existing dataslots get triggered without warning:
   reload triggered of "QTreeWidget" "required_components" on dataslot "add_component_required" 
@@ -36,6 +37,14 @@ bugs:
   CRITICAL: ERROR:  "-save:326" "REQUEST error in transaction updatePicture: invalid input syntax for integer: "" LINE 1: ...NSERT INTO PictureTag( pictureID, tagID ) VALUES( '80', '' )                                             
 - state:enabled is ignored if there is a 'form' dyn. property (or better put: the
   form condition takes precedence over the explicit state condition)
+  example configuration_add, recipe is mandatory:
+  widget "add" not set to Enabled because condition "main.recipe.id" is not met (condition not valid:  QVariant(QString, "") > QVariant(QString, "0") ) 
+widget "add" set to enabled (all conditions met) 
+widget "add" set to enabled (all conditions met) 
+widget "add" set to enabled (all conditions met) 
+widget "add" set to enabled (all conditions met) 
+widget "pushButton" set to enabled (all conditions met) 
+
 - syntax error: code {?}; leads to completly misleading error message:
   CRITICAL: attribute not defined in answer description: "id" at ""
 
