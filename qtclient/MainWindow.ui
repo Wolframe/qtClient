@@ -507,7 +507,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../example/example.qrc">
+    <iconset resource="qtclient.qrc">
      <normaloff>:/images/login.png</normaloff>:/images/login.png</iconset>
    </property>
    <property name="text">
@@ -522,7 +522,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="../example/example.qrc">
+    <iconset resource="qtclient.qrc">
      <normaloff>:/images/logout.png</normaloff>:/images/logout.png</iconset>
    </property>
    <property name="text">
@@ -568,7 +568,6 @@
   </action>
  </widget>
  <resources>
-  <include location="../example/example.qrc"/>
   <include location="qtclient.qrc"/>
  </resources>
  <connections/>
