@@ -1,6 +1,9 @@
 now musts:
 
 bugs:
+- price{{main.price:0.0}}, or 0, the default value is ignored,
+  the value in the widget wins:
+  <price></price>
 - form plugin:
   - how can we execute form calls, like _CLOSE_ (the one we need now)
   - respect WindowModality flag of generated widget
@@ -65,6 +68,11 @@ widget "pushButton" set to enabled (all conditions met)
   CRITICAL: attribute not defined in answer description: "id" at ""
 
 later (cleanups):
+- window modes:
+  - open new MDI windows, eventually having them marked as singletons, in
+    this case they receive focus
+  - wizard-style: a sequence of dialogs, cancel exits the wizard mode,
+    there is a forward and back (back works with the form stack)
 - QTreeWidget:
   - width of columns are adapted when data changes, this is not always
     what you want (see category_edit feature associations)
