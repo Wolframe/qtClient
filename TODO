@@ -4,6 +4,8 @@ bugs:
 - price{{main.price:0.0}}, or 0, the default value is ignored,
   the value in the widget wins:
   <price></price>
+  there is an action mismatch error (before and after interpreting):
+  CRITICAL: action is not the same
 - form plugin:
   - how can we execute form calls, like _CLOSE_ (the one we need now)
   - respect WindowModality flag of generated widget
