@@ -362,21 +362,6 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			emit error( tr( "Unable to initialize form plugin '%1', something went wrong in plugin initialization!" ).arg( formCall.name( ) ) );
 			return;
 		}
-// add new form to layout (which covers the whole widget)
-		m_layout->addWidget( m_ui );
-
-		qDebug( ) << "set window title" << plugin->windowTitle( );
-		setWindowTitle( plugin->windowTitle( ) );
-
-		if ( oldUi ) {
-			m_ui->move( oldUi->pos( ) );
-			oldUi->hide( );
-			oldUi->deleteLater( );
-			oldUi->setParent( 0 );
-		}
-		m_ui->show( );
-		
-		return;
 	} else {		
 // read the form and construct it from the UI file
 		QBuffer buf( &formXml );
@@ -426,7 +411,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		emit formNewWindow( name );
 		return;
 	}
-
+	
 // initialize the form data
 	m_widgetTree.initialize( m_ui, oldUi, m_form);
 
@@ -475,17 +460,24 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 	if (firstGotAnswer( tag_))
 	{
 		//... report this debug message only once and not one per window open
-		qDebug( ) << "Got answer, tag" << tag_;
+		qDebug( ) << "Got answer, form" << m_form << ", tag" << tag_;
 	}
 
 // hand-written plugin, custom request, pass it back directly, don't go over
 // generic widget answer part (TODO: there should be a registry map here perhaps)
 	FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
 	if( plugin ) {
-		qDebug( ) << "Anwer for form plugin" << plugin->name() << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
+		qDebug( ) << "Answer for form plugin" << plugin->name() << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
 		plugin->gotAnswer( tag_, data_ );
 		return;
 	}
+
+// filter out plugin answers where then tag and the window id match
+	QList<QString> tagParts = tag_.split( ':' );
+	//~ QString pluginWidgetWinId = QString::number( (int)m_ui->winId( ) );
+	//~ if( tagParts.size( ) >= 1 && tagParts[0] == pluginWidgetWinId ) {
+		//~ return;
+	//~ }
 
 	QString followform;
 	QWidget* rcp = m_widgetTree.deliverAnswer( tag_, data_, followform);
