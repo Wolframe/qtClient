@@ -7,8 +7,8 @@ bugs:
   there is an action mismatch error (before and after interpreting):
   CRITICAL: action is not the same
 - form plugin:
-  - how can we execute form calls, like _CLOSE_ (the one we need now)
-  - respect WindowModality flag of generated widget
+  - respect WindowModality flag of generated widget, new windows work,
+    modal ones currently crash
 - selection in QTable still doesn't work after sort operations
 - illegal use of Qt::UserRole and no Qt::DisplayRole to show elements, must
   be Qt::DisplayRole for all normal data, Qt::UserRole for hidden id only

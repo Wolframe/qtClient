@@ -681,10 +681,18 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 		m_tableWidget->resizeColumnToContents( ii);
 	}
 	
-	// make the data fit in height
+	// make the data fit in height unless we specified a fixed height
+	// as dynamic property
+	QString heightPropName = QString( "row:height" );
+	QVariant heightPropValue = m_tableWidget->property( heightPropName.toLatin1( ) );
+	unsigned int fixedHeight = heightPropValue.toUInt( );
 	for( int ii = 0; ii < m_tableWidget->rowCount(); ii++)
 	{
-		m_tableWidget->resizeRowToContents( ii);
+		if( fixedHeight > 0 ) {
+			m_tableWidget->setRowHeight( ii, fixedHeight );
+		} else {
+			m_tableWidget->resizeRowToContents( ii);
+		}
 	}
 	
 	// apply explicit sizes here (from dynamic properties), found no other
@@ -695,7 +703,7 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 		if( propValue.isValid( ) && propValue.toUInt( ) > 0 ) {
 			m_tableWidget->setColumnWidth( i, propValue.toUInt( ) );
 		}		
-	}			
+	}
 }
 
 QVariant WidgetVisitorState_QTableWidget::getState() const
