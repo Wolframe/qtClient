@@ -415,7 +415,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 						int ni = prev->nodeidx;
 						if (stk.back().valueset.testBit( stk.back().valueset.size()-1))
 						{
-							// ... speial index (last) in valueset used for checking duplicates only
+							// ... special index (last) in valueset used for checking duplicates only
 							qCritical() << "duplicate value element:" << prev->schemanode->nodename( ni) << "at" << elementPath(stk);
 							return false;
 						}
@@ -537,7 +537,6 @@ static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTr
 			}
 		}
 	}
-	//~ qDebug( ) << "computed array size for" << datanode->toString( ) << "as" << arraysize;
 	return true;
 }
 
@@ -611,15 +610,15 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 					qCritical() << "no common prefix for elements in array";
 				}
 				int arraysize = -1;
-//~				int arrayinc = 1;
+				int arrayinc = 1;
 				if (!getArraySize( arraysize, datanode, schemanode))
 				{
 					return QList<WidgetDataAssignmentInstr>();
 				}
-//~				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
+				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
 				arraydimar.push_back( (arraysize>1)?arraysize:1);
-//~				qDebug( ) << "prefix" << prefix.toString( ) <<", arraysize" << arraysize << ", arrayinc" << arrayinc << ", division" << arraysize/arrayinc;
-				rt.push_back( WidgetDataAssignmentInstr( arraysize /* Aba: don't get the point !! /arrayinc*/, prefix.toString()));
+				qDebug( ) << "prefix" << prefix.toString( ) <<", arraysize" << arraysize << ", arrayinc" << arrayinc << ", division" << arraysize/arrayinc;
+				rt.push_back( WidgetDataAssignmentInstr( arraysize/arrayinc, prefix.toString()));
 				prefixstk.push_back( prefix.toString());
 			}
 			stk.push_back( JoinAssignStackElem( schemanode, datanode));
@@ -630,6 +629,7 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 			if (schemanode->elemtype() == DataTree::Array)
 			{
 				rt.push_back( WidgetDataAssignmentInstr());
+				arraydimar.pop_back();
 				prefixstk.pop_back();
 			}
 			stk.pop_back();
