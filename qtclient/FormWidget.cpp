@@ -179,6 +179,7 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 			if (m_modal)
 			{
 				// Aba: why should that be illegal!?
+				// PF: Theoretically not but it leads to an endless loop in 'formLoaded .. switchForm' due to the special handling of modal forms
 				qCritical() << "illegal _RESET_ load of modal dialog";
 			}
 			else
