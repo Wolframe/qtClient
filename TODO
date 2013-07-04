@@ -4,7 +4,7 @@ now musts:
   - sort order is not part of state in table, tree and list widget
   - selection in QTable doesn't work after sort operations
 - FormWidget/MainWindow
-  - readd status indicator (hourglass cursor)
+  - readd status indicator (hourglass cursor) (book-keeping with set of issued requests)
 
 bugs (must be discussed, when and whether to fix them):
 - price{{main.price:0.0}}, or 0, the default value is ignored,

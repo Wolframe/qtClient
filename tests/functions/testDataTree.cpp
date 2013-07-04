@@ -18,7 +18,8 @@ static const Test testDataTree[] =
 	{"doc { bli = 1.0; substruct{ bla='\"72 3974\"'}; oth { x {{abc}} }}","doc { bli = 1.0; substruct { bla = '\"72 3974\"' }; oth { x { {abc} } } }"},
 	{"doc { a[] {b} }","doc { a[] { b } }"},
 	{"form1 {first{{first}}}", "form1 { first { {first} } }"},
-	{"doc { bli={first}; {second}}", "doc { bli={first}; {second}}"},
+	{"doc { bli={first}; {second}}", "doc { bli = {first}; {second} }"},
+	{"picture {id={main.id}; caption{{main.caption}}; info{{main.info}}; tagwrap { tag[] {id={main.tags.item.id:?}}}; image{size={main.image.size:?}; {main.image.base64:?}}}", "picture { id = {main.id}; caption { {main.caption} }; info { {main.info} }; tagwrap { tag[] { id = {main.tags.item.id:?} } }; image { size = {main.image.size:?}; {main.image.base64:?} } }"},
 	{0,0}
 };
 

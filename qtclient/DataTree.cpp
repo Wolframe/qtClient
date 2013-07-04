@@ -429,11 +429,6 @@ bool DataTree::mapDataValueToString( const QVariant& val, QString& str)
 
 bool DataTree::mapDataTreeToString( const DataTree& dt, QString& str)
 {
-	if (dt.m_value.isValid())
-	{
-		TRACE_STATE( "toString", "map node value")
-		return mapDataValueToString( dt.m_value, str);
-	}
 	QList<DataTree::Node>::const_iterator ni = dt.m_nodear.begin(), ne = dt.m_nodear.end();
 	for (; ni != ne; ++ni)
 	{
@@ -460,6 +455,15 @@ bool DataTree::mapDataTreeToString( const DataTree& dt, QString& str)
 			if (!mapDataTreeToString( *ni->tree, str)) return false;
 			str.append( " }");
 		}
+	}
+	if (dt.m_value.isValid())
+	{
+		TRACE_STATE( "toString", "map node value")
+		if (!dt.m_nodear.empty())
+		{
+			str.append( "; ");
+		}
+		return mapDataValueToString( dt.m_value, str);
 	}
 	return true;
 }
