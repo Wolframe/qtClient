@@ -1,6 +1,5 @@
 now musts:
 - QTableWidget
-  - viewport in QTableWidget doesn't show currently selected item
   - sort order is not part of state in table, tree and list widget
   - selection in QTable doesn't work after sort operations
 - FormWidget/MainWindow

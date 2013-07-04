@@ -704,6 +704,11 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 			m_tableWidget->setColumnWidth( i, propValue.toUInt( ) );
 		}		
 	}
+
+// make sure we scroll to the last element of the selection
+	foreach( QTableWidgetItem *item, m_tableWidget->selectedItems( ) ) {
+		m_tableWidget->scrollToItem( item );
+	}
 }
 
 QVariant WidgetVisitorState_QTableWidget::getState() const
@@ -755,6 +760,7 @@ void WidgetVisitorState_QTableWidget::initSelected( const QVariant& selected)
 		}
 		return;
 	}
+	
 	qCritical() << "cannot find selected line in table:" << selected;
 }
 
