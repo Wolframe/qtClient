@@ -25,6 +25,9 @@
    <layout class="QHBoxLayout" name="relation_hl">
     <item>
      <widget class="QTableWidget" name="customer">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
       <property name="synonym:customerfocus" stdset="0">
        <string>customer.selected</string>
       </property>
