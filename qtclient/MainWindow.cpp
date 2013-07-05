@@ -755,6 +755,8 @@ void MainWindow::menuListLoaded( QStringList menus )
 
 void MainWindow::loadForm( QString name, const bool newWindow )
 {
+	setWaitState( true );
+	
 // delegate form loading to form widget
 	if( m_formWidget )
 		m_formWidget->loadForm( name, false, newWindow );
@@ -839,6 +841,8 @@ void MainWindow::formModal( QString name )
 
 void MainWindow::formLoaded( QString /*name*/ )
 {
+	setWaitState( false );
+	
 // in MDI mode update the title of the sub window, otherwise update window title
 	if( settings.mdi ) {
 		QMdiSubWindow *mdiSubWindow = m_mdiArea->activeSubWindow( );
@@ -892,6 +896,8 @@ void MainWindow::updateWindowMenu( )
 
 void MainWindow::formError( QString error )
 {
+	setWaitState( false );
+	
 	QMessageBox::critical( this, tr( "Form error" ), error, QMessageBox::Ok );
 }
 

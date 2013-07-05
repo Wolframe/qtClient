@@ -6,6 +6,7 @@ now musts:
     least twice
 - FormWidget/MainWindow
   - readd status indicator (hourglass cursor) (book-keeping with set of issued requests)
+- fix problems with abiguos widget ids (in configurator)
 
 bugs (must be discussed, when and whether to fix them):
 - price{{main.price:0.0}}, or 0, the default value is ignored,

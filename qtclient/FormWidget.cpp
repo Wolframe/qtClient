@@ -415,8 +415,10 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 // initialize the form data
 	if (!m_widgetTree.initialize( m_ui, oldUi, m_form))
 	{
+		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
+		emit error( tr( "Failed to load widget tree for form %1 (ambiguous widget id?)!" ).arg( name ) );
 		return;
 	}
 
