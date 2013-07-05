@@ -60,13 +60,15 @@ bugs (must be discussed, when and whether to fix them):
 - state:enabled is ignored if there is a 'form' dyn. property (or better put: the
   form condition takes precedence over the explicit state condition)
   example configuration_add, recipe is mandatory:
-  widget "add" not set to Enabled because condition "main.recipe.id" is not met (condition not valid:  QVariant(QString, "") > QVariant(QString, "0") ) 
-widget "add" set to enabled (all conditions met) 
-widget "add" set to enabled (all conditions met) 
-widget "add" set to enabled (all conditions met) 
-widget "add" set to enabled (all conditions met) 
-widget "pushButton" set to enabled (all conditions met) 
-
+    widget "add" not set to Enabled because condition "main.recipe.id" is not met (condition not valid:  QVariant(QString, "") > QVariant(QString, "0") ) 
+    widget "add" set to enabled (all conditions met) 
+    widget "add" set to enabled (all conditions met) 
+    widget "add" set to enabled (all conditions met) 
+    widget "add" set to enabled (all conditions met) 
+    widget "pushButton" set to enabled (all conditions met) 
+  => IMHO: the default test in 'action' should come first, then
+     the explicit 'state:enabled', if both tests are ok, then
+     the button is enabled 
 - syntax error: code {?}; leads to completly misleading error message:
   CRITICAL: attribute not defined in answer description: "id" at ""
 
@@ -163,7 +165,6 @@ musts:
 - tabbed preferences dialog, like thunderbird (in security, form management,
   etc.)
 - show pictures in tree view
-- scroll to selected element in a single-selection list
 - push button state (disabled/enabled) based on a
   condition like {picture.id>0}
 - get sensible error message from business layer, not "lua call failed"
