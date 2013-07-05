@@ -473,13 +473,6 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 		return;
 	}
 
-// filter out plugin answers where then tag and the window id match
-	QList<QString> tagParts = tag_.split( ':' );
-	//~ QString pluginWidgetWinId = QString::number( (int)m_ui->winId( ) );
-	//~ if( tagParts.size( ) >= 1 && tagParts[0] == pluginWidgetWinId ) {
-		//~ return;
-	//~ }
-
 	QString followform;
 	QWidget* rcp = m_widgetTree.deliverAnswer( tag_, data_, followform);
 	if (rcp)
