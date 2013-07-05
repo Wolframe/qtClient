@@ -678,7 +678,7 @@ void MainWindow::changeEvent( QEvent* _event )
 
 void MainWindow::menuLoaded( QString name, QByteArray menu )
 {
-	qDebug( ) << "MENU: checking for main menu" << name << "\n" << menu;
+	qDebug( ) << "MENU: checking for main menu" << name;
 	QBuffer buf( &menu );
 	QWidget *ui = m_uiLoader->load( &buf, 0 );
 

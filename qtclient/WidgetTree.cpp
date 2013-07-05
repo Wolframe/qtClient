@@ -221,7 +221,7 @@ void WidgetTree::saveVariables()
 	m_visitor.do_writeGlobals( *m_globals);
 }
 
-void WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall)
+bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall)
 {
 	m_formCall.init( formcall);
 	m_visitor = WidgetVisitor( ui_);
@@ -249,6 +249,13 @@ void WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	// initialize the form variables given by assignments
 	m_visitor.do_readAssignments();
 	m_visitor.allowUndefDynPropsInit( rudpflag_bk);
+
+	QString wid = m_visitor.property( "widgetid").toString();
+	if (m_visitor.findFormWidgetWithWidgetid( wid))
+	{
+		qCritical() << "Refused to load form with ambigous (duplicate) widget id" << wid;
+		return false;
+	}
 
 	// restore widget states if form was opened with a '_CLOSE_'
 	if (m_state.isValid())
@@ -319,6 +326,7 @@ void WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 			m_dataLoader->datarequest( request.cmd, request.tag, request.content);
 		}
 	}
+	return true;
 }
 
 QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& content, QString& followform)

@@ -98,6 +98,9 @@
         <property name="dataslot" stdset="0">
          <string>listCustomerEmployeeRelation</string>
         </property>
+        <property name="answer" stdset="0">
+         <string>CustomerRelationCustomerViewListResult relations {relation[] {employeeid={row.id}; employeename{{row.name}}; employeestatus{{row.status}}; description{{row.description}}}}</string>
+        </property>
         <column>
          <property name="text">
           <string>name</string>
@@ -186,6 +189,9 @@
         <property name="dataslot" stdset="0">
          <string>listProject</string>
         </property>
+        <property name="answer" stdset="0">
+         <string>ProjectCustomerListResult projects {project[] {id={row.id}; name{{row.name}}; description{{row.description}}}} </string>
+        </property>
         <column>
          <property name="text">
           <string>name</string>
@@ -264,7 +270,7 @@
      <x>0</x>
      <y>350</y>
      <width>671</width>
-     <height>31</height>
+     <height>33</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="action">

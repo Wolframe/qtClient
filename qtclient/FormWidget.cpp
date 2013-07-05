@@ -414,7 +414,12 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	}
 	
 // initialize the form data
-	m_widgetTree.initialize( m_ui, oldUi, m_form);
+	if (!m_widgetTree.initialize( m_ui, oldUi, m_form))
+	{
+		m_ui = oldUi;
+		m_form = m_previousForm;
+		return;
+	}
 
 // add new form to layout (which covers the whole widget)
 	m_layout->addWidget( m_ui );
