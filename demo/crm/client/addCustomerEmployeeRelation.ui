@@ -68,10 +68,10 @@
         <string>Add</string>
        </property>
        <property name="form" stdset="0">
-        <string notr="true">_CLOSE_</string>
+        <string>_CLOSE_</string>
        </property>
        <property name="action" stdset="0">
-        <string>InsertCustomerRelation relation {employeeid={relation.employeeid}; customerid={relation.customerid}; description{{relation.description}} }</string>
+        <string>InsertCustomerRelation relation {employeeid={relation.employee.selected}; customerid={relation.customerid}; description{{relation.description}} }</string>
        </property>
        <property name="datasignal:clicked" stdset="0">
         <string notr="true">listCustomerEmployeeRelation</string>
