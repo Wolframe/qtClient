@@ -37,11 +37,18 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QString>
+#include <QEvent>
 
 #include "serverDefinition.hpp"
 
 class WolframeClient;
 class QLabel;
+
+class BlockingFilter : public QObject
+{
+	protected:
+		bool eventFilter( QObject *obj, QEvent *event );
+};
 
 class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 {
@@ -66,6 +73,8 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		void setLastConnName( QString &connName );
 		void setRememberLogin( bool enable );
 
+		void setWaitState( bool busy = false );
+		
 	private:
 		bool m_rememberLogin;
 		QLabel *m_statusBarConn;
@@ -78,6 +87,7 @@ class SKELETON_VISIBILITY SkeletonMainWindow : public QMainWindow
 		WolframeClient *m_wolframeClient;
 		QVector<ServerDefinition> m_serverDefs;
 		QString	m_defaultServer;
+		BlockingFilter *m_blockingFilter;
 
 	protected slots:
 // slots for the wolframe client

@@ -44,7 +44,8 @@
 
 SkeletonMainWindow::SkeletonMainWindow( QWidget *_parent ) : QMainWindow( _parent ),
 	m_rememberLogin( false ),
-	m_wolframeClient( 0 )
+	m_wolframeClient( 0 ),
+	m_blockingFilter( new BlockingFilter( ) )
 {
 }
 
@@ -116,6 +117,8 @@ void SkeletonMainWindow::updateMenusAndToolbars( )
 
 void SkeletonMainWindow::error( QString error )
 {
+	setWaitState( false );
+	
 	QMessageBox::warning( this, tr( "Server error" ), error, QMessageBox::Ok );
 
 	updateMenusAndToolbars( );
@@ -129,7 +132,7 @@ void SkeletonMainWindow::connected( )
 }
 
 void SkeletonMainWindow::disconnected( )
-{	
+{
 	qDebug( ) << "Disconnected from server";
 
 	statusBar( )->showMessage( tr( "Terminated" ) );
@@ -145,6 +148,8 @@ void SkeletonMainWindow::disconnected( )
 
 void SkeletonMainWindow::authOk( )
 {
+	setWaitState( false );
+	
 	qDebug( ) << "Authentication succeeded";
 
 	statusBar( )->showMessage( tr( "Ready" ) );
@@ -155,6 +160,8 @@ void SkeletonMainWindow::authOk( )
 
 void SkeletonMainWindow::authFailed( )
 {
+	setWaitState( false );
+	
 	QMessageBox::warning( this, tr( "Authentication error" ), tr( "Authentication failed" ), QMessageBox::Ok );
 }
 
@@ -166,6 +173,9 @@ SkeletonMainWindow::~SkeletonMainWindow( )
 		qDebug( ) << "Disconnecting from server";
 		m_wolframeClient->disconnect( );
 	}
+	
+	setWaitState( false );
+	delete m_blockingFilter;
 }
 
 void SkeletonMainWindow::activateAction( const QString name, bool enabled )
@@ -266,6 +276,9 @@ void SkeletonMainWindow::login( )
 			this, SLOT( authFailed( ) ) );
 		
 		qDebug( ) << "Connecting to " << selectedConnection.toString( );
+
+// indicate connection
+		setWaitState( true );
 		
 // initiate connect
 		m_wolframeClient->connect( );
@@ -288,4 +301,34 @@ void SkeletonMainWindow::on_actionManageServers_triggered( )
 	serversDlg->exec( );
 
 	delete serversDlg;
+}
+
+void SkeletonMainWindow::setWaitState( bool busy )
+{
+	if( busy ) {
+		qApp->setOverrideCursor( Qt::WaitCursor );
+		qApp->installEventFilter( m_blockingFilter );
+	} else {
+		while( qApp->overrideCursor( ) ) {
+			qApp->restoreOverrideCursor( );
+		}
+		qApp->removeEventFilter( m_blockingFilter );
+	}
+}
+
+bool BlockingFilter::eventFilter( QObject *obj, QEvent *event )
+{
+	switch( event->type( ) ) {
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+		case QEvent::MouseButtonPress:
+		case QEvent::MouseButtonRelease:
+		case QEvent::MouseButtonDblClick:
+			return true;
+		
+		default:
+			return QObject::eventFilter( obj, event );
+	}
+	
+	return QObject::eventFilter( obj, event );
 }
