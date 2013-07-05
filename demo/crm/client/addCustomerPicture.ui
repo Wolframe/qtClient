@@ -29,7 +29,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="qtclient.qrc">:/images/picture_add.png</pixmap>
+      <pixmap>:/images/picture_add.png</pixmap>
      </property>
     </widget>
    </item>
@@ -93,7 +93,7 @@
     </widget>
    </item>
    <item row="6" column="1">
-    <widget class="PictureChooser" name="picture" native="true">
+    <widget class="PictureChooser" name="picture">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -126,10 +126,10 @@
         <string>Add</string>
        </property>
        <property name="action" stdset="0">
-        <string notr="true">InsertCustomerPicture picture {customerid={addCustomerPicture.customerid},caption{{addCustomerPicture.caption}},info{{addCustomerPicture.info}},image{{addCustomerPicture.image}}}</string>
+        <string>InsertCustomerPicture picture {customerid={addCustomerPicture.customer.selected},caption{{addCustomerPicture.caption}},info{{addCustomerPicture.info}},image{{addCustomerPicture.picture.base64}}}</string>
        </property>
        <property name="form" stdset="0">
-        <string notr="true">_CLOSE_</string>
+        <string>_CLOSE_</string>
        </property>
       </widget>
      </item>
