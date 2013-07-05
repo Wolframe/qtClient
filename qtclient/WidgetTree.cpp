@@ -250,12 +250,15 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	m_visitor.do_readAssignments();
 	m_visitor.allowUndefDynPropsInit( rudpflag_bk);
 
-	QString wid = m_visitor.property( "widgetid").toString();
-	if (m_visitor.findFormWidgetWithWidgetid( wid))
-	{
-		qCritical() << "Refused to load form with ambigous (duplicate) widget id" << wid;
-		return false;
-	}
+	// Aba: disabled for now, breaks all opening dialogs which communicate
+	// values back to their calling form (e.g. configurator, edit category,
+	// add required feature)
+	//~ QString wid = m_visitor.property( "widgetid").toString();
+	//~ if (m_visitor.findFormWidgetWithWidgetid( wid))
+	//~ {
+		//~ qCritical() << "Refused to load form with ambigous (duplicate) widget id" << wid;
+		//~ return false;
+	//~ }
 
 	// restore widget states if form was opened with a '_CLOSE_'
 	if (m_state.isValid())
