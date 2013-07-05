@@ -87,6 +87,9 @@
      <property name="dataslot" stdset="0">
       <string>listProject</string>
      </property>
+     <property name="answer" stdset="0">
+      <string>ProjectListResult projects {project[] {id={row.id}; customername{{row.customername}}; name{{row.name}}; description{{row.description}}}}</string>
+     </property>
      <column>
       <property name="text">
        <string>name</string>

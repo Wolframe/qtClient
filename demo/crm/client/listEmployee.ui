@@ -87,6 +87,9 @@
      <property name="dataslot" stdset="0">
       <string>listEmployee</string>
      </property>
+     <property name="answer" stdset="0">
+      <string>EmployeeListResult employees {employee[] {id={row.id}; name{{row.name}}; status{{row.status}}; addr_line1{{row.addr_line1}}; addr_line2{{row.addr_line2}}; addr_postalcode{{row.addr_postalcode}}; addr_district{{row.addr_district}}; addr_country{{row.addr_country}}}}</string>
+     </property>
      <column>
       <property name="text">
        <string>name</string>
