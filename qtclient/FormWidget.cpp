@@ -301,13 +301,12 @@ void FormWidget::formLocalizationLoaded( QString name, QByteArray localization )
 		if( !m_translator.load( (const uchar *)localization.constData( ), localization.length( ) ) ) {
 			qWarning( ) << "Error while loading translations for form " <<
 				name << " for locale " << m_locale.name( );
-			return;
+		} else {
+			qApp->installTranslator( &m_translator );
 		}
-		qApp->installTranslator( &m_translator );
+		QEvent ev( QEvent::LanguageChange );
+		qApp->sendEvent( qApp, &ev );
 	}
-
-	QEvent ev( QEvent::LanguageChange );
-	qApp->sendEvent( qApp, &ev );
 
 // signal completion of form loading
 	qDebug( ) << "Done loading form" << name;
@@ -434,10 +433,6 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		oldUi->setParent( 0 );
 	}
 	m_ui->show( );
-
-// set localization now
-	qDebug( ) << "Starting to load localization for form" << name;
-	m_formLoader->initiateFormLocalizationLoad( m_form, m_locale );
 
 // connect push buttons with form names to loadForms
 	QList<QWidget *> widgets = m_ui->findChildren<QWidget *>( );
