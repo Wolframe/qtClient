@@ -117,7 +117,6 @@ class FormWidget : public QWidget
 		void formNewWindow( QString m_form );
 		void error( QString error );
 		void closed( );
-		void datarequest();
 
 	protected:
 		void changeEvent( QEvent *_event );
