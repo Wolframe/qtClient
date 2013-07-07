@@ -617,7 +617,6 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 				}
 				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
 				arraydimar.push_back( (arraysize>1)?arraysize:1);
-				qDebug( ) << "prefix" << prefix.toString( ) <<", arraysize" << arraysize << ", arrayinc" << arrayinc << ", division" << arraysize/arrayinc;
 				rt.push_back( WidgetDataAssignmentInstr( arraysize/arrayinc, prefix.toString()));
 				prefixstk.push_back( prefix.toString());
 			}

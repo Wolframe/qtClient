@@ -34,7 +34,6 @@ QByteArray getDataXML( const QString& docType, const QString& rootElement, bool 
 	for (; ie != ee; ++ie)
 	{
 AGAIN:
-		qDebug() << "element" << (*ie).toString( );
 		QVariant attribute;
 		switch (ie->type())
 		{

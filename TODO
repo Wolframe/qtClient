@@ -9,6 +9,8 @@ now musts:
 - fix problems with abiguos widget ids (in configurator)
 
 bugs (must be discussed, when and whether to fix them):
+- weird behaviour when a window is maximized in MDI mode: subwindow get
+  resizes and positioned in funny ways
 - price{{main.price:0.0}}, or 0, the default value is ignored,
   the value in the widget wins:
   <price></price>

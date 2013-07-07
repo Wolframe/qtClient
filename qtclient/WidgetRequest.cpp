@@ -142,12 +142,12 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actionde
 	if (menuitem.isEmpty())
 	{
 		rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid());
-		qDebug() << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
+		qDebug() << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << shortenDebugMessageArgument( rt.content );
 	}
 	else
 	{
 		rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid(), menuitem);
-		qDebug() << "menu" << menuitem << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
+		qDebug() << "menu" << menuitem << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << shortenDebugMessageArgument( rt.content );
 	}
 	return rt;
 }
