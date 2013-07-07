@@ -167,7 +167,7 @@ void MainWindow::readSettings( )
 }
 
 #if QT_VERSION >= 0x050000
-static void myMessageOutput( QtMsgType type, const QMessageLogContext &context, const QString &msg )
+static void myMessageOutput( QtMsgType type, const QMessageLogContext & /*context */, const QString &msg )
 {
 	switch( type ) {
 		case QtDebugMsg:
