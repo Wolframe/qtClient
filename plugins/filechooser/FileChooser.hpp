@@ -56,9 +56,11 @@ class EXPORT_AS_PLUGIN FileChooser : public QWidget
 	Q_ENUMS( SelectionMode )
 	Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
 	Q_PROPERTY( QString title READ title WRITE setTitle )
+	Q_PROPERTY( QString fileName READ fileName( ) WRITE setFileName )
 		
 	public:
 		enum SelectionMode {
+			SelectAnyFile,
 			SelectExistingFile,
 			SelectExistingFiles,
 			SelectExistingDir
