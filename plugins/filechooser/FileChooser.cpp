@@ -91,6 +91,7 @@ void FileChooser::initialize( )
 void FileChooser::switchStack( )
 {
 	switch( m_selectionMode ) {
+		case SelectAnyFile:
 		case SelectExistingFile:
 		case SelectExistingDir:
 			m_stackedWidget->setCurrentIndex( 0 );
@@ -105,6 +106,7 @@ void FileChooser::switchStack( )
 void FileChooser::setFileName( const QString &_fileName )
 {
 	switch( m_selectionMode ) {
+		case SelectAnyFile:
 		case SelectExistingFile:
 		case SelectExistingDir:
 			m_lineEdit->setText( _fileName );
@@ -124,6 +126,7 @@ void FileChooser::setFileName( const QString &_fileName )
 void FileChooser::setFileNames( const QStringList &_fileNames )
 {
 	switch( m_selectionMode ) {
+		case SelectAnyFile:
 		case SelectExistingFile:
 		case SelectExistingDir:
 			m_lineEdit->setText( _fileNames[0] );
@@ -140,6 +143,7 @@ void FileChooser::setFileNames( const QStringList &_fileNames )
 QString FileChooser::fileName( ) const
 {
 	switch( m_selectionMode ) {
+		case SelectAnyFile:
 		case SelectExistingFile:
 		case SelectExistingDir:
 			return m_lineEdit->text( );
@@ -156,6 +160,7 @@ QStringList FileChooser::fileNames( ) const
 	QStringList files;
 	
 	switch( m_selectionMode ) {
+		case SelectAnyFile:
 		case SelectExistingFile:
 		case SelectExistingDir:
 			files << m_lineEdit->text( );
@@ -199,6 +204,12 @@ void FileChooser::chooseFile( )
 	QFileInfo finfo( m_lineEdit->text( ) );
 	
 	switch( m_selectionMode ) {
+		case SelectAnyFile:
+			f = QFileDialog::getSaveFileName( this,
+				m_title.isEmpty( ) ? tr( "Choose a new file" ) : m_title,
+				finfo.absolutePath( ), QString::null /* filter */ );
+			break;
+			
 		case SelectExistingFile:
 			f = QFileDialog::getOpenFileName( this,
 				m_title.isEmpty( ) ? tr( "Choose a file" ) : m_title,

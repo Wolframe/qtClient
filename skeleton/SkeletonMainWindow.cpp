@@ -53,7 +53,7 @@ void SkeletonMainWindow::create( )
 {
 // setup designer UI
 	initializeUi( );
-		
+
 // add connection and encryption state indicators to status bar
 	addStatusBarIndicators( );
 
@@ -63,7 +63,7 @@ void SkeletonMainWindow::create( )
 
 void SkeletonMainWindow::initializeUi( )
 {
-	m_ui = new Ui::SkeletonMainWindow( );
+	m_ui = new Ui::SkeletonMainWindow();
 	static_cast<Ui::SkeletonMainWindow *>( m_ui )->setupUi( this );
 
 }
@@ -118,7 +118,7 @@ void SkeletonMainWindow::updateMenusAndToolbars( )
 void SkeletonMainWindow::error( QString error )
 {
 	setWaitState( false );
-	
+
 	QMessageBox::warning( this, tr( "Server error" ), error, QMessageBox::Ok );
 
 	updateMenusAndToolbars( );
@@ -127,7 +127,7 @@ void SkeletonMainWindow::error( QString error )
 void SkeletonMainWindow::connected( )
 {
 	qDebug( ) << "Connected to server";
-	
+
 	m_wolframeClient->auth( );
 }
 
@@ -141,7 +141,7 @@ void SkeletonMainWindow::disconnected( )
 		m_wolframeClient->deleteLater( );
 		m_wolframeClient = 0;
 	}
-	
+
 // update status of menus and toolbars
 	updateMenusAndToolbars( );
 }
@@ -149,31 +149,31 @@ void SkeletonMainWindow::disconnected( )
 void SkeletonMainWindow::authOk( )
 {
 	setWaitState( false );
-	
+
 	qDebug( ) << "Authentication succeeded";
 
 	statusBar( )->showMessage( tr( "Ready" ) );
 
 // update status of menus and toolbars
-	updateMenusAndToolbars( );	
+	updateMenusAndToolbars( );
 }
 
 void SkeletonMainWindow::authFailed( )
 {
 	setWaitState( false );
-	
+
 	QMessageBox::warning( this, tr( "Authentication error" ), tr( "Authentication failed" ), QMessageBox::Ok );
 }
 
 SkeletonMainWindow::~SkeletonMainWindow( )
 {
 	deleteUi( );
-	
+
 	if( m_wolframeClient ) {
 		qDebug( ) << "Disconnecting from server";
 		m_wolframeClient->disconnect( );
 	}
-	
+
 	setWaitState( false );
 	delete m_blockingFilter;
 }
@@ -225,15 +225,15 @@ void SkeletonMainWindow::login( )
 {
 	QString username;
 	QString lastConn;
-	
+
 	if( m_rememberLogin ) {
 		username = m_lastUsername;
 		lastConn = m_lastConnName;
 	}
-	
+
 	LoginDialog* loginDlg = new LoginDialog( username, lastConn,
 						 m_serverDefs, m_defaultServer );
-						 
+
 	if( loginDlg->exec( ) == QDialog::Accepted ) {
 // user choose nothing, bail out
 		if( !loginDlg->hasSelectedServer( ) ) {
@@ -248,7 +248,7 @@ void SkeletonMainWindow::login( )
 			m_lastUsername = loginDlg->username( );
 			m_lastConnName = loginDlg->selectedServer( ).name;
 		}
-			
+
 		ServerDefinition selectedConnection = loginDlg->selectedServer( );
 
 // no SSL compiled in and the user picks a secure connection, warn him,
@@ -274,12 +274,12 @@ void SkeletonMainWindow::login( )
 			this, SLOT( authOk( ) ) );
 		connect( m_wolframeClient, SIGNAL( authFailed( ) ),
 			this, SLOT( authFailed( ) ) );
-		
+
 		qDebug( ) << "Connecting to " << selectedConnection.toString( );
 
 // indicate connection
 		setWaitState( true );
-		
+
 // initiate connect
 		m_wolframeClient->connect( );
 	}
@@ -325,10 +325,10 @@ bool BlockingFilter::eventFilter( QObject *obj, QEvent *event )
 		case QEvent::MouseButtonRelease:
 		case QEvent::MouseButtonDblClick:
 			return true;
-		
+
 		default:
 			return QObject::eventFilter( obj, event );
 	}
-	
+
 	return QObject::eventFilter( obj, event );
 }
