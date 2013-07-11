@@ -9,7 +9,9 @@ now musts:
 - fix problems with abiguos widget ids (in configurator)
 - qt4 and qt5 don't work the same in implicit mapping of widget mode! drop it
   completly?
-
+- FileChooser plugin:
+  - Q_PROPERTY set in designer is overloading picked value
+  
 bugs (must be discussed, when and whether to fix them):
 - weird behaviour when a window is maximized in MDI mode: subwindow get
   resizes and positioned in funny ways

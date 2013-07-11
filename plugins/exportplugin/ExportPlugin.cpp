@@ -35,8 +35,11 @@
 
 #include <QDebug>
 #include <QByteArray>
+#include <QGridLayout>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QSpacerItem>
 #include <QXmlStreamWriter>
 #include <QMessageBox>
 #include <QApplication>
@@ -54,19 +57,36 @@ ExportWidget::ExportWidget( ExportPlugin *_plugin, const FormCall &_formCall, QW
 
 void ExportWidget::initialize( )
 {
-	QVBoxLayout *vLayout = new QVBoxLayout( this );
+	resize( 420, 140 );
 
-	QHBoxLayout *hLayout = new QHBoxLayout( );
+	QGridLayout *gridLayout = new QGridLayout( this );
+	
+	QHBoxLayout *hLayout = new QHBoxLayout( );	
+        QSpacerItem *spacer = new QSpacerItem( 40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+        hLayout->addItem( spacer );
 
 	QPushButton *closeButton = new QPushButton( this );
         closeButton->setText( QApplication::translate( "exportplugin", "Close", 0 ) );
 	closeButton->setProperty( "form", QVariant( QString( "_CLOSE_" ) ) );
-	hLayout->addWidget( closeButton );
+	hLayout->addWidget( closeButton );	
 
-	vLayout->addLayout( hLayout );
+        gridLayout->addLayout( hLayout, 1, 0, 1, 1 );
 
-	m_label = new QLabel( "Exporting...", this );
+	QVBoxLayout *vLayout = new QVBoxLayout( this );
+	QSpacerItem *hSpacer2 = new QSpacerItem( 20, 40, QSizePolicy::Maximum, QSizePolicy::Expanding );
+	hLayout->addItem( hSpacer2 );
+
+	m_label = new QLabel( "Retrieving data from server...", this );
 	vLayout->addWidget( m_label );
+
+	m_progressBar = new QProgressBar( this );
+	m_progressBar->setOrientation( Qt::Horizontal );
+	m_progressBar->setRange( 0, 100 );
+	vLayout->addWidget( m_progressBar );	
+	
+        gridLayout->addLayout( vLayout, 0, 0, 1, 1 );
+        
+        m_progressBar->setValue( 10 );
 }
 
 QString ExportWidget::getFormParam( const QString &key ) const
@@ -94,10 +114,14 @@ void ExportWidget::startExportData( )
 	qDebug( ) << "self-made XML request: " << request;
 
 	m_plugin->sendRequest( winId( ), request );
+
+        m_progressBar->setValue( 20 );
 }
 
 void ExportWidget::gotAnswer( const QByteArray& _data )
 {
+        m_progressBar->setValue( 80 );
+        
 	QString fileName = getFormParam( "filename" );
 	QFileInfo finfo( fileName );
 	QFile f( fileName );
@@ -109,6 +133,8 @@ void ExportWidget::gotAnswer( const QByteArray& _data )
 	f.close( );
 
 	m_label->setText( QString( "Exported to '%1'..." ).arg( fileName ) );
+
+        m_progressBar->setValue( 100 );	
 }
 
 void ExportWidget::gotError( const QByteArray& _error )
