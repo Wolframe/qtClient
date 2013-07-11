@@ -610,6 +610,10 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 					return QList<WidgetDataAssignmentInstr>();
 				}
 				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
+				if (arraysize <= 0)
+				{
+					arraysize = 1;/*[-]PF:HACK: Have to redesign*/
+				}
 				arraydimar.push_back( (arraysize>1)?arraysize:1);
 				rt.push_back( WidgetDataAssignmentInstr( arraysize/arrayinc, prefix.toString()));
 				prefixstk.push_back( prefix.toString());

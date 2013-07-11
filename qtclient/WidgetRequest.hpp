@@ -61,7 +61,7 @@ struct WidgetRequest
 };
 
 WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode);
-WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode);
+WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem);
 WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode, const QString& menuitem=QString());
 bool isActionRequest( const QString& tag);
 bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer);

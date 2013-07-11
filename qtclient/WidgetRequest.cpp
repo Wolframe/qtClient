@@ -39,7 +39,7 @@
 #include "DebugHelpers.hpp"
 #include <QVariant>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << shortenDebugMessageArgument(QVariant(VALUE));
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(QVariant(VALUE));
@@ -198,11 +198,11 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode)
 	return rt;
 }
 
-WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode)
+WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem)
 {
 	WidgetRequest rt = getWidgetRequest_( visitor, actiondef, debugmode);
 	rt.tag = WidgetRequest::domainLoadWidgetRequestTag( visitor.widgetid());
-	qDebug() << "widget request [" << actiondef << "] of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
+	qDebug() << "widget request [" << menuitem << "] of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
 	return rt;
 }
 
