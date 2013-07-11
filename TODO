@@ -37,7 +37,8 @@ bugs (must be discussed, when and whether to fix them):
     at SkeletonMainWindow.cpp:277
 #7  0xb7775acf in SkeletonMainWindow::qt_static_metacall (_o=0xbfc21a8c, 
     _c=QMetaObject::InvokeMetaMethod, _id=9, _a=0xbfc21088) at moc_SkeletonMainWindow.cpp:74
-- QLabel: id is not part of the state (see category_add with recipe.id)
+- QLabel: id is not part of the state (see category_add/edit with recipe.id or
+  component edit/add with category/manufacturer)
 - non-existing dataslots get triggered without warning:
   reload triggered of "QTreeWidget" "required_components" on dataslot "add_component_required" 
 - state of toolbars (enabled/disabled) is not stored into the settings
