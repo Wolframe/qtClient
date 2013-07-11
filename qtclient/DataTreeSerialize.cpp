@@ -491,16 +491,13 @@ static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
 	}
 }
 
-static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTree* schemanode)
+static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTree* schemanode, const char* debuglogname)
 {
 	int osize = -1;
 	if (datanode->value().type() == QVariant::List)
 	{
 		osize = datanode->value().toList().size();
-	}
-	else if (datanode->value_initialized())
-	{
-		osize = 1;
+		if (debuglogname) qDebug() << "[getArraySize] size of array" << debuglogname << "=" << osize;
 	}
 	if (osize >= 0)
 	{
@@ -512,7 +509,7 @@ static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTr
 		{
 			if (arraysize != osize)
 			{
-				qCritical() << "array size do not match" << "!=" << arraysize << osize;
+				if (!debuglogname) qCritical() << "array size do not match" << "!=" << arraysize << osize;
 				return false;
 			}
 		}
@@ -526,7 +523,8 @@ static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTr
 		}
 		if (datanode->nodetree(ii)->elemtype() != DataTree::Array)
 		{
-			if (!getArraySize( arraysize, datanode->nodetree(ii).data(), schemanode->nodetree(ii).data()))
+			if (debuglogname) qDebug() << "[getArraySize] visit element" << debuglogname << "/" << schemanode->nodename(ii);
+			if (!getArraySize( arraysize, datanode->nodetree(ii).data(), schemanode->nodetree(ii).data(), debuglogname?schemanode->nodename(ii).toLatin1().constData():0))
 			{
 				return false;
 			}
@@ -606,8 +604,9 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 				}
 				int arraysize = -1;
 				int arrayinc = 1;
-				if (!getArraySize( arraysize, datanode, schemanode))
+				if (!getArraySize( arraysize, datanode, schemanode, 0))
 				{
+					getArraySize( arraysize, datanode, schemanode, stk.back().schemanode->nodename( nodeidx).toLatin1().constData());
 					return QList<WidgetDataAssignmentInstr>();
 				}
 				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
