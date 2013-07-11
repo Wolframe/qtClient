@@ -54,8 +54,39 @@ void DataTree::addNode( const QString& name_, const DataTree& tree_)
 {
 	if (m_elemtype != Array)
 	{
+		foreach (const Node& nd, m_nodear)
+		{
+			if (nd.name == name_)
+			{
+				qCritical() << "duplicate definition of node" << name_;
+				break;
+			}
+		}
 		m_nodear.push_back( Node( name_, tree_));
 	}
+}
+
+bool DataTree::setContent( const DataTree& elem_)
+{
+	if (m_elemtype == Array)
+	{
+		qCritical() << "illegal operation set content on array";
+		return false;
+	}
+	else if (elem_.m_nodear.size())
+	{
+		qCritical() << "tried to set structure as content element" << elem_.toString();
+		return false;
+	}
+	else if (m_value.isValid() || m_defaultvalue.isValid())
+	{
+		qCritical() << "duplicate definition of content";
+		return false;
+	}
+	m_value = elem_.m_value;
+	m_defaultvalue = elem_.m_defaultvalue;
+	m_isOptional = elem_.m_isOptional;
+	return true;
 }
 
 void DataTree::addAttribute( const QString& name_, const DataTree& tree_)
@@ -102,7 +133,7 @@ const DataTree& DataTree::node( const QString& name_) const
 	return inValidNode;
 }
 
-QString DataTree::parseString( QString::const_iterator& itr, const QString::const_iterator& end)
+static QString parseString( QString::const_iterator& itr, const QString::const_iterator& end)
 {
 	QChar eb = *itr;
 	QString::const_iterator start;
@@ -177,7 +208,7 @@ static void skipNonSpaces( QString::const_iterator& itr, const QString::const_it
 	for (; itr != end && !itr->isSpace() && *itr != ';'; ++itr);
 }
 
-DataTree::ElementType DataTree::parseNodeHeader( QString& nodename, QString::const_iterator& itr, const QString::const_iterator& end)
+static DataTree::ElementType parseNodeHeader( QString& nodename, QString::const_iterator& itr, const QString::const_iterator& end)
 {
 	for (; itr != end && isAlphaNum(*itr); ++itr)
 	{
@@ -192,18 +223,77 @@ DataTree::ElementType DataTree::parseNodeHeader( QString& nodename, QString::con
 		if (itr != end && *itr == ']')
 		{
 			++itr;
-			return Array;
+			return DataTree::Array;
 		}
 		else
 		{
 			itr = obrk;
-			return Invalid;
+			return DataTree::Invalid;
 		}
 	}
 	else
 	{
-		return Single;
+		return DataTree::Single;
 	}
+}
+
+DataTree DataTree::variableReference( const QVariant& value_, const QVariant& defaultvalue_, bool optional_)
+{
+	DataTree rt( DataTree::Single);
+	rt.m_isOptional = optional_;
+	rt.m_value = value_;
+	rt.m_defaultvalue = defaultvalue_;
+	return rt;
+}
+
+static DataTree parseVariableReference( QString::const_iterator& is, const QString::const_iterator& es)
+{
+	TRACE_STATE( "fromString", "open variable reference (curly bracket)");
+	QString::const_iterator start = is+1;
+	bool optional_ = false;
+	QVariant value_;
+	QVariant defaultvalue_;
+
+	skipBrk( is, es);
+	if (is == es)
+	{
+		qCritical() << "curly brackets not balanced {..}:" << QString( start,is-start);
+		return DataTree( DataTree::Invalid);
+	}
+	QString nodevar = QString( start, is-start).trimmed();
+	++is;
+	int dd;
+	if (nodevar.indexOf('{') >= 0)
+	{
+		qCritical() << "expected variable reference instead of expression" << nodevar;
+		return DataTree( DataTree::Invalid);
+	}
+	if (nodevar == "?")
+	{
+		optional_ = true;
+	}
+	else if ((dd=nodevar.indexOf(':')) >= 0)
+	{
+		QString defaultvaluestr = nodevar.mid( dd+1, nodevar.size()-dd-1);
+		if (defaultvaluestr == "?")
+		{
+			optional_ = true;
+			nodevar = nodevar.mid( 0, dd);
+		}
+		else
+		{
+			defaultvalue_ = QVariant( defaultvaluestr);
+			nodevar = nodevar.mid( 0, dd);
+		}
+		value_ = QVariant( nodevar);
+	}
+	else
+	{
+		value_ = QVariant( nodevar);
+	}
+	TRACE_OBJECT( "fromString", "variable reference", value_);
+	TRACE_OBJECT( "fromString", "default value", defaultvalue_);
+	return DataTree::variableReference( value_, defaultvalue_, optional_);
 }
 
 DataTree DataTree::fromString( const QString::const_iterator& begin, const QString::const_iterator& end)
@@ -215,6 +305,7 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 	while (is != es)
 	{
 		skipSpaces( is, es);
+		if (is == es) break;
 
 		if (isAlphaNum(*is))
 		{
@@ -231,19 +322,36 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 
 			if (is == es)
 			{
-				if (rt.m_value.isValid())
-				{
-					TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
-					return DataTree( Invalid);
-				}
-				rt.m_value = QVariant( nodename);
+				TRACE_ERROR( "fromString", "unexpected end of data tree definition (expression or '=' expected after identifier)", (int)__LINE__)
+				return DataTree( Invalid);
 			}
 			else if (*is == '{')
 			{
 				TRACE_STATE( "fromString", "open node bracket");
 				QString::const_iterator start = is+1;
 				skipBrk( is, es);
-				DataTree elem( fromString( start, is));
+				if (is == es)
+				{
+					TRACE_ERROR( "fromString", "invalid tree (curly brackets not balanced)", (int)__LINE__)
+					return DataTree( Invalid);
+				}
+				DataTree elem;
+				skipSpaces( start, is);
+				if (start == is)
+				{
+					TRACE_ERROR( "fromString", "invalid tree (empty expression or variable reference: \"{}\")", (int)__LINE__)
+					return DataTree( Invalid);
+				}
+				if (*start == '{')
+				{
+					elem = parseVariableReference( start, is);
+					++is;
+				}
+				else
+				{
+					elem = DataTree::fromString( start, is);
+					++is;
+				}
 				if (elem.m_elemtype == Invalid)
 				{
 					TRACE_ERROR( "fromString", "invalid tree", (int)__LINE__)
@@ -251,23 +359,24 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 				}
 				elem.m_elemtype = elemtype;
 				rt.addNode( nodename, elem);
-				if (is != es)
-				{
-					++is;
-				}
 			}
 			else if (*is == '=')
 			{
-				if (elemtype != Single)
+				if (elemtype == Array)
 				{
-					TRACE_ERROR( "fromString", "invalid tree", (int)__LINE__)
+					TRACE_ERROR( "fromString", "invalid tree (attribute defined as array)", (int)__LINE__)
+					return DataTree( Invalid);
+				}
+				if (elemtype == Invalid)
+				{
+					TRACE_ERROR( "fromString", "invalid tree (attribute definition)", (int)__LINE__)
 					return DataTree( Invalid);
 				}
 				TRACE_STATE( "fromString", "assignment");
 				++is; skipSpaces( is, es);
 				if (is == es)
 				{
-					TRACE_ERROR( "fromString", "invalid tree", (int)__LINE__)
+					TRACE_ERROR( "fromString", "invalid tree (expected expression or string as attribute value)", (int)__LINE__)
 					return DataTree( Invalid);
 				}
 				if (*is == '\'' || *is == '\"')
@@ -278,25 +387,20 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 				}
 				else if (*is == '{')
 				{
+					DataTree attr( parseVariableReference( is, es));
+					rt.addAttribute( nodename, attr);
+				}
+				else if (isAlphaNum(*is))
+				{
 					QString::const_iterator start = is;
-					skipBrk( is, es);
-					if (is != es) is++;
-					TRACE_OBJECT( "fromString", "brk attribute", QString( start, is-start));
-					rt.addAttribute( nodename, DataTree( QVariant( QString( start, is-start))));
+					for (++is; is != es && isAlphaNum(*is); ++is);
+					rt.addAttribute( nodename, DataTree( QString( start, is-start)));
 				}
 				else
 				{
-					QString::const_iterator start = is;
-					skipNonSpaces( is, es);
-					if (is == start)
-					{
-						TRACE_ERROR( "fromString", "invalid tree", (int)__LINE__)
-						return DataTree( Invalid);
-					}
-					TRACE_OBJECT( "fromString", "nonspace attribute", QString( start, is-start));
-					rt.addAttribute( nodename, DataTree( QVariant( QString( start, is-start))));
+					TRACE_ERROR( "fromString", "invalid tree (expected curly bracket expression or string)", (int)__LINE__)
+					return DataTree( Invalid);
 				}
-				if (is == es) break;
 			}
 			else
 			{
@@ -312,47 +416,44 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 		else if (*is == '\'' || *is == '\"')
 		{
 			TRACE_STATE( "fromString", "open string");
-			QString nodevalue = parseString( is, es);
-			if (rt.m_value.isValid())
-			{
-				TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
-				return DataTree( Invalid);
-			}
-			rt.m_value = QVariant( nodevalue);
+			rt.m_value = QVariant( parseString( is, es));
 		}
 		else if (*is == '{')
 		{
-			TRACE_STATE( "fromString", "open value bracket");
-			QString::const_iterator start = is+1;
-
-			skipBrk( is, es);
-			QString nodevalue;
-			QString nodevar = QString( start, is-start).trimmed();
-			int dd;
-			if ((dd=nodevar.indexOf(':')) >= 0)
+			TRACE_STATE( "fromString", "content element");
+			DataTree content = parseVariableReference( is, es);
+			if (content.m_elemtype == Invalid)
 			{
-				QString defaultvaluestr = nodevar.mid( dd+1, nodevar.size()-dd-1);
-				if (defaultvaluestr != "?")
-				{
-					rt.m_defaultvalue = QVariant( defaultvaluestr);
-					nodevar = nodevar.mid( 0, dd);
-				}
-			}
-			nodevalue.push_back( '{');
-			nodevalue.append( nodevar);
-			nodevalue.push_back( '}');
-			TRACE_OBJECT( "fromString", "curly bracket value", nodevalue);
-			TRACE_OBJECT( "fromString", "default value", rt.m_defaultvalue);
-			if (rt.m_value.isValid())
-			{
-				TRACE_ERROR( "fromString", "duplicate definition of value", (int)__LINE__)
+				TRACE_ERROR( "fromString", "invalid tree (content element)", (int)__LINE__)
 				return DataTree( Invalid);
 			}
-			rt.m_value = QVariant( nodevalue);
+			if (!rt.setContent( content))
+			{
+				TRACE_ERROR( "fromString", "invalid tree (content element)", (int)__LINE__)
+				return DataTree( Invalid);
+			}
+		}
+		else if (*is == '?')
+		{
+			++is;
+			skipSpaces( is, es);
 			if (is != es)
 			{
-				++is;
+				TRACE_ERROR( "fromString", "invalid tree (superfluous characters at end of subexpression)", (int)__LINE__)
+				return DataTree( Invalid);
 			}
+			DataTree content( Single);
+			content.m_isOptional = true;
+			if (!rt.setContent( content))
+			{
+				TRACE_ERROR( "fromString", "invalid tree (content element)", (int)__LINE__)
+				return DataTree( Invalid);
+			}
+		}
+		else
+		{
+			TRACE_ERROR( "fromString", "expected expression or string", (int)__LINE__)
+			return DataTree( Invalid);
 		}
 		skipSpaces( is, es);
 		if (is != es)
@@ -647,7 +748,7 @@ ActionResultDefinition::ActionResultDefinition( const QString& str)
 		m_structure = DataTree::fromString( start, itr);
 		if (m_structure.elemtype() == DataTree::Invalid)
 		{
-			qCritical() << "invalid action result definition";
+			qCritical() << "invalid action result definition:" << str;
 		}
 		if (hasDefaultValue( &m_structure))
 		{

@@ -43,23 +43,24 @@
 class DataTree
 {
 public:
-	enum ElementType {Invalid,Single,Array};
+	enum ElementType {Invalid,Constant,Single,Array};
 	static const char* elementTypeName( ElementType i)
 	{
-		static const char* ar[] = {"Invalid","Single","Array"};
+		static const char* ar[] = {"Invalid","Constant","Single","Array"};
 		return ar[i];
 	}
 
 	explicit DataTree( ElementType elemtype_=Invalid)
-		:m_elemtype(elemtype_),m_value_initialized(false),m_nofattributes(0){}
+		:m_elemtype(elemtype_),m_value_initialized(false),m_isOptional(false),m_nofattributes(0){}
 	DataTree( const DataTree& o)
-		:m_elemtype(o.m_elemtype),m_value_initialized(o.m_value_initialized),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
+		:m_elemtype(o.m_elemtype),m_value_initialized(o.m_value_initialized),m_isOptional(o.m_isOptional),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
 	DataTree( const QVariant& value_)
-		:m_elemtype(Single),m_value_initialized(true),m_value(value_),m_nofattributes(0){}
+		:m_elemtype(Constant),m_value_initialized(true),m_isOptional(false),m_value(value_),m_nofattributes(0){}
 
 	void addNode( const QString& name_, const DataTree& tree_);
 	void addAttribute( const QString& name_, const DataTree& tree_);
 	void addArrayElement( const DataTree& tree_);
+	bool setContent( const DataTree& elem_);
 
 	void setNode( const QString& name_, const DataTree& tree_);
 	const DataTree& node( const QString& name_) const;
@@ -73,6 +74,7 @@ public:
 	int size() const					{return m_nodear.size();}
 	const QVariant& value() const				{return m_value;}
 	const QVariant& defaultvalue() const			{return m_defaultvalue;}
+	bool isOptional() const					{return m_isOptional;}
 	bool value_initialized() const				{return m_value_initialized;}
 	ElementType elemtype() const				{return m_elemtype;}
 
@@ -81,16 +83,15 @@ public:
 
 	static DataTree fromString( const QString::const_iterator& begin, const QString::const_iterator& end);
 	static DataTree fromString( const QString& str);
+	static DataTree variableReference( const QVariant& value_, const QVariant& defaultvalue_, bool optional_);
 	QString toString() const;
 
 	void pushNodeValue( const QVariant& value);
 	DataTree copyStructure() const;
 
 private:
-	static QString parseString( QString::const_iterator& itr, const QString::const_iterator& end);
 	static bool mapDataTreeToString( const DataTree& dt, QString& str);
 	static bool mapDataValueToString( const QVariant& val, QString& str);
-	static ElementType parseNodeHeader( QString& nodename, QString::const_iterator& itr, const QString::const_iterator& end);
 
 private:
 	struct Node
@@ -107,6 +108,7 @@ private:
 
 	ElementType m_elemtype;
 	bool m_value_initialized;
+	bool m_isOptional;
 	QVariant m_value;
 	QVariant m_defaultvalue;
 	QList<Node> m_nodear;

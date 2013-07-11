@@ -38,104 +38,104 @@ struct SerializeStackElement
 static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QList<SerializeStackElement>& stk, int arrayidx)
 {
 	bool rt = true;
-	QString value = stk.back().tree->value().toString();
-	if (value.size() > 1)
+	QVariant value = stk.back().tree->value();
+	QVariant defaultvalue = stk.back().tree->defaultvalue();
+	if (stk.back().tree->elemtype() == DataTree::Constant)
 	{
-		if (value.at(0) == '{' && value.at(value.size()-1) == '}')
+
+		QVariant resolved = visitor.resolve( value);
+		res.push_back( DataSerializeItem( DataSerializeItem::Value, resolved.toString()));
+	}
+	else
+	{
+		QString propkey = value.toString();
+		QVariant prop;
+
+		if (arrayidx >= 0)
 		{
-			QString propkey = value.mid( 1, value.size()-2).trimmed();
-			bool hasDefaultPropValue = false;
-			QVariant defaultPropValue;
-			int dvidx;
-			bool isOptionalPropValue = false;
-			if ((dvidx=propkey.indexOf(':')) >= 0)
+			//... we are in an array context
+			int ai = stk.at(arrayidx).arrayelemidx;
+			if (ai == 0)
 			{
-				hasDefaultPropValue = true;
-				QString dv( propkey.mid( dvidx+1, propkey.size()-(dvidx+1)).trimmed());
-				if (dv != "?")
-				{
-					defaultPropValue = dv;
-					isOptionalPropValue = false;
-				}
-				else
-				{
-					isOptionalPropValue = true;
-				}
-				propkey = propkey.mid( 0, dvidx).trimmed();
-			}
-			QVariant prop;
-			if (arrayidx >= 0)
-			{
-				int ai = stk.at(arrayidx).arrayelemidx;
-				if (ai == 0)
-				{
-					prop = stk[ arrayidx].arrayValueMap[ propkey] = visitor.property( propkey);
-				}
-				else
-				{
-					prop = stk[ arrayidx].arrayValueMap[ propkey];
-				}
-				if (prop.type() == QVariant::List)
-				{
-					if (prop.toList().size() > ai)
-					{
-						res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toList().at(ai)));
-					}
-					else
-					{
-						if (ai != 0) qCritical() << "accessing array with index out of range:" << propkey;
-						rt = false;
-					}
-				}
-				else if (prop.isValid())
-				{
-					res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
-				}
-				else if (!isOptionalPropValue)
-				{
-					qCritical() << "accessing non existing property" << propkey;
-					rt = false;
-				}
+				prop = stk[ arrayidx].arrayValueMap[ propkey] = visitor.property( propkey);
 			}
 			else
 			{
-				prop = visitor.property( propkey);
-				if (prop.type() == QVariant::List)
+				prop = stk[ arrayidx].arrayValueMap[ propkey];
+			}
+			if (prop.type() == QVariant::List)
+			{
+				if (prop.toList().size() > ai)
 				{
-					qCritical() << "referencing list of element in a single element context:" << propkey;
-					rt = false;
-				}
-				else if (prop.isValid())
-				{
-					res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
-				}
-				else if (hasDefaultPropValue)
-				{
-					if (defaultPropValue.isValid())
+					QVariant elem = prop.toList().at(ai);
+					if (elem.isValid())
 					{
-						res.push_back( DataSerializeItem( DataSerializeItem::Value, defaultPropValue.toString()));
+						res.push_back( DataSerializeItem( DataSerializeItem::Value, elem.toString()));
+					}
+					else if (defaultvalue.isValid())
+					{
+						res.push_back( DataSerializeItem( DataSerializeItem::Value, defaultvalue.toString()));
+					}
+					else if (stk.back().tree->isOptional())
+					{
+						rt = false;
 					}
 					else
 					{
+						qCritical() << "accessing non existing property" << propkey;
 						rt = false;
 					}
 				}
 				else
 				{
-					qCritical() << "accessing non existing property" << propkey;
+					if (ai > 0) qCritical() << "accessing array with index out of range:" << propkey << "index:" << ai << "array:" << prop;
 					rt = false;
 				}
+			}
+			else if (prop.isValid())
+			{
+				res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
+			}
+			else if (defaultvalue.isValid())
+			{
+				res.push_back( DataSerializeItem( DataSerializeItem::Value, defaultvalue.toString()));
+			}
+			else if (stk.back().tree->isOptional())
+			{
+				rt = false;
+			}
+			else
+			{
+				qCritical() << "accessing non existing property" << propkey;
+				rt = false;
 			}
 		}
 		else
 		{
-			QVariant resolved = visitor.resolve( value);
-			res.push_back( DataSerializeItem( DataSerializeItem::Value, resolved.toString()));
+			prop = visitor.property( propkey);
+			if (prop.type() == QVariant::List)
+			{
+				qCritical() << "referencing list of element in a single element context:" << propkey;
+				rt = false;
+			}
+			else if (prop.isValid())
+			{
+				res.push_back( DataSerializeItem( DataSerializeItem::Value, prop.toString()));
+			}
+			else if (defaultvalue.isValid())
+			{
+				res.push_back( DataSerializeItem( DataSerializeItem::Value, defaultvalue.toString()));
+			}
+			else if (stk.back().tree->isOptional())
+			{
+				rt = false;
+			}
+			else
+			{
+				qCritical() << "accessing non existing property" << propkey;
+				rt = false;
+			}
 		}
-	}
-	else
-	{
-		res.push_back( DataSerializeItem( DataSerializeItem::Value, value));
 	}
 	return rt;
 }
@@ -149,8 +149,23 @@ static int calcArraySize( WidgetVisitor& visitor, const QSharedPointer<DataTree>
 	stk.push_back( SerializeStackElement( QString(), dt));
 	while (!stk.isEmpty())
 	{
-		QVariant value = visitor.resolve( stk.back().tree->value());
-		if (value.type() == QVariant::List)
+		QVariant value;
+		if (stk.back().tree->value().isValid())
+		{
+			switch (stk.back().tree->elemtype())
+			{
+				case DataTree::Invalid:
+				case DataTree::Constant: break;
+				case DataTree::Single:
+				case DataTree::Array:
+					value = visitor.property( stk.back().tree->value().toString());
+					break;
+			}
+		}
+		if (value.type() == QVariant::Invalid)
+		{
+		}
+		else if (value.type() == QVariant::List)
 		{
 			int arsize = value.toList().size();
 			if (rt < arsize) rt = arsize;
@@ -185,17 +200,6 @@ static int getLastArrayIdx( const QList<SerializeStackElement>& stk)
 	return arrayidx;
 }
 
-static QString getVariableName( const QString& value)
-{
-	if (value.isEmpty()) return value;
-	if (value.at(0) == '{' && value.at(value.size()-1) == '}')
-	{
-		QString res = value.mid( 1, value.size()-2).trimmed();
-		return res;
-	}
-	return value;
-}
-
 QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, WidgetVisitor& visitor)
 {
 	QList<DataSerializeItem> rt;
@@ -211,20 +215,20 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, W
 	while (!stk.isEmpty())
 	{
 		int ni = stk.back().nodeidx;
-		if (stk.back().tree->value().isValid())
-		{
-			if (!mapValue( rt, visitor, stk, arrayidx))
-			{
-				if (rt.back().type() == DataSerializeItem::OpenTag && ni >= stk.back().tree->size())
-				{
-					rt.pop_back();
-					continue;
-				}
-			}
-		}
 		if (ni >= stk.back().tree->size())
 		{
-			rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, ""));
+			if (stk.back().tree->value().isValid())
+			{
+				mapValue( rt, visitor, stk, arrayidx);
+			}
+			if (!rt.isEmpty() && rt.back().type() == DataSerializeItem::OpenTag && stk.back().tree->elemtype() != DataTree::Array)
+			{
+				rt.pop_back();
+			}
+			else
+			{
+				rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, ""));
+			}
 			if (stk.back().tree->elemtype() == DataTree::Array && ++stk.back().arrayelemidx < stk.back().arraysize)
 			{
 				rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, stk.back().name));
@@ -263,6 +267,12 @@ QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, W
 			{
 				arrayidx = stk.size()-1;
 				stk.back().arraysize = calcArraySize( visitor, stk.back().tree);
+				if (stk.back().arraysize <= 0)
+				{
+					rt.pop_back();
+					stk.pop_back();
+					stk.back().nodeidx++;
+				}
 			}
 		}
 	}
@@ -348,17 +358,17 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				int ii=0, nn=stk.back().initialized.size();
 				for (; ii<nn; ++ii)
 				{
-					if (getVariableName( stk.back().schemanode->nodetree(ii)->value().toString()) != "?")
+					if (!stk.back().schemanode->nodetree(ii)->isOptional())
 					{
 						if (!stk.back().initialized.testBit( ii) && stk.back().schemanode->nodetree( ii)->elemtype() != DataTree::Array)
 						{
 							qCritical() << "element not initialized in answer:" << stk.back().schemanode->nodename( ii) << "at" << elementPath(stk);
-							stk.back().datanode->nodetree( ii)->pushNodeValue( QVariant());
+							stk.back().datanode->nodetree( ii)->pushNodeValue( stk.back().schemanode->nodetree(ii)->defaultvalue());
 						}
 						else if (!stk.back().valueset.testBit( ii)
 							&& stk.back().schemanode->nodetree(ii)->value().isValid())
 						{
-							stk.back().datanode->nodetree( ii)->pushNodeValue( QString());
+							stk.back().datanode->nodetree( ii)->pushNodeValue( QVariant());
 						}
 					}
 				}
@@ -430,18 +440,7 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 				}
 				if (schemanode && schemanode->value().isValid())
 				{
-					QString ref = getVariableName( schemanode->value().toString());
-					if (ref == "?")
-					{}
-					else if (!ref.isEmpty())
-					{
-						datanode->pushNodeValue( ai->value());
-					}
-					else
-					{
-						qCritical() << "illegal target variable definition in tree:" << ref;
-						rt = false;
-					}
+					datanode->pushNodeValue( ai->value());
 				}
 				break;
 			}
@@ -458,19 +457,15 @@ static bool fillDataTree( DataTree& datatree, const DataTree& schematree, const 
 
 static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
 {
-	if (!prefix.isValid() && schemanode->value().isValid())
+	if (schemanode->value().isValid())
 	{
-		QString varname = getVariableName( schemanode->value().toString());
-		if (varname != "?")
+		if (!prefix.isValid())
 		{
-			prefix = varname;
+			prefix = schemanode->value().toString();
 		}
-	}
-	else if (schemanode->value().isValid())
-	{
-		QString varname = getVariableName( schemanode->value().toString());
-		if (varname != "?")
+		else
 		{
+			QString varname = schemanode->value().toString();
 			QStringList p1 = prefix.toString().split('.');
 			QStringList p2 = varname.split('.');
 			QStringList::const_iterator i1 = p1.begin();
@@ -525,7 +520,7 @@ static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTr
 	int ii = 0, nn = datanode->size();
 	for (; ii<nn; ++ii)
 	{
-		if (getVariableName( schemanode->nodetree(ii)->value().toString()) == "?")
+		if (!schemanode->nodetree(ii)->value().isValid())
 		{
 			continue;
 		}
@@ -575,8 +570,8 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 		int nodeidx = stk.back().nodeidx++;
 		if (nodeidx == 0 && stk.back().datanode->value().isValid())
 		{
-			QString varname( getVariableName( stk.back().schemanode->value().toString()));
-			if (varname != "?")
+			QString varname( stk.back().schemanode->value().toString());
+			if (stk.back().schemanode->value().isValid())
 			{
 				if (!prefixstk.isEmpty())
 				{

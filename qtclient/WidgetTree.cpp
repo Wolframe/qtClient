@@ -168,7 +168,7 @@ void WidgetTree::signalEnablers()
 QVariant WidgetTree::getWidgetStates() const
 {
 	QList<QVariant> rt;
-	foreach( QWidget *widget, m_visitor.widget()->findChildren<QWidget*>())
+	if (m_visitor.widget()) foreach( QWidget *widget, m_visitor.widget()->findChildren<QWidget*>())
 	{
 		if (!isInternalWidget( widget))
 		{

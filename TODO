@@ -13,7 +13,7 @@ now musts:
 bugs (must be discussed, when and whether to fix them):
 - weird behaviour when a window is maximized in MDI mode: subwindow get
   resizes and positioned in funny ways
-- price{{main.price:0.0}}, or 0, the default value is ignored,
+- [PF:partly fixed, case does not work yet] price{{main.price:0.0}}, or 0, the default value is ignored,
   the value in the widget wins:
   <price></price>
   there is an action mismatch error (before and after interpreting):
@@ -24,7 +24,7 @@ bugs (must be discussed, when and whether to fix them):
 - illegal use of Qt::UserRole and no Qt::DisplayRole to show elements, must
   be Qt::DisplayRole for all normal data, Qt::UserRole for hidden id only
   (if that option is choosen)
-- segfault when configurator plugin is open and wolframed runs away, this is
+- [PF:?] segfault when configurator plugin is open and wolframed runs away, this is
   iterating widget for states which are never defined for the handwritten plugin:
 #0  0xb6b1d020 in qt_qFindChildren_helper(QObject const*, QString const&, QRegExp const*, QMetaObject const&, QList<void*>*) () from /usr/lib/libQtCore.so.4
 #1  0x0807b3c7 in QObject::findChildren<QWidget*> (this=0x92684c0, aName=...)
@@ -42,7 +42,7 @@ bugs (must be discussed, when and whether to fix them):
   reload triggered of "QTreeWidget" "required_components" on dataslot "add_component_required" 
 - state of toolbars (enabled/disabled) is not stored into the settings
   and restored from them
-- answer: can't ignore subtrees with a question mark on a higher
+- [PF:should work now, not tested yet] answer: can't ignore subtrees with a question mark on a higher
   level element, would be nice
 - we can have multiple selection boxes for the same edit window with
   lost link behaviour, leads also to error message:
@@ -56,7 +56,7 @@ bugs (must be discussed, when and whether to fix them):
   CRITICAL: accessing non existing property "main.tags.item.id:?" 
   CRITICAL: accessing non existing property "main.image.size:?" 
   CRITICAL: accessing non existing property "main.image.size:?" 
-- hard to understand for a developer to put certain dynamic properties
+- [PF:to discuss] hard to understand for a developer to put certain dynamic properties
   to widget to avoid error messages like:
   CRITICAL: set a dynamic property of QLabel "picture_info_form.image" that is not predefined: "base64" QVariant(QString, "/9j/4AAQSkZJRgABAgAAZABkAAD/7AARRHVja3kAAQAEAAAAPAAA/+4ADkFk...") 
   CRITICAL: ERROR:  "-add:266" "REQUEST error in transaction addPicture: invalid input syntax for integer: "" LINE 1: ...NSERT INTO PictureTag( pictureID, tagID ) VALUES( '79', '' )                                                                    ^" 
@@ -73,7 +73,7 @@ bugs (must be discussed, when and whether to fix them):
   => IMHO: the default test in 'action' should come first, then
      the explicit 'state:enabled', if both tests are ok, then
      the button is enabled 
-- syntax error: code {?}; leads to completly misleading error message:
+- [PF:fixed] syntax error: code {?}; leads to completly misleading error message:
   CRITICAL: attribute not defined in answer description: "id" at ""
 
 later (cleanups):
@@ -109,19 +109,19 @@ later (cleanups):
 - libqtwolframeclient cleanup
 - libraries for request construction and answer interpretation
   - the one using visitors
-- plugins using visitors, how to respect plugin interface there?
-- CRITICAL: element not defined in answer description: QVariant(QString, "picture") at "" 
+- [PF:?] plugins using visitors, how to respect plugin interface there?
+- [PF:?] CRITICAL: element not defined in answer description: QVariant(QString, "picture") at ""
   => add the name of the affected widget here!
-- received line: "@
+- [PF:protocol error, but I do not get where it happens] received line: "@
   CRITICAL: "protocol error. ANSWER/ERR/BYE expected, got: @" 
  => happens if -D DATA is given to wolframd
   received line: "PT·Server is shutting down. :P" 
-  CRITICAL: "protocol error. ANSWER/ERR/BYE expected, got: PT·SERVER" 
+  [PF:fixed] CRITICAL: "protocol error. ANSWER/ERR/BYE expected, got: PT·SERVER"
 
 unsorted or maybe obsolete from here:
 
 musts:
-- multi-line plain text fields (like desription in recipe) loose newlines
+- [PF:works for me] multi-line plain text fields (like desription in recipe) loose newlines
 - ILLEGAL STATE 4 in dataAvailable!
 - MDI interface
   - open forms via click on button

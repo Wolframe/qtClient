@@ -124,6 +124,12 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 		return rt;
 	}
 	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), visitor);
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	foreach (const DataSerializeItem& ei, elements)
+	{
+		TRACE_VALUE( "serialized data element", ei.toString())
+	}
+#endif
 	rt.cmd = action.command();
 	rt.content = getDataXML( docType, rootElement, isStandalone, elements, debugmode);
 	return rt;
