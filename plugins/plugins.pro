@@ -2,6 +2,6 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS = filechooser picturechooser formtest wolfdesigner exportplugin
+SUBDIRS = filechooser picturechooser formtest wolfdesigner
 
 picturechooser.depends = filechooser
