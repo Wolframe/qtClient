@@ -1,0 +1,26 @@
+Grammar of the Request Answer Specification Language (RASL)
+
+Identifier     = [a-zA-Z_][a-zA-Z_]*
+String         = ([']([^\']|[\\].)*['])|(["]([\']|[\\].)["])
+AnyIdentifier  = [?]
+Token          = ([^\}]*)
+
+VariableRef : '{' Identifier ':' Token '}'              #.. variable with default value, if not defined
+VariableRef : '{' Identifier ':' AnyIdentifier '}'      #.. optional variable
+VariableRef : '{' Identifier '}'                        #.. mandatory variable
+VariableRef : '{' AnyIdentifier '}'                     #.. ignored subexpression or variable
+
+ExprList    : Expression ';' ExprList                   #.. elements of a structure
+ExprList    : Expression                                #.. structure with one element or single element if defined as content element
+
+Expression  : Identifier '{' ExprList '}'               #.. structure/element
+Expression  : Identifier '[' ']' '{' ExprList '}'       #.. array of structures/elements
+Expression  : VariableRef                               #.. variable content element
+Expression  : String                                    #.. constant content element
+Expression  : AnyIdentifier                             #.. ignored subexpression or variable (same as of {?})
+
+Expression  : Identifier '=' VariableRef                #.. variable attribute assignment
+Expression  : Identifier '=' String                     #.. constant attribute assignment
+Expression  : Identifier '=' AnyIdentifier              #.. ignored attribute assignment
+
+

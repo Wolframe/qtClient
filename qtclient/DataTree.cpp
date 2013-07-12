@@ -137,7 +137,14 @@ static QString parseString( QString::const_iterator& itr, const QString::const_i
 {
 	QChar eb = *itr;
 	QString::const_iterator start;
-	for (start=++itr; itr != end && *itr != eb; ++itr);
+	for (start=++itr; itr != end && *itr != eb; ++itr)
+	{
+		if (*itr == '\\')
+		{
+			++itr;
+			if (itr == end) break;
+		}
+	}
 	QString rt( start, itr-start);
 	if (itr != end) ++itr;
 	return rt;
