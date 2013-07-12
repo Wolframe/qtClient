@@ -42,11 +42,12 @@ ServerDefinition::ServerDefinition()
 {
 //	name and host should be empty
 	port = 0;
+	connTimeout = 0;
+	msgTimeout = 0;
 	SSL = false;
 	clientCertificate = false;
 //	SSLcertificate, SSLkey and SSLCAbundle should be empty
 	SSLverify = false;
-	timeout = 0;
 }
 
 bool ServerDefinition::isEmpty() const

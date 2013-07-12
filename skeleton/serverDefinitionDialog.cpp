@@ -86,10 +86,15 @@ ServerDefinitionDialog::ServerDefinitionDialog( ServerDefinition& params, QWidge
 		ui->CAbundleEdit->setText( "" );
 	}
 
-	if ( params.timeout == 0 )
-		ui->timeoutSpinBox->setValue( 15 );
+	if ( params.connTimeout == 0 )
+		ui->connTimeoutSpinBox->setValue( 30 );
 	else
-		ui->timeoutSpinBox->setValue( params.timeout );
+		ui->connTimeoutSpinBox->setValue( params.connTimeout );
+
+	if ( params.msgTimeout == 0 )
+		ui->msgTimeoutSpinBox->setValue( 15 );
+	else
+		ui->msgTimeoutSpinBox->setValue( params.msgTimeout );
 
 	connect( ui->certFileBttn, SIGNAL( clicked() ), this, SLOT( selectCertFile() ));
 	connect( ui->keyFileBttn, SIGNAL( clicked() ), this, SLOT( selectKeyFile() ));
@@ -177,7 +182,8 @@ void ServerDefinitionDialog::buildParams( ServerDefinition& params )
 	params.name = ui->nameEdit->text().simplified();
 	params.host = ui->hostEdit->text().simplified();
 	params.port = ui->portSpinBox->value();
-	params.timeout = ui->timeoutSpinBox->value();
+	params.connTimeout = ui->connTimeoutSpinBox->value();
+	params.msgTimeout = ui->msgTimeoutSpinBox->value();
 
 	if ( ui->SSLcheck->isChecked() )	{
 		params.SSL = true ;

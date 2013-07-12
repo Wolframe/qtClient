@@ -227,8 +227,8 @@ void WolframeClient::connect( )
 				m_socket->connectToHost( m_connParams.host, m_connParams.port );
 			}
 
-			if( m_connParams.timeout > 0 ) {
-				m_timeoutTimer->start( m_connParams.timeout * 1000 );
+			if( m_connParams.msgTimeout > 0 ) {
+				m_timeoutTimer->start( m_connParams.msgTimeout * 1000 );
 			}
 
 			m_state = AboutToConnect;

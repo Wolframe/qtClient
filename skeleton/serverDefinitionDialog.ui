@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
-    <height>424</height>
+    <width>432</width>
+    <height>457</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,29 +23,6 @@
   <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="nameLbl">
-       <property name="text">
-        <string>Connection name :</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QLineEdit" name="nameEdit"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="hostLbl">
-       <property name="text">
-        <string>Server name / IP :</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1" colspan="2">
       <widget class="QLineEdit" name="hostEdit"/>
      </item>
@@ -53,6 +30,16 @@
       <widget class="QLabel" name="portLbl">
        <property name="text">
         <string>Server port :</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="nameLbl">
+       <property name="text">
+        <string>Connection name :</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -72,23 +59,16 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="timeoutLbl">
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="nameEdit"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="hostLbl">
        <property name="text">
-        <string>Message timeout :</string>
+        <string>Server name / IP :</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QSpinBox" name="timeoutSpinBox">
-       <property name="suffix">
-        <string> sec.</string>
-       </property>
-       <property name="value">
-        <number>15</number>
        </property>
       </widget>
      </item>
@@ -107,6 +87,73 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="msgTimeoutSpinBox">
+       <property name="suffix">
+        <string> sec.</string>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>15</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="connTimeoutSpinBox">
+       <property name="suffix">
+        <string> sec.</string>
+       </property>
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>30</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="connTimeoutLbl">
+       <property name="text">
+        <string>Connection timeout :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="msgTimeoutLbl">
+       <property name="text">
+        <string>Message timeout :</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="testBttn">
+       <property name="text">
+        <string>&amp;Test Connection</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDialogButtonBox" name="buttonBox">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -194,13 +241,6 @@
          <enum>QFrame::Sunken</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="0" colspan="2">
-          <widget class="QCheckBox" name="SSLverifyCheck">
-           <property name="text">
-            <string>Verify Server Certificate</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="CAbundleLbl">
            <property name="text">
@@ -213,6 +253,13 @@
          </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="CAbundleEdit"/>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QCheckBox" name="SSLverifyCheck">
+           <property name="text">
+            <string>Verify Server Certificate</string>
+           </property>
+          </widget>
          </item>
          <item row="1" column="2">
           <widget class="QToolButton" name="CAbundleFileBttn">
@@ -227,37 +274,12 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="testBttn">
-       <property name="text">
-        <string>&amp;Test Connection</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>nameEdit</tabstop>
   <tabstop>hostEdit</tabstop>
   <tabstop>portSpinBox</tabstop>
-  <tabstop>timeoutSpinBox</tabstop>
   <tabstop>SSLcheck</tabstop>
   <tabstop>clientCertCheck</tabstop>
   <tabstop>certEdit</tabstop>

@@ -31,37 +31,14 @@
 
 ************************************************************************/
 
-#ifndef _SERVER_DEFINITION_HPP_INCLUDED
-#define _SERVER_DEFINITION_HPP_INCLUDED
+#ifndef _SERVER_CONNECTION_HPP_INCLUDED
+#define _SERVER_CONNECTION_HPP_INCLUDED
 
-#include <QString>
-#include <QStringList>
 
-struct LIBWOLFRAMECLIENT_VISIBILITY ServerDefinition	{
-	QString		name;
-	QString		host;
-	unsigned short	port;
-	unsigned short	connTimeout;
-	unsigned short	msgTimeout;
-	bool		SSL;
-	bool		clientCertificate;
-	QString		SSLcertificate;
-	QString		SSLkey;
-	bool		SSLverify;
-	QString		SSLCAbundle;
-
+class ServerConnection
+{
 public:
-	ServerDefinition();
-
-	// true if the server is undefined
-	bool isEmpty() const;
-
-	// Return a description of the server
-	QString toString() const;
-
-	// Check if the server parameters are ok
-	// Fills in the error string in case of an error
-	bool check( QString& error ) const;
+	ServerConnection();
 };
 
-#endif // _SERVER_DEFINITION_HPP_INCLUDED
+#endif // _SERVER_CONNECTION_HPP_INCLUDED
