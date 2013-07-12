@@ -491,9 +491,13 @@ static void getCommonPrefix( QVariant& prefix, const DataTree* schemanode)
 	}
 }
 
-static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTree* schemanode, const char* debuglogname)
+static bool getArraySize( int& arraysize, int& nofelements, const DataTree* datanode, const DataTree* schemanode, const char* debuglogname)
 {
 	int osize = -1;
+	if (datanode->value().type() != QVariant::Invalid)
+	{
+		nofelements += 1;
+	}
 	if (datanode->value().type() == QVariant::List)
 	{
 		osize = datanode->value().toList().size();
@@ -524,7 +528,7 @@ static bool getArraySize( int& arraysize, const DataTree* datanode, const DataTr
 		if (datanode->nodetree(ii)->elemtype() != DataTree::Array)
 		{
 			if (debuglogname) qDebug() << "[getArraySize] visit element" << debuglogname << "/" << schemanode->nodename(ii);
-			if (!getArraySize( arraysize, datanode->nodetree(ii).data(), schemanode->nodetree(ii).data(), debuglogname?schemanode->nodename(ii).toLatin1().constData():0))
+			if (!getArraySize( arraysize, nofelements, datanode->nodetree(ii).data(), schemanode->nodetree(ii).data(), debuglogname?schemanode->nodename(ii).toLatin1().constData():0))
 			{
 				return false;
 			}
@@ -604,15 +608,16 @@ QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schem
 				}
 				int arraysize = -1;
 				int arrayinc = 1;
-				if (!getArraySize( arraysize, datanode, schemanode, 0))
+				int nofelements = 0;
+				if (!getArraySize( arraysize, nofelements, datanode, schemanode, 0))
 				{
-					getArraySize( arraysize, datanode, schemanode, stk.back().schemanode->nodename( nodeidx).toLatin1().constData());
+					getArraySize( arraysize, nofelements, datanode, schemanode, stk.back().schemanode->nodename( nodeidx).toLatin1().constData());
 					return QList<WidgetDataAssignmentInstr>();
 				}
 				if (!arraydimar.isEmpty()) arrayinc = arraydimar.back();
-				if (arraysize <= 0)
+				if (arraysize < 0 && nofelements > 0)
 				{
-					arraysize = 1;/*[-]PF:HACK: Have to redesign*/
+					arraysize = 1;/*PF:HACK: Have to redesign*/
 				}
 				arraydimar.push_back( (arraysize>1)?arraysize:1);
 				rt.push_back( WidgetDataAssignmentInstr( arraysize/arrayinc, prefix.toString()));
