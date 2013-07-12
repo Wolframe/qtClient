@@ -1,4 +1,5 @@
 now musts:
+- Test Connection in manage servers stopped working
 - QTableWidget
   - sort order is not part of state in table, tree and list widget
   - selection in QTable doesn't work after sort operations
