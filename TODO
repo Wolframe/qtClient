@@ -4,6 +4,14 @@ now musts:
   - selection in QTable doesn't work after sort operations
   - flickering: clear and then setting items, doing selection at
     least twice
+  - after changing the sort order in a table and changing an entry, I get:
+CRITICAL: failed to get table value on row 19 column 4
+CRITICAL: failed to get table value on row 19 column 4
+CRITICAL: failed to get table value on row 19 column 4
+CRITICAL: failed to get table value on row 19 column 4
+CRITICAL: failed to get table value on row 19 column 4
+CRITICAL: failed to get table value on row 19 column 4
+    - column 4 is the column the table got sorted
 - FormWidget/MainWindow
   - readd status indicator (hourglass cursor) (book-keeping with set of issued requests)
 - fix problems with abiguos widget ids (in configurator)
