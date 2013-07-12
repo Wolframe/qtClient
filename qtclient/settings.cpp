@@ -93,7 +93,7 @@ void ApplicationSettings::write( QSettings &settings )
 		settings.setValue( "key", connectionParams[ i ].SSLkey );
 		settings.setValue( "verify", connectionParams[ i ].SSLverify );
 		settings.setValue( "CAbundle", connectionParams[ i ].SSLCAbundle );
-		settings.setValue( "timeout", connectionParams[ i ].timeout );
+		settings.setValue( "timeout", connectionParams[ i ].msgTimeout );
 	}
 	settings.endArray();
 
@@ -170,7 +170,7 @@ void ApplicationSettings::read( QSettings &settings )
 		params.SSLkey = settings.value( "key" ).toString();
 		params.SSLverify = settings.value( "verify" ).toBool();
 		params.SSLCAbundle = settings.value( "CAbundle" ).toString();
-		params.timeout = settings.value( "timeout" ).toUInt();
+		params.msgTimeout = settings.value( "timeout" ).toUInt();
 
 		connectionParams.append( params );
 	}

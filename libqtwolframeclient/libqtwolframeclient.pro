@@ -25,10 +25,12 @@ SOURCES += \
 	WolframeClient.cpp \
 	WolframeClientProtocolBase.cpp \
 	WolframeClientProtocol.cpp \
-	serverDefinition.cpp
+	serverDefinition.cpp \
+    serverConnection.cpp
 
 HEADERS += \
 	WolframeClient.hpp \
 	private/WolframeClientProtocolBase.hpp \
 	private/WolframeClientProtocol.hpp \
-	serverDefinition.hpp
+	serverDefinition.hpp \
+    serverConnection.hpp
