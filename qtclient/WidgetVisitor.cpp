@@ -250,10 +250,19 @@ static void getWidgetChildren_( QList<QWidget*>& rt, QObject* wdg)
 			QWidget* we = qobject_cast<QWidget*>( cld);
 			if (we)
 			{
+/* Aba, wrong IHMO:
 				if (we->layout() && cld->metaObject()->className() == str_QWidget)
 				{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 					qDebug() << "Skipping QWidget having a layout, name" << cld->objectName();
+#endif
+					getWidgetChildren_( rt, cld);
+				}
+				else */
+				if( cld->objectName().startsWith( "qt_" ) )
+				{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+					qDebug() << "Skipping internal Qt object of type" << cld->metaObject()->className() << ", name" << cld->objectName();
 #endif
 					getWidgetChildren_( rt, cld);
 				}
