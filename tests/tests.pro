@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = functions skeleton
+SUBDIRS = SSLavailable functions skeleton

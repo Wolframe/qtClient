@@ -103,7 +103,7 @@ void SkeletonMainWindow::updateMenusAndToolbars( )
 	}
 	if( m_wolframeClient && m_wolframeClient->isEncrypted( ) ) {
 		m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/encrypted.png" ) );
-		m_statusBarSSL->setToolTip( tr( "Encryption: %1" ).arg( m_wolframeClient->encryptionName()) );
+		m_statusBarSSL->setToolTip( tr( "Encryption: %1" ).arg( m_wolframeClient->encryptionCipher()) );
 		m_statusBarSSL->setEnabled( true );
 	} else {
 		m_statusBarSSL->setPixmap( QPixmap( ":/images/16x16/unencrypted.png" ) );

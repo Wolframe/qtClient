@@ -96,7 +96,7 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 		bool isConnected( ) const;
 		const QString serverName() const;
 		bool isEncrypted( ) const;
-		const QString encryptionName() const;
+		const QString encryptionCipher() const;
 
 	private:
 		void processProtocol();

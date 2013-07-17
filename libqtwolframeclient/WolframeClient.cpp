@@ -99,7 +99,7 @@ void WolframeClient::setConnectionParameters( const ServerDefinition _connParams
 bool WolframeClient::SSLsupported( )
 {
 #ifdef WITH_SSL
-	return true;
+	return QSslSocket::supportsSsl();
 #else
 	return false;
 #endif
@@ -484,7 +484,7 @@ bool WolframeClient::isEncrypted( ) const
 	return( isConnected( ) && m_connParams.SSL );
 }
 
-const QString WolframeClient::encryptionName() const
+const QString WolframeClient::encryptionCipher() const
 {
 	if ( isConnected( ) && m_connParams.SSL )
 #ifdef WITH_SSL
