@@ -74,7 +74,7 @@ setup.exe: qtClient.msi
 clean:
 	@-erase *.wixobj qtClient.wixpdb qtClient.msi setup.exe *.log 2>NUL
 
-distclean:
+distclean: clean
 
 test: qtClient.msi
 	$(SMOKE) qtClient.msi
