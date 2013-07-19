@@ -650,7 +650,7 @@ static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& res
 					TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
 					if (!visitor.setProperty( ai->name, ai->value))
 					{
-						qCritical() << "failed to set property (single element in array)" << ai->name << ai->value << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
+						qCritical() << "failed to set property (single element)" << ai->name << ai->value << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
 						rt = false;
 					}
 				}

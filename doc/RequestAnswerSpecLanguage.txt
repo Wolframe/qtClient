@@ -1,9 +1,10 @@
 Grammar of the Request Answer Specification Language (RASL)
 
+Token          = ([^{}:;,= ]*)
+Name           = ([^{}:;,= ]*)
 Identifier     = [a-zA-Z_][a-zA-Z_]*
 String         = ([']([^\']|[\\].)*['])|(["]([\']|[\\].)["])
 AnyIdentifier  = [?]
-Token          = ([^\}]*)
 
 VariableRef : '{' Identifier ':' Token '}'              #.. variable with default value, if not defined
 VariableRef : '{' Identifier ':' AnyIdentifier '}'      #.. optional variable
@@ -13,14 +14,53 @@ VariableRef : '{' AnyIdentifier '}'                     #.. ignored subexpressio
 ExprList    : Expression ';' ExprList                   #.. elements of a structure
 ExprList    : Expression                                #.. structure with one element or single element if defined as content element
 
-Expression  : Identifier '{' ExprList '}'               #.. structure/element
+Expression  : Name '{' ExprList '}'                     #.. structure/element
 Expression  : Identifier '[' ']' '{' ExprList '}'       #.. array of structures/elements
 Expression  : VariableRef                               #.. variable content element
 Expression  : String                                    #.. constant content element
 Expression  : AnyIdentifier                             #.. ignored subexpression or variable (same as of {?})
 
-Expression  : Identifier '=' VariableRef                #.. variable attribute assignment
-Expression  : Identifier '=' String                     #.. constant attribute assignment
-Expression  : Identifier '=' AnyIdentifier              #.. ignored attribute assignment
+Expression  : Name '=' VariableRef                      #.. variable attribute assignment
+Expression  : Name '=' String                           #.. constant attribute assignment
+Expression  : Name '=' AnyIdentifier                    #.. ignored attribute assignment
+
+
+
+Description of the Request Answer Specification Language (RASL)
+
+The Language describes the hierarchical structure of a request or an answer.
+It is powerful enough to describe the tag hierarchy of an XML document or whatever
+language is used for a request or answer. It's syntax has some similarity with
+JSON or YAML. But instead of ':', '=' is used as attribute assignment operator and for
+structures there exist no assignment operator ':'. A structure is defined as
+name (unicode name, see 'Name' in grammar) followed by an expression in brackets.
+
+Simple Structure Example:
+JSON/YAML: { name: John Smith, age: 33 }
+RASL:      { name = "John Smith"; age = "33" }
+
+Substructures:
+JSON/YAML: { name: John Smith, home: { street: Blackstreet 27, city: Gotham } }
+RASL:      { name: "John Smith"; home { street: "Blackstreet 27"; city="Gotham" } }
+
+Besides the operators used the language has other differences from JSON/JAML:
+Because of its usage in Qt client new lines are ignored and not a delimiter.
+It is not a markup language to describe content submitted, but a language to
+describe how the content submitted is build from the data in the user interface
+of to describe how the answer of a request is mapped back to the user interface
+structures. Therefore it contains variable references also marked with curly
+brackets (hard to read but nonambiguous !). It also contains '[]' markers to
+specify what are the repeating structures, when mapping arrays.
+
+Simple Structure Example with a Variable Reference:
+RASL:      { name = {person.name}; age = person.age }
+
+Simple Structure Example with a Variable Reference In an array:
+           person[] { name = {person.name}; age = person.age }
+
+
+
+
+
 
 
