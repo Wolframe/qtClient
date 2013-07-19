@@ -144,7 +144,7 @@ Project Wolframe.
 				          Name="Wolframe Qt client"
 				          Description="Start Wolframe Qt client"
 				          Target="[INSTALLDIR]\bin\qtclient.exe"
-				          WorkingDirectory="Bindir"/>
+				          WorkingDirectory="BinDir"/>
 
 				<Shortcut Id="UninstallProduct"
 				          Name="Uninstall Wolframe Qt client"
