@@ -80,7 +80,7 @@ class LIBWOLFRAMECLIENT_VISIBILITY WolframeClient : public QObject
 		QTimer *m_timeoutTimer;
 
 	public:
-		WolframeClient( const ServerDefinition _connParams,	QWidget *_parent = 0 );
+		WolframeClient( const ServerDefinition _connParams, QWidget *_parent = 0 );
 		virtual ~WolframeClient( );
 
 		void setConnectionParameters( const ServerDefinition _connParams );

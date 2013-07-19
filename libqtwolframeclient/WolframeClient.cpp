@@ -157,9 +157,9 @@ QSslCertificate WolframeClient::getCertificate( QString filename )
 		emit error( tr( "empty certificate in file %1" ).arg( filename ) );
 
 #if QT_VERSION >= 0x050000
-	if( !cert.isBlacklisted( ) )
+	if( cert.isBlacklisted() )
 #else
-	if( !cert.isValid( ) )
+	if( !cert.isValid() )
 #endif
 		emit error( tr( "certificate in %1 is invalid" ).arg( filename ) );
 
@@ -172,11 +172,11 @@ void WolframeClient::sslErrors( const QList<QSslError> &errors )
 #ifdef WITH_SSL
 // for all other errors warn user about it
 	foreach( const QSslError &e, errors ) {
-		if( e.error( ) == QSslError::SelfSignedCertificateInChain) continue;
-		if( e.error( ) == QSslError::HostNameMismatch) continue;
+		if( e.error() == QSslError::SelfSignedCertificateInChain ) continue;
+		if( e.error() == QSslError::HostNameMismatch ) continue;
 		m_hasErrors = true;
-		qDebug( ) << "SSL ERROR: " << e;
-		emit error( e.errorString( ) );
+		qDebug() << "SSL ERROR: " << e;
+		emit error( e.errorString() );
 	}
 
 // ignore them
@@ -187,11 +187,11 @@ void WolframeClient::sslErrors( const QList<QSslError> &errors )
 void WolframeClient::peerVerifyError( const QSslError &e )
 {
 #ifdef WITH_SSL
-	if( e.error( ) == QSslError::SelfSignedCertificateInChain ) return;
-	if( e.error( ) == QSslError::HostNameMismatch) return;
+	if( e.error() == QSslError::SelfSignedCertificateInChain ) return;
+	if( e.error() == QSslError::HostNameMismatch ) return;
 	m_hasErrors = true;
-	qDebug( ) << "PEER VERIFY SSL ERROR: " << e;
-	emit error( e.errorString( ) );
+	qDebug() << "PEER VERIFY SSL ERROR: " << e;
+	emit error( e.errorString() );
 #endif
 }
 
@@ -478,7 +478,7 @@ const QString WolframeClient::serverName() const
 		return "";
 }
 
-bool WolframeClient::isEncrypted( ) const
+bool WolframeClient::isEncrypted() const
 {
 	// TODO: needs improvement! Are verifications and certs ok?
 	return( isConnected( ) && m_connParams.SSL );

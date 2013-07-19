@@ -1,4 +1,9 @@
 now musts:
+- Settings dialog for directories is completly broken
+  (selects files instead of directories, doesn't remember
+  last used path)
+- PictureChooser/FileChooser is wako on new installed machines?!
+  Why?
 - Test Connection in manage servers stopped working
 - QTableWidget
   - sort order is not part of state in table, tree and list widget
