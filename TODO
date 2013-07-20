@@ -1,5 +1,4 @@
 now musts:
-- Test Connection in manage servers stopped working
 - QTableWidget
   - sort order is not part of state in table, tree and list widget
   - selection in QTable doesn't work after sort operations
@@ -14,14 +13,15 @@ CRITICAL: failed to get table value on row 19 column 4
 CRITICAL: failed to get table value on row 19 column 4
     - column 4 is the column the table got sorted
 - FormWidget/MainWindow
-  - readd status indicator (hourglass cursor) (book-keeping with set of issued requests)
-- fix problems with abiguos widget ids (in configurator)
-- qt4 and qt5 don't work the same in implicit mapping of widget mode! drop it
-  completly?
-- FileChooser plugin:
-  - Q_PROPERTY set in designer is overloading picked value
+  - add status indicator (hourglass cursor) also for data requests
+    (book-keeping with set of issued requests and outstanding answers)
+- fix problems with ambiguos widget ids (in configurator)
   
 bugs (must be discussed, when and whether to fix them):
+- FileChooser plugin:
+  - Q_PROPERTY set in designer is overloading picked value
+- qt4 and qt5 don't work the same in implicit mapping of widget mode! drop it
+  completly?
 - weird behaviour when a window is maximized in MDI mode: subwindow get
   resizes and positioned in funny ways
 - [PF:partly fixed, case does not work yet] price{{main.price:0.0}}, or 0, the default value is ignored,
