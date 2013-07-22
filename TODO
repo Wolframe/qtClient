@@ -1,7 +1,6 @@
 now musts:
 - QTableWidget
   - sort order is not part of state in table, tree and list widget
-  - selection in QTable doesn't work after sort operations
   - flickering: clear and then setting items, doing selection at
     least twice
   - after changing the sort order in a table and changing an entry, I get:

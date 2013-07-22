@@ -106,6 +106,7 @@ WidgetVisitorState_QTableWidget::~WidgetVisitorState_QTableWidget()
 
 void WidgetVisitorState_QTableWidget::clear()
 {
+	m_tableWidget->setSortingEnabled( false );
 	m_tableWidget->clearContents();
 	for (int i = m_tableWidget->rowCount()-1; i >= 0; i--)
 	{
@@ -114,6 +115,7 @@ void WidgetVisitorState_QTableWidget::clear()
 	m_mode = Init;
 	m_row = -1;
 	m_column = -1;
+	m_tableWidget->setSortingEnabled( true );
 }
 
 bool WidgetVisitorState_QTableWidget::enter( const QString& name, bool writemode)
