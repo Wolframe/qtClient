@@ -18,6 +18,8 @@ CRITICAL: failed to get table value on row 19 column 4
 - fix problems with ambiguos widget ids (in configurator)
   
 bugs (must be discussed, when and whether to fix them):
+- not all actions in an iconized list view lead to status recalculations
+  in the remove button (state:enabled)
 - FileChooser plugin:
   - Q_PROPERTY set in designer is overloading picked value
 - qt4 and qt5 don't work the same in implicit mapping of widget mode! drop it
