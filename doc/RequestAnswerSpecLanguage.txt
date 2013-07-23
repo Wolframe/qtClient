@@ -26,14 +26,15 @@ Expression  : Name '=' AnyIdentifier                    #.. ignored attribute as
 
 
 
-Description of the Request Answer Specification Language (RASL)
+Description of the Request Answer Specification Language
 
 The Language describes the hierarchical structure of a request or an answer.
 It is powerful enough to describe the tag hierarchy of an XML document or whatever
 language is used for a request or answer. It's syntax has some similarity with
-JSON or YAML. But instead of ':', '=' is used as attribute assignment operator and for
-structures there exist no assignment operator ':'. A structure is defined as
-name (unicode name, see 'Name' in grammar) followed by an expression in brackets.
+JSON or YAML. But instead of ':', '=' is used as attribute assignment operator
+and for structures there exist no assignment operator ':'. A structure is
+defined as name (unicode name, see 'Name' in grammar) followed by an expression
+in curly brackets.
 
 Simple Structure Example:
 JSON/YAML: { name: John Smith, age: 33 }
@@ -43,7 +44,7 @@ Substructures:
 JSON/YAML: { name: John Smith, home: { street: Blackstreet 27, city: Gotham } }
 RASL:      { name: "John Smith"; home { street: "Blackstreet 27"; city="Gotham" } }
 
-Besides the operators used the language has other differences from JSON/JAML:
+But the language has beside the operators used also other differences from JSON/JAML:
 Because of its usage in Qt client new lines are ignored and not a delimiter.
 It is not a markup language to describe content submitted, but a language to
 describe how the content submitted is build from the data in the user interface
@@ -53,10 +54,23 @@ brackets (hard to read but nonambiguous !). It also contains '[]' markers to
 specify what are the repeating structures, when mapping arrays.
 
 Simple Structure Example with a Variable Reference:
-RASL:      { name = {person.name}; age = person.age }
+           { name = {person.name}; age = person.age }
 
 Simple Structure Example with a Variable Reference In an array:
            person[] { name = {person.name}; age = person.age }
+
+Variable references can be specified with a default value following the variable
+name as ':' value. For example: {person.age:18} for the variable reference of
+'person.age' with a value of 18, if person.age is undefined (NULL).
+If you specify a default value, then the item referenced does not have to exist
+in order to issue a request or to write back the answer, the value is optional.
+Because requests and answers are validated non existing items trigger an error
+and transactions on the server are not performed. If you want to mark an item
+as optinal without specifying a default, you can mark it with a '?' as default
+value. Our example with person age would then be '{person.age:?}', meaning that
+person.age is optional and in case of not existing, no value is defined (NULL).
+For such an undefined value, the enclosing tag as the value are missing in the
+request, and no error is reported, if they are missing in an answer.
 
 
 
