@@ -68,6 +68,7 @@ SOURCES += \
 	visitors/WidgetVisitor_QTreeWidget.cpp \
 	visitors/WidgetVisitor_QTableWidget.cpp \
 	visitors/WidgetVisitor_QSlider.cpp \
+	visitors/WidgetVisitor_QStackedWidget.cpp \
 	visitors/WidgetVisitor_FileChooser.cpp \
 	visitors/WidgetVisitor_PictureChooser.cpp \
 	DataFormatXML.cpp \
@@ -120,6 +121,7 @@ HEADERS += \
 	visitors/WidgetVisitor_QTreeWidget.hpp \
 	visitors/WidgetVisitor_QTableWidget.hpp \
 	visitors/WidgetVisitor_QSlider.hpp \
+	visitors/WidgetVisitor_QStackedWidget.hpp \
 	visitors/WidgetVisitor_FileChooser.hpp \
 	visitors/WidgetVisitor_PictureChooser.hpp \
 	DataFormatXML.hpp \
