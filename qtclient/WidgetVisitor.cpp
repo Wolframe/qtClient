@@ -232,6 +232,8 @@ QString WidgetVisitor::State::getLink( const QString& name) const
 static void getWidgetChildren_( QList<QWidget*>& rt, QObject* wdg)
 {
 	static const QString str_QWidget("QWidget");
+	static const QString str_QStackedWidget("QStackedWidget");
+	static const QString str_QTabWidget("QTabWidget");
 
 	foreach (QObject* cld, wdg->children())
 	{
@@ -244,7 +246,10 @@ static void getWidgetChildren_( QList<QWidget*>& rt, QObject* wdg)
 			QWidget* we = qobject_cast<QWidget*>( cld);
 			if (we)
 			{
-				if (we->layout() && cld->metaObject()->className() == str_QWidget)
+				QObject* p = we->parent();
+				if (we->layout() && cld->metaObject()->className() == str_QWidget
+					&& !(p->metaObject()->className() == str_QStackedWidget)
+					&& !(p->metaObject()->className() == str_QTabWidget))
 				{
 					getWidgetChildren_( rt, cld);
 				}
@@ -458,7 +463,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 			QList<QWidget*> cn = children( name);
 			if (cn.size() > 1)
 			{
-				ERROR( "ambiguus widget reference", name);
+				ERROR( "ambiguos widget reference", name);
 				return false;
 			}
 			if (cn.isEmpty()) return false;

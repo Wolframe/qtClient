@@ -75,6 +75,7 @@ bugs (must be discussed, when and whether to fix them):
      the button is enabled 
 - [PF:fixed] syntax error: code {?}; leads to completly misleading error message:
   CRITICAL: attribute not defined in answer description: "id" at ""
+  I get the error also with {{widget.name}}?
 
 later (cleanups):
 - window modes:

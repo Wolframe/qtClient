@@ -210,8 +210,9 @@ bool WidgetEnablerImpl::parseCondition( Condition& cond, const QString& expr)
 		return false;
 	}
 	cond = Condition( condvar, condop, condopr);
+
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-	qDebug() << "parsed conditional expression" << condvar << exprOperatorName(condop) << condopr;
+	qDebug() << "parsed conditional expression" << condvar << operatorName(condop) << condopr;
 #endif
 	return true;
 }
@@ -225,7 +226,13 @@ WidgetEnablerImpl::WidgetEnablerImpl( QWidget* widget_, const QList<Trigger>& tr
 void WidgetEnablerImpl::blockSignals( bool v)
 {
 	QObject* object = m_state->widget();
-	if (object) object->blockSignals( v);
+	if (object)
+	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << (v?"blocking":"unblocking") << "signals in WidgetEnblerImpl for object" << object->metaObject()->className() << object->objectName();
+#endif
+		object->blockSignals( v);
+	}
 }
 
 void WidgetEnablerImpl::handle_changed()
@@ -246,7 +253,8 @@ void WidgetEnablerImpl::handle_changed()
 	foreach (const Trigger& trg, m_trigger)
 	{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-		qDebug() << "handle changed of widget" << widget->objectName() << "check condition" << prop;
+		qDebug() << "handle changed of widget" << widget->objectName() << "check condition";
+		// Aba: prop run away, removed
 #endif
 		int* setter = &enabled;
 		statename = stateName( trg.state);

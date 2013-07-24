@@ -18,6 +18,7 @@
 #include "visitors/WidgetVisitor_QDateTimeEdit.hpp"
 #include "visitors/WidgetVisitor_QTableWidget.hpp"
 #include "visitors/WidgetVisitor_QSlider.hpp"
+#include "visitors/WidgetVisitor_QStackedWidget.hpp"
 #include "visitors/WidgetVisitor_FileChooser.hpp"
 #include "visitors/WidgetVisitor_PictureChooser.hpp"
 
@@ -69,6 +70,7 @@ struct WidgetVisitorTypeMap :QHash<QString,WidgetVisitorObjectConstructor>
 		ADD_WidgetVisitorType( QDateTimeEdit)
 		ADD_WidgetVisitorType( QTableWidget)
 		ADD_WidgetVisitorType( QSlider)
+		ADD_WidgetVisitorType( QStackedWidget)
 		ADD_WidgetVisitorType( FileChooser)
 		ADD_WidgetVisitorType( PictureChooser)
 	}
