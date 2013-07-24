@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QPushButton>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 
 static bool isInternalWidget( const QWidget* widget)
 {
@@ -401,7 +401,11 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 			}
 			foreach (QWidget* cld, rcp->findChildren<QWidget*>())
 			{
-				if (bi == be) break;
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+				if (bi == be) qDebug() << "unblocker visiting widget " << cld->metaObject()->className() << cld->objectName() << "(no block/unblock state left)";
+				else          qDebug() << "unblocker visiting widget " << cld->metaObject()->className() << cld->objectName() << "and trying to set widget" << bi->first << "to" << ((bi->second)?"blocked":"unblocked");
+#endif
+				if (bi == be) continue;
 				if (bi->first == cld->objectName())
 				{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
