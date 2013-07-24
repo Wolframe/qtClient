@@ -463,7 +463,7 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 			QList<QWidget*> cn = children( name);
 			if (cn.size() > 1)
 			{
-				ERROR( "ambiguus widget reference", name);
+				ERROR( "ambiguos widget reference", name);
 				return false;
 			}
 			if (cn.isEmpty()) return false;

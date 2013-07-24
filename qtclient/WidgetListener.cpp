@@ -43,10 +43,18 @@
 #include <QDebug>
 #include <QMessageBox>
 
+#undef WOLFRAME_LOWLEVEL_DEBUG
+
 void WidgetListenerImpl::blockSignals( bool v)
 {
 	QObject* object = m_state->widget();
-	if (object) object->blockSignals( v);
+	if (object)
+	{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << (v?"blocking":"unblocking") << "signals in WidgetListenerImpl for object" << object->metaObject()->className() << object->objectName();
+#endif
+		object->blockSignals( v);
+	}
 }
 
 

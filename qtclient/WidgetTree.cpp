@@ -366,6 +366,10 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 			typedef QPair<QString,bool> Trace;
 			typedef QList<Trace> TraceList;
 			TraceList blksig;
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+			qDebug() << "blocking signals in WidgetTree for receiving object" << rcp->metaObject()->className() << rcp->objectName();
+#endif
+
 			blksig.push_back( Trace( rcp->objectName(), rcp->blockSignals(true)));
 
 			foreach (QWidget* cld, rcp->findChildren<QWidget*>())
@@ -373,7 +377,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 				if (!isInternalWidget( cld))
 				{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-					qDebug() << "block signals of" << cld->metaObject()->className() << cld->objectName();
+					qDebug() << "block signals of child object" << cld->metaObject()->className() << cld->objectName();
 #endif
 					blksig.push_back( Trace( cld->objectName(), cld->blockSignals(true)));
 				}
@@ -389,6 +393,9 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 			TraceList::const_iterator bi = blksig.begin(), be = blksig.end();
 			if (bi != be)
 			{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+				qDebug() << ((bi->second)?"blocking":"unblocking") << "signals of child object" << rcp->metaObject()->className() << rcp->objectName();
+#endif
 				rcp->blockSignals( bi->second);
 				++bi;
 			}
@@ -398,7 +405,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 				if (bi->first == cld->objectName())
 				{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-					qDebug() << "unblock signals of" << cld->metaObject()->className() << cld->objectName();
+					qDebug() << ((bi->second)?"blocking":"unblocking") << "signals of" << cld->metaObject()->className() << cld->objectName();
 #endif
 					cld->blockSignals( bi->second);
 					++bi;
