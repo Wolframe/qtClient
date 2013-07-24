@@ -40,7 +40,7 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 	bool rt = true;
 	QVariant value = stk.back().tree->value();
 	QVariant defaultvalue = stk.back().tree->defaultvalue();
-	if (stk.back().tree->elemtype() == DataTree::Constant)
+	if (stk.back().tree->isConstant())
 	{
 
 		QVariant resolved = visitor.resolve( value);
@@ -150,12 +150,11 @@ static int calcArraySize( WidgetVisitor& visitor, const QSharedPointer<DataTree>
 	while (!stk.isEmpty())
 	{
 		QVariant value;
-		if (stk.back().tree->value().isValid())
+		if (stk.back().tree->value().isValid() && !stk.back().tree->isConstant())
 		{
 			switch (stk.back().tree->elemtype())
 			{
 				case DataTree::Invalid:
-				case DataTree::Constant: break;
 				case DataTree::Single:
 				case DataTree::Array:
 					value = visitor.property( stk.back().tree->value().toString());

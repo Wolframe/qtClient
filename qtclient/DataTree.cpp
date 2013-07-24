@@ -86,6 +86,7 @@ bool DataTree::setContent( const DataTree& elem_)
 	m_value = elem_.m_value;
 	m_defaultvalue = elem_.m_defaultvalue;
 	m_isOptional = elem_.m_isOptional;
+	m_isConstant = elem_.m_isConstant;
 	return true;
 }
 
@@ -208,11 +209,6 @@ int DataTree::findNodeIndex( const QString& name_) const
 static void skipSpaces( QString::const_iterator& itr, const QString::const_iterator& end)
 {
 	for (; itr != end && itr->isSpace(); ++itr);
-}
-
-static void skipNonSpaces( QString::const_iterator& itr, const QString::const_iterator& end)
-{
-	for (; itr != end && !itr->isSpace() && *itr != ';'; ++itr);
 }
 
 static DataTree::ElementType parseNodeHeader( QString& nodename, QString::const_iterator& itr, const QString::const_iterator& end)
@@ -423,7 +419,12 @@ DataTree DataTree::fromString( const QString::const_iterator& begin, const QStri
 		else if (*is == '\'' || *is == '\"')
 		{
 			TRACE_STATE( "fromString", "open string");
-			rt.m_value = QVariant( parseString( is, es));
+			DataTree content( QVariant( parseString( is, es)));
+			if (!rt.setContent( content))
+			{
+				TRACE_ERROR( "fromString", "invalid tree (content element)", (int)__LINE__)
+				return DataTree( Invalid);
+			}
 		}
 		else if (*is == '{')
 		{
@@ -501,15 +502,16 @@ bool DataTree::mapDataValueToString( const QVariant& val, QString& str)
 	if (brkcnt != 0) return false;
 
 	vi = valstr.begin(), ve = valstr.end();
-	skipNonSpaces( vi, ve);
 
 	bool hasSQuotes = (valstr.indexOf('\'') >= 0);
 	bool hasDQuotes = (valstr.indexOf('\"') >= 0);
 
-	if (vi == ve && !hasSQuotes && !hasDQuotes)
+	if (!hasSQuotes && !hasDQuotes)
 	{
-		TRACE_OBJECT( "toString", "value without spaces", valstr)
+		TRACE_OBJECT( "toString", "value without quotes", valstr)
+		str.push_back( '\'');
 		str.append( valstr);
+		str.push_back( '\'');
 	}
 	else if (!hasDQuotes)
 	{
@@ -527,10 +529,8 @@ bool DataTree::mapDataValueToString( const QVariant& val, QString& str)
 	}
 	else
 	{
-		TRACE_OBJECT( "toString", "value in curly brackets", valstr)
-		str.push_back( '{');
-		str.append( valstr);
-		str.push_back( '}');
+		TRACE_ERROR( "toString", "invalid data in tree", (int)__LINE__)
+		return false;
 	}
 	return true;
 }
@@ -571,7 +571,25 @@ bool DataTree::mapDataTreeToString( const DataTree& dt, QString& str)
 		{
 			str.append( "; ");
 		}
-		return mapDataValueToString( dt.m_value, str);
+		if (dt.isConstant())
+		{
+			return mapDataValueToString( dt.m_value, str);
+		}
+		else
+		{
+			str.append( "{");
+			str.append( dt.m_value.toString());
+			if (dt.m_defaultvalue.isValid())
+			{
+				str.append( ":");
+				str.append( dt.m_defaultvalue.toString());
+			}
+			else if (dt.isOptional())
+			{
+				str.append( ":?");
+			}
+			str.append( "}");
+		}
 	}
 	return true;
 }

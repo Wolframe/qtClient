@@ -43,19 +43,19 @@
 class DataTree
 {
 public:
-	enum ElementType {Invalid,Constant,Single,Array};
+	enum ElementType {Invalid,Single,Array};
 	static const char* elementTypeName( ElementType i)
 	{
-		static const char* ar[] = {"Invalid","Constant","Single","Array"};
+		static const char* ar[] = {"Invalid","Single","Array"};
 		return ar[i];
 	}
 
 	explicit DataTree( ElementType elemtype_=Invalid)
-		:m_elemtype(elemtype_),m_value_initialized(false),m_isOptional(false),m_nofattributes(0){}
+		:m_elemtype(elemtype_),m_value_initialized(false),m_isOptional(false),m_isConstant(false),m_nofattributes(0){}
 	DataTree( const DataTree& o)
-		:m_elemtype(o.m_elemtype),m_value_initialized(o.m_value_initialized),m_isOptional(o.m_isOptional),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
+		:m_elemtype(o.m_elemtype),m_value_initialized(o.m_value_initialized),m_isOptional(o.m_isOptional),m_isConstant(o.m_isConstant),m_value(o.m_value),m_defaultvalue(o.m_defaultvalue),m_nodear(o.m_nodear),m_nofattributes(o.m_nofattributes){}
 	DataTree( const QVariant& value_)
-		:m_elemtype(Constant),m_value_initialized(true),m_isOptional(false),m_value(value_),m_nofattributes(0){}
+		:m_elemtype(Single),m_value_initialized(true),m_isOptional(false),m_isConstant(true),m_value(value_),m_nofattributes(0){}
 
 	void addNode( const QString& name_, const DataTree& tree_);
 	void addAttribute( const QString& name_, const DataTree& tree_);
@@ -75,6 +75,7 @@ public:
 	const QVariant& value() const				{return m_value;}
 	const QVariant& defaultvalue() const			{return m_defaultvalue;}
 	bool isOptional() const					{return m_isOptional;}
+	bool isConstant() const					{return m_isConstant;}
 	bool value_initialized() const				{return m_value_initialized;}
 	ElementType elemtype() const				{return m_elemtype;}
 
@@ -109,6 +110,7 @@ private:
 	ElementType m_elemtype;
 	bool m_value_initialized;
 	bool m_isOptional;
+	bool m_isConstant;
 	QVariant m_value;
 	QVariant m_defaultvalue;
 	QList<Node> m_nodear;
