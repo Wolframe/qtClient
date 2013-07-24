@@ -42,7 +42,6 @@ static bool mapValue( QList<DataSerializeItem>& res, WidgetVisitor& visitor, QLi
 	QVariant defaultvalue = stk.back().tree->defaultvalue();
 	if (stk.back().tree->isConstant())
 	{
-
 		QVariant resolved = visitor.resolve( value);
 		res.push_back( DataSerializeItem( DataSerializeItem::Value, resolved.toString()));
 	}
