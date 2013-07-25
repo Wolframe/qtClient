@@ -22,6 +22,7 @@ skeleton/skeleton
 tests/functions/testDataTree
 tests/skeleton/skeletonTest
 tests/WImageListWidget/WImageListWidget
+tests/SSLavailable/SSLavailable
 *.pro.user*
 *.pro.user
 *.msi
