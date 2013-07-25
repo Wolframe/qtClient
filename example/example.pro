@@ -33,3 +33,6 @@ FORMS += \
 RESOURCES = \
 	example.qrc
 
+test.depends = first
+
+QMAKE_EXTRA_TARGETS += test

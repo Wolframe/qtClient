@@ -31,15 +31,16 @@
 
 ************************************************************************/
 
-#include <QtTest/QtTest>
-#include <QSslSocket>
+#include <QObject>
 
-#include "SSLavailable.hpp"
-
-void TestSSLavailable::testSSL()
+class DataTreeTest : public QObject
 {
-	QVERIFY( QSslSocket::supportsSsl() == true );
-}
+	Q_OBJECT
+	
+	private slots:
+		void testDataTree_data( );
+		void testDataTree( );
 
-
-QTEST_MAIN( TestSSLavailable )
+	private:
+		QString transformTree( const QString &s );
+};

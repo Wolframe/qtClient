@@ -31,15 +31,12 @@
 
 ************************************************************************/
 
-#include <QtTest/QtTest>
-#include <QSslSocket>
+#include <QObject>
 
-#include "SSLavailable.hpp"
-
-void TestSSLavailable::testSSL()
+class TestSSLavailable : public QObject
 {
-	QVERIFY( QSslSocket::supportsSsl() == true );
-}
+	Q_OBJECT
 
-
-QTEST_MAIN( TestSSLavailable )
+private slots:
+	void testSSL();
+};

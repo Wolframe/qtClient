@@ -50,3 +50,6 @@ FORMS += \
 RESOURCES = \
 	skeleton.qrc
 
+test.depends = first
+
+QMAKE_EXTRA_TARGETS += test

@@ -38,3 +38,8 @@ OTHER_FILES += \
     android/src/org/qtproject/qt5/android/bindings/QtActivity.java \
     android/src/org/qtproject/qt5/android/bindings/QtApplication.java \
     android/AndroidManifest.xml
+
+test.CONFIG = recursive
+test.depends = first
+
+QMAKE_EXTRA_TARGETS += test
