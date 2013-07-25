@@ -2,7 +2,13 @@ TEMPLATE = app
 
 TARGET = testDataTree
 
-CONFIG += qt warn_on qtestlib
+CONFIG += qt warn_on
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+	QT += testlib
+} else {
+	CONFIG += qtestlib
+}
 
 INCLUDEPATH += ../../qtclient
 

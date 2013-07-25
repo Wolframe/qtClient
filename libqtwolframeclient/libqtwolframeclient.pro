@@ -26,11 +26,16 @@ SOURCES += \
 	WolframeClientProtocolBase.cpp \
 	WolframeClientProtocol.cpp \
 	serverDefinition.cpp \
-    serverConnection.cpp
+	serverConnection.cpp
 
 HEADERS += \
 	WolframeClient.hpp \
 	private/WolframeClientProtocolBase.hpp \
 	private/WolframeClientProtocol.hpp \
 	serverDefinition.hpp \
-    serverConnection.hpp
+	serverConnection.hpp
+
+test.target = test
+test.depends = all
+
+QMAKE_EXTRA_TARGETS += test
