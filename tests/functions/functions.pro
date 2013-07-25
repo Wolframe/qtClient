@@ -25,8 +25,10 @@ SOURCES += \
 HEADERS += \
 	testDataTree.hpp
 
-test.target = test
-test.commands = ./testDataTree -v2
-test.depends = all
+unix|macx:test.commands = ./testDataTree -v2
+#missing QtTest4.dll and others
+#win32:debug:test.commands = Debug/testDataTree -v2
+#win32:release:test.commands = Release/testDataTree -v2
+test.depends = first
 
 QMAKE_EXTRA_TARGETS += test

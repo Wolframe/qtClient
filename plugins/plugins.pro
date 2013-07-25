@@ -6,7 +6,6 @@ SUBDIRS = filechooser picturechooser formtest wolfdesigner
 
 picturechooser.depends = filechooser
 
-test.target = test
-test.depends = all
+test.depends = first
 
 QMAKE_EXTRA_TARGETS += test

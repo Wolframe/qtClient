@@ -16,8 +16,10 @@ SOURCES += \
 HEADERS += \
 	SSLavailable.hpp
 
-test.target = test
-test.commands = ./SSLavailable -v2
-test.depends = all
+unix|macx:test.commands = ./SSLavailable -v2
+#missing QtTest4.dll and others
+#win32:debug:test.commands = Debug/SSLavailable -v2
+#win32:release:test.commands = Release/SSLavailable -v2
+test.depends = first
 
 QMAKE_EXTRA_TARGETS += test

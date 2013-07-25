@@ -35,7 +35,6 @@ HEADERS += \
 	serverDefinition.hpp \
 	serverConnection.hpp
 
-test.target = test
-test.depends = all
+test.depends = first
 
 QMAKE_EXTRA_TARGETS += test

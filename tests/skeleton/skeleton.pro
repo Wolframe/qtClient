@@ -26,9 +26,7 @@ SOURCES += \
 RESOURCES = \
 	skeletonTest.qrc
 
-test.target = test
-test.commands =
-test.depends = 
+test.depends = first
 
 QMAKE_EXTRA_TARGETS += test
 

@@ -163,7 +163,6 @@ updateqm.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += updateqm
 PRE_TARGETDEPS += compiler_updateqm_make_all
 
-test.target = test
-test.depends = all
+test.depends = first
 
 QMAKE_EXTRA_TARGETS += test
