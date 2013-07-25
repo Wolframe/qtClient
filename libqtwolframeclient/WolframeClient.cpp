@@ -484,14 +484,22 @@ bool WolframeClient::isEncrypted() const
 	return( isConnected( ) && m_connParams.SSL );
 }
 
-const QString WolframeClient::encryptionCipher() const
+const QString WolframeClient::SSLinfo() const
 {
-	if ( isConnected( ) && m_connParams.SSL )
+	if ( isConnected( ) && m_connParams.SSL )	{
 #ifdef WITH_SSL
-		return qobject_cast<QSslSocket *>( m_socket )->sessionCipher().name();
+		QSslSocket *sock = qobject_cast<QSslSocket *>( m_socket );
+#if QT_VERSION >= 0x050000
+		QString ret = "SSL peer: " + sock->peerCertificate().subjectInfo( QSslCertificate::CommonName )[0];
+#else
+		QString ret = "SSL peer: " + sock->peerCertificate().subjectInfo( QSslCertificate::CommonName );
+#endif
+		ret += "\nEncryption: " + sock->sessionCipher().name();
+		return ret;
 #else
 		return "";
 #endif
+	}
 	else
 		return "";
 }

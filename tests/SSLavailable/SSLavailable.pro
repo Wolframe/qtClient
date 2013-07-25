@@ -2,7 +2,12 @@ TEMPLATE = app
 
 TARGET = SSLavailable
 
-CONFIG += qtestlib
+greaterThan( QT_MAJOR_VERSION, 5 )	{
+	QT += testlib
+}
+else	{
+	CONFIG += qtestlib
+}
 
 QT += network
 
