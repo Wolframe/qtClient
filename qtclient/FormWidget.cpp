@@ -99,6 +99,8 @@ void FormWidget::formListLoaded( QStringList forms )
 
 void FormWidget::executeAction( QWidget *actionwidget )
 {
+	/*[-]*/qDebug() << "button pressed" << actionwidget->objectName();
+
 	QVariant action = actionwidget->property( "action");
 
 	if (action.isValid())

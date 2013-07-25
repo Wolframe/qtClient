@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QPushButton>
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 
 static bool isInternalWidget( const QWidget* widget)
 {
@@ -363,23 +363,28 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 			rt = rcp;
 
 			//block signals before assigning the answer
-			typedef QPair<QString,bool> Trace;
-			typedef QList<Trace> TraceList;
-			TraceList blksig;
+			typedef QHash<QWidget*,bool> TraceMap;
+			TraceMap blksig;
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 			qDebug() << "blocking signals in WidgetTree for receiving object" << rcp->metaObject()->className() << rcp->objectName();
 #endif
 
-			blksig.push_back( Trace( rcp->objectName(), rcp->blockSignals(true)));
-
+			{
+				bool prevstate = rcp->blockSignals(true);
+				blksig.insert( rcp, prevstate);
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+				qDebug() << "block signals of previously" << ((prevstate)?"blocked":"unblocked") << "widget" << rcp->metaObject()->className() << rcp->objectName();
+#endif
+			}
 			foreach (QWidget* cld, rcp->findChildren<QWidget*>())
 			{
 				if (!isInternalWidget( cld))
 				{
+					bool prevstate = cld->blockSignals(true);
+					blksig.insert( cld, prevstate);
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-					qDebug() << "block signals of child object" << cld->metaObject()->className() << cld->objectName();
+					qDebug() << "block signals of previously" << ((prevstate)?"blocked":"unblocked") << "widget" << cld->metaObject()->className() << cld->objectName();
 #endif
-					blksig.push_back( Trace( cld->objectName(), cld->blockSignals(true)));
 				}
 			}
 			WidgetVisitor rcpvisitor( rcp, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
@@ -390,29 +395,39 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 			rcpvisitor.setState( rcp->property( "_w_state"));
 
 			//unblock blocked signals after assigning the answer
-			TraceList::const_iterator bi = blksig.begin(), be = blksig.end();
-			if (bi != be)
+			TraceMap::const_iterator ti = blksig.find( rcp);
+			if (ti != blksig.end())
 			{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-				qDebug() << ((bi->second)?"blocking":"unblocking") << "signals of child object" << rcp->metaObject()->className() << rcp->objectName();
+				bool prevstate = rcp->blockSignals( ti.value());
+				qDebug() << ((ti.value())?"blocking":"unblocking") << "signals of previously" << ((prevstate)?"blocked":"unblocked") << rcp->metaObject()->className() << rcp->objectName();
+#else
+				rcp->blockSignals( ti.value());
 #endif
-				rcp->blockSignals( bi->second);
-				++bi;
 			}
+			else
+			{
+				qDebug() << "widget to reset blocked state not found" << rcp->objectName();
+			}
+
 			foreach (QWidget* cld, rcp->findChildren<QWidget*>())
 			{
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-				if (bi == be) qDebug() << "unblocker visiting widget " << cld->metaObject()->className() << cld->objectName() << "(no block/unblock state left)";
-				else          qDebug() << "unblocker visiting widget " << cld->metaObject()->className() << cld->objectName() << "and trying to set widget" << bi->first << "to" << ((bi->second)?"blocked":"unblocked");
-#endif
-				if (bi == be) continue;
-				if (bi->first == cld->objectName())
+				if (!isInternalWidget( cld))
 				{
+					TraceMap::const_iterator ti = blksig.find( cld);
+					if (ti != blksig.end())
+					{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-					qDebug() << ((bi->second)?"blocking":"unblocking") << "signals of" << cld->metaObject()->className() << cld->objectName();
+						bool prevstate = cld->blockSignals( ti.value());
+						qDebug() << ((ti.value())?"blocking":"unblocking") << "signals of previously" << ((prevstate)?"blocked":"unblocked") << cld->metaObject()->className() << cld->objectName();
+#else
+						cld->blockSignals( ti.value());
 #endif
-					cld->blockSignals( bi->second);
-					++bi;
+					}
+					else
+					{
+						qDebug() << "widget to reset blocked state not found" << cld->objectName();
+					}
 				}
 			}
 		}
