@@ -39,7 +39,7 @@
 #include "DebugHelpers.hpp"
 #include <QVariant>
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << shortenDebugMessageArgument(QVariant(VALUE));
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(QVariant(VALUE));
@@ -522,21 +522,28 @@ static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& res
 {
 	bool rt = true;
 	ActionResultDefinition resultdef( resultschema);
-	//~ qDebug( ) << "answer (as string): " << resultschema;
-	//~ qDebug( ) << "answer (structure, tostring): " << resultdef.toString( );	
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug( ) << "answer (as string): " << resultschema;
+	qDebug( ) << "answer (structure, tostring): " << resultdef.toString( );	
+#endif
 
 	QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
-	//~ foreach( DataSerializeItem item, itemlist ) {
-		//~ qDebug( ) << "data serialization structure: " << item.toString( );
-	//~ }
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	foreach( DataSerializeItem item, itemlist ) {
+		qDebug( ) << "data serialization structure: " << item.toString( );
+	}
+#endif
 	
 	visitor.clear();
 	qDebug() << "feeding widget " << visitor.objectName() << "with validated answer";
 
 	QList<WidgetDataAssignmentInstr> assignments = getWidgetDataAssignments( resultdef.structure(), itemlist);
-	//~ foreach( WidgetDataAssignmentInstr instr, assignments ) {
-		//~ qDebug( ) << "widget data assign instr: " << instr.toString( );
-	//~ }
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	foreach( WidgetDataAssignmentInstr instr, assignments ) {
+		qDebug( ) << "widget data assign instr: " << instr.toString( );
+	}
+#endif
+
 	QList<AssignIterStackElem> astk;
 
 	QList<WidgetDataAssignmentInstr>::const_iterator ai = assignments.begin(), ae = assignments.end();
