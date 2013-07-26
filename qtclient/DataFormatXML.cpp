@@ -80,6 +80,96 @@ static void getXMLAttributes( QList<DataSerializeItem>& list, const QXmlStreamAt
 	}
 }
 
+#define NEW_XML_PARSER
+#ifdef NEW_XML_PARSER
+
+QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, const QString& rootElement, const QByteArray& content )
+{
+	QList<DataSerializeItem> rt;
+	QXmlStreamReader xml( content );
+	int tagLevel = 0;
+	QString value;
+
+	while( !xml.atEnd( ) && !xml.hasError( ) ) {
+		xml.readNext( );
+		
+		if( xml.isStartElement( ) ) {
+			++tagLevel;
+
+// check root element
+			QString tagname = xml.name().toString();
+			if( tagLevel == 1 ) {
+				// TODO Check document type (!DOCTYPE) really?
+				if( !rootElement.isEmpty( ) && tagname != rootElement ) {
+					qCritical( ) << "XML root element" << tagname << "does not match to defined:" << rootElement;
+					return rt;
+				}
+			} else {
+				rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, tagname ) );
+			}
+
+// push attributes (TODO: really, the attributes of the root element have to appear here!?)
+			getXMLAttributes( rt, xml.attributes( ) );
+
+// push value
+			if( !value.isEmpty( ) ) {
+				rt.push_back( DataSerializeItem( DataSerializeItem::Value, value ) );
+				value.clear( );
+			}
+			
+		} else if( xml.isEndElement( ) ) {
+// output content
+			if( !value.isEmpty( ) ) {
+				rt.push_back( DataSerializeItem( DataSerializeItem::Value, value ) );
+				value.clear( );
+			}
+			
+// close tag
+			--tagLevel;
+			
+			if( tagLevel > 0 ) {
+				rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, "" ) );
+			}
+
+		} else if( xml.isCDATA( ) || xml.isCharacters( ) || xml.isWhitespace( ) ) {
+			value.append( xml.text( ) );
+		} else if ( xml.isEntityReference( ) ) {
+			qCritical() << "unexpected entity reference in XML: no entity references supported, seen entity" << xml.name( ).toString( );
+			rt.clear( );
+			return rt;
+		}
+	}
+	
+	if( xml.hasError( ) ) {
+// don't return errornous deserializations
+		qCritical( ) << "XML error occurred " << xml.errorString( );
+		rt.clear( );
+		return rt;
+	} else if( !xml.atEnd( ) ) {
+		qCritical( ) << "XML premature end of file";
+		rt.clear( );
+		return rt;
+	} else if( tagLevel != 0 ) {
+		qCritical( ) << "XML is not balanced";
+		rt.clear( );
+		return rt;
+	}
+
+	return rt;
+}
+
+#else
+
+// Disabled old parser, not quite sure if I cover all the cases..
+// the value is serialized before the attributes?
+// I also don't like the value value is adding insignificant spaces over series of start
+// and end tags just to trim them away. This way there is no way to keep significant spaces.
+// the code tries to handle mixed content, but this can't exist as we have a structure.
+// an empty list or some error handling is missing when the root element doesn't match
+// general remark: closetag should have the same tagname as opentag, so checks can be made and
+// debugging code looks nicer.
+// Should the root element really be ignored here and the attributes be passed blank?
+
 QList<DataSerializeItem> getXMLSerialization( const QString& /*docType*/, const QString& rootElement, const QByteArray& content)
 {
 	QList<DataSerializeItem> rt;
@@ -96,6 +186,9 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /*docType*/, const 
 			if (ti != te)
 			{
 				if (taglevel > 0) rt.push_back( DataSerializeItem( DataSerializeItem::Value, value.trimmed()));
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+				qDebug() << "XML: parsed data" << value;
+#endif
 				value.clear();
 			}
 			++taglevel;
@@ -121,6 +214,9 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /*docType*/, const 
 			if (ti != te)
 			{
 				rt.push_back( DataSerializeItem( DataSerializeItem::Value, value.trimmed()));
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+				qDebug() << "XML: parsed data" << value;
+#endif
 				value.clear();
 			}
 			--taglevel;
@@ -145,5 +241,6 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /*docType*/, const 
 	return rt;
 }
 
+#endif
 
 
