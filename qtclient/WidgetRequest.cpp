@@ -375,7 +375,15 @@ static QList<DataSerializeItem> rewriteSerialization( const QList<RewriteRule>& 
 static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 {
 	QList<WidgetAnswerStackElement> stk;
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug( ) << "answer (original, from dataload): " << answer.constData( );
+#endif
 	QList<DataSerializeItem> itemlist = getXMLSerialization( "", "", answer);
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	foreach( DataSerializeItem item, itemlist ) {
+		qDebug( ) << "data serialization structure: " << shortenDebugMessageArgument( item.toString( ) );
+	}
+#endif
 
 	visitor.clear();
 	qDebug() << "feeding widget " << visitor.objectName() << "with implicitely mapped answer";
@@ -531,7 +539,7 @@ static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& res
 	QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 	foreach( DataSerializeItem item, itemlist ) {
-		qDebug( ) << "data serialization structure: " << item.toString( );
+		qDebug( ) << "data serialization structure: " << shortenDebugMessageArgument( item.toString( ) );
 	}
 #endif
 	
