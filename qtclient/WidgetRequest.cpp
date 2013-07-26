@@ -523,6 +523,7 @@ static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& res
 	bool rt = true;
 	ActionResultDefinition resultdef( resultschema);
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug( ) << "answer (original, from dataload): " << answer.constData( );
 	qDebug( ) << "answer (as string): " << resultschema;
 	qDebug( ) << "answer (structure, tostring): " << resultdef.toString( );	
 #endif
