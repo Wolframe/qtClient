@@ -1301,6 +1301,7 @@ void MainWindow::logout( )
 		m_mdiArea->closeAllSubWindows( );
 		m_formWidget = 0; // because the last mdi window assigned this! See HACK above
 	} else {
+		m_formWidget->hide( );
 		delete m_formWidget;
 		m_formWidget = 0;
 	}
@@ -1319,9 +1320,12 @@ void MainWindow::error( QString error )
 			}
 			m_mdiArea->closeAllSubWindows( );
 			m_formWidget = 0; // see above
-			removeApplicationMenus( );
 		}
+	} else {
+		delete m_formWidget;
+		m_formWidget = 0;
 	}
+	removeApplicationMenus( );
 }
 
 // -- developer stuff
