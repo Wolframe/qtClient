@@ -39,7 +39,7 @@
 #include "DebugHelpers.hpp"
 #include <QVariant>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 #define TRACE_VALUE( TITLE, VALUE)			qDebug() << "[widget request]" << (TITLE) << shortenDebugMessageArgument(QVariant(VALUE));
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)		qDebug() << "[widget request]" << (TITLE) << (NAME) << "=" << shortenDebugMessageArgument(QVariant(VALUE));

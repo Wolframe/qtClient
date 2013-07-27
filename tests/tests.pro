@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS = SSLavailable functions skeleton
+SUBDIRS = SSLavailable functions skeleton xml
 
 test.CONFIG = recursive
 
