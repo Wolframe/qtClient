@@ -428,8 +428,13 @@ void WidgetVisitorState_QTreeWidget::initSelected( const QVariant& selected)
 	if (keyidx < 0) keyidx = 0; //... first element is key if "id" not defined
 	QTreeWidgetItem* root = m_treeWidget->invisibleRootItem();
 
-	if (selected.type() == QVariant::List)
+	if (m_treeWidget->selectionMode() == QAbstractItemView::SingleSelection)
 	{
+		m_treeWidget->clearSelection( );
+	}
+
+	if (selected.type() == QVariant::List)
+	{		
 		QList<QVariant> selectedlist = selected.toList();
 		foreach (const QVariant& sel, selectedlist)
 		{
