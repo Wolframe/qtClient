@@ -41,8 +41,8 @@ class testXmlSerialization : public QObject
 	Q_OBJECT
 	
 	private slots:
-		void testDataTree_data( );
-		void testDataTree( );
+		void testXmlDeserialization_data( );
+		void testXmlDeserialization( );
 
 	private:
 		QString serToString( QList< DataSerializeItem > ser );

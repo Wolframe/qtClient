@@ -36,7 +36,7 @@
 
 #include <QtTest/QtTest>
 
-void testXmlSerialization::testDataTree_data( )
+void testXmlSerialization::testXmlDeserialization_data( )
 {
 	QTest::addColumn< QString >( "docType" );
 	QTest::addColumn< QString >( "rootElement" );
@@ -120,7 +120,7 @@ void testXmlSerialization::testDataTree_data( )
 		<< "OpenTag 'item', Attribute 'id', Value '20', OpenTag 'tag', Value 'Portabile', CloseTag '', OpenTag 'description', Value 'Calculatoare portabile, tablete', CloseTag '', OpenTag 'item', Attribute 'id', Value '21', OpenTag 'tag', Value 'Notebook', CloseTag '', CloseTag '', OpenTag 'item', Attribute 'id', Value '22', OpenTag 'tag', Value 'Netbook', CloseTag '', CloseTag '', OpenTag 'item', Attribute 'id', Value '23', OpenTag 'tag', Value 'Tablet', CloseTag '', CloseTag '', OpenTag 'item', Attribute 'id', Value '24', OpenTag 'tag', Value 'Ultrabook', CloseTag '', CloseTag '', CloseTag ''";
 }
 
-void testXmlSerialization::testDataTree( )
+void testXmlSerialization::testXmlDeserialization( )
 {
 	QFETCH( QString, docType );
 	QFETCH( QString, rootElement );
