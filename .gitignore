@@ -22,6 +22,7 @@ skeleton/skeleton
 tests/functions/testDataTree
 tests/skeleton/skeletonTest
 tests/SSLavailable/SSLavailable
+tests/xml/testXmlSerialization
 *.pro.user*
 *.pro.user
 *.msi
