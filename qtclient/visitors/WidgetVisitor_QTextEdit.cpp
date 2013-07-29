@@ -46,7 +46,7 @@ void WidgetVisitorState_QTextEdit::clear()
 
 QVariant WidgetVisitorState_QTextEdit::property( const QString& name)
 {
-	if (name == "text")
+	if (name == "text" || name.isEmpty())
 	{
 		return QVariant( m_textEdit->toPlainText());
 	}
@@ -59,7 +59,7 @@ QVariant WidgetVisitorState_QTextEdit::property( const QString& name)
 
 bool WidgetVisitorState_QTextEdit::setProperty( const QString& name, const QVariant& data)
 {
-	if (name == "text")
+	if (name == "text" || name.isEmpty())
 	{
 		m_textEdit->setPlainText( data.toString());
 		m_textLoaded = m_textEdit->toHtml();

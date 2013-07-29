@@ -194,6 +194,7 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 	static const QString id_str( "id");
 	static const QString selected_str( "selected");
 	static const QString tooltip_str( "tooltip");
+	static const QString icon_str( "icon");
 	if (m_stk.isEmpty()) return false;
 	int col = m_headers.indexOf( name);
 	if (col != -1)
@@ -211,10 +212,28 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 		m_stk.top().item->setToolTip( 0,data.toString());
 		return true;
 	}
-	if (name == selected_str)
+	else if (name == selected_str)
 	{
 		m_treeWidget->setProperty( "_w_selected", data);
 		initSelected( data);
+		return true;
+	}
+	else if (name == icon_str)
+	{
+		qDebug() << "ICON:" << data.toString() << col;
+		if (data.toString().startsWith( ":"))
+		{
+// internal resource
+			m_stk.top().item->setIcon( 0, QIcon( data.toString()));
+		}
+		else
+		{
+// base64 encoded data from server
+			QByteArray decoded = QByteArray::fromBase64( data.toByteArray());
+			QPixmap pixmap;
+			pixmap.loadFromData( decoded);
+			m_stk.top().item->setIcon( 0, pixmap);
+		}
 		return true;
 	}
 	return false;
@@ -428,8 +447,13 @@ void WidgetVisitorState_QTreeWidget::initSelected( const QVariant& selected)
 	if (keyidx < 0) keyidx = 0; //... first element is key if "id" not defined
 	QTreeWidgetItem* root = m_treeWidget->invisibleRootItem();
 
-	if (selected.type() == QVariant::List)
+	if (m_treeWidget->selectionMode() == QAbstractItemView::SingleSelection)
 	{
+		m_treeWidget->clearSelection( );
+	}
+
+	if (selected.type() == QVariant::List)
+	{		
 		QList<QVariant> selectedlist = selected.toList();
 		foreach (const QVariant& sel, selectedlist)
 		{

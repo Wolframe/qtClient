@@ -1301,6 +1301,7 @@ void MainWindow::logout( )
 		m_mdiArea->closeAllSubWindows( );
 		m_formWidget = 0; // because the last mdi window assigned this! See HACK above
 	} else {
+		m_formWidget->hide( );
 		delete m_formWidget;
 		m_formWidget = 0;
 	}
@@ -1312,15 +1313,18 @@ void MainWindow::error( QString error )
 {
 	SkeletonMainWindow::error( error );
 
-	if( settings.mdi ) {
-		if( !m_wolframeClient->isConnected( ) ) {
-			if( !m_modalDialogClosed ) {
-				endModal( );
-			}
+	if( !m_wolframeClient->isConnected( ) ) {
+		if( !m_modalDialogClosed ) {
+			endModal( );
+		}
+		if( settings.mdi ) {
 			m_mdiArea->closeAllSubWindows( );
 			m_formWidget = 0; // see above
-			removeApplicationMenus( );
+		} else {
+			delete m_formWidget;
+			m_formWidget = 0;
 		}
+		removeApplicationMenus( );
 	}
 }
 
