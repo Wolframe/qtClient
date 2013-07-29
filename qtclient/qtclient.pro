@@ -72,6 +72,7 @@ SOURCES += \
 	visitors/WidgetVisitor_FileChooser.cpp \
 	visitors/WidgetVisitor_PictureChooser.cpp \
 	DataFormatXML.cpp \
+	DataStructDescription.cpp \
 	DataTree.cpp \
 	DataSerializeItem.cpp \
 	DataTreeSerialize.cpp \
@@ -125,6 +126,7 @@ HEADERS += \
 	visitors/WidgetVisitor_FileChooser.hpp \
 	visitors/WidgetVisitor_PictureChooser.hpp \
 	DataFormatXML.hpp \
+	DataStructDescription.hpp \
 	DataTree.hpp \
 	DataSerializeItem.hpp \
 	DataTreeSerialize.hpp \
