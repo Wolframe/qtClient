@@ -1,4 +1,5 @@
 #include "DataStructDescription.hpp"
+#include <QDebug>
 
 DataStructDescription::Element::Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_)
 	:type(pointer_?indirection_:struct_),name(name_),substruct(const_cast<DataStructDescription*>(substruct_))
@@ -35,11 +36,39 @@ DataStructDescription::Element::~Element()
 	if (substruct && type != indirection_) delete substruct;
 }
 
+int DataStructDescription::addAtomVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue)
+{
+	QVariantList initvalue;
+	initvalue.push_back( variblename);
+	initvalue.push_back( defaultvalue);
+
+	if (findidx( name_) >= 0) return -1;
+	m_ar.push_back( Element( name_, initvalue, true));
+	return m_ar.size()-1;
+}
+
 int DataStructDescription::addAtom( const QString& name_, const QVariant& initvalue_)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, initvalue_));
+	m_ar.push_back( Element( name_, initvalue_, false));
 	return m_ar.size()-1;
+}
+
+int DataStructDescription::addAttributeVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue)
+{
+	QVariantList initvalue;
+	initvalue.push_back( variblename);
+	initvalue.push_back( defaultvalue);
+
+	if (findidx( name_) >= 0) return -1;
+	m_ar.insert( m_nofattributes++, Element( name_, initvalue, true));
+	return m_nofattributes-1;
+}
+
+int DataStructDescription::addAttribute( const QString& name_, const QVariant& initvalue_)
+{
+	m_ar.insert( m_nofattributes++, Element( name_, initvalue_, false));
+	return m_nofattributes-1;
 }
 
 int DataStructDescription::addStructure( const QString& name_, const DataStructDescription& substruct_)
@@ -56,23 +85,10 @@ int DataStructDescription::addIndirection( const QString& name_, const DataStruc
 	return m_ar.size()-1;
 }
 
-int DataStructDescription::addVariableReference( const QString& name_, const QString& value_)
-{
-	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, value_, true));
-	return m_ar.size()-1;
-}
-
 int DataStructDescription::addElement( const Element& elem)
 {
 	if (findidx( elem.name) >= 0)  return -1;
 	m_ar.push_back( elem);
-	return m_ar.size()-1;
-}
-
-int DataStructDescription::addAttribute( const QString& name_, const QVariant& initvalue_)
-{
-	m_ar.insert( m_nofattributes++, Element( name_, initvalue_));
 	return m_ar.size()-1;
 }
 
@@ -271,5 +287,6 @@ QString DataStructDescription::tostring() const
 	out.append( "}");
 	return out;
 }
+
 
 

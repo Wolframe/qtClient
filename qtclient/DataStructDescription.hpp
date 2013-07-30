@@ -70,8 +70,8 @@ public:
 	struct Element
 	{
 		Element(){}
-		Element( const QString& name_, const QVariant& initvalue_, bool ref_=false)
-			:type(ref_?variableref_:atomic_),name(name_),initvalue(initvalue_){}
+		Element( const QString& name_, const QVariant& initvalue_, bool variable=false)
+			:type(variable?variableref_:atomic_),name(name_),initvalue(initvalue_){}
 		Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_=false);
 		Element( const Element& o);
 		~Element();
@@ -125,8 +125,12 @@ public:
 	const_iterator end() const						{return m_ar.end();}
 	iterator end()								{return m_ar.end();}
 
+	///\brief Add an variable attribute definition to the structure description
+	int addAttributeVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue);
 	///\brief Add an attribute definition to the structure description
 	int addAttribute( const QString& name_, const QVariant& initvalue_);
+	///\brief Add an atomic element definition to the structure description
+	int addAtomVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue);
 	///\brief Add an atomic element definition to the structure description
 	int addAtom( const QString& name_, const QVariant& initvalue_);
 	///\brief Add a substructure definition to the structure description
@@ -134,8 +138,6 @@ public:
 	///\brief Add an indirection definition to the structure description (an indirection is a element expanded on access, e.g. for defining recursive structures)
 	int addIndirection( const QString& name_, const DataStructDescription* descr);
 	///\brief Add a reference to a variable
-	int addVariableReference( const QString& name_, const QString& value_);
-	///\brief Add an element copy to the structure description
 	int addElement( const Element& elem);
 	///\brief Inherit the elements from another structure description
 	void inherit( const DataStructDescription& parent);
@@ -158,6 +160,10 @@ public:
 
 	///\brief Return the contents of a structure description as string (format as in print with no indent and newlines)
 	QString tostring() const;
+
+	///\parses this data struct description
+	//... imlemented in DataStructDescriptionParse.cpp
+	bool parse( const QString& source, QList<QString>& err);
 
 private:
 	int m_nofattributes;

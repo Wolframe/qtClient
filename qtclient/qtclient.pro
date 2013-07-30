@@ -73,6 +73,7 @@ SOURCES += \
 	visitors/WidgetVisitor_PictureChooser.cpp \
 	DataFormatXML.cpp \
 	DataStructDescription.cpp \
+	DataStructDescriptionParse.cpp \
 	DataTree.cpp \
 	DataSerializeItem.cpp \
 	DataTreeSerialize.cpp \
