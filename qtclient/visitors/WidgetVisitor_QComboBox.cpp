@@ -55,7 +55,7 @@ bool WidgetVisitorState_QComboBox::enter( const QString& name, bool writemode)
 	switch (m_mode)
 	{
 		case None:
-			if (name == m_elementname)
+			if (name == m_elementname || name == "item")
 			{
 				if (writemode)
 				{
@@ -122,7 +122,7 @@ QVariant WidgetVisitorState_QComboBox::property( const QString& name)
 		case Value:
 			break;
 		case Select:
-			if (name.isEmpty())
+			if (name.isEmpty() || name == "text")
 			{
 				return QVariant( m_comboBox->currentText());
 			}
@@ -148,7 +148,7 @@ bool WidgetVisitorState_QComboBox::setProperty( const QString& name, const QVari
 			}
 			return false;
 		case Value:
-			if (name.isEmpty())
+			if (name.isEmpty() || name == "text")
 			{
 				if (m_comboBox->currentIndex() < 0) return false;
 				m_comboBox->setItemText( m_comboBox->currentIndex(), data.toString());
@@ -183,7 +183,7 @@ bool WidgetVisitorState_QComboBox::setProperty( const QString& name, const QVari
 
 bool WidgetVisitorState_QComboBox::isArrayElement( const QString& name)
 {
-	return (name == m_elementname);
+	return (name == m_elementname || name == "item");
 }
 
 void WidgetVisitorState_QComboBox::setState( const QVariant& state)
