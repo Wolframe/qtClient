@@ -70,8 +70,8 @@ public:
 	struct Element
 	{
 		Element(){}
-		Element( const QString& name_, const QVariant& initvalue_, bool variable=false)
-			:type(variable?variableref_:atomic_),name(name_),initvalue(initvalue_){}
+		Element( const QString& name_, const QVariant& initvalue_);
+		Element( const QString& name_, const QString& varname, const QVariant& defaultvalue);
 		Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_=false);
 		Element( const Element& o);
 		~Element();
@@ -164,6 +164,8 @@ public:
 	///\parses this data struct description
 	//... imlemented in DataStructDescriptionParse.cpp
 	bool parse( const QString& source, QList<QString>& err);
+
+	QVariant createDataInstance() const;
 
 private:
 	int m_nofattributes;

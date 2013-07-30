@@ -17,6 +17,19 @@ DataStructDescription::Element::Element( const QString& name_, const DataStructD
 	}
 }
 
+DataStructDescription::Element::Element( const QString& name_, const QVariant& initvalue_)
+	:type(atomic_),name(name_),initvalue(initvalue_)
+{}
+
+DataStructDescription::Element::Element( const QString& name_, const QString& varname, const QVariant& defaultvalue)
+	:type(variableref_),name(name_)
+{
+	QVariantList ar;
+	ar.push_back( varname);
+	ar.push_back( defaultvalue);
+	initvalue = ar;
+}
+
 bool DataStructDescription::Element::makeArray()
 {
 	if (type == indirection_) return false;
@@ -38,36 +51,29 @@ DataStructDescription::Element::~Element()
 
 int DataStructDescription::addAtomVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue)
 {
-	QVariantList initvalue;
-	initvalue.push_back( variblename);
-	initvalue.push_back( defaultvalue);
-
 	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, initvalue, true));
+	m_ar.push_back( Element( name_, variblename, defaultvalue));
 	return m_ar.size()-1;
 }
 
 int DataStructDescription::addAtom( const QString& name_, const QVariant& initvalue_)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, initvalue_, false));
+	m_ar.push_back( Element( name_, initvalue_));
 	return m_ar.size()-1;
 }
 
 int DataStructDescription::addAttributeVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue)
 {
-	QVariantList initvalue;
-	initvalue.push_back( variblename);
-	initvalue.push_back( defaultvalue);
-
 	if (findidx( name_) >= 0) return -1;
-	m_ar.insert( m_nofattributes++, Element( name_, initvalue, true));
+	m_ar.insert( m_nofattributes++, Element( name_, variblename, defaultvalue));
 	return m_nofattributes-1;
 }
 
 int DataStructDescription::addAttribute( const QString& name_, const QVariant& initvalue_)
 {
-	m_ar.insert( m_nofattributes++, Element( name_, initvalue_, false));
+	if (findidx( name_) >= 0) return -1;
+	m_ar.insert( m_nofattributes++, Element( name_, initvalue_));
 	return m_nofattributes-1;
 }
 
@@ -287,6 +293,42 @@ QString DataStructDescription::tostring() const
 	out.append( "}");
 	return out;
 }
+
+QVariant DataStructDescription::createDataInstance() const
+{
+	QVariantList rt;
+	DataStructDescription::const_iterator di = begin(), de = end();
+	for (; di != de; ++di)
+	{
+		switch (di->type)
+		{
+			case atomic_:
+				rt.push_back( di->initvalue);
+				break;
+			case variableref_:
+				if (di->initvalue.toList().size() >= 2)
+				{
+					rt.push_back( di->initvalue.toList().at(1));
+				}
+				break;
+			case struct_:
+				if (di->substruct)
+				{
+					rt.push_back( di->substruct->createDataInstance());
+				}
+				else
+				{
+					rt.push_back( QVariant());
+				}
+				break;
+			case indirection_:
+				rt.push_back( QVariant());
+				break;
+		}
+	}
+	return rt;
+}
+
 
 
 
