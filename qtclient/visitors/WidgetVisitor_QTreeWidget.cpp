@@ -220,7 +220,6 @@ bool WidgetVisitorState_QTreeWidget::setProperty( const QString& name, const QVa
 	}
 	else if (name == icon_str)
 	{
-		qDebug() << "ICON:" << data.toString() << col;
 		if (data.toString().startsWith( ":"))
 		{
 // internal resource
