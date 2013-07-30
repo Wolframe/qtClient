@@ -699,7 +699,7 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 	
 	// apply explicit sizes here (from dynamic properties), found no other
 	// way to do this (there is only horizontalHeaderDefaultSectionSize)
-	for( int i = 0; i < m_tableWidget->rowCount( ); i++ ) {
+	for( int i = 0; i < m_tableWidget->columnCount( ); i++ ) {
 		QString propName = QString( "column:%1:width" ).arg( i );
 		QVariant propValue = m_tableWidget->property( propName.toLatin1( ) );
 		if( propValue.isValid( ) && propValue.toUInt( ) > 0 ) {
