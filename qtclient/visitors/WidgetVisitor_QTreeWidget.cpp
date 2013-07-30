@@ -387,6 +387,15 @@ void WidgetVisitorState_QTreeWidget::setState( const QVariant& state)
 			}
 		}
 	}
+
+	// apply explicit sizes here (from dynamic properties)
+	for( int i = 0; i < m_treeWidget->columnCount( ); i++ ) {
+		QString propName = QString( "column:%1:width" ).arg( i );
+		QVariant propValue = m_treeWidget->property( propName.toLatin1( ) );
+		if( propValue.isValid( ) && propValue.toUInt( ) > 0 ) {
+			m_treeWidget->setColumnWidth( i, propValue.toUInt( ) );
+		}		
+	}
 }
 
 static StateTag itemStateTag( const QTreeWidgetItem* item)
