@@ -74,6 +74,7 @@ SOURCES += \
 	DataFormatXML.cpp \
 	DataStructDescription.cpp \
 	DataStructDescriptionParse.cpp \
+	DataStructDescriptionMap.cpp \
 	DataTree.cpp \
 	DataSerializeItem.cpp \
 	DataTreeSerialize.cpp \
@@ -128,6 +129,7 @@ HEADERS += \
 	visitors/WidgetVisitor_PictureChooser.hpp \
 	DataFormatXML.hpp \
 	DataStructDescription.hpp \
+	DataStructDescriptionMap.hpp \
 	DataTree.hpp \
 	DataSerializeItem.hpp \
 	DataTreeSerialize.hpp \

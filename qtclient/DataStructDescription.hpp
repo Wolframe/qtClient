@@ -161,10 +161,11 @@ public:
 	///\brief Return the contents of a structure description as string (format as in print with no indent and newlines)
 	QString tostring() const;
 
-	///\parses this data struct description
+	///\brief Parses this data struct description
 	//... imlemented in DataStructDescriptionParse.cpp
 	bool parse( const QString& source, QList<QString>& err);
 
+	///\brief Gets an initialized instance of this structure
 	QVariant createDataInstance() const;
 
 private:

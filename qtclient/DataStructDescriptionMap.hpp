@@ -81,3 +81,4 @@ private:
 	QList<Node> m_ar;
 };
 
+#endif

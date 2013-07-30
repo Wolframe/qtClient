@@ -11,7 +11,7 @@ void DataStructDescriptionMap::printNode( QString& out, int root, int level)
 	const Node& nd = m_ar.at( root);
 	int ii = 0, nn = nd.childar.size();
 	QString indent;
-	indent.fill( "\t", level);
+	indent.fill( '\t', level);
 	out.append( indent);
 	out.append( nd.name);
 	out.append( "\n");
@@ -39,7 +39,7 @@ void DataStructDescriptionMap::enter( const QString& name)
 	}
 	int newchld = m_ar.size();
 	m_ar.push_back( Node( name, m_curidx));
-	m_ar.at(m_curidx).childar.push_back( newchld);
+	m_ar[m_curidx].childar.push_back( newchld);
 	m_curidx = newchld;
 }
 
