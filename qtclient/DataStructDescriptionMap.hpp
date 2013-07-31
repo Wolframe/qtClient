@@ -40,45 +40,28 @@
 #include <QSharedPointer>
 #include "DataStructDescription.hpp"
 
-///\class DataStructDescriptionMap
-///\brief Data structure representing the map from a data structure to a the data tree defined by its variable references.
-class DataStructDescriptionMap
-{
-public:
-	///\brief Constructor
-	DataStructDescriptionMap();
-	DataStructDescriptionMap( const DataStructDescriptionMap& o)
-		:m_curidx(o.m_curidx),m_ar(o.m_ar){}
+typedef QList<QString> DataPath;
+typedef QMap<DataStructDescription::Element*,DataPath> DataStructDescriptionMap;
 
-	void print( QString& out)
-	{
-		if (m_ar.isEmpty()) return;
-		printNode( out, 0, 0);
-	}
+/* MODEL
+*
+* Because widget element references in data structures are all atomic, the grouping of
+* elements belonging to the same structure cannot be made explicitely. The grouping
+* is done implicitely by grouping elements according their lowest common ancestor
+* in the element path. Elements "X.Y.A" and "X.Y.B" in the same structure are assumed
+* to belong to a unit "X.Y". This is important in array because there the individual
+* addressing of the elements is not equivalent. We have to assure that elements
+* in the same group ("X.Y") are mapped to the same array element. This is done by
+* opening the grouping element for every array element in the data and then addressing
+* the sub elements of the group.
+*
+* The function 'getDataStructDescriptionMap( const DataStructDescription& )' returns
+* a map that assigns a relative group path to every grouping element in the description.
+*/
 
-	void start();
-	void enter( const QString& name);
-	void leave();
-
-private:
-	void printNode( QString& out, int root, int level);
-
-	struct Node
-	{
-		QString name;
-		int parent;
-		QList<int> childar;
-
-		Node()
-			:parent(-1){}
-		Node( const Node& o)
-			:name(o.name),parent(o.parent),childar(o.childar){}
-		Node( const QString& name_, int parent_)
-			:name(name_),parent(parent_){}
-	};
-
-	int m_curidx;
-	QList<Node> m_ar;
-};
+///\brief Get a map of elements of a data structure description and its substructures to relative paths extracted from variable references.
+DataStructDescriptionMap
+	getDataStructDescriptionMap( const DataStructDescription& descr);
 
 #endif
+

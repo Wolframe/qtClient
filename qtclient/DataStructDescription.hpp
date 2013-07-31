@@ -102,6 +102,7 @@ public:
 		void setAttribute( bool v=true)					{if (v) flags |= (unsigned char)Attribute; else flags -= (flags & (unsigned char)Attribute);}
 
 		bool makeArray();
+		QString variablename() const;					//< return the name of the variable referenced in case of a variableref_
 	};
 
 	///\brief Const iterator on the elements of the definition

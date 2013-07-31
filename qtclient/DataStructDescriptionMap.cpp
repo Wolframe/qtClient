@@ -1,55 +1,103 @@
 #include "DataStructDescriptionMap.hpp"
+#include "DataPathTree.hpp"
+#include <QDebug>
 
-DataStructDescriptionMap::DataStructDescriptionMap()
-	:m_curidx(0)
+struct StackElement
 {
-	m_ar.push_back( Node());
-}
+	const DataStructDescription* descr;
+	DataStructDescription::const_iterator itr;
 
-void DataStructDescriptionMap::printNode( QString& out, int root, int level)
-{
-	const Node& nd = m_ar.at( root);
-	int ii = 0, nn = nd.childar.size();
-	QString indent;
-	indent.fill( '\t', level);
-	out.append( indent);
-	out.append( nd.name);
-	out.append( "\n");
-	for (; ii<nn; ++ii)
+	bool next()
 	{
-		printNode( out, nd.childar.at(ii), level+1);
+		DataStructDescription::const_iterator xx = itr+1;
+		if (xx == descr->end()) return false;
+		++itr;
+		return true;
 	}
-}
 
-void DataStructDescriptionMap::start()
-{
-	m_curidx = 0;
-}
+	StackElement( const DataStructDescription* descr_)
+		:descr(descr_),itr(descr->begin()){}
+	StackElement( const StackElement& o)
+		:descr(o.descr),itr(o.itr){}
+};
 
-void DataStructDescriptionMap::enter( const QString& name)
+static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<QString>& lca, const DataStructDescription* descr)
 {
-	QList<int>::const_iterator ni = m_ar.at(m_curidx).childar.begin(), ne = m_ar.at(m_curidx).childar.end();
-	for (; ni != ne; ++ni)
+	QList<StackElement> stk;
+	QList<int> scopeReferences;
+	DataPathTree tree;
+
+	if (descr->size() == 0) return;
+	stk.push_back( descr);
+
+	while (!stk.isEmpty())
 	{
-		if (name == m_ar.at(*ni).name)
+		DataStructDescription::const_iterator di = stk.back().itr;
+		if (di->type == DataStructDescription::variableref_)
 		{
-			m_curidx = *ni;
-			return;
+			scopeReferences.push_back( tree.addPathNode( di->variablename()));
+		}
+		if (di->array())
+		{
+			if (di->substruct)
+			{
+				DataStructDescriptionMap subres;
+				QList<QString> sublca;
+				getDataStructDescriptionMap_( subres, sublca, di->substruct);
+				if (sublca.isEmpty())
+				{
+					qCritical() << "array elements do not have a common ancestor path";
+				}
+				scopeReferences.push_back( tree.addPathNode( sublca));
+				DataStructDescriptionMap::const_iterator bi = subres.begin(), be = subres.end();
+				for (; bi != be; ++bi)
+				{
+					if (sublca.size() > bi.value().size())
+					{
+						qCritical() << "logic error: common prefix of list bigger than a member";
+						return;
+					}
+					QList<QString> relative_pt;
+					QList<QString>::const_iterator ci = bi.value().begin() + sublca.size();
+					for (; ci != bi.value().end(); ++ci)
+					{
+						relative_pt.push_back( *ci);
+					}
+					res.insert( bi.key(), relative_pt);
+				}
+			}
+		}
+		else if (di->type == DataStructDescription::struct_)
+		{
+			if (di->substruct->size())
+			{
+				stk.push_back( di->substruct);
+			}
+		}
+
+		while (!stk.back().next())
+		{
+			stk.pop_back();
 		}
 	}
-	int newchld = m_ar.size();
-	m_ar.push_back( Node( name, m_curidx));
-	m_ar[m_curidx].childar.push_back( newchld);
-	m_curidx = newchld;
+	int ancestor = tree.getLowestCommonAncestor( scopeReferences);
+	if (ancestor > 0)
+	{
+		lca = tree.getPath( ancestor);
+	}
+	else if (ancestor < 0)
+	{
+		qCritical() << "illegal state in get data structure description map (no common ancestor in tree)";
+	}
 }
 
-void DataStructDescriptionMap::leave()
+DataStructDescriptionMap getDataStructDescriptionMap( const DataStructDescription& descr)
 {
-	if (m_curidx == 0) return;
-	m_curidx = m_ar.at(m_curidx).parent;
+	DataStructDescriptionMap rt;
+	QList<QString> sublca;
+	getDataStructDescriptionMap_( rt, sublca, &descr);
+	return rt;
 }
-
-
 
 
 

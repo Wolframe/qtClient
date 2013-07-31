@@ -30,6 +30,15 @@ DataStructDescription::Element::Element( const QString& name_, const QString& va
 	initvalue = ar;
 }
 
+QString DataStructDescription::Element::variablename() const
+{
+	if (type == variableref_ && initvalue.type() == QVariant::List)
+	{
+		return initvalue.toList().at(0).toString();
+	}
+	return QString();
+}
+
 bool DataStructDescription::Element::makeArray()
 {
 	if (type == indirection_) return false;
