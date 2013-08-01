@@ -21,6 +21,28 @@ struct StackElement
 		:descr(o.descr),itr(o.itr){}
 };
 
+static bool findIndirection( DataStructDescription* descr, DataStructDescription* indirection)
+{
+	DataStructDescription::const_iterator si = descr->begin(), se = descr->end();
+	for (; si != se; ++si)
+	{
+		if (si->type == DataStructDescription::indirection_)
+		{
+			if (si->substruct == indirection) return true;
+		}
+		else if (si->substruct)
+		{
+			if (findIndirection( si->substruct, indirection)) return true;
+		}
+	}
+	return false;
+}
+
+static bool findSelfRecursion( DataStructDescription* descr)
+{
+	return findIndirection( descr, descr);
+}
+
 static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<QString>& lca, const DataStructDescription* descr)
 {
 	QList<StackElement> stk;
@@ -37,44 +59,69 @@ static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 		{
 			scopeReferences.push_back( tree.addPathNode( di->variablename()));
 		}
+		DataStructDescription* sync_substruct = 0;
 		if (di->array())
 		{
 			if (di->substruct)
 			{
-				DataStructDescriptionMap subres;
-				QList<QString> sublca;
-				getDataStructDescriptionMap_( subres, sublca, di->substruct);
-				if (sublca.isEmpty())
-				{
-					qCritical() << "array elements do not have a common ancestor path";
-				}
-				scopeReferences.push_back( tree.addPathNode( sublca));
-				DataStructDescriptionMap::const_iterator bi = subres.begin(), be = subres.end();
-				for (; bi != be; ++bi)
-				{
-					if (sublca.size() > bi.value().size())
-					{
-						qCritical() << "logic error: common prefix of list bigger than a member";
-						return;
-					}
-					QList<QString> relative_pt;
-					QList<QString>::const_iterator ci = bi.value().begin() + sublca.size();
-					for (; ci != bi.value().end(); ++ci)
-					{
-						relative_pt.push_back( *ci);
-					}
-					res.insert( bi.key(), relative_pt);
-				}
+				sync_substruct = di->substruct;
 			}
 		}
 		else if (di->type == DataStructDescription::struct_)
 		{
+			if (findSelfRecursion( di->substruct))
+			{
+				sync_substruct = di->substruct;
+			}
 			if (di->substruct->size())
 			{
 				stk.push_back( di->substruct);
 			}
 		}
-
+		if (sync_substruct)
+		{
+			DataStructDescriptionMap subres;
+			QList<QString> sublca;
+			getDataStructDescriptionMap_( subres, sublca, sync_substruct);
+			if (sublca.isEmpty())
+			{
+				qCritical() << "array or recursive structure elements do not have a common ancestor path";
+			}
+			DataStructDescriptionMap::const_iterator bi = subres.begin(), be = subres.end();
+			int maxPathSize = 0;
+			for (; bi != be; ++bi)
+			{
+				if (sublca.size() > bi.value().size())
+				{
+					qCritical() << "logic error: common prefix of list bigger than a member";
+					return;
+				}
+				if (maxPathSize < bi.value().size())
+				{
+					maxPathSize = bi.value().size();
+				}
+			}
+			if (sublca.size() && maxPathSize == sublca.size())
+			{
+				//... if there are only elements selected by the sub expression path then
+				//    reduce the subexpression path length by one.
+				//    otherwise we might miss the selection with
+				//    enter 'name' and getProperty '' instead of
+				//    getProperty 'name'
+				sublca.pop_back();
+			}
+			scopeReferences.push_back( tree.addPathNode( sublca));
+			for (; bi != be; ++bi)
+			{
+				QList<QString> relative_pt;
+				QList<QString>::const_iterator ci = bi.value().begin() + sublca.size();
+				for (; ci != bi.value().end(); ++ci)
+				{
+					relative_pt.push_back( *ci);
+				}
+				res.insert( bi.key(), relative_pt);
+			}
+		}
 		while (!stk.back().next())
 		{
 			stk.pop_back();

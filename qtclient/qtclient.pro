@@ -72,6 +72,7 @@ SOURCES += \
 	visitors/WidgetVisitor_FileChooser.cpp \
 	visitors/WidgetVisitor_PictureChooser.cpp \
 	DataFormatXML.cpp \
+	DataStruct.cpp \
 	DataStructDescription.cpp \
 	DataStructDescriptionParse.cpp \
 	DataStructDescriptionMap.cpp \
@@ -129,6 +130,7 @@ HEADERS += \
 	visitors/WidgetVisitor_FileChooser.hpp \
 	visitors/WidgetVisitor_PictureChooser.hpp \
 	DataFormatXML.hpp \
+	DataStruct.hpp \
 	DataStructDescription.hpp \
 	DataStructDescriptionMap.hpp \
 	DataPathTree.hpp \

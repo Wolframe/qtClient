@@ -1,4 +1,5 @@
 #include "DataStructDescription.hpp"
+#include "DataStruct.hpp"
 #include <QDebug>
 
 DataStructDescription::Element::Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_)
@@ -7,36 +8,25 @@ DataStructDescription::Element::Element( const QString& name_, const DataStructD
 	if (!pointer_)
 	{
 		substruct = new DataStructDescription( *substruct_);
-		QList<QVariant> ar;
-		DataStructDescription::const_iterator si = substruct->begin(), se = substruct->end();
-		for (; si != se; ++si)
-		{
-			ar.push_back( si->initvalue);
-		}
-		initvalue = QVariant( ar);
+		initvalue = new DataStruct( substruct);
 	}
 }
 
 DataStructDescription::Element::Element( const QString& name_, const QVariant& initvalue_)
-	:type(atomic_),name(name_),initvalue(initvalue_)
-{}
+	:type(atomic_),name(name_),initvalue(0)
+{
+	initvalue = new DataStruct( initvalue_);
+}
 
 DataStructDescription::Element::Element( const QString& name_, const QString& varname, const QVariant& defaultvalue)
-	:type(variableref_),name(name_)
+	:type(variableref_),name(name_),variableref(varname)
 {
-	QVariantList ar;
-	ar.push_back( varname);
-	ar.push_back( defaultvalue);
-	initvalue = ar;
+	initvalue = new DataStruct( defaultvalue);
 }
 
 QString DataStructDescription::Element::variablename() const
 {
-	if (type == variableref_ && initvalue.type() == QVariant::List)
-	{
-		return initvalue.toList().at(0).toString();
-	}
-	return QString();
+	return (type == variableref_)?variableref:QString();
 }
 
 bool DataStructDescription::Element::makeArray()
@@ -48,13 +38,26 @@ bool DataStructDescription::Element::makeArray()
 }
 
 DataStructDescription::Element::Element( const Element& o)
-	:type(o.type),name(o.name),initvalue(o.initvalue),substruct(o.substruct)
+	:type(o.type),name(o.name),variableref(o.variableref),initvalue(0),substruct(o.substruct)
 {
-	if (substruct && type != indirection_) substruct = new DataStructDescription( *o.substruct);
+	if (substruct)
+	{
+		if (type != indirection_)
+		{
+			substruct = new DataStructDescription( *o.substruct);
+			initvalue = new DataStruct( *o.initvalue);
+			initvalue->setDescription( substruct);
+		}
+	}
+	else
+	{
+		initvalue = new DataStruct( *o.initvalue);
+	}
 }
 
 DataStructDescription::Element::~Element()
 {
+	if (initvalue) delete initvalue;
 	if (substruct && type != indirection_) delete substruct;
 }
 
@@ -201,7 +204,18 @@ int DataStructDescription::compare( const DataStructDescription& o) const
 		{
 			return +1;
 		}
-		cmp = compareVariant( ai->initvalue, bi->initvalue);
+		if (ai->initvalue && bi->initvalue)
+		{
+			cmp = ai->initvalue->compare( *bi->initvalue);
+		}
+		else if (ai->initvalue)
+		{
+			return -1;
+		}
+		else if (bi->initvalue)
+		{
+			return +1;
+		}
 		if (cmp) return cmp;
 	}
 	if (ai != ae) return -1;
@@ -239,38 +253,38 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 		switch (di->type)
 		{
 			case atomic_:
-				if (di->initvalue.isValid())
+				if (di->initvalue->value().isValid())
 				{
 					printElementHeader( out, *di);
 					if (di->attribute())
 					{
 						out.append( "='");
-						out.append( di->initvalue.toString());
+						out.append( di->initvalue->value().toString());
 						out.append( "'");
 					}
 					else
 					{
 						out.append( "{'");
-						out.append( di->initvalue.toString());
+						out.append( di->initvalue->value().toString());
 						out.append( "'}");
 					}
 				}
 				break;
 
 			case variableref_:
-				if (di->initvalue.isValid())
+				if (di->initvalue->value().isValid())
 				{
 					printElementHeader( out, *di);
 					if (di->attribute())
 					{
 						out.append( "={");
-						out.append( di->initvalue.toString());
+						out.append( di->initvalue->value().toString());
 						out.append( "}");
 					}
 					else
 					{
 						out.append( "{{");
-						out.append( di->initvalue.toString());
+						out.append( di->initvalue->value().toString());
 						out.append( "}}");
 					}
 				}
@@ -303,39 +317,9 @@ QString DataStructDescription::tostring() const
 	return out;
 }
 
-QVariant DataStructDescription::createDataInstance() const
+DataStruct* DataStructDescription::createDataInstance() const
 {
-	QVariantList rt;
-	DataStructDescription::const_iterator di = begin(), de = end();
-	for (; di != de; ++di)
-	{
-		switch (di->type)
-		{
-			case atomic_:
-				rt.push_back( di->initvalue);
-				break;
-			case variableref_:
-				if (di->initvalue.toList().size() >= 2)
-				{
-					rt.push_back( di->initvalue.toList().at(1));
-				}
-				break;
-			case struct_:
-				if (di->substruct)
-				{
-					rt.push_back( di->substruct->createDataInstance());
-				}
-				else
-				{
-					rt.push_back( QVariant());
-				}
-				break;
-			case indirection_:
-				rt.push_back( QVariant());
-				break;
-		}
-	}
-	return rt;
+	return new DataStruct( this);
 }
 
 
