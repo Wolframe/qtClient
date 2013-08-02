@@ -160,6 +160,23 @@ bool WidgetVisitorState_QComboBox::setProperty( const QString& name, const QVari
 				m_comboBox->setItemData( m_comboBox->currentIndex(), data, Qt::UserRole);
 				return true;
 			}
+			if (name == "icon")
+			{
+				if (data.toString().startsWith( ":"))
+				{
+// internal resource
+					m_comboBox->setItemIcon( m_comboBox->currentIndex(), QIcon( data.toString()));
+				}
+				else
+				{
+// base64 encoded data from server
+					QByteArray decoded = QByteArray::fromBase64( data.toByteArray());
+					QPixmap pixmap;
+					pixmap.loadFromData( decoded);
+					m_comboBox->setItemIcon( m_comboBox->currentIndex(), pixmap);
+				}
+				return true;
+			}
 			return false;
 		case Select:
 			if (name.isEmpty())
