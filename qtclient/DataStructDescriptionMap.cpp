@@ -21,7 +21,7 @@ struct StackElement
 		:descr(o.descr),itr(o.itr){}
 };
 
-static bool findIndirection( DataStructDescription* descr, DataStructDescription* indirection)
+static bool findIndirection( const DataStructDescription* descr, const DataStructDescription* indirection)
 {
 	DataStructDescription::const_iterator si = descr->begin(), se = descr->end();
 	for (; si != se; ++si)
@@ -38,7 +38,7 @@ static bool findIndirection( DataStructDescription* descr, DataStructDescription
 	return false;
 }
 
-static bool findSelfRecursion( DataStructDescription* descr)
+static bool findSelfRecursion( const DataStructDescription* descr)
 {
 	return findIndirection( descr, descr);
 }
@@ -59,7 +59,7 @@ static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 		{
 			scopeReferences.push_back( tree.addPathNode( di->variablename()));
 		}
-		DataStructDescription* sync_substruct = 0;
+		const DataStructDescription* sync_substruct = 0;
 		if (di->array())
 		{
 			if (di->substruct)

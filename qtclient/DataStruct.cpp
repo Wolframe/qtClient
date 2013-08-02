@@ -53,25 +53,38 @@ void DataStruct::assign( const DataStruct& o)
 	release();
 	if (o.m_size < 0)
 	{
+		// single
 		if (o.m_description)
 		{
-			m_data.ref = new DataStruct[ o.m_description->size()];
-			DataStructDescription::const_iterator di = o.m_description->begin(), de = o.m_description->end();
-			std::size_t idx = 0;
-			for (; di != de; ++di,++idx)
+			if (m_data.ref)
 			{
-				m_data.ref[ idx] = o.m_data.ref[ idx];
+				// single struct
+				m_data.ref = new DataStruct[ o.m_description->size()];
+				DataStructDescription::const_iterator di = o.m_description->begin(), de = o.m_description->end();
+				std::size_t idx = 0;
+				for (; di != de; ++di,++idx)
+				{
+					m_data.ref[ idx] = o.m_data.ref[ idx];
+				}
+			}
+			else
+			{
+				// single indirection
+				m_data.ref = 0;
 			}
 		}
 		else
 		{
+			// single atomic
 			m_data.elem = new QVariant( *m_data.elem);
 		}
 	}
 	else
 	{
+		// array
 		if (o.m_description)
 		{
+			// array of struct elements
 			m_data.ref = new DataStruct[ o.m_size+1];
 			int ii = 0;
 			for (; ii <= o.m_size; ++ii)
@@ -81,6 +94,7 @@ void DataStruct::assign( const DataStruct& o)
 		}
 		else
 		{
+			// array of atomic elements
 			m_data.elem = new QVariant[ o.m_size+1];
 			int ii = 0;
 			for (; ii <= o.m_size; ++ii)
@@ -132,6 +146,14 @@ bool DataStruct::makeArray()
 	m_data.ref = ref;
 	m_size = 0;
 	return true;
+}
+
+void DataStruct::expandIndirection()
+{
+	if (m_size < 0 && m_description && m_data.ref == 0)
+	{
+		m_data.ref = new DataStruct( m_description);
+	}
 }
 
 const QVariant& DataStruct::value() const
@@ -357,9 +379,30 @@ const DataStruct* DataStruct::prototype() const
 	return array()?m_data.ref:0;
 }
 
+DataStruct::const_iterator DataStruct::begin() const
+{
+	return const_iterator( (m_description&&m_size<0)?m_data.ref:0);
+}
 
+DataStruct::const_iterator DataStruct::end() const
+{
+	return const_iterator( (m_description&&m_size<0)?(m_data.ref + m_description->size()):0);
+}
 
+DataStruct::iterator DataStruct::begin()
+{
+	return iterator( (m_description&&m_size<0)?m_data.ref:0);
+}
 
+DataStruct::iterator DataStruct::end()
+{
+	return iterator( (m_description&&m_size<0)?(m_data.ref + m_description->size()):0);
+}
 
+DataStructIndirection::DataStructIndirection( const DataStructDescription* descr)
+	:DataStruct()
+{
+	m_description = descr;
+}
 
 

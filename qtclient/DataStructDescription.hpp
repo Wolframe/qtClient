@@ -61,10 +61,16 @@ public:
 	///\brief Copy constructor
 	DataStructDescription( const DataStructDescription& o)
 		:m_nofattributes(o.m_nofattributes)
-		,m_ar(o.m_ar){}
+		,m_ar(o.m_ar)
+	{
+		setIndirectionDescription( &o);
+	}
 
 	///\brief Destructor
 	~DataStructDescription(){}
+
+	///\brief Change pointers to indirection descriptors from 'o' to 'this'
+	void setIndirectionDescription( const DataStructDescription* o);
 
 	///\brief One element of the structure description. Refers to the element with the same index in the corresponding DataStruct
 	struct Element
@@ -80,7 +86,7 @@ public:
 		QString name;				//< name of the element in UTF-8
 		QString variableref;			//< variable reference
 		DataStruct* initvalue;			//< initialization value of the element
-		DataStructDescription* substruct;	//< substructure in case of an element that is itself a structure
+		const DataStructDescription* substruct;	//< substructure in case of an element that is itself a structure
 
 		///\brief Flags describing some properties of the element
 		enum Flags
@@ -89,7 +95,8 @@ public:
 			Optional=0x1,		//< element is an optional
 			Mandatory=0x2,		//< element is an mandatory
 			Attribute=0x4,		//< element is an attribute
-			Array=0x8		//< element is an array
+			Array=0x8,		//< element is an array
+			AnyValue=0x10		//< element is undefined
 		};
 		unsigned char flags;		//< internal representation of the flags of this element
 
@@ -97,10 +104,12 @@ public:
 		bool mandatory() const						{return (flags & (unsigned char)Mandatory) != 0;}
 		bool attribute() const						{return (flags & (unsigned char)Attribute) != 0;}
 		bool array() const						{return (flags & (unsigned char)Array) != 0;}
+		bool anyValue() const						{return (flags & (unsigned char)AnyValue) != 0;}
 
 		void setOptional( bool v=true)					{if (v) flags |= (unsigned char)Optional;  else flags -= (flags & (unsigned char)Optional);}
 		void setMandatory( bool v=true)					{if (v) flags |= (unsigned char)Mandatory; else flags -= (flags & (unsigned char)Mandatory);}
 		void setAttribute( bool v=true)					{if (v) flags |= (unsigned char)Attribute; else flags -= (flags & (unsigned char)Attribute);}
+		void setAnyValue( bool v=true)					{if (v) flags |= (unsigned char)AnyValue; else flags -= (flags & (unsigned char)AnyValue);}
 
 		bool makeArray();
 		QString variablename() const;					//< return the name of the variable referenced in case of a variableref_

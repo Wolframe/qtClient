@@ -3,7 +3,7 @@
 #include <QDebug>
 
 DataStructDescription::Element::Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_)
-	:type(pointer_?indirection_:struct_),name(name_),substruct(const_cast<DataStructDescription*>(substruct_))
+	:type(pointer_?indirection_:struct_),name(name_),substruct(substruct_)
 {
 	if (!pointer_)
 	{
@@ -60,6 +60,71 @@ DataStructDescription::Element::~Element()
 {
 	if (initvalue) delete initvalue;
 	if (substruct && type != indirection_) delete substruct;
+}
+
+namespace {
+struct StkElement
+{
+	DataStructDescription::iterator ti;
+	DataStructDescription::iterator te;
+	DataStructDescription::const_iterator oi;
+	DataStructDescription::const_iterator oe;
+
+	StkElement( DataStructDescription* ths, const DataStructDescription* oth)
+		:ti(ths->begin()),te(ths->end()),oi(oth->begin()),oe(oth->end()){}
+	StkElement( const StkElement& o)
+		:ti(o.ti),te(o.te),oi(o.oi),oe(o.oe){}
+
+	void exchangeIndirection( const DataStructDescription* ths, const DataStructDescription* oth)
+	{
+		if (ti->type == DataStructDescription::indirection_ && ti->substruct == ths)
+		{
+			ti->substruct = oth;
+		}
+	}
+	bool finished()
+	{
+		return (ti == te);
+	}
+	void next()
+	{
+		ti++;
+		oi++;
+	}
+};
+}//end anonymous namespace
+
+void DataStructDescription::setIndirectionDescription( const DataStructDescription* o)
+{
+	QList<StkElement> stk;
+	stk.push_back( StkElement( this, o));
+	if (stk.back().finished()) stk.pop_back();
+
+	while (!stk.isEmpty())
+	{
+		if (stk.back().ti->type == DataStructDescription::indirection_)
+		{
+			stk.back().exchangeIndirection( o, this);
+			stk.back().next();
+		}
+		else if (stk.back().ti->substruct && stk.back().oi->substruct)
+		{
+			const DataStructDescription* dd = stk.back().oi->substruct;
+			const DataStructDescription* aa = stk.back().ti->substruct;
+			const_cast<DataStructDescription*>( aa)->setIndirectionDescription( dd);
+			stk.push_back( StkElement( const_cast<DataStructDescription*>( stk.back().ti->substruct), stk.back().oi->substruct));
+		}
+		else
+		{
+			stk.back().next();
+		}
+		while (stk.back().finished())
+		{
+			stk.pop_back();
+			if (stk.empty()) break;
+			stk.back().next();
+		}
+	}
 }
 
 int DataStructDescription::addAtomVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue)

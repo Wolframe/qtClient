@@ -77,8 +77,69 @@ public:
 	bool initialized() const				{return m_initialized;}
 	void setInitialized( bool v=true)			{m_initialized = v;}
 
+	void expandIndirection();
+
+public:
+	class const_iterator
+	{
+	public:
+		const_iterator( DataStruct const* ptr_)
+			:m_ptr(ptr_){}
+		const_iterator& operator++()			{++m_ptr; return *this;}
+		const_iterator operator++(int)			{const_iterator rt(m_ptr); ++m_ptr; return rt;}
+
+		const DataStruct& operator*() const		{return *m_ptr;}
+		DataStruct const* operator->() const		{return m_ptr;}
+
+		bool operator==( const const_iterator& o) const	{return m_ptr==o.m_ptr;}
+		bool operator!=( const const_iterator& o) const	{return m_ptr!=o.m_ptr;}
+		bool operator>=( const const_iterator& o) const	{return m_ptr>=o.m_ptr;}
+		bool operator>( const const_iterator& o) const	{return m_ptr>o.m_ptr;}
+		bool operator<=( const const_iterator& o) const	{return m_ptr<=o.m_ptr;}
+		bool operator<( const const_iterator& o) const	{return m_ptr<o.m_ptr;}
+
+		const_iterator operator+( int idx) const	{return const_iterator( m_ptr+idx);}
+		const_iterator operator-( int idx) const	{return const_iterator( m_ptr-idx);}
+		int operator-( const const_iterator& o) const	{return m_ptr-o.m_ptr;}
+
+	private:
+		DataStruct const* m_ptr;
+	};
+
+	class iterator
+	{
+	public:
+		iterator( DataStruct* ptr_)
+			:m_ptr(ptr_){}
+		iterator& operator++()				{++m_ptr; return *this;}
+		iterator operator++(int)			{iterator rt(m_ptr); ++m_ptr; return rt;}
+
+		DataStruct& operator*()				{return *m_ptr;}
+		DataStruct* operator->()			{return m_ptr;}
+
+		bool operator==( const iterator& o) const	{return m_ptr==o.m_ptr;}
+		bool operator!=( const iterator& o) const	{return m_ptr!=o.m_ptr;}
+		bool operator>=( const iterator& o) const	{return m_ptr>=o.m_ptr;}
+		bool operator>( const iterator& o) const	{return m_ptr>o.m_ptr;}
+		bool operator<=( const iterator& o) const	{return m_ptr<=o.m_ptr;}
+		bool operator<( const iterator& o) const	{return m_ptr<o.m_ptr;}
+
+		iterator operator+( int idx) const		{return iterator( m_ptr+idx);}
+		iterator operator-( int idx) const		{return iterator( m_ptr-idx);}
+		int operator-( const iterator& o) const		{return m_ptr-o.m_ptr;}
+
+	private:
+		DataStruct* m_ptr;
+	};
+
+	const_iterator begin() const;
+	const_iterator end() const;
+	iterator begin();
+	iterator end();
+
 private:
 	friend class DataStructDescription;
+	friend class DataStructIndirection;
 	void setDescription( const DataStructDescription* description_);
 	void assign( const DataStruct& o);
 	void release();
@@ -94,6 +155,13 @@ private:
 	const DataStructDescription* m_description;
 	bool m_initialized;
 };
+
+class DataStructIndirection :public DataStruct
+{
+public:
+	DataStructIndirection( const DataStructDescription* descr);
+};
+
 
 #endif
 

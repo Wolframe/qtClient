@@ -289,6 +289,10 @@ public:
 						if (idx < 0) return false;
 						if (vardef.optional)
 						{
+							if (vardef.varname.isEmpty())
+							{
+								stk.back().description->at( idx).setAnyValue();
+							}
 							stk.back().description->at( idx).setOptional();
 						}
 						if (isArray)
@@ -344,6 +348,10 @@ public:
 						if (idx < 0) return false;
 						if (vardef.optional)
 						{
+							if (vardef.varname.isEmpty())
+							{
+								stk.back().description->at( idx).setAnyValue();
+							}
 							stk.back().description->at( idx).setOptional();
 						}
 						if (isArray)
@@ -384,6 +392,10 @@ public:
 				if (idx < 0) return false;
 				if (vardef.optional)
 				{
+					if (vardef.varname.isEmpty())
+					{
+						stk.back().description->at( idx).setAnyValue();
+					}
 					stk.back().description->at( idx).setOptional();
 				}
 			}
@@ -392,7 +404,7 @@ public:
 				//... Any content
 				int idx = defineAtomVariable( "", "", QVariant());
 				if (idx < 0) return false;
-				stk.back().description->at( idx).setOptional();
+				stk.back().description->at( idx).setAnyValue();
 			}
 			else
 			{
