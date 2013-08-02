@@ -559,6 +559,15 @@ static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& res
 	QList<int> aidxposar;
 	for (; ai != ae; ++ai)
 	{
+		// clear all data of owner widgets of assignments:
+		QWidget* ow = visitor.getPropertyOwnerWidget( ai->name);
+		if (ow)
+		{
+			WidgetVisitor owv( ow);
+			owv.clear();
+		}
+
+		// initialize array index counter stack:
 		aidxposar.push_back(0);
 		TRACE_ASSIGNMENT( QString("answer assignment ") + WidgetDataAssignmentInstr::typeName( ai->type), ai->name, shortenDebugMessageArgument( ai->value));
 	}
