@@ -76,6 +76,7 @@ SOURCES += \
 	DataStructDescription.cpp \
 	DataStructDescriptionParse.cpp \
 	DataStructDescriptionMap.cpp \
+	DataStructSerialize.cpp \
 	DataPathTree.cpp \
 	DataTree.cpp \
 	DataSerializeItem.cpp \
@@ -133,6 +134,7 @@ HEADERS += \
 	DataStruct.hpp \
 	DataStructDescription.hpp \
 	DataStructDescriptionMap.hpp \
+	DataStructSerialize.hpp \
 	DataPathTree.hpp \
 	DataTree.hpp \
 	DataSerializeItem.hpp \

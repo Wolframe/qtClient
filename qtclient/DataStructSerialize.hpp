@@ -30,8 +30,8 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WIDGET_DATA_STRUCT_DESCRIPTION_MAP_HPP_INCLUDED
-#define _WIDGET_DATA_STRUCT_DESCRIPTION_MAP_HPP_INCLUDED
+#ifndef _WIDGET_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
+#define _WIDGET_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
 #include <QString>
 #include <QVariant>
 #include <QPair>
@@ -39,28 +39,11 @@
 #include <QMap>
 #include <QSharedPointer>
 #include "DataStructDescription.hpp"
+#include "DataSerializeItem.hpp"
 
-typedef QList<QString> DataPath;
-typedef QMap<DataStructDescription::Element*,DataPath> DataStructDescriptionMap;
-
-/* MODEL
-*
-* Because widget element references in data structures are all atomic, the grouping of
-* elements belonging to the same structure cannot be made explicitely. The grouping
-* is done implicitely by grouping elements according their lowest common ancestor
-* in the element path. Elements "X.Y.A" and "X.Y.B" in the same structure are assumed
-* to belong to a group "X.Y". This is important in arrays because there the individual
-* addressing of the elements is not equivalent to addressing first the group and then
-* the elements relatively. We have to assure that elements in the same group ("X.Y")
-* are mapped to the same array element. This is done by opening the grouping element
-* for every array element in the data and then addressing the sub elements of the group.
-*
-* The function 'getDataStructDescriptionMap( const DataStructDescription& )' returns
-* a map that assigns a relative group path to every grouping element in the description.
-*/
-
-///\brief Get a map of elements of a data structure description and its substructures to relative paths extracted from variable references.
-DataStructDescriptionMap getDataStructDescriptionMap( const DataStructDescription& descr);
+bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& value);
+bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeItem>& serialization);
 
 #endif
+
 

@@ -67,18 +67,18 @@ void DataStruct::assign( const DataStruct& o)
 	{
 		if (o.m_description)
 		{
-			m_data.ref = new DataStruct[ o.m_size];
+			m_data.ref = new DataStruct[ o.m_size+1];
 			int ii = 0;
-			for (; ii < o.m_size; ++ii)
+			for (; ii <= o.m_size; ++ii)
 			{
 				m_data.ref[ ii] = o.m_data.ref[ ii];
 			}
 		}
 		else
 		{
-			m_data.elem = new QVariant[ o.m_size];
+			m_data.elem = new QVariant[ o.m_size+1];
 			int ii = 0;
-			for (; ii < o.m_size; ++ii)
+			for (; ii <= o.m_size; ++ii)
 			{
 				m_data.elem[ ii] = o.m_data.elem[ ii];
 			}
@@ -258,6 +258,39 @@ void DataStruct::setDescription( const DataStructDescription* description_)
 		qCritical() << "internal: illegal state (set description of structure)";
 	}
 }
+
+const DataStruct* DataStruct::at( int /*idx*/) const
+{
+	if (!array()) return 0;
+	return 0;
+}
+
+DataStruct* DataStruct::at( int /*idx*/)
+{
+	if (!array()) return 0;
+	return 0;
+}
+
+const DataStruct* DataStruct::get( const QString& name) const
+{
+	if (array()) return 0;
+	if (!m_description) return 0;
+
+	int idx = m_description->findidx( name);
+	if (idx < 0) return 0;
+	return m_data.ref + idx;
+}
+
+DataStruct* DataStruct::get( const QString& name)
+{
+	if (array()) return 0;
+	if (!m_description) return 0;
+
+	int idx = m_description->findidx( name);
+	if (idx < 0) return 0;
+	return m_data.ref + idx;
+}
+
 
 
 

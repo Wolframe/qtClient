@@ -38,7 +38,7 @@
 #include <QList>
 #include <QSharedPointer>
 
-///\brief Forward declaration for VariantStructDescription
+///\brief Forward declaration for DataStructDescription
 class DataStruct;
 
 ///\class DataStructDescription
@@ -78,7 +78,8 @@ public:
 
 		Type type;
 		QString name;				//< name of the element in UTF-8
-		QVariant initvalue;			//< initialization value of the element
+		QString variableref;			//< variable reference
+		DataStruct* initvalue;			//< initialization value of the element
 		DataStructDescription* substruct;	//< substructure in case of an element that is itself a structure
 
 		///\brief Flags describing some properties of the element
@@ -167,7 +168,7 @@ public:
 	bool parse( const QString& source, QList<QString>& err);
 
 	///\brief Gets an initialized instance of this structure
-	QVariant createDataInstance() const;
+	DataStruct* createDataInstance() const;
 
 private:
 	int m_nofattributes;
