@@ -60,17 +60,26 @@ public:
 
 	int compare( const DataStruct& o);
 
+	bool push();
+
+	const DataStruct* back() const;
+	DataStruct* back();
+
 	const DataStruct* at( int idx) const;
 	DataStruct* at( int idx);
 
 	const DataStruct* get( const QString& name) const;
 	DataStruct* get( const QString& name);
 
+	bool initialized() const			{return m_initialized;}
+	void setInitialized( bool v=true)		{m_initialized = v;}
+
 private:
 	friend class DataStructDescription;
 	void setDescription( const DataStructDescription* description_);
 	void assign( const DataStruct& o);
 	void release();
+	bool makeArray();
 
 	int m_size;
 	union
@@ -80,6 +89,7 @@ private:
 	}
 	m_data;
 	const DataStructDescription* m_description;
+	bool m_initialized;
 };
 
 #endif

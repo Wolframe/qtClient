@@ -2,14 +2,19 @@
 #include "DataStructDescription.hpp"
 #include <QDebug>
 
+static int arrayAllocSize( int size)
+{
+	return (size | 0x7) + 1;
+}
+
 DataStruct::DataStruct()
-	:m_size(-1),m_description(0)
+	:m_size(-1),m_description(0),m_initialized(false)
 {
 	m_data.elem = 0;
 }
 
 DataStruct::DataStruct( const QVariant& value)
-	:m_size(-1),m_description(0)
+	:m_size(-1),m_description(0),m_initialized(false)
 {
 	m_data.elem = new QVariant(value);
 }
@@ -86,10 +91,11 @@ void DataStruct::assign( const DataStruct& o)
 	}
 	m_size = o.m_size;
 	m_description = o.m_description;
+	m_initialized = o.m_initialized;
 }
 
 DataStruct::DataStruct( const DataStruct& o)
-	:m_size(-1),m_description(0)
+	:m_size(-1),m_description(0),m_initialized(o.m_initialized)
 {
 	m_data.elem = 0;
 	assign( o);
@@ -101,16 +107,31 @@ DataStruct::~DataStruct()
 }
 
 DataStruct::DataStruct( const DataStructDescription* description_)
-	:m_size(-1),m_description(description_)
+	:m_size(-1),m_description(description_),m_initialized(false)
 {
-	m_size = m_description->size();
-	m_data.ref = new DataStruct[ m_size];
+	m_data.ref = new DataStruct[ m_description->size()];
 
 	DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
 	for (int idx=0; di != de; ++di,++idx)
 	{
 		m_data.ref[ idx] = *(di->initvalue);
 	}
+}
+
+bool DataStruct::makeArray()
+{
+	if (m_size >= 0)
+	{
+		qCritical() << "internal: bad call of make array";
+		return false;
+	}
+	int allocsize = arrayAllocSize( 1);
+	DataStruct* ref = new DataStruct[ allocsize];
+	ref[0] = *this;
+	release();
+	m_data.ref = ref;
+	m_size = 0;
+	return true;
 }
 
 const QVariant& DataStruct::value() const
@@ -173,6 +194,10 @@ int DataStruct::compare( const DataStruct& o)
 		}
 		else if (!m_description && !o.m_description)
 		{
+			if (m_initialized != o.m_initialized)
+			{
+				return (int)m_initialized - (int)o.m_initialized;
+			}
 			int cmp = compareVariant( *m_data.elem, *o.m_data.elem);
 			if (cmp) return cmp;
 		}
@@ -194,8 +219,8 @@ int DataStruct::compare( const DataStruct& o)
 				int cmp = m_description->compare( *o.m_description);
 				if (cmp) return cmp;
 			}
-			int ii=0, nn=m_size;
-			for (; ii<nn; ++ii)
+			int ii=1, nn=m_size;
+			for (; ii<=nn; ++ii)
 			{
 				int cmp = m_data.ref[ ii].compare( o.m_data.ref[ ii]);
 				if (cmp) return cmp;
@@ -203,8 +228,8 @@ int DataStruct::compare( const DataStruct& o)
 		}
 		else if (!m_description && !o.m_description)
 		{
-			int ii=0, nn=m_size;
-			for (; ii<nn; ++ii)
+			int ii=1, nn=m_size;
+			for (; ii<=nn; ++ii)
 			{
 				int cmp = compareVariant( m_data.elem[ii], o.m_data.elem[ii]);
 				if (cmp) return cmp;
@@ -259,16 +284,52 @@ void DataStruct::setDescription( const DataStructDescription* description_)
 	}
 }
 
-const DataStruct* DataStruct::at( int /*idx*/) const
+bool DataStruct::push()
 {
-	if (!array()) return 0;
-	return 0;
+	if (!array())
+	{
+		qCritical() << "illegal operation 'push' on non array structure";
+		return false;
+	}
+	int allocsize = arrayAllocSize( m_size+1);
+	int prev_allocsize = arrayAllocSize( m_size);
+	if (allocsize > prev_allocsize)
+	{
+		DataStruct* ref = new DataStruct[ allocsize];
+		for (int ii=0; ii<=m_size; ++ii)
+		{
+			ref[ ii] = m_data.ref[ ii];
+		}
+		delete [] m_data.ref;
+		m_data.ref = ref;
+	}
+	m_data.ref[ m_size+1] = m_data.ref[ 0];
+	++m_size;
+	return true;
 }
 
-DataStruct* DataStruct::at( int /*idx*/)
+const DataStruct* DataStruct::back() const
 {
-	if (!array()) return 0;
-	return 0;
+	if (!array() || m_size <= 0) return 0;
+	return m_data.ref + m_size;
+}
+
+DataStruct* DataStruct::back()
+{
+	if (!array() || m_size <= 0) return 0;
+	return m_data.ref + m_size;
+}
+
+const DataStruct* DataStruct::at( int idx) const
+{
+	if (!array() || m_size < idx || idx < 0) return 0;
+	return m_data.ref + idx + 1;
+}
+
+DataStruct* DataStruct::at( int idx)
+{
+	if (!array() || m_size < idx || idx < 0) return 0;
+	return m_data.ref + idx + 1;
 }
 
 const DataStruct* DataStruct::get( const QString& name) const
@@ -278,7 +339,7 @@ const DataStruct* DataStruct::get( const QString& name) const
 
 	int idx = m_description->findidx( name);
 	if (idx < 0) return 0;
-	return m_data.ref + idx;
+	return m_data.ref + idx + 1;
 }
 
 DataStruct* DataStruct::get( const QString& name)
@@ -288,7 +349,7 @@ DataStruct* DataStruct::get( const QString& name)
 
 	int idx = m_description->findidx( name);
 	if (idx < 0) return 0;
-	return m_data.ref + idx;
+	return m_data.ref + idx + 1;
 }
 
 

@@ -24,6 +24,7 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 			case DataSerializeItem::OpenTag:
 				if (stk.back()->array())
 				{
+					stk.back()->push();
 					return false;
 				}
 				else
@@ -34,9 +35,29 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 						qCritical() << "fill data structure with undefined tag" << path.join("/");
 						return false;
 					}
+					if (elem->array())
+					{
+						elem->push();
+						stk.push_back( elem->back());
+						elem->setInitialized();
+					}
+					else if (elem->initialized())
+					{
+						qCritical() << "duplicate initialization of element" << si->value().toString() << "in" << path.join("/");
+					}
+					else
+					{
+						elem->setInitialized();
+						stk.push_back( elem);
+					}
 				}
 				break;
 			case DataSerializeItem::CloseTag:
+				stk.pop_back();
+				if (stk.isEmpty())
+				{
+					qCritical() << "tags not balanced in serialization";
+				}
 				break;
 			case DataSerializeItem::Attribute:
 				break;

@@ -33,6 +33,7 @@ bool DataStructDescription::Element::makeArray()
 {
 	if (type == indirection_) return false;
 	if (array()) return false;
+	if (!initvalue->makeArray()) return false;
 	flags |= (unsigned char)Array;
 	return true;
 }
