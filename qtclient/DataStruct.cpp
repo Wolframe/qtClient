@@ -352,6 +352,12 @@ DataStruct* DataStruct::get( const QString& name)
 	return m_data.ref + idx + 1;
 }
 
+const DataStruct* DataStruct::prototype() const
+{
+	return array()?m_data.ref:0;
+}
+
+
 
 
 

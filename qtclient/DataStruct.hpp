@@ -71,8 +71,11 @@ public:
 	const DataStruct* get( const QString& name) const;
 	DataStruct* get( const QString& name);
 
-	bool initialized() const			{return m_initialized;}
-	void setInitialized( bool v=true)		{m_initialized = v;}
+	const DataStruct* prototype() const;
+	const DataStructDescription* description() const	{return m_description;}
+
+	bool initialized() const				{return m_initialized;}
+	void setInitialized( bool v=true)			{m_initialized = v;}
 
 private:
 	friend class DataStructDescription;
