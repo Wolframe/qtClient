@@ -30,8 +30,8 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WIDGET_DATA_STRUCT_HPP_INCLUDED
-#define _WIDGET_DATA_STRUCT_HPP_INCLUDED
+#ifndef _WOLFRAME_STDCLIENT_DATA_STRUCT_HPP_INCLUDED
+#define _WOLFRAME_STDCLIENT_DATA_STRUCT_HPP_INCLUDED
 #include <QString>
 #include <QVariant>
 #include <QPair>

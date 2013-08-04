@@ -30,17 +30,10 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WOLFRAME_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
-#define _WOLFRAME_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
-///\brief Module with function to serialize/deserialize a DataStruct
-
-#include <QString>
-#include <QList>
-#include "DataStructDescription.hpp"
-#include "DataSerializeItem.hpp"
-
-bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& value);
-bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeItem>& serialization);
+#ifndef _WOLFRAME_DATA_STRUCT_MAP_HPP_INCLUDED
+#define _WOLFRAME_DATA_STRUCT_MAP_HPP_INCLUDED
+///\brief Module with function to build a DataStruct from a description and the widget data
+#include "VisitorInterface.hpp"
 
 #endif
 

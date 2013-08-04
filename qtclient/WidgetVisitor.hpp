@@ -31,10 +31,11 @@
 
 ************************************************************************/
 
-#ifndef _WIDGET_VISIOR_HPP_INCLUDED
-#define _WIDGET_VISIOR_HPP_INCLUDED
+#ifndef _WOLFRAME_WIDGET_VISIOR_HPP_INCLUDED
+#define _WOLFRAME_WIDGET_VISIOR_HPP_INCLUDED
 #include "DataSerializeItem.hpp"
 #include "WidgetVisitorObject.hpp"
+#include "VisitorInterface.hpp"
 #include <QWidget>
 #include <QStack>
 #include <QHash>
@@ -218,6 +219,7 @@ class FormWidget;
 ///\class WidgetVisitor
 ///\brief Tree to access to (read/write) of widget data
 class WidgetVisitor
+	:public VisitorInterface
 {
 	public:
 		///\brief Default constructor
@@ -242,6 +244,9 @@ class WidgetVisitor
 		///\brief Constructor by object
 		explicit WidgetVisitor( const WidgetVisitorObjectR& obj, VisitorFlags flags);
 
+		///\brief Destructor
+		virtual ~WidgetVisitor(){}
+
 		VisitorFlags flags() const
 		{
 			return (VisitorFlags)((int)(m_blockSignals?BlockSignals:None)|(int)(m_allowUndefDynPropsInit?AllowUndefDynPropsInit:None));
@@ -250,17 +255,17 @@ class WidgetVisitor
 		static void init_widgetids( QWidget* widget);
 
 		///\brief Sets the current node to the child with name 'name'
-		bool enter( const QString& name, bool writemode);
+		virtual bool enter( const QString& name, bool writemode);
 		///\brief Sets the current node to the root widget or child with name 'name' of the root widget
 		bool enter_root( const QString& name);
 
 		///\brief Set the current node to the parent that called enter to this node.
-		void leave( bool writemode);
+		virtual void leave( bool writemode);
 
 		///\brief Get the property of the current node by 'name'
 		///\param[in] name name of the property
 		///\return property variant (any type)
-		QVariant property( const QString& name);
+		virtual QVariant property( const QString& name);
 		///\brief Get the property of the current node by 'name'
 		///\param[in] name name of the property
 		///\return property variant (any type)
@@ -270,7 +275,7 @@ class WidgetVisitor
 		///\param[in] name name of the property
 		///\param[in] value property value as variant (any type)
 		///\return true on success
-		bool setProperty( const QString& name, const QVariant& value);
+		virtual bool setProperty( const QString& name, const QVariant& value);
 		///\brief Set the property of the current node
 		///\param[in] name name of the property
 		///\param[in] value property value as variant (any type)
@@ -337,10 +342,10 @@ class WidgetVisitor
 		///\brief Set the current widget state
 		void setState( const QVariant& state);
 		///\brief Declare end of data feed
-		void endofDataFeed();
+		virtual void endofDataFeed();
 
 		///\brief Clear widget data
-		void clear();
+		virtual void clear();
 
 		///\brief Get all receivers of a datasignal (type)
 		QList<QPair<QString,QWidget*> > get_datasignal_receivers( WidgetListener::DataSignalType type);

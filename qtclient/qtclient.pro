@@ -77,6 +77,7 @@ SOURCES += \
 	DataStructDescriptionParse.cpp \
 	DataStructDescriptionMap.cpp \
 	DataStructSerialize.cpp \
+	DataStructMap.cpp \
 	DataPathTree.cpp \
 	DataTree.cpp \
 	DataSerializeItem.cpp \
@@ -100,6 +101,7 @@ HEADERS += \
 	DataLoader.hpp \
 	FileDataLoader.hpp \
 	NetworkDataLoader.hpp \
+	VisitorInterface.hpp \
 	WidgetTree.hpp \
 	WidgetVisitorObject.hpp \
 	WidgetVisitor.hpp \
@@ -135,6 +137,7 @@ HEADERS += \
 	DataStructDescription.hpp \
 	DataStructDescriptionMap.hpp \
 	DataStructSerialize.hpp \
+	DataStructMap.hpp \
 	DataPathTree.hpp \
 	DataTree.hpp \
 	DataSerializeItem.hpp \

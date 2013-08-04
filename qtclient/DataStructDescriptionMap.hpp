@@ -30,8 +30,19 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WIDGET_DATA_STRUCT_DESCRIPTION_MAP_HPP_INCLUDED
-#define _WIDGET_DATA_STRUCT_DESCRIPTION_MAP_HPP_INCLUDED
+#ifndef _WOLFRAME_DATA_STRUCT_DESCRIPTION_MAP_HPP_INCLUDED
+#define _WOLFRAME_DATA_STRUCT_DESCRIPTION_MAP_HPP_INCLUDED
+///\brief Module to relate two hierarchical structures, one given by a
+//	DataStructDescription and the other given by variable references in this
+//	description to each other. The idea is that a map of elements in one
+//	structure to elements in the other structure should preserve the grouping
+//	of elements in the same substructure. The difficulty here is that elements
+//	in the request/answer specification language of the Wolframe client
+//	are adressed individually as atomic values or sets of atomic values. So the
+//	grouping information is reconstructed by assuming that elements with a common
+//	ancestor path belong to a group described by the longest common ancestor path
+//	(see ->Model).
+
 #include <QString>
 #include <QVariant>
 #include <QPair>
@@ -40,15 +51,12 @@
 #include <QSharedPointer>
 #include "DataStructDescription.hpp"
 
-typedef QList<QString> DataPath;
-typedef QMap<DataStructDescription::Element*,DataPath> DataStructDescriptionMap;
-
-/* MODEL
+/* Model
 *
 * Because widget element references in data structures are all atomic, the grouping of
 * elements belonging to the same structure cannot be made explicitely. The grouping
-* is done implicitely by grouping elements according their lowest common ancestor
-* in the element path. Elements "X.Y.A" and "X.Y.B" in the same structure are assumed
+* is done implicitely by grouping elements according their longest common ancestor
+* element path. Elements "X.Y.A" and "X.Y.B" in the same structure are assumed
 * to belong to a group "X.Y". This is important in arrays because there the individual
 * addressing of the elements is not equivalent to addressing first the group and then
 * the elements relatively. We have to assure that elements in the same group ("X.Y")
@@ -56,8 +64,13 @@ typedef QMap<DataStructDescription::Element*,DataPath> DataStructDescriptionMap;
 * for every array element in the data and then addressing the sub elements of the group.
 *
 * The function 'getDataStructDescriptionMap( const DataStructDescription& )' returns
-* a map that assigns a relative group path to every grouping element in the description.
+* a map that assigns a relative group path to every relevant grouping element
+* in the description. Relevant are structure descriptions referenced by an self recursive
+* indirection or descriptions pf array elements.
 */
+
+typedef QList<QString> DataPath;
+typedef QMap<DataStructDescription::Element*,DataPath> DataStructDescriptionMap;
 
 ///\brief Get a map of elements of a data structure description and its substructures to relative paths extracted from variable references.
 DataStructDescriptionMap getDataStructDescriptionMap( const DataStructDescription& descr);

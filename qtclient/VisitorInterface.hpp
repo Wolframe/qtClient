@@ -30,17 +30,41 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WOLFRAME_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
-#define _WOLFRAME_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
-///\brief Module with function to serialize/deserialize a DataStruct
-
+#ifndef _WOLFRAME_VISITOR_INTERFACE_HPP_INCLUDED
+#define _WOLFRAME_VISITOR_INTERFACE_HPP_INCLUDED
+///\brief Interface to a tree structure for extracting its data (request) and initializing
+//	its data (answer).
 #include <QString>
-#include <QList>
-#include "DataStructDescription.hpp"
-#include "DataSerializeItem.hpp"
+#include <QVariant>
 
-bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& value);
-bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeItem>& serialization);
+struct VisitorInterface
+{
+	VisitorInterface(){}
+	virtual ~VisitorInterface(){};
+
+	///\brief Sets the current node to the child with name 'name'
+	virtual bool enter( const QString& name, bool writemode)=0;
+
+	///\brief Set the current node to the parent that called enter to this node.
+	virtual void leave( bool writemode)=0;
+
+	///\brief Get the property of the current node by 'name'
+	///\param[in] name name of the property
+	///\return property variant (any type)
+	virtual QVariant property( const QString& name)=0;
+
+	///\brief Set the property of the current node
+	///\param[in] name name of the property
+	///\param[in] value property value as variant (any type)
+	///\return true on success
+	virtual bool setProperty( const QString& name, const QVariant& value)=0;
+
+	///\brief Clear data of the currently visited node
+	virtual void clear()=0;
+
+	///\brief Declare the end of data initialization
+	virtual void endofDataFeed()=0;
+};
 
 #endif
 
