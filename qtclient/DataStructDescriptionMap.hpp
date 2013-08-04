@@ -70,10 +70,10 @@
 */
 
 typedef QList<QString> DataPath;
-typedef QMap<DataStructDescription::Element*,DataPath> DataStructDescriptionMap;
+typedef QMap<const DataStructDescription*,DataPath> DataStructDescriptionMap;
 
 ///\brief Get a map of elements of a data structure description and its substructures to relative paths extracted from variable references.
-DataStructDescriptionMap getDataStructDescriptionMap( const DataStructDescription& descr);
+bool getDataStructDescriptionMap( DataStructDescriptionMap& descrmap, const DataStructDescription& descr);
 
 #endif
 

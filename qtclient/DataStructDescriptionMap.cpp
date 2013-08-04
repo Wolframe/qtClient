@@ -43,13 +43,13 @@ static bool findSelfRecursion( const DataStructDescription* descr)
 	return findIndirection( descr, descr);
 }
 
-static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<QString>& lca, const DataStructDescription* descr)
+static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<QString>& lca, const DataStructDescription* descr)
 {
 	QList<StackElement> stk;
 	QList<int> scopeReferences;
 	DataPathTree tree;
 
-	if (descr->size() == 0) return;
+	if (descr->size() == 0) return true;
 	stk.push_back( descr);
 
 	while (!stk.isEmpty())
@@ -86,6 +86,7 @@ static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 			if (sublca.isEmpty())
 			{
 				qCritical() << "array or recursive structure elements do not have a common ancestor path";
+				return false;
 			}
 			DataStructDescriptionMap::const_iterator bi = subres.begin(), be = subres.end();
 			int maxPathSize = 0;
@@ -94,7 +95,7 @@ static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 				if (sublca.size() > bi.value().size())
 				{
 					qCritical() << "logic error: common prefix of list bigger than a member";
-					return;
+					return false;
 				}
 				if (maxPathSize < bi.value().size())
 				{
@@ -135,16 +136,14 @@ static void getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 	else if (ancestor < 0)
 	{
 		qCritical() << "illegal state in get data structure description map (no common ancestor in tree)";
+		return false;
 	}
+	return true;
 }
 
-DataStructDescriptionMap getDataStructDescriptionMap( const DataStructDescription& descr)
+bool getDataStructDescriptionMap( DataStructDescriptionMap& descrmap, const DataStructDescription& descr)
 {
-	DataStructDescriptionMap rt;
 	QList<QString> sublca;
-	getDataStructDescriptionMap_( rt, sublca, &descr);
-	return rt;
+	return getDataStructDescriptionMap_( descrmap, sublca, &descr);
 }
-
-
 
