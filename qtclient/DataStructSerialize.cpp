@@ -43,24 +43,24 @@ private:
 } //anonymous namespace
 
 
-bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& value)
+bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& data)
 {
 	SerializationOutput out( serialization);
 
-	if (value.array())
+	if (data.array())
 	{
 		qCritical() << "internal: invalid call of getDataStructSerialization (with array)";
 		return false;
 	}
-	if (value.atomic())
+	if (data.atomic())
 	{
-		out.value( value.value());
+		out.value( data.value());
 		return true;
 	}
-	else if (value.description())
+	else if (data.description())
 	{
-		DataStruct::const_iterator ei = value.begin(), ee = value.end();
-		DataStructDescription::const_iterator di = value.description()->begin(), de = value.description()->end();
+		DataStruct::const_iterator ei = data.begin(), ee = data.end();
+		DataStructDescription::const_iterator di = data.description()->begin(), de = data.description()->end();
 		for (; ei != ee && di != de; ++di,++ei)
 		{
 			if (di->attribute())
@@ -104,13 +104,13 @@ bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const 
 	return false;
 }
 
-bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeItem>& serialization)
+bool fillDataStructSerialization( DataStruct& data, const QList<DataSerializeItem>& serialization)
 {
 	QList<DataSerializeItem>::const_iterator si = serialization.begin(), se = serialization.end();
 	QList<DataStruct*> stk;
 	QStringList path;
 	QString attributename;
-	stk.push_back( &value);
+	stk.push_back( &data);
 	DataSerializeItem::Type lastelemtype = DataSerializeItem::CloseTag;
 
 	for (; si != se && stk.size(); ++si)

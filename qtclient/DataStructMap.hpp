@@ -34,6 +34,16 @@
 #define _WOLFRAME_DATA_STRUCT_MAP_HPP_INCLUDED
 ///\brief Module with function to build a DataStruct from a description and the widget data
 #include "VisitorInterface.hpp"
+#include "DataStruct.hpp"
+
+///\brief Fill the object accessed over the visitor interface with content from the
+//	data structure 'data'. Use the addressed by variable references in the data
+//	description for grouping elements together.
+bool putDataStruct( const DataStruct& data, VisitorInterface* vi);
+
+///\brief Build the data structure 'data' from content addressed by variable
+//	references in the data description retrieved over the visitor interface.
+bool getDataStruct( DataStruct& data, VisitorInterface* vi);
 
 #endif
 

@@ -39,8 +39,8 @@
 #include "DataStructDescription.hpp"
 #include "DataSerializeItem.hpp"
 
-bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& value);
-bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeItem>& serialization);
+bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& data);
+bool fillDataStructSerialization( DataStruct& data, const QList<DataSerializeItem>& serialization);
 
 #endif
 
