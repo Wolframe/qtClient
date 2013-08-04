@@ -57,6 +57,7 @@ public:
 	const QVariant& value() const;
 	bool atomic() const;
 	bool array() const;
+	bool indirection() const;
 
 	int compare( const DataStruct& o);
 
@@ -136,6 +137,8 @@ public:
 	const_iterator end() const;
 	iterator begin();
 	iterator end();
+
+	int size() const					{return m_size;}
 
 private:
 	friend class DataStructDescription;

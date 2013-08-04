@@ -172,6 +172,11 @@ bool DataStruct::array() const
 	return (m_size >= 0);
 }
 
+bool DataStruct::indirection() const
+{
+	return (m_size < 0 && m_description && m_data.ref == 0);
+}
+
 static int compareVariant( const QVariant& aa, const QVariant& bb)
 {
 	int at = (int)aa.type();
@@ -381,22 +386,30 @@ const DataStruct* DataStruct::prototype() const
 
 DataStruct::const_iterator DataStruct::begin() const
 {
-	return const_iterator( (m_description&&m_size<0)?m_data.ref:0);
+	if (m_description) return const_iterator( m_data.ref);
+	if (m_size) return const_iterator( m_data.ref+1);
+	return 0;
 }
 
 DataStruct::const_iterator DataStruct::end() const
 {
-	return const_iterator( (m_description&&m_size<0)?(m_data.ref + m_description->size()):0);
+	if (m_description) return const_iterator( m_data.ref + m_description->size());
+	if (m_size) return const_iterator( m_data.ref + m_size + 1);
+	return 0;
 }
 
 DataStruct::iterator DataStruct::begin()
 {
-	return iterator( (m_description&&m_size<0)?m_data.ref:0);
+	if (m_description) return iterator( m_data.ref);
+	if (m_size) return iterator( m_data.ref+1);
+	return 0;
 }
 
 DataStruct::iterator DataStruct::end()
 {
-	return iterator( (m_description&&m_size<0)?(m_data.ref + m_description->size()):0);
+	if (m_description) return iterator( m_data.ref + m_description->size());
+	if (m_size) return iterator( m_data.ref + m_size + 1);
+	return 0;
 }
 
 DataStructIndirection::DataStructIndirection( const DataStructDescription* descr)

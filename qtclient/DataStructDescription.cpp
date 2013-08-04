@@ -151,8 +151,9 @@ int DataStructDescription::addAttributeVariable( const QString& name_, const QSt
 int DataStructDescription::addAttribute( const QString& name_, const QVariant& initvalue_)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.insert( m_nofattributes++, Element( name_, initvalue_));
-	return m_nofattributes-1;
+	m_ar.insert( m_nofattributes, Element( name_, initvalue_));
+	m_ar.back().setAttribute();
+	return m_nofattributes++;
 }
 
 int DataStructDescription::addStructure( const QString& name_, const DataStructDescription& substruct_)

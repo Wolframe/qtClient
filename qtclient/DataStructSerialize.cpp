@@ -4,8 +4,103 @@
 #include <QStringList>
 #include <QDebug>
 
+namespace {
+class SerializationOutput
+{
+public:
+	SerializationOutput( QList<DataSerializeItem>& serialization_)
+		:serialization(&serialization_){}
+
+	void value( const QVariant& val)
+	{
+		serialization->push_back( DataSerializeItem( DataSerializeItem::Value, val));
+	}
+
+	void content( const DataStruct& val)
+	{
+		getDataStructSerialization( *serialization, val);
+	}
+
+	void attribute( const QString& name, const QVariant& val)
+	{
+		serialization->push_back( DataSerializeItem( DataSerializeItem::Attribute, QVariant(name)));
+		serialization->push_back( DataSerializeItem( DataSerializeItem::Value, val));
+	}
+
+	void openTag( const QVariant& val)
+	{
+		serialization->push_back( DataSerializeItem( DataSerializeItem::OpenTag, val));
+	}
+
+	void closeTag()
+	{
+		serialization->push_back( DataSerializeItem( DataSerializeItem::CloseTag, QVariant()));
+	}
+
+private:
+	QList<DataSerializeItem>* serialization;
+};
+} //anonymous namespace
+
+
 bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const DataStruct& value)
 {
+	SerializationOutput out( serialization);
+
+	if (value.array())
+	{
+		qCritical() << "internal: invalid call of getDataStructSerialization (with array)";
+		return false;
+	}
+	if (value.atomic())
+	{
+		out.value( value.value());
+		return true;
+	}
+	else if (value.description())
+	{
+		DataStruct::const_iterator ei = value.begin(), ee = value.end();
+		DataStructDescription::const_iterator di = value.description()->begin(), de = value.description()->end();
+		for (; ei != ee && di != de; ++di,++ei)
+		{
+			if (di->attribute())
+			{
+				if (ei->array())
+				{
+					DataStruct::const_iterator ai = ei->begin(), ae = ei->end();
+					for (; ai != ae; ++ai)
+					{
+						out.attribute( di->name, ai->value());
+					}
+				}
+				else
+				{
+					out.attribute( di->name, ei->value());
+				}
+			}
+			else
+			{
+				if (ei->array())
+				{
+					DataStruct::const_iterator ai = ei->begin(), ae = ei->end();
+					for (; ai != ae; ++ai)
+					{
+						out.openTag( di->name);
+						out.content( *ai);
+						out.closeTag();
+					}
+				}
+				else
+				{
+					out.openTag( di->name);
+					out.content( *ei);
+					out.closeTag();
+				}
+			}
+		}
+		return true;
+	}
+	qCritical() << "internal: invalid call of getDataStructSerialization (invalid parameter)";
 	return false;
 }
 
@@ -36,8 +131,15 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 				}
 				DataStruct::iterator ei = stk.back()->begin() + idx;
 				DataStructDescription::const_iterator di = descr->begin() + idx;
+
+				if (ei->indirection())
+				{
+					// Handle Indirection:
+					ei->expandIndirection();
+				}
 				if (di->anyValue())
 				{
+					// Handle {?} (ignoring subtree)
 					int taglevel = 1;
 					for (; si != se && taglevel > 0; ++si)
 					{
@@ -54,26 +156,33 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 						qCritical() << "tags not balanced in structure fill input";
 						return false;
 					}
+					if (ei->initialized())
+					{
+						qCritical() << "duplicate initialization of element" << si->value().toString() << "in" << path.join("/");
+						return false;
+					}
 					ei->setInitialized();
-				}
-				else if (di->type == DataStructDescription::indirection_)
-				{
-
 				}
 				else if (ei->array())
 				{
+					// Handle array (expand new element of the array):
 					ei->push();
 					ei->setInitialized();
+					if (ei->back()->indirection())
+					{
+						ei->back()->expandIndirection();
+					}
 					ei->back()->setInitialized();
 					stk.push_back( ei->back());
 				}
-				else if (ei->initialized())
-				{
-					qCritical() << "duplicate initialization of element" << si->value().toString() << "in" << path.join("/");
-					return false;
-				}
 				else
 				{
+					// Handle single element:
+					if (ei->initialized())
+					{
+						qCritical() << "duplicate initialization of element" << si->value().toString() << "in" << path.join("/");
+						return false;
+					}
 					ei->setInitialized();
 					stk.push_back( &*ei);
 				}
@@ -91,6 +200,7 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 				}
 				else
 				{
+					// Check if all elements are initialized that have to be:
 					DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
 					DataStruct::iterator ei = elem->begin(), ee = elem->end();
 
@@ -118,6 +228,7 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 			case DataSerializeItem::Value:
 				if (lastelemtype == DataSerializeItem::Attribute)
 				{
+					// Initialize attribute value:
 					const DataStructDescription* descr = stk.back()->description();
 					if (!descr)
 					{
@@ -133,10 +244,12 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 					DataStruct::iterator ei = stk.back()->begin() + idx;
 					if (di->anyValue())
 					{
+						// Handle {?} (ignoring value):
 						ei->setInitialized();
 					}
 					else if (ei->array())
 					{
+						// Handle array (expand new element of the array):
 						if (!ei->prototype()->atomic())
 						{
 							qCritical() << "try to assign attribute value to non atomic element" << attributename << "in" << path.join("/");
@@ -164,6 +277,7 @@ bool fillDataStructSerialization( DataStruct& value, const QList<DataSerializeIt
 				}
 				else
 				{
+					// Initialize content value:
 					DataStruct* elem = stk.back();
 
 					///\note Case array already handled in open tag

@@ -33,11 +33,7 @@
 #ifndef _WIDGET_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
 #define _WIDGET_DATA_STRUCT_SERIALIZE_HPP_INCLUDED
 #include <QString>
-#include <QVariant>
-#include <QPair>
 #include <QList>
-#include <QMap>
-#include <QSharedPointer>
 #include "DataStructDescription.hpp"
 #include "DataSerializeItem.hpp"
 
