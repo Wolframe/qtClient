@@ -32,7 +32,7 @@
 ************************************************************************/
 #ifndef _DATA_FORMAT_XML_HPP_INCLUDED
 #define _DATA_FORMAT_XML_HPP_INCLUDED
-#include "DataSerializeItem.hpp"
+#include "serialize/DataSerializeItem.hpp"
 #include <QList>
 
 QByteArray getDataXML( const QString& docType, const QString& rootElement, bool isStandalone, const QList<DataSerializeItem>& elements, bool debugmode);

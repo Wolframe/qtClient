@@ -1,5 +1,5 @@
-#include "DataStruct.hpp"
-#include "DataStructDescription.hpp"
+#include "serialize/DataStruct.hpp"
+#include "serialize/DataStructDescription.hpp"
 #include <QDebug>
 
 static int arrayAllocSize( int size)

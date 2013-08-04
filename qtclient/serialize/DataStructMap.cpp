@@ -1,5 +1,5 @@
-#include "DataStructMap.hpp"
-#include "DataStructDescriptionMap.hpp"
+#include "serialize/DataStructMap.hpp"
+#include "serialize/DataStructDescriptionMap.hpp"
 #include <QDebug>
 
 static QString dataPathString( const DataPath& pred, const DataPath& pt, int size)

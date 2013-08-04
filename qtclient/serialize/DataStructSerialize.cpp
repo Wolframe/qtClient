@@ -1,6 +1,6 @@
-#include "DataStructSerialize.hpp"
-#include "DataStruct.hpp"
-#include "DataSerializeItem.hpp"
+#include "serialize/DataStructSerialize.hpp"
+#include "serialize/DataStruct.hpp"
+#include "serialize/DataSerializeItem.hpp"
 #include <QStringList>
 #include <QDebug>
 

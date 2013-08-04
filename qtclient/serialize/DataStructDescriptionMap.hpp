@@ -49,7 +49,7 @@
 #include <QList>
 #include <QMap>
 #include <QSharedPointer>
-#include "DataStructDescription.hpp"
+#include "serialize/DataStructDescription.hpp"
 
 /* Model
 *

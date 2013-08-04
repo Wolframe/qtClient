@@ -72,15 +72,15 @@ SOURCES += \
 	visitors/WidgetVisitor_FileChooser.cpp \
 	visitors/WidgetVisitor_PictureChooser.cpp \
 	DataFormatXML.cpp \
-	DataStruct.cpp \
-	DataStructDescription.cpp \
-	DataStructDescriptionParse.cpp \
-	DataStructDescriptionMap.cpp \
-	DataStructSerialize.cpp \
-	DataStructMap.cpp \
-	DataPathTree.cpp \
+	serialize/DataStruct.cpp \
+	serialize/DataStructDescription.cpp \
+	serialize/DataStructDescriptionParse.cpp \
+	serialize/DataStructDescriptionMap.cpp \
+	serialize/DataStructSerialize.cpp \
+	serialize/DataStructMap.cpp \
+	serialize/DataPathTree.cpp \
+	serialize/DataSerializeItem.cpp \
 	DataTree.cpp \
-	DataSerializeItem.cpp \
 	DataTreeSerialize.cpp \
 	FormCall.cpp \
 	FormWidget.cpp \
@@ -133,14 +133,14 @@ HEADERS += \
 	visitors/WidgetVisitor_FileChooser.hpp \
 	visitors/WidgetVisitor_PictureChooser.hpp \
 	DataFormatXML.hpp \
-	DataStruct.hpp \
-	DataStructDescription.hpp \
-	DataStructDescriptionMap.hpp \
-	DataStructSerialize.hpp \
-	DataStructMap.hpp \
-	DataPathTree.hpp \
+	serialize/DataStruct.hpp \
+	serialize/DataStructDescription.hpp \
+	serialize/DataStructDescriptionMap.hpp \
+	serialize/DataStructSerialize.hpp \
+	serialize/DataStructMap.hpp \
+	serialize/DataPathTree.hpp \
+	serialize/DataSerializeItem.hpp \
 	DataTree.hpp \
-	DataSerializeItem.hpp \
 	DataTreeSerialize.hpp \
 	FormCall.hpp \
 	FormWidget.hpp \

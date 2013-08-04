@@ -32,7 +32,7 @@
 ************************************************************************/
 #ifndef _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
 #define _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
-#include "DataSerializeItem.hpp"
+#include "serialize/DataSerializeItem.hpp"
 #include "WidgetVisitor.hpp"
 #include "DataTree.hpp"
 #include <QList>

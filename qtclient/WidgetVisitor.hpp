@@ -33,9 +33,9 @@
 
 #ifndef _WOLFRAME_WIDGET_VISIOR_HPP_INCLUDED
 #define _WOLFRAME_WIDGET_VISIOR_HPP_INCLUDED
-#include "DataSerializeItem.hpp"
+#include "serialize/DataSerializeItem.hpp"
+#include "serialize/VisitorInterface.hpp"
 #include "WidgetVisitorObject.hpp"
-#include "VisitorInterface.hpp"
 #include <QWidget>
 #include <QStack>
 #include <QHash>

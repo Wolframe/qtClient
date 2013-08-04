@@ -1,5 +1,5 @@
-#include "DataStructDescription.hpp"
-#include "DataStruct.hpp"
+#include "serialize/DataStructDescription.hpp"
+#include "serialize/DataStruct.hpp"
 #include <QDebug>
 
 DataStructDescription::Element::Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_)

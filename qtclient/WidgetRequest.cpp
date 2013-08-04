@@ -33,7 +33,7 @@
 #include "WidgetRequest.hpp"
 #include "WidgetVisitor.hpp"
 #include "DebugTerminal.hpp"
-#include "DataSerializeItem.hpp"
+#include "serialize/DataSerializeItem.hpp"
 #include "DataTreeSerialize.hpp"
 #include "DataFormatXML.hpp"
 #include "DebugHelpers.hpp"
