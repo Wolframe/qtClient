@@ -22,7 +22,7 @@ static void skipBrk( QString::const_iterator& itr, const QString::const_iterator
 
 static void skipSpaces( QString::const_iterator& itr, const QString::const_iterator& end)
 {
-	for (; itr != end && itr->isSpace(); ++itr);
+	for (; itr != end && itr->isSpace(); ++itr) {}
 }
 
 static bool isAlphaNum( QChar ch)
@@ -362,7 +362,7 @@ public:
 					else if (isAlphaNum(*si))
 					{
 						QString::const_iterator start = si;
-						for (++si; si != se && isAlphaNum(*si); ++si);
+						for (++si; si != se && isAlphaNum(*si); ++si) {}
 						defineAttributeConst( nodename, QString( start, si-start));
 					}
 					else

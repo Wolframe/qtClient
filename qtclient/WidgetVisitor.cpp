@@ -633,10 +633,15 @@ QVariant WidgetVisitor::resolve( const QVariant& value)
 	return value;
 }
 
+static void skipSpaces( QString::const_iterator& xi, const QString::const_iterator& end)
+{
+	for (; xi != end && xi->isSpace(); ++xi) {}
+}
+
 static QVariant getOperand( QString::const_iterator& xi, const QString::const_iterator xe)
 {
 	QString rt;
-	for (; xi != xe && xi->isSpace(); ++xi);
+	skipSpaces( xi, xe);
 	if (xi != xe)
 	{
 		if (*xi == '\'' || *xi == '"')
@@ -658,7 +663,7 @@ static QVariant getOperand( QString::const_iterator& xi, const QString::const_it
 		}
 		else
 		{
-			for (; xi != xe && xi->isSpace(); ++xi);
+			skipSpaces( xi, xe);
 			for (; xi != xe && !xi->isSpace() && *xi != '=' && *xi != '!' && *xi != '>' && *xi != '<'; ++xi)
 			{
 				rt.push_back( *xi);
@@ -682,7 +687,7 @@ static const char* exprOperatorName( ExprOperator i)
 static ExprOperator getOperator( QString::const_iterator& xi, const QString::const_iterator xe)
 {
 	ExprOperator rt = ExprOpInvalid;
-	for (; xi != xe && xi->isSpace(); ++xi);
+	skipSpaces( xi, xe);
 	if (xi != xe)
 	{
 		if (*xi == '>')
@@ -753,7 +758,7 @@ bool WidgetVisitor::evalCondition( const QVariant& expr)
 	qDebug() << "evaluate expression" << op1 << exprOperatorName(opr) << op2;
 #endif
 	if (!op1.isValid() || !op2.isValid()) return false;
-	for (; xi != xe && xi->isSpace(); ++xi);
+	skipSpaces( xi, xe);
 	if (xi != xe)
 	{
 		qCritical() << "superfluos characters at end of expression" << "(widget" << widgetPath() << ")";

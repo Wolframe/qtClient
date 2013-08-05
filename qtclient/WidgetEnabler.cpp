@@ -38,11 +38,16 @@
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 
+static void skipSpaces( QString::const_iterator& xi, const QString::const_iterator& end)
+{
+	for (; xi != end && xi->isSpace(); ++xi) {}
+}
+
 static bool parseOperator( WidgetEnablerImpl::Operator& op, QString::const_iterator& ci, const QString::const_iterator end)
 {
 	op = WidgetEnablerImpl::Valid;
 	QString::const_iterator xi = ci;
-	for (; xi != end && xi->isSpace(); ++xi);
+	skipSpaces( xi, end);
 	if (xi == end) return false;
 
 	if (*xi == '>')
@@ -105,7 +110,7 @@ static bool parseOperator( WidgetEnablerImpl::Operator& op, QString::const_itera
 bool parseCondVariable( QString& var, QString::const_iterator& ci, const QString::const_iterator end)
 {
 	QString::const_iterator xi = ci;
-	for (; xi != end && xi->isSpace(); ++xi);
+	skipSpaces( xi, end);
 	if (xi == end) return false;
 
 	var.clear();
@@ -137,7 +142,7 @@ static bool getOperand( QVariant& opr, QString::const_iterator& xi, const QStrin
 {
 	opr = QVariant();
 	QString rt;
-	for (; xi != xe && xi->isSpace(); ++xi);
+	skipSpaces( xi, xe);
 	if (xi != xe)
 	{
 		if (*xi == '\'' || *xi == '"')
@@ -160,7 +165,7 @@ static bool getOperand( QVariant& opr, QString::const_iterator& xi, const QStrin
 		}
 		else
 		{
-			for (; xi != xe && xi->isSpace(); ++xi);
+			skipSpaces( xi, xe);
 			for (; xi != xe && !xi->isSpace() && *xi != '=' && *xi != '!' && *xi != '>' && *xi != '<'; ++xi)
 			{
 				rt.push_back( *xi);
@@ -203,7 +208,7 @@ bool WidgetEnablerImpl::parseCondition( Condition& cond, const QString& expr)
 		qCritical() << "failed to parse condition expression operand:" << expr;
 		return false;
 	}
-	for (; xi != xe && xi->isSpace(); ++xi);
+	skipSpaces( xi, xe);
 	if (xi != xe)
 	{
 		qCritical() << "unexpected characters at end of condition expression:" << expr;
