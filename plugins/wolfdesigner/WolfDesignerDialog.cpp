@@ -114,7 +114,9 @@ void WolfDesignerDialog::saveProperty( QDesignerFormWindowInterface *_formWindow
 		if( propertySheet->canAddDynamicProperty( _name ) ) {
 			_widget->setProperty( _name.toLatin1( ), _value.toLatin1( ) );
 
+#ifndef QT_NO_DEBUG 
 			int idx = propertySheet->addDynamicProperty( _name, _value );
+#endif
 			Q_ASSERT( idx > 0 );
 		}
 		
