@@ -97,7 +97,7 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 	QString value;
 	bool lastElementWasOpenTag = true;
 
-	while( !xml.atEnd( ) && !xml.hasError( ) ) {
+	while( !xml.atEnd( ) ) {
 		xml.readNext( );
 		
 		if( xml.isStartElement( ) ) {
@@ -171,12 +171,10 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 	
 	if( xml.hasError( ) ) {
 // don't return errornous deserializations
-		qCritical( ) << "XML error occurred " << xml.errorString( );
-		rt.clear( );
-		return rt;
-	} else if( !xml.atEnd( ) ) {
-// don't return partial deserializations
-		qCritical( ) << "XML premature end of file";
+		qCritical( ) 	<< "XML error occurred in line"
+				<< xml.lineNumber( ) << ", column"
+				<< xml.columnNumber( ) << ":"
+				<< xml.errorString( );
 		rt.clear( );
 		return rt;
 	}
