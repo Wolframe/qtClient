@@ -55,6 +55,8 @@ public:
 	~DataStruct();
 
 	const QVariant& value() const;
+	bool setValue( const QVariant&);
+
 	bool atomic() const;
 	bool array() const;
 	bool indirection() const;

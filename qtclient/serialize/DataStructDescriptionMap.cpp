@@ -89,7 +89,6 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 				return false;
 			}
 			DataStructDescriptionMap::const_iterator bi = subres.begin(), be = subres.end();
-			int maxPathSize = 0;
 			for (; bi != be; ++bi)
 			{
 				if (sublca.size() > bi.value().size())
@@ -97,19 +96,6 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 					qCritical() << "logic error: common prefix of list bigger than a member";
 					return false;
 				}
-				if (maxPathSize < bi.value().size())
-				{
-					maxPathSize = bi.value().size();
-				}
-			}
-			if (sublca.size() && maxPathSize == sublca.size())
-			{
-				//... if there are only elements selected by the sub expression path then
-				//    reduce the subexpression path length by one.
-				//    otherwise we might miss the selection with
-				//    enter 'name' and getProperty '' instead of
-				//    getProperty 'name'
-				sublca.pop_back();
 			}
 			scopeReferences.push_back( tree.addPathNode( sublca));
 			for (; bi != be; ++bi)

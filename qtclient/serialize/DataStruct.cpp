@@ -162,6 +162,24 @@ const QVariant& DataStruct::value() const
 	return (!m_description && m_size < 0)?(*m_data.elem):nullvalue;
 }
 
+bool DataStruct::setValue( const QVariant& val)
+{
+	if (m_size >= 0) return false;
+	if (m_description)
+	{
+		int idx = m_description->findidx("");
+		if (idx < 0) return false;
+		DataStruct* elem = m_data.ref + idx;
+		if (!elem->atomic()) return false;
+		elem->setValue( val);
+	}
+	else
+	{
+		*m_data.elem = val;
+	}
+	return true;
+}
+
 bool DataStruct::atomic() const
 {
 	return (!m_description && m_size < 0);
@@ -366,7 +384,7 @@ const DataStruct* DataStruct::get( const QString& name) const
 
 	int idx = m_description->findidx( name);
 	if (idx < 0) return 0;
-	return m_data.ref + idx + 1;
+	return m_data.ref + idx;
 }
 
 DataStruct* DataStruct::get( const QString& name)
@@ -376,7 +394,7 @@ DataStruct* DataStruct::get( const QString& name)
 
 	int idx = m_description->findidx( name);
 	if (idx < 0) return 0;
-	return m_data.ref + idx + 1;
+	return m_data.ref + idx;
 }
 
 const DataStruct* DataStruct::prototype() const
