@@ -20,6 +20,7 @@ QT += widgets
 
 SOURCES += \	
 	testDataStructMap.cpp \
+	DataPathTreeVisitor.cpp \
 	../../qtclient/serialize/DataStructMap.cpp \
 	../../qtclient/serialize/DataPathTree.cpp \
 	../../qtclient/serialize/DataSerializeItem.cpp \
