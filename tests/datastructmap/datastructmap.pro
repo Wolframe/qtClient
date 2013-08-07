@@ -20,7 +20,6 @@ QT += widgets
 
 SOURCES += \	
 	testDataStructMap.cpp \
-	DataPathTreeVisitor.cpp \
 	../../qtclient/serialize/DataStructMap.cpp \
 	../../qtclient/serialize/DataPathTree.cpp \
 	../../qtclient/serialize/DataSerializeItem.cpp \
@@ -33,14 +32,14 @@ SOURCES += \
 HEADERS += \
 	testDataStructMap.hpp \
 	DataPathTreeVisitor.hpp \
-	DataPathTree.hpp \
-	DataSerializeItem.hpp \
-	DataStructDescription.hpp \
-	DataStructDescriptionMap.hpp \
-	DataStruct.hpp \
-	DataStructMap.hpp \
-	DataStructSerialize.hpp \
-	VisitorInterface.hpp
+	../../qtclient/serialize/DataPathTree.hpp \
+	../../qtclient/serialize/DataSerializeItem.hpp \
+	../../qtclient/serialize/DataStructDescription.hpp \
+	../../qtclient/serialize/DataStructDescriptionMap.hpp \
+	../../qtclient/serialize/DataStruct.hpp \
+	../../qtclient/serialize/DataStructMap.hpp \
+	../../qtclient/serialize/DataStructSerialize.hpp \
+	../../qtclient/serialize/VisitorInterface.hpp
 
 unix|macx:test.commands = ./testDataStructMap -v2
 #missing QtTest4.dll and others
