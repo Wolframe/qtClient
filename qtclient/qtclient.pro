@@ -101,7 +101,6 @@ HEADERS += \
 	DataLoader.hpp \
 	FileDataLoader.hpp \
 	NetworkDataLoader.hpp \
-	VisitorInterface.hpp \
 	WidgetTree.hpp \
 	WidgetVisitorObject.hpp \
 	WidgetVisitor.hpp \
@@ -140,6 +139,7 @@ HEADERS += \
 	serialize/DataStructMap.hpp \
 	serialize/DataPathTree.hpp \
 	serialize/DataSerializeItem.hpp \
+	serialize/VisitorInterface.hpp \
 	DataTree.hpp \
 	DataTreeSerialize.hpp \
 	FormCall.hpp \
