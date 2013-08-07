@@ -142,6 +142,12 @@ public:
 
 	int size() const					{return m_size;}
 
+	///\brief Print the contents of a structure (structures in curly brackets as in the simpleform language)
+	void print( QString& out, const QString& indent, const QString& newitem, int level) const;
+
+	///\brief Return the contents of a structure as string (format as in print with no indent and newlines)
+	QString toString() const;
+
 private:
 	friend class DataStructDescription;
 	friend class DataStructIndirection;

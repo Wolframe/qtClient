@@ -2,25 +2,33 @@
 #include "serialize/DataStruct.hpp"
 #include <QDebug>
 
-DataStructDescription::Element::Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_)
-	:type(pointer_?indirection_:struct_),name(name_),substruct(substruct_)
+DataStructDescription::Element::Element( const QString& name_)
+	:type(atomic_),name(name_),initvalue(0),substruct(0)
+{}
+
+void DataStructDescription::Element::initStructure( const DataStructDescription* substruct_, bool pointer_)
 {
+	type = pointer_?indirection_:struct_;
 	if (!pointer_)
 	{
 		substruct = new DataStructDescription( *substruct_);
 		initvalue = new DataStruct( substruct);
 	}
+	else
+	{
+		substruct = substruct_;
+	}
 }
 
-DataStructDescription::Element::Element( const QString& name_, const QVariant& initvalue_)
-	:type(atomic_),name(name_),initvalue(0)
+void DataStructDescription::Element::initAtom( const QVariant& initvalue_)
 {
 	initvalue = new DataStruct( initvalue_);
 }
 
-DataStructDescription::Element::Element( const QString& name_, const QString& varname, const QVariant& defaultvalue)
-	:type(variableref_),name(name_),variableref(varname)
+void DataStructDescription::Element::initAtomVariable( const QString& varname, const QVariant& defaultvalue)
 {
+	type = variableref_;
+	variableref = varname;
 	initvalue = new DataStruct( defaultvalue);
 }
 
@@ -130,43 +138,50 @@ void DataStructDescription::setIndirectionDescription( const DataStructDescripti
 int DataStructDescription::addAtomVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, variblename, defaultvalue));
+	m_ar.push_back( Element( name_));
+	m_ar.back().initAtomVariable( variblename, defaultvalue);
 	return m_ar.size()-1;
 }
 
 int DataStructDescription::addAtom( const QString& name_, const QVariant& initvalue_)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, initvalue_));
+	m_ar.push_back( Element( name_));
+	m_ar.back().initAtom( initvalue_);
 	return m_ar.size()-1;
 }
 
 int DataStructDescription::addAttributeVariable( const QString& name_, const QString& variblename, const QVariant& defaultvalue)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.insert( m_nofattributes++, Element( name_, variblename, defaultvalue));
-	return m_nofattributes-1;
+	m_ar.insert( m_nofattributes, Element( name_));
+	m_ar[ m_nofattributes].initAtomVariable( variblename, defaultvalue);
+	m_ar[ m_nofattributes].setAttribute();
+	return m_nofattributes++;
 }
 
 int DataStructDescription::addAttribute( const QString& name_, const QVariant& initvalue_)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.insert( m_nofattributes, Element( name_, initvalue_));
-	m_ar.back().setAttribute();
+	m_ar.insert( m_nofattributes, Element( name_));
+	m_ar[ m_nofattributes].initAtom( initvalue_);
+	m_ar[ m_nofattributes].setAttribute();
 	return m_nofattributes++;
 }
 
 int DataStructDescription::addStructure( const QString& name_, const DataStructDescription& substruct_)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, &substruct_));
+	m_ar.push_back( Element( name_));
+	m_ar.back().initStructure( &substruct_, false);
 	return m_ar.size()-1;
 }
 
-int DataStructDescription::addIndirection( const QString& name_, const DataStructDescription* descr)
+int DataStructDescription::addIndirection( const QString& name_, const DataStructDescription* substruct_)
 {
 	if (findidx( name_) >= 0) return -1;
-	m_ar.push_back( Element( name_, descr, true));
+	m_ar.push_back( Element( name_));
+	m_ar.back().initStructure( substruct_, true);
 	return m_ar.size()-1;
 }
 
@@ -309,13 +324,18 @@ static void printElementHeader( QString& out, const DataStructDescription::Eleme
 	out.append( " ");
 }
 
+static void print_newitem( QString& out, const QString& indent, const QString& newitem, int level)
+{
+	out.append( newitem);
+	while (level--) out.append( indent);
+}
+
 void DataStructDescription::print( QString& out, const QString& indent, const QString& newitem, int level) const
 {
 	const_iterator di = begin(), de = end();
 	for (; di != de; ++di)
 	{
-		out.append( newitem);
-		for (int ll=0; ll<level; ++ll) out.append( indent);
+		print_newitem( out, indent, newitem, level);
 
 		switch (di->type)
 		{
@@ -375,7 +395,7 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 	}
 }
 
-QString DataStructDescription::tostring() const
+QString DataStructDescription::toString() const
 {
 	QString out;
 	out.append( "{");

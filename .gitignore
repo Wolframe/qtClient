@@ -19,7 +19,8 @@ Makefile.Static
 qrc_*.cpp
 qtclient/qtclient
 skeleton/skeleton
-tests/functions/testDataTree
+tests/datatree/testDataTree
+tests/datastructmap/testDataStructMap
 tests/skeleton/skeletonTest
 tests/SSLavailable/SSLavailable
 tests/xml/testXmlSerialization

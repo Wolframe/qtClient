@@ -54,17 +54,24 @@ int DataPathTree::enter( const QString& name)
 	return m_curidx = newchld;
 }
 
-int DataPathTree::visit( const QString& name)
+int DataPathTree::getChild( const QString& name) const
 {
 	QList<int>::const_iterator ni = m_ar.at(m_curidx).childar.begin(), ne = m_ar.at(m_curidx).childar.end();
 	for (; ni != ne; ++ni)
 	{
 		if (name == m_ar.at(*ni).name)
 		{
-			return m_curidx = *ni;
+			return *ni;
 		}
 	}
 	return -1;
+}
+
+int DataPathTree::visit( const QString& name)
+{
+	int ci = getChild( name);
+	if (ci >= 0) m_curidx = ci;
+	return ci;
 }
 
 int DataPathTree::leave()
@@ -78,27 +85,21 @@ int DataPathTree::getPathNode( const QStringList& path) const
 	int ci = m_curidx;
 	foreach (const QString& pi, path)
 	{
-		QList<int>::const_iterator ni = m_ar.at(ci).childar.begin(), ne = m_ar.at(ci).childar.end();
-		for (; ni != ne; ++ni)
-		{
-			if (pi == m_ar.at(*ni).name)
-			{
-				ci = *ni;
-				break;
-			}
-		}
-		if (ni == ne) return false;
+		int ci = getChild( pi);
+		if (ci < 0) return -1;
 	}
 	return ci;
 }
 
 int DataPathTree::addPathNode( const QStringList& path)
 {
+	int idx = m_curidx;
 	int rt = m_curidx;
 	foreach (const QString& pi, path)
 	{
 		rt = enter( pi);
 	}
+	m_curidx = idx;
 	return rt;
 }
 

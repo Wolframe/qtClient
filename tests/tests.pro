@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS = SSLavailable functions skeleton xml
+SUBDIRS = SSLavailable datatree datastructmap skeleton xml
 
 test.CONFIG = recursive
 

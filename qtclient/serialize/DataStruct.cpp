@@ -25,7 +25,7 @@ void DataStruct::release()
 	{
 		if (m_description)
 		{
-			delete m_data.ref;
+			if (m_data.ref) delete m_data.ref;
 		}
 		else if (m_data.elem)
 		{
@@ -56,7 +56,7 @@ void DataStruct::assign( const DataStruct& o)
 		// single
 		if (o.m_description)
 		{
-			if (m_data.ref)
+			if (o.m_data.ref)
 			{
 				// single struct
 				m_data.ref = new DataStruct[ o.m_description->size()];
@@ -73,10 +73,14 @@ void DataStruct::assign( const DataStruct& o)
 				m_data.ref = 0;
 			}
 		}
-		else
+		else if (o.m_data.elem)
 		{
 			// single atomic
-			m_data.elem = new QVariant( *m_data.elem);
+			m_data.elem = new QVariant( *o.m_data.elem);
+		}
+		else
+		{
+			m_data.elem = 0;
 		}
 	}
 	else
@@ -351,6 +355,76 @@ bool DataStruct::push()
 	m_data.ref[ m_size+1] = m_data.ref[ 0];
 	++m_size;
 	return true;
+}
+
+static void print_newitem( QString& out, const QString& indent, const QString& newitem, int level)
+{
+	out.append( newitem);
+	while (level--) out.append( indent);
+}
+
+void DataStruct::print( QString& out, const QString& indent, const QString& newitem, int level) const
+{
+	if (atomic())
+	{
+		out.append("'");
+		out.append( value().toString());
+		out.append("'");
+	}
+	else if (array())
+	{
+		int ii = 1;
+		for (; ii<m_size; ++ii)
+		{
+			if (ii>1) out.append( ", ");
+			m_data.ref[ ii].print( out, indent, newitem, level+1);
+		}
+	}
+	else if (indirection())
+	{
+	}
+	else if (m_description)
+	{
+		if (level == 0) out.append( "{");
+		DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
+		DataStruct::const_iterator ei = begin();
+		for (int idx=0; di != de; ++di,++ei)
+		{
+			if (ei->initialized())
+			{
+				if (!idx)
+				{
+					out.append( ";");
+					print( out, indent, newitem, level);
+				}
+				++idx;
+				out.append( di->name);
+				if (di->array()) out.append( "[]");
+				if (di->attribute())
+				{
+					out.append( " = ");
+					out.append( ei->toString());
+				}
+				else
+				{
+					out.append( "{");
+					ei->print( out, indent, newitem, level+1);
+					out.append( "}");
+				}
+			}
+		}
+		if (level == 0)
+		{
+			out.append( "}");
+		}
+	}
+}
+
+QString DataStruct::toString() const
+{
+	QString out;
+	print( out, "", " ", 0);
+	return out;
 }
 
 const DataStruct* DataStruct::back() const

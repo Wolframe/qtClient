@@ -58,9 +58,13 @@ public:
 	///\brief Set the current node index to the child with name 'name' of the current node. Create the node, if it does not exist yet.
 	///\return the new index of the current node
 	int enter( const QString& name);
-	///\brief Set the current node index to the child with name 'name' of the current node. Return false if it does not exist.
+	///\brief Set the current node index to the child with name 'name' of the current node. Return -1 if it does not exist.
 	///\return the new index of the current node or -1 if the function failed
 	int visit( const QString& name);
+
+	///\brief Get the index of the child with name 'name' of the current node. Return -1 if it does not exist.
+	int getChild( const QString& name) const;
+
 	///\brief Set the current node index to the parent of the current node
 	///\return the new index of the current node or -1 if there is no ancestor for this node (root)
 	int leave();
@@ -69,15 +73,17 @@ public:
 	int currentNodeIdx() const				{return m_curidx;}
 
 	///\brief Get the node index of the path 'path' relative to the current node index. Path element delimiter is '.'
-	///\return the index of the node created.
+	///\return the index of the node visited or -1, if it does not exist.
 	int getPathNode( const QString& path) const		{return getPathNode( path.split( '.'));}
 	///\brief Add a node with the path 'path' relative to the current node index. Path element delimiter is '.'
+	///\remark Does not set the current node index
 	///\return the index of the node created.
 	int addPathNode( const QString& path)			{return addPathNode( path.split( '.'));}
 
 	///\brief Get the node index of the path 'path' relative to the current node index
 	int getPathNode( const QStringList& path) const;
 	///\brief Add a node with the path 'path' relative to the current node index
+	///\return index of the leave of the path added
 	int addPathNode( const QStringList& path);
 
 	///\brief Get the absolute path string of the current node (empty string for root). Path element delimiter is '.'
@@ -92,6 +98,10 @@ public:
 
 	///\brief Returns the lowest common ancestor node of the argument node index list in the tree
 	int getLowestCommonAncestor( const QList<int>& nodear) const;
+
+	///\brief Get all children nodes of the current node
+	const QList<int>& getChildren() const			{return m_ar.at( m_curidx).childar;}
+	const QList<int>& getChildren( int nodeidx) const	{return m_ar.at( nodeidx).childar;}
 
 private:
 	///\brief Prints the node with index 'root' on the indentiation (TAB) level 'level'

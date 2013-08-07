@@ -30,42 +30,54 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WOLFRAME_VISITOR_INTERFACE_HPP_INCLUDED
-#define _WOLFRAME_VISITOR_INTERFACE_HPP_INCLUDED
-///\brief Interface to a tree structure for extracting its data (request) and initializing
-//	its data (answer).
-#include <QString>
-#include <QVariant>
+#ifndef _WOLFRAME_DATA_PATH_TREE_TEST_VISITOR_HPP_INCLUDED
+#define _WOLFRAME_DATA_PATH_TREE_TEST_VISITOR_HPP_INCLUDED
+///\brief Visitor implementation for test purposes
 
-struct VisitorInterface
+#include "serialize/VisitorInterface.hpp"
+#include "serialize/DataPathTree.hpp"
+
+class DataPathTreeVisitor
+	:public VisitorInterface
 {
-	VisitorInterface(){}
-	virtual ~VisitorInterface(){}
+public:
+	DataPathTreeVisitor(){}
+	DataPathTreeVisitor( const DataPathTreeVisitor& o)
+		:m_tree(o.m_tree),m_valuemap(o.m_valuemap){}
+	DataPathTreeVisitor( const DataPathTree& tree_, const QMap<int,QVariant>& valuemap_)
+		:m_tree(tree_),m_valuemap(valuemap_){}
 
-	///\brief Sets the current node to the child with name 'name'
-	virtual bool enter( const QString& name, bool writemode)=0;
+	virtual ~DataPathTreeVisitor(){}
+
+	virtual bool enter( const QString& name, bool /*writemode*/)
+		{return m_tree.visit( name) >= 0;}
 
 	///\brief Set the current node to the parent that called enter to this node.
-	virtual void leave( bool writemode)=0;
+	virtual void leave( bool /*writemode*/)
+		{m_tree.leave();}
 
 	///\brief Get the property of the current node by 'name'
 	///\param[in] name name of the property
 	///\return property variant (any type)
-	virtual QVariant property( const QString& name)=0;
+	virtual QVariant property( const QString& name);
 
 	///\brief Set the property of the current node
 	///\param[in] name name of the property
 	///\param[in] value property value as variant (any type)
 	///\return true on success
-	virtual bool setProperty( const QString& name, const QVariant& value)=0;
+	virtual bool setProperty( const QString& name, const QVariant& value);
 
 	///\brief Clear data of the currently visited node
-	virtual void clear()=0;
+	virtual void clear();
 
 	///\brief Declare the end of data initialization
-	virtual void endofDataFeed()=0;
+	virtual void endofDataFeed();
+
+	bool assign( const QString& path, const QVariant& value);
+
+private:
+	DataPathTree m_tree;
+	QMap<int,QVariant> m_valuemap;
 };
 
 #endif
-
-

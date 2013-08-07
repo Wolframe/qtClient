@@ -30,42 +30,14 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WOLFRAME_VISITOR_INTERFACE_HPP_INCLUDED
-#define _WOLFRAME_VISITOR_INTERFACE_HPP_INCLUDED
-///\brief Interface to a tree structure for extracting its data (request) and initializing
-//	its data (answer).
-#include <QString>
-#include <QVariant>
 
-struct VisitorInterface
+#include <QObject>
+
+class DataStructMapTest : public QObject
 {
-	VisitorInterface(){}
-	virtual ~VisitorInterface(){}
-
-	///\brief Sets the current node to the child with name 'name'
-	virtual bool enter( const QString& name, bool writemode)=0;
-
-	///\brief Set the current node to the parent that called enter to this node.
-	virtual void leave( bool writemode)=0;
-
-	///\brief Get the property of the current node by 'name'
-	///\param[in] name name of the property
-	///\return property variant (any type)
-	virtual QVariant property( const QString& name)=0;
-
-	///\brief Set the property of the current node
-	///\param[in] name name of the property
-	///\param[in] value property value as variant (any type)
-	///\return true on success
-	virtual bool setProperty( const QString& name, const QVariant& value)=0;
-
-	///\brief Clear data of the currently visited node
-	virtual void clear()=0;
-
-	///\brief Declare the end of data initialization
-	virtual void endofDataFeed()=0;
+	Q_OBJECT
+	
+	private slots:
+		void testDataStructMap_data( );
+		void testDataStructMap( );
 };
-
-#endif
-
-

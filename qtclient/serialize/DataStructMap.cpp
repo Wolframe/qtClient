@@ -144,13 +144,22 @@ static bool assignDataGroupElement( const DataPath& pred, const DataPath& group,
 			return false;
 		}
 		QString arrayname = group.at( ptsize);
+		bool vi_enter = true;
 		int ai = 0, ae = elem->size();
 		for (; ai != ae; ++ai)
 		{
-			bool vi_enter = vi->enter( arrayname, writemode);
+			if (vi_enter)
+			{
+				vi_enter = vi->enter( arrayname, writemode);
+				if (!vi_enter)
+				{
+					qCritical() << "failed to assign all elements of array" << arrayname << "at" << dataPathString( pred, group, ptsize);
+					return false;
+				}
+			}
 			if (!vi_enter)
 			{
-				if (arrayname.size())
+				if (elemdescr->type == DataStructDescription::variableref_)
 				{
 					// ... special handling of an array of atomic values
 					if (!assignElementVariable( totpath, arrayname, elem, elemdescr, vi, writemode))
@@ -175,22 +184,38 @@ static bool assignDataGroupElement( const DataPath& pred, const DataPath& group,
 			}
 			else if (elemdescr->type == DataStructDescription::variableref_)
 			{
-				QString var = relativeVariableRef( totpath, elemdescr->variableref);
-				if (!vi->setProperty( var, elem->at( ai)->value()))
+				if (!assignElementVariable( totpath, "", elem, elemdescr, vi, writemode))
 				{
-					qCritical() << "failed to set property" << var << "in" << arrayname << "[" << ai << "] at" << dataPathString( pred, group, ptsize);
+					qCritical() << "failed to assign array element data element" << arrayname << "[" << ai << "] at" << dataPathString( pred, group, ptsize);
 					return false;
 				}
 			}
-			if (vi_enter)
-			{
-				vi->leave( writemode);
-			}
+			if (vi_enter) vi->leave( writemode);
 		}
-		leaveDataPath( ptsize, vi, true);
+		leaveDataPath( ptsize, vi, writemode);
 	}
 	else
 	{
+		if (!enterDataPath( pred, group, group.size(), vi, writemode))
+		{
+			return false;
+		}
+		if (elemdescr->substruct)
+		{
+			if (!assignDataStruct( totpath, elem, descrmap, vi, writemode))
+			{
+				qCritical() << "failed to assign structure at" << dataPathString( totpath, DataPath(), totpath.size());
+			}
+		}
+		else if (elemdescr->type == DataStructDescription::variableref_)
+		{
+			if (!assignElementVariable( totpath, "", elem, elemdescr, vi, writemode))
+			{
+				qCritical() << "failed to assign element at" << dataPathString( pred, group, group.size());
+				return false;
+			}
+		}
+		leaveDataPath( group.size(), vi, writemode);
 	}
 	return true;
 }
@@ -217,6 +242,7 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 		}
 		else
 		{
+			assignElementVariable( pred, QString(), &*si, &*di, vi, writemode);
 		}
 	}
 	return false;
@@ -262,7 +288,7 @@ bool putDataStruct( const DataStruct& data, VisitorInterface* vi)
 
 bool getDataStruct( DataStruct& data, VisitorInterface* vi)
 {
-	return assignDataStruct( &data, vi, true);
+	return assignDataStruct( &data, vi, false);
 }
 
 

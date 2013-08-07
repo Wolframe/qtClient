@@ -75,12 +75,13 @@ public:
 	///\brief One element of the structure description. Refers to the element with the same index in the corresponding DataStruct
 	struct Element
 	{
-		Element(){}
-		Element( const QString& name_, const QVariant& initvalue_);
-		Element( const QString& name_, const QString& varname, const QVariant& defaultvalue);
-		Element( const QString& name_, const DataStructDescription* substruct_, bool pointer_=false);
+		explicit Element( const QString& name_);
 		Element( const Element& o);
 		~Element();
+
+		void initAtom( const QVariant& initvalue_);
+		void initAtomVariable( const QString& varname, const QVariant& defaultvalue);
+		void initStructure( const DataStructDescription* substruct_, bool pointer_);
 
 		Type type;
 		QString name;				//< name of the element in UTF-8
@@ -170,7 +171,7 @@ public:
 	void print( QString& out, const QString& indent, const QString& newitem, int level) const;
 
 	///\brief Return the contents of a structure description as string (format as in print with no indent and newlines)
-	QString tostring() const;
+	QString toString() const;
 
 	///\brief Parses this data struct description
 	//... imlemented in DataStructDescriptionParse.cpp
