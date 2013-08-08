@@ -465,34 +465,38 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 						TRACE_VALUE( "SKIP STATEMENT TO", attributename);
 					}
 				}
-				else if (stk.last().istag)
-				{
-					if (item.value().isValid())
-					{
-						TRACE_VALUE( "CONTENT", item.value());
-						if (!visitor.setProperty( "", item.value()))
-						{
-							logError( stk, "failed to set content element");
-						}
-					}
-					else
-					{
-						TRACE_VALUE( "SKIP STATEMENT TO", "(content)");
-					}
-				}
 				else
 				{
-					if (item.value().isValid())
+					if (stk.isEmpty()) continue;
+					if (stk.last().istag)
 					{
-						TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
-						if (!visitor.setProperty( stk.last().name, item.value()))
+						if (item.value().isValid())
 						{
-							logError( stk, QString( "failed to set property (content value)'") + stk.last().name + "'");
+							TRACE_VALUE( "CONTENT", item.value());
+							if (!visitor.setProperty( "", item.value()))
+							{
+								logError( stk, "failed to set content element");
+							}
+						}
+						else
+						{
+							TRACE_VALUE( "SKIP STATEMENT TO", "(content)");
 						}
 					}
 					else
 					{
-						TRACE_VALUE( "SKIP STATEMENT TO", stk.last().name);
+						if (item.value().isValid())
+						{
+							TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
+							if (!visitor.setProperty( stk.last().name, item.value()))
+							{
+								logError( stk, QString( "failed to set property (content value)'") + stk.last().name + "'");
+							}
+						}
+						else
+						{
+							TRACE_VALUE( "SKIP STATEMENT TO", stk.last().name);
+						}
 					}
 				}
 			break;
