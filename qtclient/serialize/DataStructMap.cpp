@@ -82,7 +82,7 @@ static QString relativeVariableRef( const DataPath& pred, const QString& variabl
 static bool assignDataStruct( const DataPath& pred, DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi, bool writemode);
 static bool assignDataGroupElement( const DataPath& pred, const DataPath& group, DataStruct* elem, const DataStructDescription::Element* elemdescr, const DataStructDescriptionMap& descrmap, VisitorInterface* vi, bool writemode);
 static bool assignDataStruct( DataStruct* data, VisitorInterface* vi, bool writemode);
-static bool assignElement( DataStruct* data, VisitorInterface* vi, bool writemode);
+// static bool assignElement( DataStruct* data, VisitorInterface* vi, bool writemode);
 static bool assignElementVariable( const DataPath& pred, const QString& group, DataStruct* elem, const DataStructDescription::Element* elemdescr, VisitorInterface* vi, bool writemode);
 
 
