@@ -1,8 +1,8 @@
 libqtwolframeclient	- wolframe protocol library
-example			- example on how to use skeleton/libqtwolframeclient
-skeleton		- skeleton for building wolframe qt clients
-plugins			- various plugins (designer custom widgets)
-qtclient		- the generic client
+skeleton                - skeleton for building wolframe qt clients
+example                 - example on how to use skeleton/libqtwolframeclient
+qtclient                - the generic client
+plugins                 - various plugins (designer custom widgets)
 
 Should be moved to Wolframe/crm later:
 demo			- demo client forms for qtclient

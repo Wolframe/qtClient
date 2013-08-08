@@ -1,85 +1,9 @@
-now musts:
-- QTableWidget
-  - sort order is not part of state in table, tree and list widget
-  - flickering: clear and then setting items, doing selection at
-    least twice
-  - after changing the sort order in a table and changing an entry, I get:
-CRITICAL: failed to get table value on row 19 column 4
-CRITICAL: failed to get table value on row 19 column 4
-CRITICAL: failed to get table value on row 19 column 4
-CRITICAL: failed to get table value on row 19 column 4
-CRITICAL: failed to get table value on row 19 column 4
-CRITICAL: failed to get table value on row 19 column 4
-    - column 4 is the column the table got sorted
-- FormWidget/MainWindow
-  - add status indicator (hourglass cursor) also for data requests
-    (book-keeping with set of issued requests and outstanding answers)
-- fix problems with ambiguos widget ids (in configurator)
-  
 bugs (must be discussed, when and whether to fix them):
-- trimming of values: [Aba: replaced the parser in DataFormatXML]
 - <!DOCTYPE user SYSTEM "User.simpleform"><user id="0"><login></login><firstName></firstName><lastName></lastName><email></email></user>
   doesn't reset values to empty! Assumption is that clear run before which is true
   form newly loaded forms, but not for "reused" forms as in wolfzilla
-- not all actions in an iconized list view lead to status recalculations
-  in the remove button (state:enabled)
-- FileChooser plugin:
-  - Q_PROPERTY set in designer is overloading picked value
-- qt4 and qt5 don't work the same in implicit mapping of widget mode! drop it
-  completly?
-- weird behaviour when a window is maximized in MDI mode: subwindow get
-  resizes and positioned in funny ways
-- [PF:partly fixed, case does not work yet] price{{main.price:0.0}}, or 0, the default value is ignored,
-  the value in the widget wins:
-  <price></price>
-  there is an action mismatch error (before and after interpreting):
-  CRITICAL: action is not the same
-- form plugin:
-  - respect WindowModality flag of generated widget, new windows work,
-    modal ones currently crash
-- illegal use of Qt::UserRole and no Qt::DisplayRole to show elements, must
-  be Qt::DisplayRole for all normal data, Qt::UserRole for hidden id only
-  (if that option is choosen)
 - QLabel: id is not part of the state (see category_add/edit with recipe.id or
   component edit/add with category/manufacturer)
-- non-existing dataslots get triggered without warning:
-  reload triggered of "QTreeWidget" "required_components" on dataslot "add_component_required" 
-- state of toolbars (enabled/disabled) is not stored into the settings
-  and restored from them
-- [PF:should work now, not tested yet] answer: can't ignore subtrees with a question mark on a higher
-  level element, would be nice
-- we can have multiple selection boxes for the same edit window with
-  lost link behaviour, leads also to error message:
-  CRITICAL: error widget visitor "QLabel" "component_edit.manufacturer" ambiguus widget link reference : "component_edit:1281_manufacturer" 
-- seen races between closing of windows (when clicking very fast,
-  hard to reproduce)
-- extremly funny messages, aren't '?' values default values there
-  to substitute the value, if the property doesn't exist:  
-  CRITICAL: element not initialized in answer: "image" at "/picture" 
-  CRITICAL: accessing non existing property "main.image.size:?" 
-  CRITICAL: accessing non existing property "main.tags.item.id:?" 
-  CRITICAL: accessing non existing property "main.image.size:?" 
-  CRITICAL: accessing non existing property "main.image.size:?" 
-- [PF:to discuss] hard to understand for a developer to put certain dynamic properties
-  to widget to avoid error messages like:
-  CRITICAL: set a dynamic property of QLabel "picture_info_form.image" that is not predefined: "base64" QVariant(QString, "/9j/4AAQSkZJRgABAgAAZABkAAD/7AARRHVja3kAAQAEAAAAPAAA/+4ADkFk...") 
-  CRITICAL: ERROR:  "-add:266" "REQUEST error in transaction addPicture: invalid input syntax for integer: "" LINE 1: ...NSERT INTO PictureTag( pictureID, tagID ) VALUES( '79', '' )                                                                    ^" 
-  CRITICAL: ERROR:  "-save:326" "REQUEST error in transaction updatePicture: invalid input syntax for integer: "" LINE 1: ...NSERT INTO PictureTag( pictureID, tagID ) VALUES( '80', '' )                                             
-- state:enabled is ignored if there is a 'form' dyn. property (or better put: the
-  form condition takes precedence over the explicit state condition)
-  example configuration_add, recipe is mandatory:
-    widget "add" not set to Enabled because condition "main.recipe.id" is not met (condition not valid:  QVariant(QString, "") > QVariant(QString, "0") ) 
-    widget "add" set to enabled (all conditions met) 
-    widget "add" set to enabled (all conditions met) 
-    widget "add" set to enabled (all conditions met) 
-    widget "add" set to enabled (all conditions met) 
-    widget "pushButton" set to enabled (all conditions met) 
-  => IMHO: the default test in 'action' should come first, then
-     the explicit 'state:enabled', if both tests are ok, then
-     the button is enabled 
-- [PF:fixed] syntax error: code {?}; leads to completly misleading error message:
-  CRITICAL: attribute not defined in answer description: "id" at ""
-  I get the error also with {{widget.name}}?
 
 later (cleanups):
 - window modes:
@@ -90,14 +14,6 @@ later (cleanups):
 - QTreeWidget:
   - width of columns are adapted when data changes, this is not always
     what you want (see category_edit feature associations)
-- better syntax and model for
-  - selected_min, selected_id:
-    - selected.id, selected.<property>, can't access properties for	!!
-      the selected row/item. better would be a syntax like
-      widget.selected_row.id, widget.selected_row.id.minQuantity, etc.
-- how things are coupled in two multiple request cases:
-  'answer' should fit to 'action'
-  'action:select_picture' to 'answer:select_picture'
 - status handling (ABa)
   - QTableWidget: state contains the manually changed rulers in the header
     (for column size), not kept
@@ -114,7 +30,6 @@ later (cleanups):
 - libqtwolframeclient cleanup
 - libraries for request construction and answer interpretation
   - the one using visitors
-- [PF:?] plugins using visitors, how to respect plugin interface there?
 - [PF:?] CRITICAL: element not defined in answer description: QVariant(QString, "picture") at ""
   => add the name of the affected widget here!
 - [PF:protocol error, but I do not get where it happens] received line: "@
@@ -126,7 +41,6 @@ later (cleanups):
 unsorted or maybe obsolete from here:
 
 musts:
-- [PF:works for me] multi-line plain text fields (like desription in recipe) loose newlines
 - ILLEGAL STATE 4 in dataAvailable!
 - MDI interface
   - open forms via click on button
@@ -192,8 +106,6 @@ musts:
   - would allow to have default Enter and ESC behaviour
   - must be treated specially, as the form should NOT
     replace the UI currently being shown
-- save global state to settings and read it from there
-  - global.XXX variables
 - unselect trees
 - element operations
   - reorganize tree
@@ -243,7 +155,6 @@ nice to do:
     - mandatory/optional
     - integer range
     - regex
-- tooltips
 - how to handle domain enums with internal and presentation
   (e.g. combobox, selection)
 - representation of lists of variable size, e.g. list of
