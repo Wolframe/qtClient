@@ -33,6 +33,7 @@ QVariant WidgetVisitorState_QDateEdit::property( const QString& name)
 {
 	if (name.isEmpty())
 	{
+		qDebug() << "get property for date edit" << m_dateEdit->objectName() << m_dateEdit->date().toString( Qt::ISODate);
 		return QVariant( m_dateEdit->date().toString( Qt::ISODate));
 	}
 	return QVariant();
@@ -56,6 +57,7 @@ void WidgetVisitorState_QDateEdit::setState( const QVariant& state)
 
 QVariant WidgetVisitorState_QDateEdit::getState() const
 {
+	qDebug() << "getState for date edit" << m_dateEdit->objectName() << m_dateEdit->date().toString( Qt::ISODate);
 	return m_dateEdit->date().isValid()?QVariant( m_dateEdit->date()):QVariant();
 }
 
