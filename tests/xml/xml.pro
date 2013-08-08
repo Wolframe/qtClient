@@ -20,7 +20,7 @@ QT += widgets
 
 SOURCES += \	
 	testXmlSerialization.cpp \
-	../../qtclient/DataFormatXml.cpp
+	../../qtclient/DataFormatXML.cpp
 
 HEADERS += \
 	testXmlSerialization.hpp
