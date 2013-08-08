@@ -33,7 +33,7 @@ QVariant WidgetVisitorState_QDateEdit::property( const QString& name)
 {
 	if (name.isEmpty())
 	{
-		QVariant( m_dateEdit->date().toString( Qt::ISODate));
+		return QVariant( m_dateEdit->date().toString( Qt::ISODate));
 	}
 	return QVariant();
 }
@@ -43,6 +43,7 @@ bool WidgetVisitorState_QDateEdit::setProperty( const QString& name, const QVari
 	if (name.isEmpty())
 	{
 		m_dateEdit->setDate( QDate::fromString( data.toString(), Qt::ISODate));
+		return true;
 	}
 	return false;
 }
