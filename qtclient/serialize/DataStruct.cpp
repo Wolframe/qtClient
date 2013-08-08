@@ -357,11 +357,11 @@ bool DataStruct::push()
 	return true;
 }
 
-static void print_newitem( QString& out, const QString& indent, const QString& newitem, int level)
-{
-	out.append( newitem);
-	while (level--) out.append( indent);
-}
+//static void print_newitem( QString& out, const QString& indent, const QString& newitem, int level)
+//{
+//	out.append( newitem);
+//	while (level--) out.append( indent);
+//}
 
 void DataStruct::print( QString& out, const QString& indent, const QString& newitem, int level) const
 {
