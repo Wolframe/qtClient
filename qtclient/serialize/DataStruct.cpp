@@ -25,22 +25,22 @@ void DataStruct::release()
 	{
 		if (m_description)
 		{
-			if (m_data.ref) delete m_data.ref;
+			if (m_data.ref) delete [] m_data.ref;
 		}
-		else if (m_data.elem)
+		else
 		{
-			delete m_data.elem;
+			if (m_data.elem) delete m_data.elem;
 		}
 	}
 	else
 	{
 		if (m_description)
 		{
-			delete [] m_data.ref;
+			if (m_data.ref) delete [] m_data.ref;
 		}
-		else if (m_data.elem)
+		else
 		{
-			delete [] m_data.elem;
+			if (m_data.elem) delete [] m_data.elem;
 		}
 	}
 	m_size = -1;

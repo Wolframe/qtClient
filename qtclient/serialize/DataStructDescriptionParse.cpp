@@ -103,44 +103,48 @@ public:
 		return true;
 	}
 
-	bool defineAttributeConst( const QString& name, const QVariant& value)
+	int defineAttributeConst( const QString& name, const QVariant& value)
 	{
-		if (0>stk.back().description->addAttribute( name, value))
+		int idx = stk.back().description->addAttribute( name, value);
+		if (idx >= 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		return true;
+		return idx;
 	}
 
-	bool defineAttributeVariable( const QString& name, const QString& var, const QVariant& defaultvalue)
+	int defineAttributeVariable( const QString& name, const QString& var, const QVariant& defaultvalue)
 	{
-		if (0>stk.back().description->addAttributeVariable( name, var, defaultvalue))
+		int idx = stk.back().description->addAttributeVariable( name, var, defaultvalue);
+		if (idx >= 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		return true;
+		return idx;
 	}
 
-	bool defineAtomConst( const QString& name, const QVariant& value)
+	int defineAtomConst( const QString& name, const QVariant& value)
 	{
-		if (0>stk.back().description->addAtom( name, value))
+		int idx = stk.back().description->addAtom( name, value);
+		if (idx >= 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		return true;
+		return idx;
 	}
 
-	bool defineAtomVariable( const QString& name, const QString& var, const QVariant& defaultvalue)
+	int defineAtomVariable( const QString& name, const QString& var, const QVariant& defaultvalue)
 	{
-		if (0>stk.back().description->addAtomVariable( name, var, defaultvalue))
+		int idx = stk.back().description->addAtomVariable( name, var, defaultvalue);
+		if (idx >= 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		return true;
+		return idx;
 	}
 
 	struct VariableReference
@@ -286,7 +290,8 @@ public:
 						VariableReference vardef;
 						if (!parseVariableReference( vardef, si, se)) return false;
 						int idx = defineAtomVariable( nodename, vardef.varname, vardef.defaultvalue);
-						if (idx < 0) return false;
+						if (idx >= 0) return false;
+
 						if (vardef.optional)
 						{
 							if (vardef.varname.isEmpty())
@@ -337,7 +342,7 @@ public:
 						//... Attribute constant
 						QString content;
 						if (!parseString( content, si, se)) return false;
-						if (!defineAttributeConst( nodename, content)) return false;
+						if (0>defineAttributeConst( nodename, content)) return false;
 					}
 					else if (*si == '{')
 					{
@@ -363,7 +368,7 @@ public:
 					{
 						QString::const_iterator start = si;
 						for (++si; si != se && isAlphaNum(*si); ++si) {}
-						defineAttributeConst( nodename, QString( start, si-start));
+						if (0>defineAttributeConst( nodename, QString( start, si-start))) return false;
 					}
 					else
 					{
@@ -381,7 +386,7 @@ public:
 				//... Content constant
 				QString content;
 				if (!parseString( content, si, se)) return false;
-				if (!defineAtomConst( "", content)) return false;
+				if (0>defineAtomConst( "", content)) return false;
 			}
 			else if (*si == '{')
 			{

@@ -4,10 +4,13 @@
 
 DataStructDescription::Element::Element( const QString& name_)
 	:type(atomic_),name(name_),initvalue(0),substruct(0)
-{}
+{
+	/*[-]*/ qDebug() << "DataStructDescription::Element::Element(" << name_ << ")";
+}
 
 void DataStructDescription::Element::initStructure( const DataStructDescription* substruct_, bool pointer_)
 {
+	/*[-]*/ qDebug() << "DataStructDescription::Element::initStructure of " << name << ":" << substruct_->toString() << (pointer_?"indirection":"struct");
 	type = pointer_?indirection_:struct_;
 	if (!pointer_)
 	{
@@ -22,11 +25,13 @@ void DataStructDescription::Element::initStructure( const DataStructDescription*
 
 void DataStructDescription::Element::initAtom( const QVariant& initvalue_)
 {
+	/*[-]*/ qDebug() << "DataStructDescription::Element::initAtom( " << initvalue_ << ") of" << name;
 	initvalue = new DataStruct( initvalue_);
 }
 
 void DataStructDescription::Element::initAtomVariable( const QString& varname, const QVariant& defaultvalue)
 {
+	/*[-]*/ qDebug() << "DataStructDescription::Element::initAtomVariable( " << varname << defaultvalue << ") of" << name;
 	type = variableref_;
 	variableref = varname;
 	initvalue = new DataStruct( defaultvalue);
@@ -49,6 +54,7 @@ bool DataStructDescription::Element::makeArray()
 DataStructDescription::Element::Element( const Element& o)
 	:type(o.type),name(o.name),variableref(o.variableref),initvalue(0),substruct(o.substruct)
 {
+	/*[-]*/ qDebug() << "DataStructDescription::Element::Element(" << "orig" << o.name << ")";
 	if (substruct)
 	{
 		if (type != indirection_)
@@ -58,7 +64,7 @@ DataStructDescription::Element::Element( const Element& o)
 			initvalue->setDescription( substruct);
 		}
 	}
-	else
+	else if (o.initvalue)
 	{
 		initvalue = new DataStruct( *o.initvalue);
 	}
@@ -66,6 +72,7 @@ DataStructDescription::Element::Element( const Element& o)
 
 DataStructDescription::Element::~Element()
 {
+	/*[-]*/ qDebug() << "DataStructDescription::Element::~Element() of" << name;
 	if (initvalue) delete initvalue;
 	if (substruct && type != indirection_) delete substruct;
 }

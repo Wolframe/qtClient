@@ -87,18 +87,21 @@ void DataStructMapTest::testDataStructMap( )
 	QFETCH( QString, data );
 	QFETCH( QString, errmsg );
 
-	DataStructDescription dd;
+	DataStructDescription* dd = new DataStructDescription();
+	QList<QString> errlist;
+	bool success = (errmsg == "OK");
+	bool parse_rt = dd->parse( description, errlist);
+	QCOMPARE( parse_rt, success);
+	if (!success)
 	{
-		QList<QString> errlist;
-		bool success = (errmsg == "OK");
-		QCOMPARE( dd.parse( description, errlist), success);
-		if (!success)
-		{
-			QCOMPARE( errlist.size()?errlist.at(0):QString(), errmsg);
-		}
-		DataStruct st( &dd);
-		QCOMPARE( st.toString(), data);
+		QString first_error = errlist.size()?errlist.at(0):QString();
+		QCOMPARE( first_error, errmsg);
 	}
+	DataStruct* st = new DataStruct( dd);
+	QString st_toString = st->toString();
+	QCOMPARE( st_toString, data);
+	delete st;
+	delete dd;
 }
 
 QTEST_MAIN( DataStructMapTest )
