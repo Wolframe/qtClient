@@ -106,9 +106,17 @@ int DataPathTree::addPathNode( const QStringList& path)
 QStringList DataPathTree::getPath( int nodeidx) const
 {
 	QList<QString> rt;
-	while (nodeidx != -1)
+	int maxcnt = nodeidx+2;
+	while (nodeidx != -1 && maxcnt >= 0)
 	{
 		rt.insert( 0, m_ar.at(nodeidx).name);
+		nodeidx = m_ar.at(nodeidx).parent;
+		--maxcnt;
+	}
+	if (maxcnt < 0)
+	{
+		qCritical() << "internal: corrupt data path tree";
+		return QStringList();
 	}
 	return rt;
 }

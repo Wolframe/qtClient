@@ -60,6 +60,11 @@ public:
 		return *this;
 	}
 
+	VisitorInterface* visitor()
+	{
+		return &m_object;
+	}
+
 private:
 	DataPathTreeVisitor m_object;
 };
@@ -77,7 +82,7 @@ void DataStructMapTest::testDataStructMap_data( )
 	QTest::newRow( "simple assignment test" )
 		<< (ObjTree() << ObjTree::Node( "person.name", QVariant( "hugo")))
 		<< "person {name={person.name}}"
-		<< "person { name={person.name} }"
+		<< "person{ name={person.name} }"
 		<< "person {name='hugo'}"
 		<< "OK";
 }
@@ -107,6 +112,11 @@ void DataStructMapTest::testDataStructMap( )
 		QCOMPARE( res, out_description);
 	}
 	DataStruct* st = new DataStruct( dd);
+	qDebug() << "++++" << st->toString();
+
+	bool fill_rt = getDataStruct( *st, objtree.visitor());
+	QCOMPARE( fill_rt, true);
+
 	QString st_toString = st->toString();
 	QCOMPARE( st_toString, data);
 	delete st;

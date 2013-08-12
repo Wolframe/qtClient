@@ -239,6 +239,14 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 					return false;
 				}
 			}
+			else
+			{
+				if (!assignDataStruct( pred, &*si, descrmap, vi, writemode))
+				{
+					qCritical() << "failed to assign substructure" << di->name;
+					return false;
+				}
+			}
 		}
 		else
 		{

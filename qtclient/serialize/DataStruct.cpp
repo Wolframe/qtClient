@@ -326,6 +326,7 @@ void DataStruct::setDescription( const DataStructDescription* description_)
 				m_data.ref[ ii].setDescription( di->substruct);
 			}
 		}
+		m_description = description_;
 	}
 	else if (m_description || description_)
 	{
