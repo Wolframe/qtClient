@@ -75,9 +75,16 @@ public:
 		errmsg.push_back( QString("error in datastructure description at ") + pt + ": " + msg);
 	}
 
+	const DataStructDescription* description() const
+	{
+		if (stk.isEmpty()) return 0;
+		return &*stk.back().description;
+	}
+
 	bool open( const QString& name, bool array)
 	{
 		stk.push_back( Element( name, array));
+		/*[-]*/qDebug() << "CALL open(" << name << ")";
 		return true;
 	}
 
@@ -89,6 +96,8 @@ public:
 			return false;
 		}
 		Element elem = stk.back();
+		/*[-]*/qDebug() << "CLOSE PARSED " << elem.description->toString();
+
 		stk.pop_back();
 		int idx = stk.back().description->addStructure( elem.name, *elem.description);
 		if (0>idx)
@@ -100,6 +109,7 @@ public:
 		{
 			stk.back().description->at( idx).makeArray();
 		}
+		/*[-]*/qDebug() << "CALL close()";
 		return true;
 	}
 
@@ -111,6 +121,7 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
+		/*[-]*/qDebug() << "CALL defineAttributeConst(" << name << value << ")";
 		return idx;
 	}
 
@@ -122,6 +133,7 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
+		/*[-]*/qDebug() << "CALL defineAttributeVariable(" << name << var << defaultvalue << ")";
 		return idx;
 	}
 
@@ -133,6 +145,7 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
+		/*[-]*/qDebug() << "CALL defineAtomConst(" << name << value << ")";
 		return idx;
 	}
 
@@ -144,6 +157,7 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
+		/*[-]*/qDebug() << "CALL defineAtomVariable(" << name << var << defaultvalue << ")";
 		return idx;
 	}
 
@@ -194,6 +208,7 @@ public:
 				def.varname = def.varname.mid( 0, dd);
 			}
 		}
+		/*[-]*/qDebug() << "CALL parseVariableReference(" << QString(is) << ") RETURNS" << def.varname << def.defaultvalue;
 		return true;
 	}
 
@@ -220,6 +235,7 @@ public:
 		}
 		str = QString( start, itr-start);
 		if (itr != end) ++itr;
+		/*[-]*/qDebug() << "CALL parseString(" << QString(itr) << ") RETURNS" << str;
 		return true;
 	}
 
@@ -449,6 +465,13 @@ bool DataStructDescription::parse( const QString& source, QList<QString>& err)
 		return false;
 	}
 	err.clear();
+	const DataStructDescription* res = ctx.description();
+	if (!res)
+	{
+		qCritical() << "internal: data structure description parse result empty";
+		return false;
+	}
+	inherit( *res);
 	return true;
 }
 

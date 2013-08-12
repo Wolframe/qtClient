@@ -49,12 +49,10 @@ public:
 
 	virtual ~DataPathTreeVisitor(){}
 
-	virtual bool enter( const QString& name, bool /*writemode*/)
-		{return m_tree.visit( name) >= 0;}
+	virtual bool enter( const QString& name, bool /*writemode*/);
 
 	///\brief Set the current node to the parent that called enter to this node.
-	virtual void leave( bool /*writemode*/)
-		{m_tree.leave();}
+	virtual void leave( bool /*writemode*/);
 
 	///\brief Get the property of the current node by 'name'
 	///\param[in] name name of the property
@@ -73,6 +71,9 @@ public:
 	///\brief Declare the end of data initialization
 	virtual void endofDataFeed();
 
+	///\brief Assign a value to a variable 'path' in the tree.
+	///\param[in] path variable with '.' as structure element selection operator
+	///\param[in] value to assign
 	bool assign( const QString& path, const QVariant& value);
 
 private:

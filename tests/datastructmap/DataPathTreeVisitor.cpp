@@ -1,6 +1,19 @@
 #include "DataPathTreeVisitor.hpp"
 #include <QDebug>
 
+bool DataPathTreeVisitor::enter( const QString& name, bool /*writemode*/)
+{
+	bool rt = m_tree.visit( name) >= 0;
+	/*[-]*/qDebug() << "CALL enter(" << name << ") RETURNS" << rt;
+	return rt;
+}
+
+void DataPathTreeVisitor::leave( bool /*writemode*/)
+{
+	/*[-]*/qDebug() << "CALL leave()";
+	m_tree.leave();
+}
+
 QVariant DataPathTreeVisitor::property( const QString& name)
 {
 	QVariant rt;
@@ -12,6 +25,7 @@ QVariant DataPathTreeVisitor::property( const QString& name)
 		rt = vi.value();
 	}
 	if (!name.isEmpty()) m_tree.leave();
+	/*[-]*/qDebug() << "CALL property(" << name << ") RETURNS" << rt;
 	return rt;
 }
 
@@ -21,6 +35,7 @@ bool DataPathTreeVisitor::setProperty( const QString& name, const QVariant& valu
 	if (!name.isEmpty()) if (m_tree.visit( name) < 0) return rt;
 	m_valuemap[ m_tree.currentNodeIdx()] = value;
 	if (!name.isEmpty()) m_tree.leave();
+	/*[-]*/qDebug() << "CALL setProperty(" << name << value << ")";
 	return true;
 }
 

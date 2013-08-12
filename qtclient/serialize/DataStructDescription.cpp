@@ -3,14 +3,12 @@
 #include <QDebug>
 
 DataStructDescription::Element::Element( const QString& name_)
-	:type(atomic_),name(name_),initvalue(0),substruct(0)
+	:type(atomic_),name(name_),initvalue(0),substruct(0),flags(0)
 {
-	/*[-]*/ qDebug() << "DataStructDescription::Element::Element(" << name_ << ")";
 }
 
 void DataStructDescription::Element::initStructure( const DataStructDescription* substruct_, bool pointer_)
 {
-	/*[-]*/ qDebug() << "DataStructDescription::Element::initStructure of " << name << ":" << substruct_->toString() << (pointer_?"indirection":"struct");
 	type = pointer_?indirection_:struct_;
 	if (!pointer_)
 	{
@@ -25,13 +23,11 @@ void DataStructDescription::Element::initStructure( const DataStructDescription*
 
 void DataStructDescription::Element::initAtom( const QVariant& initvalue_)
 {
-	/*[-]*/ qDebug() << "DataStructDescription::Element::initAtom( " << initvalue_ << ") of" << name;
 	initvalue = new DataStruct( initvalue_);
 }
 
 void DataStructDescription::Element::initAtomVariable( const QString& varname, const QVariant& defaultvalue)
 {
-	/*[-]*/ qDebug() << "DataStructDescription::Element::initAtomVariable( " << varname << defaultvalue << ") of" << name;
 	type = variableref_;
 	variableref = varname;
 	initvalue = new DataStruct( defaultvalue);
@@ -52,9 +48,8 @@ bool DataStructDescription::Element::makeArray()
 }
 
 DataStructDescription::Element::Element( const Element& o)
-	:type(o.type),name(o.name),variableref(o.variableref),initvalue(0),substruct(o.substruct)
+	:type(o.type),name(o.name),variableref(o.variableref),initvalue(0),substruct(o.substruct),flags(o.flags)
 {
-	/*[-]*/ qDebug() << "DataStructDescription::Element::Element(" << "orig" << o.name << ")";
 	if (substruct)
 	{
 		if (type != indirection_)
@@ -72,7 +67,6 @@ DataStructDescription::Element::Element( const Element& o)
 
 DataStructDescription::Element::~Element()
 {
-	/*[-]*/ qDebug() << "DataStructDescription::Element::~Element() of" << name;
 	if (initvalue) delete initvalue;
 	if (substruct && type != indirection_) delete substruct;
 }
@@ -328,7 +322,6 @@ static void printElementHeader( QString& out, const DataStructDescription::Eleme
 {
 	out.append( elem.name);
 	if (elem.array()) out.append( "[]");
-	out.append( " ");
 }
 
 static void print_newitem( QString& out, const QString& indent, const QString& newitem, int level)
@@ -340,10 +333,13 @@ static void print_newitem( QString& out, const QString& indent, const QString& n
 void DataStructDescription::print( QString& out, const QString& indent, const QString& newitem, int level) const
 {
 	const_iterator di = begin(), de = end();
-	for (; di != de; ++di)
+	for (int idx=0; di != de; ++di,++idx)
 	{
-		print_newitem( out, indent, newitem, level);
-
+		if (idx)
+		{
+			print_newitem( out, indent, newitem, level);
+			out.append( ";");
+		}
 		switch (di->type)
 		{
 			case atomic_:
@@ -366,21 +362,18 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 				break;
 
 			case variableref_:
-				if (di->initvalue->value().isValid())
+				printElementHeader( out, *di);
+				if (di->attribute())
 				{
-					printElementHeader( out, *di);
-					if (di->attribute())
-					{
-						out.append( "={");
-						out.append( di->initvalue->value().toString());
-						out.append( "}");
-					}
-					else
-					{
-						out.append( "{{");
-						out.append( di->initvalue->value().toString());
-						out.append( "}}");
-					}
+					out.append( "={");
+					out.append( di->variableref);
+					out.append( "}");
+				}
+				else
+				{
+					out.append( "{{");
+					out.append( di->variableref);
+					out.append( "}}");
 				}
 				break;
 
@@ -398,16 +391,13 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 				break;
 
 		}
-		out.append( ";");
 	}
 }
 
 QString DataStructDescription::toString() const
 {
 	QString out;
-	out.append( "{");
 	print( out, "", " ", 0);
-	out.append( "}");
 	return out;
 }
 
