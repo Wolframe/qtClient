@@ -208,7 +208,10 @@ public:
 				def.varname = def.varname.mid( 0, dd);
 			}
 		}
-		/*[-]*/qDebug() << "CALL parseVariableReference(" << QString(is) << ") RETURNS" << def.varname << def.defaultvalue;
+// Aba: QString::QString ( const QChar * unicode ) came in in Qt 4.7, we have to
+// support Qt 4.6 at least, so use QString::QString ( const QChar * unicode, int size )
+// instead, please check if the code is correctly fixed like this..
+		/*[-]*/qDebug() << "CALL parseVariableReference(" << QString(is, es-is) << ") RETURNS" << def.varname << def.defaultvalue;
 		return true;
 	}
 
@@ -235,7 +238,10 @@ public:
 		}
 		str = QString( start, itr-start);
 		if (itr != end) ++itr;
-		/*[-]*/qDebug() << "CALL parseString(" << QString(itr) << ") RETURNS" << str;
+// Aba: QString::QString ( const QChar * unicode ) came in in Qt 4.7, we have to
+// support Qt 4.6 at least, so use QString::QString ( const QChar * unicode, int size )
+// instead, please check if the code is correctly fixed like this..
+		/*[-]*/qDebug() << "CALL parseString(" << QString(itr, end-itr) << ") RETURNS" << str;
 		return true;
 	}
 
