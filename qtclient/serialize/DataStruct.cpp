@@ -358,11 +358,11 @@ bool DataStruct::push()
 	return true;
 }
 
-//static void print_newitem( QString& out, const QString& indent, const QString& newitem, int level)
-//{
-//	out.append( newitem);
-//	while (level--) out.append( indent);
-//}
+static void print_newitem( QString& out, const QString& indent, const QString& newitem, int level)
+{
+	out.append( newitem);
+	while (level--) out.append( indent);
+}
 
 void DataStruct::print( QString& out, const QString& indent, const QString& newitem, int level) const
 {
@@ -386,24 +386,23 @@ void DataStruct::print( QString& out, const QString& indent, const QString& newi
 	}
 	else if (m_description)
 	{
-		if (level == 0) out.append( "{");
 		DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
 		DataStruct::const_iterator ei = begin();
 		for (int idx=0; di != de; ++di,++ei)
 		{
 			if (ei->initialized())
 			{
-				if (!idx)
+				if (idx++)
 				{
 					out.append( ";");
-					print( out, indent, newitem, level);
+					print_newitem( out, indent, newitem, level);
 				}
-				++idx;
+
 				out.append( di->name);
 				if (di->array()) out.append( "[]");
 				if (di->attribute())
 				{
-					out.append( " = ");
+					out.append( "=");
 					out.append( ei->toString());
 				}
 				else
@@ -413,10 +412,6 @@ void DataStruct::print( QString& out, const QString& indent, const QString& newi
 					out.append( "}");
 				}
 			}
-		}
-		if (level == 0)
-		{
-			out.append( "}");
 		}
 	}
 }

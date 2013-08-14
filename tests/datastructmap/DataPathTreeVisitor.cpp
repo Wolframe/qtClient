@@ -1,41 +1,87 @@
 #include "DataPathTreeVisitor.hpp"
 #include <QDebug>
 
+#undef WOLFRAME_LOWLEVEL_DEBUG
+
 bool DataPathTreeVisitor::enter( const QString& name, bool /*writemode*/)
 {
 	bool rt = m_tree.visit( name) >= 0;
-	/*[-]*/qDebug() << "CALL enter(" << name << ") RETURNS" << rt;
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "CALL enter(" << name << ") RETURNS" << rt;
+#endif
 	return rt;
 }
 
 void DataPathTreeVisitor::leave( bool /*writemode*/)
 {
-	/*[-]*/qDebug() << "CALL leave()";
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "CALL leave()";
+#endif
 	m_tree.leave();
 }
 
 QVariant DataPathTreeVisitor::property( const QString& name)
 {
 	QVariant rt;
-	if (!name.isEmpty()) if (m_tree.visit( name) < 0) return rt;
-
-	QMap<int,QVariant>::const_iterator vi = m_valuemap.find( m_tree.currentNodeIdx());
-	if (vi != m_valuemap.end())
+	if (name.indexOf('.') >= 0)
 	{
-		rt = vi.value();
+		int idx = 0;
+		QStringList pt( name.split('.'));
+		for (; idx+1 < pt.size(); ++idx)
+		{
+			if (m_tree.visit( pt.at(idx)) < 0)
+			{
+				while (idx-->0) m_tree.leave();
+				return false;
+			}
+		}
+		rt = property( pt.at( pt.size()-1));
+		while (idx-->0) m_tree.leave();
 	}
-	if (!name.isEmpty()) m_tree.leave();
-	/*[-]*/qDebug() << "CALL property(" << name << ") RETURNS" << rt;
+	else
+	{
+		if (!name.isEmpty()) if (m_tree.visit( name) < 0) return rt;
+
+		QMap<int,QVariant>::const_iterator vi = m_valuemap.find( m_tree.currentNodeIdx());
+		if (vi != m_valuemap.end())
+		{
+			rt = vi.value();
+		}
+		if (!name.isEmpty()) m_tree.leave();
+	}
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "CALL property(" << name << ") RETURNS" << rt;
+#endif
 	return rt;
 }
 
 bool DataPathTreeVisitor::setProperty( const QString& name, const QVariant& value)
 {
 	bool rt = false;
-	if (!name.isEmpty()) if (m_tree.visit( name) < 0) return rt;
-	m_valuemap[ m_tree.currentNodeIdx()] = value;
-	if (!name.isEmpty()) m_tree.leave();
-	/*[-]*/qDebug() << "CALL setProperty(" << name << value << ")";
+	if (name.indexOf('.') >= 0)
+	{
+		int idx = 0;
+		QStringList pt( name.split('.'));
+		for (; idx+1 < pt.size(); ++idx)
+		{
+			if (m_tree.visit( pt.at(idx)) < 0)
+			{
+				while (idx-->0) m_tree.leave();
+				return false;
+			}
+		}
+		rt = setProperty( pt.at( pt.size()-1), value);
+		while (idx-->0) m_tree.leave();
+	}
+	else
+	{
+		if (!name.isEmpty()) if (m_tree.visit( name) < 0) return rt;
+		m_valuemap[ m_tree.currentNodeIdx()] = value;
+		if (!name.isEmpty()) m_tree.leave();
+	}
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "CALL setProperty(" << name << value << ")";
+#endif
 	return true;
 }
 

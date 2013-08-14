@@ -1,6 +1,8 @@
 #include "serialize/DataStructDescription.hpp"
 #include <QDebug>
 
+#undef WOLFRAME_LOWLEVEL_DEBUG
+
 static void skipBrk( QString::const_iterator& itr, const QString::const_iterator& end)
 {
 	int brkcnt = 1;
@@ -84,7 +86,9 @@ public:
 	bool open( const QString& name, bool array)
 	{
 		stk.push_back( Element( name, array));
-		/*[-]*/qDebug() << "CALL open(" << name << ")";
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL open(" << name << ")";
+#endif
 		return true;
 	}
 
@@ -96,7 +100,9 @@ public:
 			return false;
 		}
 		Element elem = stk.back();
-		/*[-]*/qDebug() << "CLOSE PARSED " << elem.description->toString();
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "IN close() PARSED" << elem.description->toString();
+#endif
 
 		stk.pop_back();
 		int idx = stk.back().description->addStructure( elem.name, *elem.description);
@@ -109,7 +115,9 @@ public:
 		{
 			stk.back().description->at( idx).makeArray();
 		}
-		/*[-]*/qDebug() << "CALL close()";
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL close()";
+#endif
 		return true;
 	}
 
@@ -121,7 +129,9 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		/*[-]*/qDebug() << "CALL defineAttributeConst(" << name << value << ")";
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL defineAttributeConst(" << name << value << ")";
+#endif
 		return idx;
 	}
 
@@ -133,7 +143,9 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		/*[-]*/qDebug() << "CALL defineAttributeVariable(" << name << var << defaultvalue << ")";
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL defineAttributeVariable(" << name << var << defaultvalue << ")";
+#endif
 		return idx;
 	}
 
@@ -145,7 +157,9 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		/*[-]*/qDebug() << "CALL defineAtomConst(" << name << value << ")";
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL defineAtomConst(" << name << value << ")";
+#endif
 		return idx;
 	}
 
@@ -157,7 +171,9 @@ public:
 			setError( QString( "duplicate definition of value '") + name + "'");
 			return false;
 		}
-		/*[-]*/qDebug() << "CALL defineAtomVariable(" << name << var << defaultvalue << ")";
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL defineAtomVariable(" << name << var << defaultvalue << ")";
+#endif
 		return idx;
 	}
 
@@ -208,7 +224,9 @@ public:
 				def.varname = def.varname.mid( 0, dd);
 			}
 		}
-		/*[-]*/qDebug() << "CALL parseVariableReference(" << QString(is) << ") RETURNS" << def.varname << def.defaultvalue;
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL parseVariableReference(" << QString(is) << ") RETURNS" << def.varname << def.defaultvalue;
+#endif
 		return true;
 	}
 
@@ -235,7 +253,9 @@ public:
 		}
 		str = QString( start, itr-start);
 		if (itr != end) ++itr;
-		/*[-]*/qDebug() << "CALL parseString(" << QString(itr) << ") RETURNS" << str;
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL parseString(" << QString(itr) << ") RETURNS" << str;
+#endif
 		return true;
 	}
 

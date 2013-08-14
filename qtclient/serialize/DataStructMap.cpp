@@ -111,6 +111,7 @@ static bool assignElementVariable( const DataPath& pred, const QString& elemname
 				qCritical() << "failed to get property" << var;
 				return false;
 			}
+			elem->setInitialized();
 		}
 	}
 	return true;
@@ -181,6 +182,7 @@ static bool assignDataGroupElement( const DataPath& pred, const DataPath& group,
 				{
 					qCritical() << "failed to assign" << arrayname << "[" << ai << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
 				}
+				if (!writemode) elem->setInitialized();
 			}
 			else if (elemdescr->type == DataStructDescription::variableref_)
 			{
@@ -223,11 +225,12 @@ static bool assignDataGroupElement( const DataPath& pred, const DataPath& group,
 
 static bool assignDataStruct( const DataPath& pred, DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi, bool writemode)
 {
+	bool initialized = false;
 	const DataStructDescription* descr = data->description();
 
 	DataStruct::iterator si = data->begin(), se = data->end();
-	DataStructDescription::const_iterator di = descr->begin();
-	for (; si != se; ++si,++di)
+	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
+	for (; si != se && di != de; ++si,++di)
 	{
 		if (di->substruct)
 		{
@@ -247,13 +250,30 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 					return false;
 				}
 			}
+			if (si->initialized())
+			{
+				initialized = true;
+			}
 		}
 		else
 		{
-			assignElementVariable( pred, QString(), &*si, &*di, vi, writemode);
+			if (!assignElementVariable( pred, QString(), &*si, &*di, vi, writemode))
+			{
+				return false;
+			}
+			initialized = true;
 		}
 	}
-	return false;
+	if (di != de || si != se)
+	{
+		qCritical() << "internal: structures do not match";
+		return false;
+	}
+	if (initialized && !writemode)
+	{
+		data->setInitialized();
+	}
+	return true;
 }
 
 static bool assignDataStruct( DataStruct* data, VisitorInterface* vi, bool writemode)
@@ -284,7 +304,7 @@ static bool assignDataStruct( DataStruct* data, VisitorInterface* vi, bool write
 	}
 	else
 	{
-		rt = assignDataStruct( mi.value(), data, descrmap, vi, writemode);
+		rt = assignDataStruct( DataPath(), data, descrmap, vi, writemode);
 	}
 	return rt;
 }

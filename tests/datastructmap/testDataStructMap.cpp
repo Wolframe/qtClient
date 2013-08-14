@@ -83,7 +83,7 @@ void DataStructMapTest::testDataStructMap_data( )
 		<< (ObjTree() << ObjTree::Node( "person.name", QVariant( "hugo")))
 		<< "person {name={person.name}}"
 		<< "person{ name={person.name} }"
-		<< "person {name='hugo'}"
+		<< "person{name='hugo'}"
 		<< "OK";
 }
 
@@ -99,7 +99,6 @@ void DataStructMapTest::testDataStructMap( )
 	QList<QString> errlist;
 	bool success = (errmsg == "OK");
 	bool parse_rt = dd->parse( description, errlist);
-	/*[-]*/qDebug() << "PARSE DataStructDescription" << dd->toString();
 	QCOMPARE( parse_rt, success);
 	if (!success)
 	{
@@ -112,7 +111,6 @@ void DataStructMapTest::testDataStructMap( )
 		QCOMPARE( res, out_description);
 	}
 	DataStruct* st = new DataStruct( dd);
-	qDebug() << "++++" << st->toString();
 
 	bool fill_rt = getDataStruct( *st, objtree.visitor());
 	QCOMPARE( fill_rt, true);
