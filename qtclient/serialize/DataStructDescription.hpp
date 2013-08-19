@@ -180,6 +180,8 @@ public:
 	///\brief Gets an initialized instance of this structure
 	DataStruct* createDataInstance() const;
 
+	bool check() const;
+
 private:
 	int m_nofattributes;
 	QList<Element> m_ar;

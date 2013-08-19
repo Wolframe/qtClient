@@ -406,6 +406,24 @@ DataStruct* DataStructDescription::createDataInstance() const
 	return new DataStruct( this);
 }
 
+bool DataStructDescription::check() const
+{
+	const_iterator di = begin(), de = end();
+	for (; di != de; ++di)
+	{
+		if (di->initvalue)
+		{
+			if (!di->initvalue->check())
+			{
+				qCritical() << "initvalue check of" << di->name << "failed";
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
 
 
 

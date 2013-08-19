@@ -34,14 +34,8 @@ void DataStruct::release()
 	}
 	else
 	{
-		if (m_description)
-		{
-			if (m_data.ref) delete [] m_data.ref;
-		}
-		else
-		{
-			if (m_data.elem) delete [] m_data.elem;
-		}
+		if (m_data.ref) delete [] m_data.ref;
+
 	}
 	m_size = -1;
 	m_description = 0;
@@ -59,7 +53,7 @@ void DataStruct::assign( const DataStruct& o)
 			if (o.m_data.ref)
 			{
 				// single struct
-				m_data.ref = new DataStruct[ o.m_description->size()];
+				m_data.ref = new DataStruct[ arrayAllocSize( o.m_description->size())];
 				DataStructDescription::const_iterator di = o.m_description->begin(), de = o.m_description->end();
 				std::size_t idx = 0;
 				for (; di != de; ++di,++idx)
@@ -86,25 +80,11 @@ void DataStruct::assign( const DataStruct& o)
 	else
 	{
 		// array
-		if (o.m_description)
+		m_data.ref = new DataStruct[ arrayAllocSize( o.m_size+1)];
+		int ii = 0;
+		for (; ii <= o.m_size; ++ii)
 		{
-			// array of struct elements
-			m_data.ref = new DataStruct[ o.m_size+1];
-			int ii = 0;
-			for (; ii <= o.m_size; ++ii)
-			{
-				m_data.ref[ ii] = o.m_data.ref[ ii];
-			}
-		}
-		else
-		{
-			// array of atomic elements
-			m_data.elem = new QVariant[ o.m_size+1];
-			int ii = 0;
-			for (; ii <= o.m_size; ++ii)
-			{
-				m_data.elem[ ii] = o.m_data.elem[ ii];
-			}
+			m_data.ref[ ii] = o.m_data.ref[ ii];
 		}
 	}
 	m_size = o.m_size;
@@ -127,7 +107,7 @@ DataStruct::~DataStruct()
 DataStruct::DataStruct( const DataStructDescription* description_)
 	:m_size(-1),m_description(description_),m_initialized(false)
 {
-	m_data.ref = new DataStruct[ m_description->size()];
+	m_data.ref = new DataStruct[ arrayAllocSize( m_description->size())];
 
 	DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
 	for (int idx=0; di != de; ++di,++idx)
@@ -147,6 +127,7 @@ bool DataStruct::makeArray()
 	DataStruct* ref = new DataStruct[ allocsize];
 	ref[0] = *this;
 	release();
+	m_description = ref[0].m_description;
 	m_data.ref = ref;
 	m_size = 0;
 	return true;
@@ -280,7 +261,7 @@ int DataStruct::compare( const DataStruct& o)
 			int ii=1, nn=m_size;
 			for (; ii<=nn; ++ii)
 			{
-				int cmp = compareVariant( m_data.elem[ii], o.m_data.elem[ii]);
+				int cmp = m_data.ref[ ii].compare( o.m_data.ref[ ii]);
 				if (cmp) return cmp;
 			}
 		}
@@ -332,6 +313,46 @@ void DataStruct::setDescription( const DataStructDescription* description_)
 	{
 		qCritical() << "internal: illegal state (set description of structure)";
 	}
+}
+
+bool DataStruct::check() const
+{
+	if (m_description && m_description->size() > 1000)
+	{
+		qCritical() << "internal: check description failed";
+		return false;
+	}
+	if (m_size < 0)
+	{
+		if (m_description)
+		{
+			std::size_t si = 0, se = m_description->size();
+			DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
+			for (; si != se && di != de; ++si,++di)
+			{
+				if (m_data.ref[ si].m_description != di->substruct)
+				{
+					qCritical() << "internal: check description failed (substruct)";
+					return false;
+				}
+				if (!m_data.ref[ si].check()) return false;
+			}
+			if (si != se || di != de)
+			{
+				qCritical() << "internal: check description failed (substruct size)";
+				return false;
+			}
+		}
+	}
+	else
+	{
+		std::size_t si = 0, se = m_size+1;
+		for (; si != se; ++si)
+		{
+			if (!m_data.ref[ si].check()) return false;
+		}
+	}
+	return true;
 }
 
 bool DataStruct::push()

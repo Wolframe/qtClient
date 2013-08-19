@@ -88,6 +88,8 @@ static bool assignElementVariable( const DataPath& pred, const QString& group, D
 
 static bool assignElementVariable( const DataPath& pred, const QString& elemname, DataStruct* elem, const DataStructDescription::Element* elemdescr, VisitorInterface* vi, bool writemode)
 {
+	/*[-]*/elem->check();
+
 	if (elemdescr->type == DataStructDescription::variableref_)
 	{
 		// ... special handling of an array of atomic values
@@ -246,7 +248,7 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 			{
 				if (!assignDataStruct( pred, &*si, descrmap, vi, writemode))
 				{
-					qCritical() << "failed to assign substructure" << di->name;
+					qCritical() << "failed to assign substructure" << di->name << pred;
 					return false;
 				}
 			}
@@ -266,7 +268,7 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 	}
 	if (di != de || si != se)
 	{
-		qCritical() << "internal: structures do not match";
+		qCritical() << "internal: structures do not match" << pred;
 		return false;
 	}
 	if (initialized && !writemode)

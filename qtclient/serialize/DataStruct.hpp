@@ -81,6 +81,7 @@ public:
 	void setInitialized( bool v=true)			{m_initialized = v;}
 
 	void expandIndirection();
+	bool check() const;
 
 public:
 	class const_iterator

@@ -79,11 +79,18 @@ void DataStructMapTest::testDataStructMap_data( )
 	QTest::addColumn< QString >( "data");
 	QTest::addColumn< QString >( "errmsg");
 
-	QTest::newRow( "simple assignment test" )
+	QTest::newRow( "single assignment test [S1]" )
 		<< (ObjTree() << ObjTree::Node( "person.name", QVariant( "hugo")))
 		<< "person {name={person.name}}"
 		<< "person{ name={person.name} }"
 		<< "person{name='hugo'}"
+		<< "OK";
+
+	QTest::newRow( "array assignment test [A1]" )
+		<< (ObjTree() << ObjTree::Node( "person.name", QVariantList() << "hugo" << "walti"))
+		<< "person[] {name={person.name}}"
+		<< "person[]{ name={person.name} }"
+		<< "person{name='hugo'},person{name='walti'}"
 		<< "OK";
 }
 
@@ -99,6 +106,7 @@ void DataStructMapTest::testDataStructMap( )
 	QList<QString> errlist;
 	bool success = (errmsg == "OK");
 	bool parse_rt = dd->parse( description, errlist);
+	QCOMPARE( dd->check(), true);
 	QCOMPARE( parse_rt, success);
 	if (!success)
 	{
@@ -111,6 +119,7 @@ void DataStructMapTest::testDataStructMap( )
 		QCOMPARE( res, out_description);
 	}
 	DataStruct* st = new DataStruct( dd);
+	QCOMPARE( st->check(), true);
 
 	bool fill_rt = getDataStruct( *st, objtree.visitor());
 	QCOMPARE( fill_rt, true);

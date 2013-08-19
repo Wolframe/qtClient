@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
-SUBDIRS = SSLavailable datatree skeleton xml datastructmap
+SUBDIRS = SSLavailable datatree skeleton xml 
+# datastructmap
 
 test.CONFIG = recursive
 
