@@ -225,7 +225,7 @@ public:
 			}
 		}
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-		qDebug() << "CALL parseVariableReference(" << QString(is) << ") RETURNS" << def.varname << def.defaultvalue;
+		qDebug() << "CALL parseVariableReference(" << QString(is, es-is) << ") RETURNS" << def.varname << def.defaultvalue;
 #endif
 		return true;
 	}
@@ -254,7 +254,7 @@ public:
 		str = QString( start, itr-start);
 		if (itr != end) ++itr;
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-		qDebug() << "CALL parseString(" << QString(itr) << ") RETURNS" << str;
+		qDebug() << "CALL parseString(" << QString( itr, end-itr) << ") RETURNS" << str;
 #endif
 		return true;
 	}
