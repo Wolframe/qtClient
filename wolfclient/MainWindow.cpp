@@ -869,7 +869,7 @@ void MainWindow::formLoaded( QString /*name*/ )
 			}
 		}
 	} else {
-		setWindowTitle( tr( "Wolframe Qt Client - %1" ).arg( m_formWidget->windowTitle( ) ) );
+		setWindowTitle( tr( "wolfclient - %1" ).arg( m_formWidget->windowTitle( ) ) );
 	}
 }
 
@@ -1044,7 +1044,7 @@ void MainWindow::on_actionAbout_triggered( )
 	QMessageBox aboutBox( this );
 	aboutBox.setParent( this );
 	QString info = QString(
-		tr( "Wolframe Qt client\n\nVersion %1\n\n(c) 2011 - 2013 Wolframe Group" )
+		tr( "wolfclient\n\nVersion %1\n\n(c) 2011 - 2013 Wolframe Group" )
 			.arg( WOLFRAME_VERSION ) );
 	aboutBox.setText( info );
 	aboutBox.setIconPixmap( QPixmap( QString( ":/images/wolfClient.png" ) ) );

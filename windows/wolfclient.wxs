@@ -45,16 +45,16 @@ Project Wolframe.
 	<?if $(sys.BUILDARCH) = "x64" ?>
 		<?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
 		<?ifdef var.debug?>
-			<?define ProductName = "qtClient (64-bit, debug version)" ?>
+			<?define ProductName = "wolfclient (64-bit, debug version)" ?>
 		<?else?>
-			<?define ProductName = "qtClient (64-bit)" ?>
+			<?define ProductName = "wolfclient (64-bit)" ?>
 		<?endif?>
 	<?elseif $(sys.BUILDARCH) = "x86" ?>
 		<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
 		<?ifdef var.debug?>
-			<?define ProductName = "qtClient (32-bit, debug version)" ?>
+			<?define ProductName = "wolfclient (32-bit, debug version)" ?>
 		<?else?>
-			<?define ProductName = "qtClient (32-bit)" ?>
+			<?define ProductName = "wolfclient (32-bit)" ?>
 		<?endif?>
 	<?endif?>
 	
@@ -63,19 +63,19 @@ Project Wolframe.
 	         Id="$(var.ProductCode)" 
 	         UpgradeCode="$(var.ProductUpgradeCode)" >
 		 
-		<Package Description="Wolframe qtClient Windows Installer Package"
-		         Comments="The Wolframe Qt client"
+		<Package Description="Wolframe wolfclient Windows Installer Package"
+		         Comments="The Wolframe client"
 		         Manufacturer="Wolframe Team" InstallerVersion="300" Compressed="yes"/>
 
-		<Media Id="1" Cabinet="qtClient.cab" EmbedCab="yes"/>
+		<Media Id="1" Cabinet="wolfclient.cab" EmbedCab="yes"/>
 
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="$(var.PlatformProgramFilesFolder)" Name="PFiles">
 				<Directory Id="WolframeGroup" Name="Wolframe Group">
 					<Directory Id="INSTALLDIR" Name="Wolframe Qt Client">
 						<Directory Id="BinDir" Name="bin">
-							<Component Id="WolframeQtClient" Guid="{8a59aae0-ee9f-4a97-a9d7-b01d809fb185}">
-								<File Id="qtclient.exe" Name="qtclient.exe" DiskId="1" Source="..\qtclient\$(var.builddir)\qtclient.exe"/>
+							<Component Id="WolframeWolfclient" Guid="{8a59aae0-ee9f-4a97-a9d7-b01d809fb185}">
+								<File Id="wolfclient.exe" Name="wolfclient.exe" DiskId="1" Source="..\wolfclient\$(var.builddir)\wolfclient.exe"/>
 							</Component>
 							<Component Id="WolframeQtDlls" Guid="{c1c6449f-b745-4885-903a-cb28638289ab}">
 								<File Id="skeleton0.dll" Name="skeleton0.dll" DiskId="1" Source="..\skeleton\$(var.builddir)\skeleton0.dll"/>
@@ -140,15 +140,15 @@ Project Wolframe.
 
 		<DirectoryRef Id="ApplicationProgramsFolder">
 			<Component Id="ApplicationShortcut" Guid="{3e94c820-f998-4d46-b19f-74657a353295}">
-				<Shortcut Id="qtClient"
-				          Name="Wolframe Qt client"
-				          Description="Start Wolframe Qt client"
-				          Target="[INSTALLDIR]\bin\qtclient.exe"
+				<Shortcut Id="wolfclient"
+				          Name="Wolframe client"
+				          Description="Start Wolframe client"
+				          Target="[INSTALLDIR]\bin\wolfclient.exe"
 				          WorkingDirectory="BinDir"/>
 
 				<Shortcut Id="UninstallProduct"
-				          Name="Uninstall Wolframe Qt client"
-				          Description="Uninstalls Wolframe Qt client"
+				          Name="Uninstall Wolframe client"
+				          Description="Uninstalls Wolframe client"
 				          Target="[System64Folder]msiexec.exe"
 				          Arguments="/x $(var.ProductCode)"/>
 
@@ -160,9 +160,9 @@ Project Wolframe.
 
 		<Feature Id="Complete" Title="Wolframe" Description="$(var.ProductName)"
 		         Display="expand" Level="1" ConfigurableDirectory="INSTALLDIR">
-			<Feature Id="qtClient" Title="Qt Client" Description="A Qt client to access the Wolframe server." Level="1">
+			<Feature Id="wolfclient" Title="Wolframe Client" Description="The front to access the Wolframe server." Level="1">
 				<ComponentRef Id="ApplicationShortcut"/>
-				<ComponentRef Id="WolframeQtClient"/>
+				<ComponentRef Id="WolframeWolfclient"/>
 				<ComponentRef Id="WolframeQtDlls"/>
 				<ComponentRef Id="WolframeQtPlugins"/>
 				<ComponentRef Id="QtDlls"/>
@@ -184,7 +184,7 @@ Project Wolframe.
 		<Icon Id="Wolframe.ico" SourceFile="bitmaps/Wolframe.ico"/>
 		<Property Id="ARPPRODUCTICON" Value="Wolframe.ico"/>
 
-		<UIRef Id="WixUI_qtClient"/>
+		<UIRef Id="WixUI_wolfclient"/>
 		<UIRef Id="WixUI_ErrorProgressText"/>
 	</Product>
 </Wix>

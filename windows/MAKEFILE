@@ -52,36 +52,36 @@ WIX_EXTENSIONS = \
 	-ext WixUIExtension -ext WixUtilExtension
 	
 WIX_OBJS = \
-	qtClient.wixobj \
-	WixUI_qtClient.wixobj
+	wolfclient.wixobj \
+	WixUI_wolfclient.wixobj
 
 WIX_LOCALES = \
-	-cultures:en-us -loc "i18n\en_us-qtClient.wxl"
+	-cultures:en-us -loc "i18n\en_us-wolfclient.wxl"
 	
 .SUFFIXES: .wxs .wixobj
 
 .wxs.wixobj:
 	$(CANDLE) /nologo -o $@ -arch $(WIX_ARCH) $(WIX_FLAGS) $(WIX_EXTENSIONS) $<
 
-all: qtClient.msi
+all: wolfclient.msi
 
-qtClient.msi: $(WIX_OBJS)
+wolfclient.msi: $(WIX_OBJS)
 	$(LIGHT) /nologo -o $@ $(WIX_FLAGS) $(WIX_EXTENSIONS) $(WIX_LOCALES) $**
 
-setup.exe: qtClient.msi
-	$(SETUPBLD) -out setup.exe -ms qtClient.msi -setup "$(WIX_DIR)\bin\setup.exe"
+setup.exe: wolfclient.msi
+	$(SETUPBLD) -out setup.exe -ms wolfclient.msi -setup "$(WIX_DIR)\bin\setup.exe"
 
 clean:
-	@-erase *.wixobj qtClient.wixpdb qtClient.msi setup.exe *.log 2>NUL
+	@-erase *.wixobj wolfclient.wixpdb wolfclient.msi setup.exe *.log 2>NUL
 
 distclean: clean
 
-test: qtClient.msi
-	$(SMOKE) qtClient.msi
+test: wolfclient.msi
+	$(SMOKE) wolfclient.msi
 
 test_install:
 	-del install.log
-	-msiexec /lieva install.log /i qtClient.msi
+	-msiexec /lieva install.log /i wolfclient.msi
 
 test_uninstall:
 	-del uninstall.log
