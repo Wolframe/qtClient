@@ -1,9 +1,9 @@
 # Contributor: Andreas Baumann <abaumann at yahoo dot com>
 # Maintainer: Andreas Baumann <abaumann at yahoo dot com>
-pkgname=wolframe-qtclient
+pkgname=wolfclient
 pkgver=0.0.1
 pkgrel=1
-pkgdesc="Qt client for Wolframe."
+pkgdesc="Client for Wolframe."
 license=('GPL3')
 arch=('i686' 'x86_64')
 url="http://wolframe.net/"

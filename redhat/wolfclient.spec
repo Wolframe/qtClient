@@ -1,4 +1,4 @@
-# Wolframe qtClient spec file
+# Wolframe wolfclient spec file
 #
 # Copyright (C) 2011-2013 Project Wolframe
 
@@ -88,7 +88,7 @@
 %endif
 
 Summary: Qt client for Wolframe
-Name: wolframe-qtclient
+Name: wolfclient
 Version: 0.0.1
 Release: 0.1
 License: Wolframe License
@@ -116,16 +116,16 @@ Requires: libqt4 >= 4.5
 %define plugindir %_libdir/qt4/plugins
 
 %description
-Generic Qt client for the Wolframe system.
+Client for the Wolframe system.
 
 %prep
 %setup -q
 
 %build
 %if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
-qmake-qt4 qtClient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
+qmake-qt4 wolfclient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %else
-qmake qtClient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
+qmake wolfclient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %endif
 make %{?_smp_mflags} LIBDIR=%{_libdir}/wolframe
 
@@ -143,7 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 #%if !%{sles} && !%{fc18}
 #%dir %{_bindir}
 #%endif
-%{_bindir}/qtclient
+%{_bindir}/wolfclient
 %dir %{_libdir}/wolframe
 %{_libdir}/wolframe/libskeleton.so.0.0.1
 %{_libdir}/wolframe/libskeleton.so.0

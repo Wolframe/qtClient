@@ -1,4 +1,4 @@
-Source: wolframe-qtclient
+Source: wolfclient
 Section: unknown
 Priority: extra
 Maintainer: Mihai Barbos <mihai.barbos@gmail.com>
@@ -7,14 +7,14 @@ Build-Depends: debhelper (>= 4.1.16),
 Standards-Version: 3.8.3
 Homepage: http://www.wolframe.net
 
-Package: wolframe-qtclient
+Package: wolfclient
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Wolframe Qt client
- The Wolframe generic client written in Qt.
+Description: Wolframe client
+ The Wolframe client.
 
-Package: wolframe-qtclient-dev
+Package: wolfclient-dev
 Architecture: any
-Depends: wolframe-qtclient, ${shlibs:Depends}, ${misc:Depends}
-Description: Wolframe Qt client development
- The Wolframe client SDK development files.
+Depends: wolfclient, ${shlibs:Depends}, ${misc:Depends}
+Description: Wolframe client development
+ The Wolframe client development files.

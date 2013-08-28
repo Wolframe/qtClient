@@ -1,29 +1,29 @@
 #!/bin/sh
 
 VERSION=0.0.1
-OSC_HOME=$HOME/home:andreas_baumann/qtClient
+OSC_HOME=$HOME/home:andreas_baumann/wolfclient
 
-rm -f wolframe-qtclient-$VERSION.tar.gz
-rm -f $RPMBUILD/SOURCES/wolframe-qtclient_$VERSION.tar.gz
+rm -f wolfclient-$VERSION.tar.gz
+rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 
 make distclean
-mkdir /tmp/wolframe-qtclient-$VERSION
-cp -av * /tmp/wolframe-qtclient-$VERSION
+mkdir /tmp/wolfclient-$VERSION
+cp -av * /tmp/wolfclient-$VERSION
 cd /tmp
-tar zcvf wolframe-qtclient-$VERSION.tar.gz wolframe-qtclient-$VERSION
+tar zcvf wolfclient-$VERSION.tar.gz wolfclient-$VERSION
 cd -
-mv /tmp/wolframe-qtclient-$VERSION.tar.gz .
-rm -rf /tmp/wolframe-qtclient-$VERSION
+mv /tmp/wolfclient-$VERSION.tar.gz .
+rm -rf /tmp/wolfclient-$VERSION
 
-cp wolframe-qtclient-$VERSION.tar.gz $OSC_HOME/wolframe-qtclient_$VERSION.tar.gz
-cp redhat/qtClient.spec $OSC_HOME/qtClient.spec
+cp wolfclient-$VERSION.tar.gz $OSC_HOME/wolfclient_$VERSION.tar.gz
+cp redhat/wolfclient.spec $OSC_HOME/wolfclient.spec
 
-SIZE=`stat -c '%s' $OSC_HOME/wolframe-qtclient_$VERSION.tar.gz`
-CHKSUM=`md5sum $OSC_HOME/wolframe-qtclient_$VERSION.tar.gz | cut -f 1 -d' '`
+SIZE=`stat -c '%s' $OSC_HOME/wolfclient_$VERSION.tar.gz`
+CHKSUM=`md5sum $OSC_HOME/wolfclient_$VERSION.tar.gz | cut -f 1 -d' '`
 
 
-cat contrib/osc/qtClient.dsc > $OSC_HOME/qtClient.dsc
-echo " $CHKSUM $SIZE wolframe-qtclient_$VERSION.tar.gz" >> $OSC_HOME/qtClient.dsc
+cat contrib/osc/wolfclient.dsc > $OSC_HOME/wolfclient.dsc
+echo " $CHKSUM $SIZE wolfclient_$VERSION.tar.gz" >> $OSC_HOME/wolfclient.dsc
 
 cat contrib/osc/PKGBUILD > $OSC_HOME/PKGBUILD
 echo "md5sums=('$CHKSUM' '$CHKSUM2' '$CHKSUM3')" >> $OSC_HOME/PKGBUILD

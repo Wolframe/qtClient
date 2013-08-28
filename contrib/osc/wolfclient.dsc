@@ -1,7 +1,7 @@
 Format: 1.0
-Source: wolframe-qtclient
+Source: wolfclient
 Version: 0.0.1
-Binary: wolframe-qtclient
+Binary: wolfclient
 Maintainer: contact@wolframe.net
 Architecture: any
 Build-Depends: debhelper (>= 4.1.16),

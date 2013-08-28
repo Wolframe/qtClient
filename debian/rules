@@ -31,7 +31,7 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	qmake-qt4 qtClient.pro -config release PREFIX=/usr LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
+	qmake-qt4 wolfclient.pro -config release PREFIX=/usr LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
 	$(MAKE) LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
 	# --- end custom part for compiling
 
@@ -56,17 +56,17 @@ install: build
 
 	# Add here commands to install the package
 	# The DESTDIR Has To Be Exactly  /usr/src/packages/BUILD/debian/<nameOfPackage>
-	$(MAKE) INSTALL_ROOT=/usr/src/packages/BUILD/debian/wolframe-qtclient \
+	$(MAKE) INSTALL_ROOT=/usr/src/packages/BUILD/debian/wolfclient \
 		LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe \
 		install
 
 	# move things in the main package to a development package
-	mkdir -p /usr/src/packages/BUILD/debian/wolframe-qtclient-dev/usr
-	mkdir -p /usr/src/packages/BUILD/debian/wolframe-qtclient-dev/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
-	mv -f /usr/src/packages/BUILD/debian/wolframe-qtclient/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe/*.so \
-		/usr/src/packages/BUILD/debian/wolframe-qtclient-dev/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
-	mv -f /usr/src/packages/BUILD/debian/wolframe-qtclient/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe/*.so.0.0 \
-		/usr/src/packages/BUILD/debian/wolframe-qtclient-dev/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
+	mkdir -p /usr/src/packages/BUILD/debian/wolfclient-dev/usr
+	mkdir -p /usr/src/packages/BUILD/debian/wolfclient-dev/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
+	mv -f /usr/src/packages/BUILD/debian/wolfclient/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe/*.so \
+		/usr/src/packages/BUILD/debian/wolfclient-dev/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
+	mv -f /usr/src/packages/BUILD/debian/wolfclient/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe/*.so.0.0 \
+		/usr/src/packages/BUILD/debian/wolfclient-dev/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
 
 	# --- end custom part for installing
 
@@ -101,7 +101,7 @@ binary-arch: build install
 #	dh_perl
 	dh_shlibdeps \
 		-L libqtwolfclient -L skeleton \
-		-l /usr/src/packages/BUILD/debian/wolframe-qtclient/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe \
+		-l /usr/src/packages/BUILD/debian/wolfclient/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe \
 		-- --ignore-missing-info -v
 	dh_gencontrol
 	dh_md5sums
