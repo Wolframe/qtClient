@@ -576,7 +576,7 @@ void MainWindow::languageCodesLoaded( QStringList languages )
 	QStringList languageCodes;
 	languageCodes.push_back( DEFAULT_LOCALE ); // default locale, always around
 
-// read list of supported languages based on the qtclient translations
+// read list of supported languages based on the wolfclient translations
 	QDir translationDir( "i18n" );
 	translationDir.setFilter( QDir::Files | QDir::NoDotAndDotDot );
 	translationDir.setSorting( QDir::Name );
@@ -641,7 +641,7 @@ void MainWindow::loadLanguage( QString language )
 	qDebug( ) << "Switching interface language to " << language;
 
 // change language on global level
-	switchTranslator( m_translatorApp, QString( "qtclient.%1.qm" ).arg( language ), "i18n" );
+	switchTranslator( m_translatorApp, QString( "wolfclient.%1.qm" ).arg( language ), "i18n" );
 	switchTranslator( m_translatorQt, QString( "qt_%1.qm" ).arg( language ), "/usr/share/qt/translations/" );
 
 // also set language of the form widget(s)
@@ -1053,7 +1053,7 @@ void MainWindow::on_actionAbout_triggered( )
 
 void MainWindow::on_actionAboutQt_triggered( )
 {
-	QMessageBox::aboutQt( this, tr( "qtclient" ) );
+	QMessageBox::aboutQt( this, tr( "wolfclient" ) );
 }
 
 // -- form handling

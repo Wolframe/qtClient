@@ -6,7 +6,7 @@ CONFIG += qt warn_on plugin
 
 DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
 
-INCLUDEPATH += ../../qtclient ../../libqtwolfclient
+INCLUDEPATH += ../../wolfclient ../../libqtwolfclient
 
 unix:LIBS += -L../../libqtwolfclient -lqtwolfclient
 win32:LIBS += ../../libqtwolfclient/debug/qtwolfclient0.lib

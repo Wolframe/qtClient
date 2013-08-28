@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 	CONFIG += qtestlib
 }
 
-INCLUDEPATH += ../../qtclient
+INCLUDEPATH += ../../wolfclient
 
 QT += core gui
 
@@ -20,7 +20,7 @@ QT += widgets
 
 SOURCES += \	
 	testXmlSerialization.cpp \
-	../../qtclient/DataFormatXML.cpp
+	../../wolfclient/DataFormatXML.cpp
 
 HEADERS += \
 	testXmlSerialization.hpp

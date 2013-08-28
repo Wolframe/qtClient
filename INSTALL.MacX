@@ -1,9 +1,9 @@
 Requirements
 ------------
-  
+
 - XCode
 - Qt for Mac
-  
+
 Build
 -----
 
@@ -20,4 +20,4 @@ Run
 ---
 
 export DYLD_LIBRARY_PATH=plugins/build/Debug/
-build/Debug/qtclient.app/Contents/MacOS/qtclient -c apps/configurator.conf 
+build/Debug/wolfclient.app/Contents/MacOS/wolfclient -c apps/configurator.conf 

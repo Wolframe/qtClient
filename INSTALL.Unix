@@ -195,7 +195,7 @@ Required packages: qt4-gui (4.7.4), qt4-moc (4.7.4), qt4-network (4.7.4),
 
 OpenSSL is part of the system libraries.
 
-Qt misses some I18N programs on 32-bit, so you can't build the qtclient
+Qt misses some I18N programs on 32-bit, so you can't build the wolfclient
 there (WITH_QT=1).
 
 You need 'gmake' (3.82).

@@ -95,8 +95,8 @@ nmake
 
 See also http://qtnode.net/wiki/Qt4_with_Visual_Studio.
 
-Build qtclient
+Build wolfclient
 --------------
 
-C:\Qt\4.8.1\bin\qmake.exe qtClient.pro
+C:\Qt\4.8.1\bin\qmake.exe wolfclient.pro
 nmake

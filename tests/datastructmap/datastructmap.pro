@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 	CONFIG += qtestlib
 }
 
-INCLUDEPATH += ../../qtclient
+INCLUDEPATH += ../../wolfclient
 
 QT += core gui
 
@@ -21,26 +21,26 @@ QT += widgets
 SOURCES += \	
 	testDataStructMap.cpp \
 	DataPathTreeVisitor.cpp \
-	../../qtclient/serialize/DataStructMap.cpp \
-	../../qtclient/serialize/DataPathTree.cpp \
-	../../qtclient/serialize/DataSerializeItem.cpp \
-	../../qtclient/serialize/DataStruct.cpp \
-	../../qtclient/serialize/DataStructDescription.cpp \
-	../../qtclient/serialize/DataStructDescriptionMap.cpp \
-	../../qtclient/serialize/DataStructDescriptionParse.cpp \
-	../../qtclient/serialize/DataStructSerialize.cpp
+	../../wolfclient/serialize/DataStructMap.cpp \
+	../../wolfclient/serialize/DataPathTree.cpp \
+	../../wolfclient/serialize/DataSerializeItem.cpp \
+	../../wolfclient/serialize/DataStruct.cpp \
+	../../wolfclient/serialize/DataStructDescription.cpp \
+	../../wolfclient/serialize/DataStructDescriptionMap.cpp \
+	../../wolfclient/serialize/DataStructDescriptionParse.cpp \
+	../../wolfclient/serialize/DataStructSerialize.cpp
 
 HEADERS += \
 	testDataStructMap.hpp \
 	DataPathTreeVisitor.hpp \
-	../../qtclient/serialize/DataPathTree.hpp \
-	../../qtclient/serialize/DataSerializeItem.hpp \
-	../../qtclient/serialize/DataStructDescription.hpp \
-	../../qtclient/serialize/DataStructDescriptionMap.hpp \
-	../../qtclient/serialize/DataStruct.hpp \
-	../../qtclient/serialize/DataStructMap.hpp \
-	../../qtclient/serialize/DataStructSerialize.hpp \
-	../../qtclient/serialize/VisitorInterface.hpp
+	../../wolfclient/serialize/DataPathTree.hpp \
+	../../wolfclient/serialize/DataSerializeItem.hpp \
+	../../wolfclient/serialize/DataStructDescription.hpp \
+	../../wolfclient/serialize/DataStructDescriptionMap.hpp \
+	../../wolfclient/serialize/DataStruct.hpp \
+	../../wolfclient/serialize/DataStructMap.hpp \
+	../../wolfclient/serialize/DataStructSerialize.hpp \
+	../../wolfclient/serialize/VisitorInterface.hpp
 
 unix|macx:test.commands = ./testDataStructMap -v2
 #missing QtTest4.dll and others

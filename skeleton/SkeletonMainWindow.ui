@@ -17,7 +17,7 @@
    <string>Wolframe Qt Skeleton</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../qtclient/qtclient.qrc">
+   <iconset resource="../wolfclient/wolfclient.qrc">
     <normaloff>:/images/wolframe.png</normaloff>:/images/wolframe.png</iconset>
   </property>
   <property name="documentMode">
@@ -71,7 +71,7 @@
   </widget>
   <action name="actionExit">
    <property name="icon">
-    <iconset resource="../qtclient/qtclient.qrc">
+    <iconset resource="../wolfclient/wolfclient.qrc">
      <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
    </property>
    <property name="text">
@@ -131,7 +131,7 @@
  </widget>
  <resources>
   <include location="../example/example.qrc"/>
-  <include location="../qtclient/qtclient.qrc"/>
+  <include location="../wolfclient/wolfclient.qrc"/>
  </resources>
  <connections/>
 </ui>

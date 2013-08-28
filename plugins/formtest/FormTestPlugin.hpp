@@ -73,7 +73,7 @@ class FormTestPlugin : public QObject, public FormPluginInterface
 	Q_OBJECT
 	Q_INTERFACES( FormPluginInterface )
 #if QT_VERSION >= 0x050000
-	Q_PLUGIN_METADATA( IID "org.wolframe.qtClient.FormPluginInterface/1.0"  )
+	Q_PLUGIN_METADATA( IID "org.wolframe.wolfclient.FormPluginInterface/1.0"  )
 #endif // QT_VERSION >= 0x050000
 	
 	public:

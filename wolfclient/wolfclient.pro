@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-TARGET = qtclient
+TARGET = wolfclient
 
 target.path = $${PREFIX}/bin
 INSTALLS += target
@@ -90,7 +90,7 @@ SOURCES += \
 	LoadMode.cpp \
 	DebugTerminal.cpp \
 	HistoryLineEdit.cpp \
-	qtclient.cpp
+	wolfclient.cpp
 
 HEADERS += \
 	DebugHelpers.hpp \
@@ -151,10 +151,10 @@ HEADERS += \
 	DebugTerminal.hpp \
 	HistoryLineEdit.hpp
 
-win32:RC_FILE=qtclient.rc
+win32:RC_FILE=wolfclient.rc
 
 RESOURCES = \
-	qtclient.qrc
+	wolfclient.qrc
 
 FORMS += \
 	MainWindow.ui \
@@ -163,8 +163,8 @@ FORMS += \
 	PreferencesDialogInterface.ui
 
 TRANSLATIONS += \
-	i18n/qtclient.de_CH.ts \
-	i18n/qtclient.ro_RO.ts
+	i18n/wolfclient.de_CH.ts \
+	i18n/wolfclient.ro_RO.ts
 
 isEmpty(QMAKE_LRELEASE) {
 	win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe

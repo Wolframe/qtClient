@@ -17,7 +17,7 @@
    <string>Manage Server Definitions</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../qtclient/qtclient.qrc">
+   <iconset resource="../wolfclient/wolfclient.qrc">
     <normaloff>:/images/world-setup.png</normaloff>:/images/world-setup.png</iconset>
   </property>
   <property name="modal">
@@ -111,7 +111,7 @@
   <tabstop>deleteBttn</tabstop>
  </tabstops>
  <resources>
-  <include location="../qtclient/qtclient.qrc"/>
+  <include location="../wolfclient/wolfclient.qrc"/>
  </resources>
  <connections>
   <connection>

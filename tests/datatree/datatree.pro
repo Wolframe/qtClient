@@ -10,7 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 	CONFIG += qtestlib
 }
 
-INCLUDEPATH += ../../qtclient
+INCLUDEPATH += ../../wolfclient
 
 QT += core gui
 
@@ -20,7 +20,7 @@ QT += widgets
 
 SOURCES += \	
 	testDataTree.cpp \
-	../../qtclient/DataTree.cpp
+	../../wolfclient/DataTree.cpp
 
 HEADERS += \
 	testDataTree.hpp

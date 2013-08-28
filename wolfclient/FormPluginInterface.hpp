@@ -31,28 +31,31 @@
 
 ************************************************************************/
 
-#include <QApplication>
-#include <QIcon>
+#ifndef _FORM_PLUGIN_INTERFACE_INCLUDED
+#define _FORM_PLUGIN_INTERFACE_INCLUDED
 
-#include "global.hpp"
-#include "MainWindow.hpp"
+#include <QtPlugin>
+#include <QString>
+#include <QByteArray>
+#include <QWidget>
+#include <QHash>
+#include <QVariant>
 
-int main( int argc, char* argv[] ) {
-	QCoreApplication::setOrganizationName( ORGANIZATION_NAME );
-	QCoreApplication::setOrganizationDomain( ORGANIZATION_DOMAIN );
-	QCoreApplication::setApplicationName( APPLICATION_NAME );
+#include "DataLoader.hpp"
+#include "FormCall.hpp"
 
-	Q_INIT_RESOURCE( qtclient );
-	QApplication app( argc, argv );
-	app.setWindowIcon( QIcon( QString( ":/images/wolframe.png" ) ) );
+class FormPluginInterface
+{	
+	public:
+		virtual ~FormPluginInterface( ) { }
+		
+		virtual QString name( ) const = 0;
+		virtual QString windowTitle( ) const = 0;
+		virtual QWidget *createForm( const FormCall &formCall, DataLoader *_dataLoader, bool _debug, QHash<QString,QVariant>* _globals, QWidget *_parent ) = 0;
+		virtual void gotAnswer( const QString& _tag, const QByteArray& _data ) = 0;
+		virtual void gotError( const QString& tag_, const QByteArray& error_ ) = 0;
+};
 
-	int code;
-	do {
-		MainWindow mainWindow;		
-		mainWindow.create( );	
-		mainWindow.show( );
-		code = app.exec( );
-	} while( code == RESTART_CODE );
+Q_DECLARE_INTERFACE( FormPluginInterface, "org.wolframe.wolfclient.FormPluginInterface/1.0" )
 
-	return code;
-}
+#endif // _FORM_PLUGIN_INTERFACE_INCLUDED
