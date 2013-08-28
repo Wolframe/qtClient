@@ -147,8 +147,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/wolframe
 %{_libdir}/wolframe/libskeleton.so.0.0.1
 %{_libdir}/wolframe/libskeleton.so.0
-%{_libdir}/wolframe/libqtwolframeclient.so.0.0.1
-%{_libdir}/wolframe/libqtwolframeclient.so.0
+%{_libdir}/wolframe/libqtwolfclient.so.0.0.1
+%{_libdir}/wolframe/libqtwolfclient.so.0
 %plugindir/designer/libfilechooser.so
 %plugindir/designer/libpicturechooser.so
 
@@ -165,8 +165,8 @@ Requires: %{name} >= %{version}-%{release}
 %defattr( -, root, root )
 %{_libdir}/wolframe/libskeleton.so.0.0
 %{_libdir}/wolframe/libskeleton.so  
-%{_libdir}/wolframe/libqtwolframeclient.so.0.0
-%{_libdir}/wolframe/libqtwolframeclient.so    
+%{_libdir}/wolframe/libqtwolfclient.so.0.0
+%{_libdir}/wolframe/libqtwolfclient.so    
 
 %changelog
 * Tue May 14 2013 Andreas Baumann <abaumann@yahoo.com> 0.0.1-0.1

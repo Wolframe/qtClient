@@ -12,13 +12,13 @@ contains(QT_VERSION,^5\\..*) {
 QT += widgets
 }
 
-unix:LIBS += -L../../libqtwolframeclient -lqtwolframeclient -L../../skeleton -lskeleton
-win32:LIBS += ../../libqtwolframeclient/debug/qtwolframeclient0.lib ../../skeleton/debug/skeleton0.lib
+unix:LIBS += -L../../libqtwolfclient -lqtwolfclient -L../../skeleton -lskeleton
+win32:LIBS += ../../libqtwolfclient/debug/qtwolfclient0.lib ../../skeleton/debug/skeleton0.lib
 
-INCLUDEPATH += ../../libqtwolframeclient ../../skeleton
+INCLUDEPATH += ../../libqtwolfclient ../../skeleton
 
-unix:PRE_TARGETDEPS += ../../libqtwolframeclient/libqtwolframeclient.so ../../skeleton/libskeleton.so
-win32:PRE_TARGETDEPS += ../../libqtwolframeclient/debug/qtwolframeclient0.lib ../../skeleton/debug/skeleton0.lib
+unix:PRE_TARGETDEPS += ../../libqtwolfclient/libqtwolfclient.so ../../skeleton/libskeleton.so
+win32:PRE_TARGETDEPS += ../../libqtwolfclient/debug/qtwolfclient0.lib ../../skeleton/debug/skeleton0.lib
 
 SOURCES += \
 	main.cpp

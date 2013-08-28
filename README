@@ -1,6 +1,6 @@
-libqtwolframeclient	- wolframe protocol library
+libqtwolfclient		- wolframe protocol library
 skeleton                - skeleton for building wolframe qt clients
-example                 - example on how to use skeleton/libqtwolframeclient
+example                 - example on how to use skeleton/libqtwolfclient
 qtclient                - the generic client
 plugins                 - various plugins (designer custom widgets)
 

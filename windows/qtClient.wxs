@@ -79,7 +79,7 @@ Project Wolframe.
 							</Component>
 							<Component Id="WolframeQtDlls" Guid="{c1c6449f-b745-4885-903a-cb28638289ab}">
 								<File Id="skeleton0.dll" Name="skeleton0.dll" DiskId="1" Source="..\skeleton\$(var.builddir)\skeleton0.dll"/>
-								<File Id="qtwolframeclient0.dll" Name="qtwolframeclient0.dll" DiskId="1" Source="..\libqtwolframeclient\$(var.builddir)\qtwolframeclient0.dll"/>
+								<File Id="qtwolfclient0.dll" Name="qtwolfclient0.dll" DiskId="1" Source="..\libqtwolfclient\$(var.builddir)\qtwolfclient0.dll"/>
 							</Component>
 							
 							<?ifdef var.with_ssl?>				

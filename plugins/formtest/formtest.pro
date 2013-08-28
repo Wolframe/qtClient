@@ -6,11 +6,11 @@ CONFIG += qt warn_on plugin
 
 DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_EXPORT BUILD_AS_PLUGIN
 
-INCLUDEPATH += ../../qtclient ../../libqtwolframeclient
+INCLUDEPATH += ../../qtclient ../../libqtwolfclient
 
-unix:LIBS += -L../../libqtwolframeclient -lqtwolframeclient
-win32:LIBS += ../../libqtwolframeclient/debug/qtwolframeclient0.lib
-macx:LIBS += ../../libqtwolframeclient/build/Release/libqtwolframeclient0.dylib
+unix:LIBS += -L../../libqtwolfclient -lqtwolfclient
+win32:LIBS += ../../libqtwolfclient/debug/qtwolfclient0.lib
+macx:LIBS += ../../libqtwolfclient/build/Release/libqtwolfclient0.dylib
 
 QT += core gui network
 

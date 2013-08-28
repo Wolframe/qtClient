@@ -2,11 +2,11 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS = libqtwolframeclient skeleton example plugins qtclient tests
+SUBDIRS = libqtwolfclient skeleton example plugins qtclient tests
 
-skeleton.depends = libqtwolframeclient
-example.depends = libqtwolframeclient skeleton
-qtclient.depends = libqtwolframeclient plugins
+skeleton.depends = libqtwolfclient
+example.depends = libqtwolfclient skeleton
+qtclient.depends = libqtwolfclient plugins
 tests.depends = qtclient
 
 OTHER_FILES += \

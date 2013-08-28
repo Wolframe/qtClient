@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-TARGET = qtwolframeclient
+TARGET = qtwolfclient
 
 isEmpty(LIBDIR) {
   LIBDIR = $${PREFIX}/lib

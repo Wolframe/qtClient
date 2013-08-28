@@ -21,26 +21,26 @@ contains(QT_VERSION,^5\\..*) {
 QT += widgets
 }
 
-unix:LIBS += -L../libqtwolframeclient -lqtwolframeclient
-win32:LIBS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+unix:LIBS += -L../libqtwolfclient -lqtwolfclient
+win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib
 
-INCLUDEPATH += ../libqtwolframeclient
+INCLUDEPATH += ../libqtwolfclient
 
-unix:PRE_TARGETDEPS += ../libqtwolframeclient/libqtwolframeclient.so
-win32:PRE_TARGETDEPS += ../libqtwolframeclient/debug/qtwolframeclient0.lib
+unix:PRE_TARGETDEPS += ../libqtwolfclient/libqtwolfclient.so
+win32:PRE_TARGETDEPS += ../libqtwolfclient/debug/qtwolfclient0.lib
 
 SOURCES += \
 	SkeletonMainWindow.cpp \
 	loginDialog.cpp \
 	serverDefinitionDialog.cpp \
 	manageServerDefsDialog.cpp
-	
+
 HEADERS += \
 	SkeletonMainWindow.hpp \
 	loginDialog.hpp \
 	serverDefinitionDialog.hpp \
 	manageServerDefsDialog.hpp
-	
+
 FORMS += \
 	SkeletonMainWindow.ui \
 	loginDialog.ui \

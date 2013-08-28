@@ -100,7 +100,7 @@ binary-arch: build install
 	dh_installdeb
 #	dh_perl
 	dh_shlibdeps \
-		-L libqtwolframeclient -L skeleton \
+		-L libqtwolfclient -L skeleton \
 		-l /usr/src/packages/BUILD/debian/wolframe-qtclient/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe \
 		-- --ignore-missing-info -v
 	dh_gencontrol
