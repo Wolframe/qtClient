@@ -278,6 +278,10 @@ void ManageServerDefsDialog::updateUIstate()
 			}
 		}
 	}
-	else
-		ui->showParamLbl->setText( tr( "No definition selected." ) );
+	else	{
+		if ( m_localParams.count())
+			ui->showParamLbl->setText( tr( "No definition selected." ) );
+		else
+			ui->showParamLbl->setText( tr( "No servers defined." ) );
+	}
 }
