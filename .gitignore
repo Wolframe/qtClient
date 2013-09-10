@@ -20,7 +20,7 @@ Makefile.Shared
 Makefile.Static
 .history
 qrc_*.cpp
-qtclient/qtclient
+wolfclient/wolfclient
 skeleton/skeleton
 tests/datatree/testDataTree
 tests/datastructmap/testDataStructMap
