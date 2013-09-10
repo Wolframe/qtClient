@@ -14,10 +14,15 @@ contains(QT_VERSION,^5\\..*) {
 QT += widgets
 }
 
-unix:LIBS += -L../libqtwolfclient -lqtwolfclient -L../skeleton -lskeleton
+QMAKE_RPATHDIR += $$QMAKE_LIBDIR_X11
+
+QMAKE_LIBDIR += ../libqtwolfclient
+QMAKE_LIBDIR += ../skeleton
+unix:LIBS += -lqtwolfclient -lskeleton
+#unix:LIBS += -L../libqtwolfclient -lqtwolfclient -L../skeleton -lskeleton
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib ../skeleton/debug/skeleton0.lib
 
-unix;PRE_TARGETDEPS += ../libqtwolfclient/libqtwolfclient.so ../skeleton/libskeleton.so
+#unix;PRE_TARGETDEPS += ../libqtwolfclient/libqtwolfclient.so ../skeleton/libskeleton.so
 win32:PRE_TARGETDEPS += ../libqtwolfclient/debug/qtwolfclient0.lib ../skeleton/debug/skeleton0.lib
 
 SOURCES += \

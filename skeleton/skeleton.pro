@@ -21,12 +21,16 @@ contains(QT_VERSION,^5\\..*) {
 QT += widgets
 }
 
-unix:LIBS += -L../libqtwolfclient -lqtwolfclient
+QMAKE_LIBDIR = ../libqtwolfclient
+#unix:LIBS += -L../libqtwolfclient -lqtwolfclient
+unix:LIBS += -lqtwolfclient
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib
 
 INCLUDEPATH += ../libqtwolfclient
 
-unix:PRE_TARGETDEPS += ../libqtwolfclient/libqtwolfclient.so
+QMAKE_RPATHDIR += $$QMAKE_LIBDIR_X11
+
+#unix:PRE_TARGETDEPS += ../libqtwolfclient/libqtwolfclient.so
 win32:PRE_TARGETDEPS += ../libqtwolfclient/debug/qtwolfclient0.lib
 
 SOURCES += \
