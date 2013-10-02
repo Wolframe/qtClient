@@ -27,3 +27,6 @@ echo " $CHKSUM $SIZE wolfclient_$VERSION.tar.gz" >> $OSC_HOME/wolfclient.dsc
 
 cat contrib/osc/PKGBUILD > $OSC_HOME/PKGBUILD
 echo "md5sums=('$CHKSUM' '$CHKSUM2' '$CHKSUM3')" >> $OSC_HOME/PKGBUILD
+
+# the revision of the git branch we are currently building (master hash at the moment)
+git rev-parse HEAD > $OSC_HOME/GIT_VERSION
