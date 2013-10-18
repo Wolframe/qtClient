@@ -11,7 +11,6 @@ Table of Contents
   Build instructions for specific Linux Distributions
     RHEL/Centos/SL 5
     RHEL/Centos/SL 6
-    Fedora 17
     Fedora 18
     Fedora 19
     Ubuntu 10.04.1 LTS
@@ -70,12 +69,6 @@ RHEL/Centos/SL 6
 ----------------
 
 Qt (4.2.1) is too old, compile your own one.
-
-Fedora 17
----------
-
-Required pacakges: qt4-devel (4.8.2)
-Optional packages: openssl-devel (1.0.0j)
 
 Fedora 18
 ---------
