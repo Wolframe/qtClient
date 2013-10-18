@@ -1,3 +1,5 @@
+TOPDIR = ..\..
+
 # configuration, adapt before building
 
 # base installation dir of WIX
@@ -33,6 +35,9 @@ SETUPBLD = "$(WIX_DIR)\bin\setupbld.exe"
 
 WIX_FLAGS = \
 	-dqt_dir=$(QT_DIR)
+
+WIX_FLAGS = $(WIX_FLAGS) \
+	-dtopdir=$(TOPDIR)
 	
 !IFDEF DEBUG
 WIX_FLAGS = $(WIX_FLAGS) \
