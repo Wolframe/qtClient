@@ -3,19 +3,23 @@
 VERSION=0.0.1
 OSC_HOME=$HOME/home:andreas_baumann/wolfclient
 
+if test "x$TMPDIR" = "x"; then
+	TMPDIR=/tmp
+fi
+
 rm -f wolfclient-$VERSION.tar.gz
 rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.orig.tar.gz
 rm -rf $OSC_HOME/wolfclient_$VERSION-$OS.debian.tar.gz
         
 test ! -f Makefile || make distclean
-mkdir /tmp/wolfclient-$VERSION
-cp -a * /tmp/wolfclient-$VERSION
-cd /tmp
+mkdir $TMPDIR/wolfclient-$VERSION
+cp -a * $TMPDIR/wolfclient-$VERSION
+cd $TMPDIR
 tar zcf wolfclient-$VERSION.tar.gz wolfclient-$VERSION
 cd -
-mv /tmp/wolfclient-$VERSION.tar.gz .
-rm -rf /tmp/wolfclient-$VERSION
+mv $TMPDIR/wolfclient-$VERSION.tar.gz .
+rm -rf $TMPDIR/wolfclient-$VERSION
 
 cp wolfclient-$VERSION.tar.gz $OSC_HOME/wolfclient_$VERSION.tar.gz
 cp packaging/redhat/wolfclient.spec $OSC_HOME/wolfclient.spec
@@ -28,13 +32,14 @@ CHKSUM=`md5sum $OSC_HOME/wolfclient_$VERSION.orig.tar.gz | cut -f 1 -d' '`
 cat packaging/obs/wolfclient.dsc > $OSC_HOME/wolfclient.dsc
 echo " $CHKSUM $SIZE wolfclient_$VERSION.orig.tar.gz" >> $OSC_HOME/wolfclient.dsc
 
-rm -rf /tmp/debian
-cp -a packaging/debian /tmp/.
+
+rm -rf $TMPDIR/debian
+cp -a packaging/debian $TMPDIR/.
 OLDDIR=$PWD
-cd /tmp
-tar zcf /tmp/wolfclient_$VERSION.debian.tar.gz debian
+cd $TMPDIR
+tar zcf $TMPDIR/wolfclient_$VERSION.debian.tar.gz debian
 cd $OLDDIR
-mv -f /tmp/wolfclient_$VERSION.debian.tar.gz $OSC_HOME/.
+mv -f $TMPDIR/wolfclient_$VERSION.debian.tar.gz $OSC_HOME/.
 DEBIAN_SIZE=`stat -c '%s' $OSC_HOME/wolfclient_$VERSION.debian.tar.gz`
 DEBIAN_CHKSUM=`md5sum  $OSC_HOME/wolfclient_$VERSION.debian.tar.gz | cut -f 1 -d' '`
 echo " $DEBIAN_CHKSUM $DEBIAN_SIZE wolfclient_$VERSION.debian.tar.gz" >> $OSC_HOME/wolfclient.dsc
