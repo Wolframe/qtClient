@@ -136,18 +136,23 @@ public:
 		DataStruct* m_ptr;
 	};
 
-	const_iterator begin() const;
-	const_iterator end() const;
-	iterator begin();
-	iterator end();
+	const_iterator structbegin() const;
+	const_iterator structend() const;
+	iterator structbegin();
+	iterator structend();
+
+	const_iterator arraybegin() const;
+	const_iterator arrayend() const;
+	iterator arraybegin();
+	iterator arrayend();
 
 	int size() const					{return m_size;}
 
 	///\brief Print the contents of a structure (structures in curly brackets as in the simpleform language)
-	void print( QString& out, const QString& indent, const QString& newitem, int level) const;
+	void print( QString& out, const QString& indent, const QString& newitem, int level, int maxElemSize=-1) const;
 
 	///\brief Return the contents of a structure as string (format as in print with no indent and newlines)
-	QString toString() const;
+	QString toString( int maxElemSize=-1) const;
 
 private:
 	friend class DataStructDescription;

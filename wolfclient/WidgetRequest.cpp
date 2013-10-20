@@ -34,7 +34,12 @@
 #include "WidgetVisitor.hpp"
 #include "DebugTerminal.hpp"
 #include "serialize/DataSerializeItem.hpp"
-#include "DataTreeSerialize.hpp"
+#include "serialize/ActionDefinition.hpp"
+#include "serialize/ActionResultDefinition.hpp"
+#include "serialize/DataStruct.hpp"
+#include "serialize/DataStructSerialize.hpp"
+#include "serialize/DataStructMap.hpp"
+#include "serialize/CondProperties.hpp"
 #include "DataFormatXML.hpp"
 #include "DebugHelpers.hpp"
 #include <QVariant>
@@ -118,12 +123,18 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 	QString docType = action.doctype();
 	QString rootElement = action.rootelement();
 	bool isStandalone = rootElement.isEmpty();
-	if (!action.isValid())
+	DataStruct data( &action.structure());
+	if (!getDataStruct( data, &visitor))
 	{
-		qCritical() << "invalid request for action doctype=" << docType << "root=" << rootElement;
+		qCritical() << "failed to fill data structure from visitor interface";
 		return rt;
 	}
-	QList<DataSerializeItem> elements = getWidgetDataSerialization( action.structure(), visitor);
+	QList<DataSerializeItem> elements;
+	if (!getDataStructSerialization( elements, data))
+	{
+		qCritical() << "failed to serialize data structure in request";
+		return rt;
+	}
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 	foreach (const DataSerializeItem& ei, elements)
 	{
@@ -490,7 +501,7 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 							TRACE_ASSIGNMENT( "PROPERTY", stk.last().name, item.value());
 							if (!visitor.setProperty( stk.last().name, item.value()))
 							{
-								logError( stk, QString( "failed to set property (content value)'") + stk.last().name + "'");
+								logError( stk, QString( "failed to set property (content value) '") + stk.last().name + "'");
 							}
 						}
 						else
@@ -507,188 +518,6 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 	return true;
 }
 
-struct AssignIterStackElem
-{
-	typedef QList<WidgetDataAssignmentInstr>::const_iterator AssignIter;
-	AssignIter iter;
-	int arraypos;
-
-	AssignIterStackElem()					:arraypos(0){}
-	AssignIterStackElem( AssignIter iter_)			:iter(iter_),arraypos(0){}
-	AssignIterStackElem( const AssignIterStackElem& o)	:iter(o.iter),arraypos(o.arraypos){}
-};
-
-static const char* getPropertyAccessErrorReason( WidgetVisitor& visitor, const QString& prop)
-{
-	if (!visitor.getPropertyOwnerWidget( prop))
-	{
-		return "owner widget undefined (invalid widget path)";
-	}
-	else
-	{
-		return "accessor function failed";
-	}
-}
-
-static bool setValidatedWidgetAnswer( WidgetVisitor& visitor, const QString& resultschema, const QByteArray& answer)
-{
-	bool rt = true;
-	ActionResultDefinition resultdef( resultschema);
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-	qDebug( ) << "answer (original, from dataload): " << answer.constData( );
-	qDebug( ) << "answer (as string): " << resultschema;
-	qDebug( ) << "answer (structure, tostring): " << resultdef.toString( );	
-#endif
-
-	QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-	foreach( DataSerializeItem item, itemlist ) {
-		qDebug( ) << "data serialization structure: " << shortenDebugMessageArgument( item.toString( ) );
-	}
-#endif
-	
-	visitor.clear();
-	qDebug() << "feeding widget " << visitor.objectName() << "with validated answer";
-
-	QList<WidgetDataAssignmentInstr> assignments = getWidgetDataAssignments( resultdef.structure(), itemlist);
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-	foreach( WidgetDataAssignmentInstr instr, assignments ) {
-		qDebug( ) << "widget data assign instr: " << instr.toString( );
-	}
-#endif
-
-	QList<AssignIterStackElem> astk;
-
-	QList<WidgetDataAssignmentInstr>::const_iterator ai = assignments.begin(), ae = assignments.end();
-	QList<int> aidxposar;
-	for (; ai != ae; ++ai)
-	{
-		// clear all data of owner widgets of assignments:
-		//[+]QWidget* ow = visitor.getPropertyOwnerWidget( ai->name);
-		//[+]if (ow)
-		//[+]{
-		//[+]	WidgetVisitor owv( ow);
-		//[+]	owv.clear();
-		//[+]}
-
-		// initialize array index counter stack:
-		aidxposar.push_back(0);
-		TRACE_ASSIGNMENT( QString("answer assignment ") + WidgetDataAssignmentInstr::typeName( ai->type), ai->name, shortenDebugMessageArgument( ai->value));
-	}
-	for (ai = assignments.begin(); ai != ae; ++ai)
-	{
-		switch (ai->type)
-		{
-			case WidgetDataAssignmentInstr::Enter:
-				if (ai->arraysize > 0)
-				{
-					TRACE_VALUE( "enter", ai->name)
-					if (!visitor.enter( ai->name, true))
-					{
-						qCritical() << "failed to find widget substructure" << ai->name << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
-						return false;
-					}
-					astk.push_back( AssignIterStackElem( ai));
-				}
-				else
-				{
-					qDebug() << "widget assignment skiping empty array" << ai->name;
-					//...if array is empty then skip it
-					int taglevel = 0;
-					QList<WidgetDataAssignmentInstr>::const_iterator ac = ai;
-					for (; ac != ae; ++ac)
-					{
-						if (ac->type == WidgetDataAssignmentInstr::Enter)
-						{
-							++taglevel;
-						}
-						else if (ac->type == WidgetDataAssignmentInstr::Leave)
-						{
-							--taglevel;
-						}
-						if (taglevel == 0)
-						{
-							ai = ac;
-							break;
-						}
-					}
-					if (ac == ae) break;
-				}
-				break;
-
-			case WidgetDataAssignmentInstr::Leave:
-				TRACE_VALUE( "leave", ai->name)
-				visitor.leave( true);
-				if (astk.back().arraypos+1 < astk.back().iter->arraysize)
-				{
-					TRACE_VALUE( "enter (again)", astk.back().iter->name)
-					visitor.enter( astk.back().iter->name, true);
-					astk.back().arraypos++;
-					ai = astk.back().iter;
-				}
-				else
-				{
-					astk.pop_back();
-				}
-				break;
-
-			case WidgetDataAssignmentInstr::Assign:
-				if (ai->value.type() == QVariant::List)
-				{
-					if (astk.isEmpty())
-					{
-						TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
-						if (!visitor.setProperty( ai->name, ai->value))
-						{
-							qCritical() << "failed to set property (list assignment)" << ai->name  << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
-							rt = false;
-						}
-					}
-					else
-					{
-						int apos = aidxposar.at( ai-assignments.begin());
-						QVariant aelem = ai->value.toList().at( apos);
-						if (aelem.isValid())
-						{
-							TRACE_ASSIGNMENT( "set property", ai->name, aelem)
-							if (!visitor.setProperty( ai->name, aelem))
-							{
-								qCritical() << "failed to set property (list element assignment in array)" << ai->name << "[" << apos << "] value=" << shortenDebugMessageArgument(aelem)  << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
-								rt = false;
-							}
-						}
-						else
-						{
-							TRACE_VALUE( "skip set property (undefined value)", ai->name)
-						}
-						++aidxposar[ ai-assignments.begin()];
-					}
-				}
-				else
-				{
-					if (!astk.isEmpty())
-					{
-						int apos = aidxposar.at( ai-assignments.begin());
-						if (apos)
-						{
-							qCritical() << "referencing element out of range" << ai->name << "(" << apos << ")";
-							break;
-						}
-						++aidxposar[ ai-assignments.begin()];
-					}
-					TRACE_ASSIGNMENT( "set property", ai->name, ai->value)
-					if (!visitor.setProperty( ai->name, ai->value))
-					{
-						qCritical() << "failed to set property (single element)" << ai->name << ai->value << "(explanation:" << getPropertyAccessErrorReason( visitor, ai->name) << ")";
-						rt = false;
-					}
-				}
-				break;
-		}
-	}
-	return rt;
-}
-
 bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 {
 	QWidget* widget = visitor.widget();
@@ -696,7 +525,34 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 
 	if (resultschema.isValid())
 	{
-		return setValidatedWidgetAnswer( visitor, resultschema.toString(), answer);
+		QString resultschemastr = resultschema.toString();
+		foreach (const QString& cond, getConditionProperties( resultschemastr))
+		{
+			QWidget* wdg = visitor.getPropertyOwnerWidget( cond);
+			if (wdg)
+			{
+				WidgetVisitor vv( wdg);
+				vv.clear();
+			}
+		}
+		visitor.clear();
+		qDebug() << "feeding widget " << visitor.objectName() << "with rule based validated serialization of answer";
+
+		ActionResultDefinition resultdef( resultschema.toString());
+		DataStruct data( &resultdef.structure());
+		QList<DataSerializeItem> itemlist = getXMLSerialization( resultdef.doctype(), resultdef.rootelement(), answer);
+		
+		if (!fillDataStructSerialization( data, itemlist))
+		{
+			qCritical() << "failed to fill data structure with validated serialization of answer";
+			return false;
+		}
+		if (!putDataStruct( data, &visitor))
+		{
+			qCritical() << "failed to initialize widgets with data of answer";
+			return false;
+		}
+		return true;
 	}
 	else
 	{

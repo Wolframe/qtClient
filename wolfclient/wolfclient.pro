@@ -41,7 +41,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 SOURCES += \
-	DebugHelpers.cpp \
 	MainWindow.cpp \
 	FormLoader.cpp \
 	FileFormLoader.cpp \
@@ -87,8 +86,9 @@ SOURCES += \
 	serialize/DataStructMap.cpp \
 	serialize/DataPathTree.cpp \
 	serialize/DataSerializeItem.cpp \
-	DataTree.cpp \
-	DataTreeSerialize.cpp \
+	serialize/ActionResultDefinition.cpp \
+	serialize/ActionDefinition.cpp \
+	serialize/CondProperties.cpp \
 	FormCall.cpp \
 	FormWidget.cpp \
 	PreferencesDialog.cpp \
@@ -96,6 +96,7 @@ SOURCES += \
 	settings.cpp \
 	LoadMode.cpp \
 	DebugTerminal.cpp \
+	DebugHelpers.cpp \
 	HistoryLineEdit.cpp \
 	wolfclient.cpp
 
@@ -147,8 +148,9 @@ HEADERS += \
 	serialize/DataPathTree.hpp \
 	serialize/DataSerializeItem.hpp \
 	serialize/VisitorInterface.hpp \
-	DataTree.hpp \
-	DataTreeSerialize.hpp \
+	serialize/ActionResultDefinition.hpp \
+	serialize/ActionDefinition.hpp \
+	serialize/CondProperties.hpp \
 	FormCall.hpp \
 	FormWidget.hpp \
 	PreferencesDialog.hpp \

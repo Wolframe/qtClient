@@ -1,4 +1,5 @@
 #include "DataFormatXML.hpp"
+#include "DebugHelpers.hpp"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -102,7 +103,7 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 		
 		if( xml.isStartElement( ) ) {
 
-// push value
+			// push value:
 			QString::const_iterator ti = value.begin( ), te = value.end( );
 			for( ; ti != te && ti->isSpace( ); ti++ ) ;
 			if( ti != te ) {
@@ -116,11 +117,12 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 						
 			++tagLevel;
 
-// check root element
 			QString tagname = xml.name().toString();
-			if( tagLevel == 1 ) {
-				// TODO Check document type (!DOCTYPE), really? The question would be how.
-				if( !rootElement.isEmpty( ) && tagname != rootElement ) {
+			if (tagLevel == 1)
+			{
+				if (!rootElement.isEmpty( ) && tagname != rootElement)
+				{
+					// check root element:
 					qCritical( ) << "XML root element" << tagname << "does not match to defined:" << rootElement;
 					return rt;
 				}
@@ -131,33 +133,36 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 				rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, tagname ) );
 			}
 
-// push attributes (TODO: really, the attributes of the root element have to appear here!?)
+			// push attributes:
 			getXMLAttributes( rt, xml.attributes( ) );
 			
 			lastElementWasOpenTag = true;
 			
-		} else if( xml.isEndElement( ) ) {
-
-// output content
-			QString::const_iterator ti = value.begin( ), te = value.end( );
-			for( ; ti != te && ti->isSpace( ); ti++ ) ;
-			if( ti != te || lastElementWasOpenTag ) {
-				rt.push_back( DataSerializeItem( DataSerializeItem::Value, value ) );
+		}
+		else if (xml.isEndElement())
+		{
+			// output non empty content gathered:
+			if (value.size())
+			{
+				QString::const_iterator ti = value.begin( ), te = value.end( );
+				for( ; ti != te && ti->isSpace( ); ti++ ) ;
+				if (ti != te || lastElementWasOpenTag)
+				{
+					rt.push_back( DataSerializeItem( DataSerializeItem::Value, value ) );
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-				qDebug( ) << "XML Content (end elem)" << value;
+					qDebug( ) << "XML Content (end elem)" << shortenDebugMessageArgument( value);
 #endif
+				}
+				value.clear( );
 			}
-			
-			value.clear( );
-			
-// close tag
+			// close tag
 			--tagLevel;
 			
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 			qDebug( ) << "XML CloseTag";
 #endif
 
-//... root element ignored. so is the end element belonging to root element.
+			//... root element ignored. so is the end element belonging to root element.
 			if( tagLevel > 0 ) {
 				rt.push_back( DataSerializeItem( DataSerializeItem::CloseTag, "" ) );
 			}
@@ -165,12 +170,13 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 			lastElementWasOpenTag = false;
 			
 		} else if( xml.isCDATA( ) || xml.isCharacters( ) || xml.isWhitespace( ) ) {
+			// gather content
 			value.append( xml.text( ) );
 		}
 	}
 	
 	if( xml.hasError( ) ) {
-// don't return errornous deserializations
+		// don't return errornous deserializations
 		qCritical( ) 	<< "XML error occurred in line"
 				<< xml.lineNumber( ) << ", column"
 				<< xml.columnNumber( ) << ":"

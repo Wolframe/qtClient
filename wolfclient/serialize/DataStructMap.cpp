@@ -1,5 +1,6 @@
 #include "serialize/DataStructMap.hpp"
 #include "serialize/DataStructDescriptionMap.hpp"
+#include "DebugHelpers.hpp"
 #include <QDebug>
 #include <QStringList>
 
@@ -53,7 +54,8 @@ static QString relativeVariableRef( const DataPath& pred, const QString& variabl
 	QStringList variablePath = variableRef.split( '.');
 	if (variablePath.size() < pred.size())
 	{
-		qCritical() << "internal: wrong common ancestor calculation in variable reference (size)";
+		qCritical() << "internal: wrong common ancestor calculation in variable reference (size):" << pred.join("/") << variableRef;
+		return QString();
 	}
 	QStringList::const_iterator pi = pred.begin(), pe = pred.end();
 	QStringList::const_iterator vi = variablePath.begin(), ve = variablePath.end();
@@ -62,6 +64,7 @@ static QString relativeVariableRef( const DataPath& pred, const QString& variabl
 		if (*pi != *vi)
 		{
 			qCritical() << "internal: wrong common ancestor calculation in variable reference (node values)";
+			return QString();
 		}
 	}
 	QString rt;
@@ -79,158 +82,418 @@ static QString relativeVariableRef( const DataPath& pred, const QString& variabl
 }
 
 // forward declarations:
-static bool assignDataStruct( const DataPath& pred, DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi, bool writemode);
-static bool assignDataGroupElement( const DataPath& pred, const DataPath& group, DataStruct* elem, const DataStructDescription::Element* elemdescr, const DataStructDescriptionMap& descrmap, VisitorInterface* vi, bool writemode);
-static bool assignDataStruct( DataStruct* data, VisitorInterface* vi, bool writemode);
-// static bool assignElement( DataStruct* data, VisitorInterface* vi, bool writemode);
-static bool assignElementVariable( const DataPath& pred, const QString& group, DataStruct* elem, const DataStructDescription::Element* elemdescr, VisitorInterface* vi, bool writemode);
+static bool readDataStruct( const DataPath& pred, DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi);
+static bool writeDataStruct( const DataPath& pred, const DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi);
 
 
-static bool assignElementVariable( const DataPath& pred, const QString& elemname, DataStruct* elem, const DataStructDescription::Element* elemdescr, VisitorInterface* vi, bool writemode)
+static bool readDataGroupElement( const DataPath& pred, const DataPath& group, DataStruct* elem, const DataStructDescription::Element* elemdescr, const DataStructDescriptionMap& descrmap, VisitorInterface* vi)
 {
-	/*[-]*/elem->check();
+	DataPath totpath( pred);
 
-	if (elemdescr->type == DataStructDescription::variableref_)
+	enum ElemCategory {AnyStruct,Atomic,AtomicInSEStruct,ArrayInSEStruct,SEStructInArray};
+	ElemCategory catg = AnyStruct;
+
+	if (elemdescr->substruct && elemdescr->substruct->size() == 1 && !elemdescr->substruct->at(0).substruct)
 	{
-		// ... special handling of an array of atomic values
-		QString relvar = relativeVariableRef( pred, elemdescr->variableref);
-		QString var = elemname;
-		if (var.size() && relvar.size()) var.append( ".");
-		var.append( relvar);
-
-		if (writemode)
+		//... special case with structs with one atomic element.
+		//	there the grouping addresses the element in the structure
+		if (elemdescr->array())
 		{
-			if (!vi->setProperty( var, elem->value()))
-			{
-				qCritical() << "failed to set property" << var;
-				return false;
-			}
+			catg = SEStructInArray;
+		}
+		else if (elemdescr->substruct->at(0).array())
+		{
+			catg = ArrayInSEStruct;
 		}
 		else
 		{
-			if (!elem->setValue( vi->property( var)))
-			{
-				qCritical() << "failed to get property" << var;
-				return false;
-			}
-			elem->setInitialized();
+			catg = AtomicInSEStruct;
 		}
+		elemdescr = &elemdescr->substruct->at(0);
 	}
-	return true;
-}
-
-static bool assignDataGroupElement( const DataPath& pred, const DataPath& group, DataStruct* elem, const DataStructDescription::Element* elemdescr, const DataStructDescriptionMap& descrmap, VisitorInterface* vi, bool writemode)
-{
-	DataPath totpath( pred);
-	totpath.append( group);
-
-	if (elemdescr->array())
+	else if (elemdescr->type == DataStructDescription::variableref_)
 	{
+		catg = Atomic;
+	}
+	if (catg == AnyStruct)
+	{
+		totpath.append( group);
 		int ptsize = group.size()-1;
-		// ... in case of an array, the grouping repeated
-		// element of the array is considered to be the
-		// last node of the common ancestor path.
-		// with the predecessor elements we select the array
-		// and with the last element the array elements.
-		// This is an implicit assuption that makes sense.
-		// For other cases we would need a construct in the
-		// structure description to explicitely define the
-		// loop grouping element of the array.
 		if (ptsize < 0)
 		{
 			qCritical() << "array elements not grouped (no common ancestor path)";
 			return false;
 		}
-
-		if (!enterDataPath( pred, group, ptsize, vi, writemode))
+		if (!enterDataPath( pred, group, ptsize, vi, false))
 		{
 			return false;
 		}
-		QString arrayname = group.at( ptsize);
-		bool vi_enter = true;
-		int ai = 0, ae = elem->size();
-		for (; ai != ae; ++ai)
+		QString itemname = group.at( ptsize);
+		bool vi_enter = vi->enter( itemname, false);
+		if (vi_enter)
 		{
-			if (vi_enter)
+			if (elemdescr->array())
 			{
-				vi_enter = vi->enter( arrayname, writemode);
-				if (!vi_enter)
+				for (int ai = 0; vi_enter; ++ai)
 				{
-					qCritical() << "failed to assign all elements of array" << arrayname << "at" << dataPathString( pred, group, ptsize);
-					return false;
-				}
-			}
-			if (!vi_enter)
-			{
-				if (elemdescr->type == DataStructDescription::variableref_)
-				{
-					// ... special handling of an array of atomic values
-					if (!assignElementVariable( totpath, arrayname, elem, elemdescr, vi, writemode))
+					elem->push();
+					if (elemdescr->substruct)
 					{
-						qCritical() << "failed to assign array element data element" << arrayname << "[" << ai << "] at" << dataPathString( pred, group, ptsize);
+						if (!readDataStruct( totpath, elem->back(), descrmap, vi))
+						{
+							qCritical() << "failed to read" << itemname << "[" << ai << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+							return false;
+						}
+						elem->back()->setInitialized();
+					}
+					else if (elemdescr->type == DataStructDescription::variableref_)
+					{
+						// ... in an atomic array the ancessor path is always complete. So the property name is here the empty string always !
+						elem->back()->setValue( vi->property( ""));
+						elem->back()->setInitialized();
+					}
+					else if (elemdescr->type == DataStructDescription::atomic_)
+					{
+						// ... in case of atomic value array we just have to take the default and mark it as initialized 
+						elem->back()->setInitialized();
+					}
+					else
+					{
+						qCritical() << "cannot handle element of this type in group" << group << "at" << pred;
 						return false;
 					}
-					continue;
+					vi->leave( false);
+					vi_enter = vi->enter( itemname, false);
+					while (!vi_enter && ptsize)
+					{
+						vi->leave( false);
+						--ptsize;
+						vi_enter = vi->enter( group.at( ptsize), false);
+						itemname = group.at( ptsize) + "." + itemname;
+					}
+				}
+			}
+			else
+			{
+				if (elemdescr->substruct)
+				{
+					if (!readDataStruct( totpath, elem, descrmap, vi))
+					{
+						qCritical() << "failed to read structure at" << dataPathString( totpath, DataPath(), totpath.size());
+						return false;
+					}
+					elem->setInitialized();
+				}
+				else if (elemdescr->type == DataStructDescription::variableref_)
+				{
+					// ... in an atomic array the ancessor path is always complete. So the property name is here the empty string always !
+					elem->setValue( vi->property( ""));
+					elem->setInitialized();
+				}
+				else if (elemdescr->type == DataStructDescription::atomic_)
+				{
+				// ... in case of atomic value we just have to take the default and mark it as initialized 
+					elem->setInitialized();
 				}
 				else
 				{
-					qCritical() << "failed to enter array data element" << arrayname << "[" << ai << "] at" << dataPathString( pred, group, ptsize);
-				}
-				return false;
-			}
-			if (elemdescr->substruct)
-			{
-				if (!assignDataStruct( totpath, elem->at( ai), descrmap, vi, writemode))
-				{
-					qCritical() << "failed to assign" << arrayname << "[" << ai << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
-				}
-				if (!writemode) elem->setInitialized();
-			}
-			else if (elemdescr->type == DataStructDescription::variableref_)
-			{
-				if (!assignElementVariable( totpath, "", elem, elemdescr, vi, writemode))
-				{
-					qCritical() << "failed to assign array element data element" << arrayname << "[" << ai << "] at" << dataPathString( pred, group, ptsize);
+					qCritical() << "cannot handle element of this type in group" << group << "at" << pred;
 					return false;
 				}
+				vi->leave( false);
 			}
-			if (vi_enter) vi->leave( writemode);
+			elem->setInitialized();
 		}
-		leaveDataPath( ptsize, vi, writemode);
+		leaveDataPath( ptsize, vi, false);
 	}
 	else
 	{
-		if (!enterDataPath( pred, group, group.size(), vi, writemode))
+		if (elemdescr->type == DataStructDescription::variableref_)
 		{
-			return false;
-		}
-		if (elemdescr->substruct)
-		{
-			if (!assignDataStruct( totpath, elem, descrmap, vi, writemode))
+			if (!elemdescr->variableref.isEmpty())
 			{
-				qCritical() << "failed to assign structure at" << dataPathString( totpath, DataPath(), totpath.size());
+				QString itemname = relativeVariableRef( totpath, elemdescr->variableref);
+				QVariant ar = vi->property( itemname);
+	
+				switch (catg)
+				{
+					case AnyStruct: break;
+					case SEStructInArray:
+					{
+						if (ar.type() == QVariant::List)
+						{
+							foreach (const QVariant& vv, ar.toList())
+							{
+								elem->push();
+								elem->back()->at(0)->setValue( vv);
+								elem->back()->at(0)->setInitialized();
+								elem->back()->setInitialized();
+							}
+						}
+						else
+						{
+							elem->push();
+							elem->back()->at(0)->setValue( ar);
+							elem->back()->at(0)->setInitialized();
+							elem->back()->setInitialized();
+						}
+						break;
+					}
+					case ArrayInSEStruct:
+					{
+						if (ar.type() == QVariant::List)
+						{
+							foreach (const QVariant& vv, ar.toList())
+							{
+								elem->at(0)->push();
+								elem->at(0)->back()->setValue( vv);
+								elem->at(0)->back()->setInitialized();
+								elem->at(0)->setInitialized();
+							}
+						}
+						else
+						{
+							elem->at(0)->push();
+							elem->at(0)->back()->setValue( ar);
+							elem->at(0)->back()->setInitialized();
+							elem->at(0)->setInitialized();
+						}
+						break;
+					}
+					case Atomic:
+					{
+						elem->setValue( ar);
+						break;
+					}
+					case AtomicInSEStruct:
+					{
+						elem->at(0)->setValue( ar);
+						elem->at(0)->setInitialized();
+						break;
+					}
+				}
+				elem->setInitialized();
 			}
 		}
-		else if (elemdescr->type == DataStructDescription::variableref_)
+		else if (elemdescr->type == DataStructDescription::atomic_)
 		{
-			if (!assignElementVariable( totpath, "", elem, elemdescr, vi, writemode))
+			if (elemdescr->array())
 			{
-				qCritical() << "failed to assign element at" << dataPathString( pred, group, group.size());
+				qCritical() << "reading arrays of constant values in group" << group << "at" << pred;
 				return false;
 			}
+			else
+			{
+				elem->setInitialized();
+			}
 		}
-		leaveDataPath( group.size(), vi, writemode);
+		else
+		{
+			qCritical() << "cannot handle element of this type in group" << group << "at" << pred;
+			return false;
+		}
 	}
 	return true;
 }
 
+static bool writeDataGroupElement( const DataPath& pred, const DataPath& group, const DataStruct* elem, const DataStructDescription::Element* elemdescr, const DataStructDescriptionMap& descrmap, VisitorInterface* vi)
+{
+	DataPath totpath( pred);
 
-static bool assignDataStruct( const DataPath& pred, DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi, bool writemode)
+	enum ElemCategory {AnyStruct,Atomic,AtomicInSEStruct,ArrayInSEStruct,SEStructInArray};
+	ElemCategory catg = AnyStruct;
+
+	if (elemdescr->substruct && elemdescr->substruct->size() == 1 && !elemdescr->substruct->at(0).substruct)
+	{
+		//... special case with structs with one atomic element.
+		//	there the grouping addresses the element in the structure
+		if (elemdescr->array())
+		{
+			catg = SEStructInArray;
+		}
+		else if (elemdescr->substruct->at(0).array())
+		{
+			catg = ArrayInSEStruct;
+		}
+		else
+		{
+			catg = AtomicInSEStruct;
+		}
+		elemdescr = &elemdescr->substruct->at(0);
+	}
+	else if (elemdescr->type == DataStructDescription::variableref_)
+	{
+		catg = Atomic;
+	}
+	if (catg == AnyStruct)
+	{
+		if (elemdescr->array() && elem->size() == 0)
+		{
+			// ... avoid writing of an array with one NULL element in case of an empty array
+			return true;
+		}
+		totpath.append( group);
+
+		int ptsize = group.size()-1;
+		if (ptsize < 0)
+		{
+			qCritical() << "array elements not grouped (no common ancestor path)";
+			return false;
+		}
+		if (!enterDataPath( pred, group, ptsize, vi, true))
+		{
+			return false;
+		}
+		QString itemname = group.at( ptsize);
+		bool vi_enter = vi->enter( itemname, true);
+		if (vi_enter)
+		{
+			if (elemdescr->array())
+			{
+				DataStruct::const_iterator ai = elem->arraybegin(), ae = elem->arrayend();
+				while (vi_enter)
+				{
+					if (!vi_enter)
+					{
+						qCritical() << "failed to write all elements of array" << itemname << "at" << dataPathString( pred, group, ptsize);
+						return false;
+					}
+					if (elemdescr->substruct)
+					{
+						if (!writeDataStruct( totpath, &*ai, descrmap, vi))
+						{
+							qCritical() << "failed to write" << itemname << "[" << ((ae-ai)+1) << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+							return false;
+						}
+					}
+					else if (elemdescr->type == DataStructDescription::variableref_
+						|| elemdescr->type == DataStructDescription::atomic_)
+					{
+						// ... in an atomic array the ancessor path is always complete. So the property name is here the empty string always !
+						if (!vi->setProperty( "", ai->value()))
+						{
+							qCritical() << "failed to write element of atomic array" << itemname << "at" << dataPathString( pred, group, ptsize);
+							return false;
+						}
+					}
+					else
+					{
+						qCritical() << "cannot handle element of this type" << itemname << "at" << dataPathString( pred, group, ptsize);
+						return false;
+					}
+					vi->leave( true);
+					if (++ai == ae) break;
+
+					vi_enter = vi->enter( itemname, true);
+					while (!vi_enter && ptsize)
+					{
+						vi->leave( true);
+						--ptsize;
+						vi_enter = vi->enter( group.at( ptsize), true);
+						itemname = group.at( ptsize) + "." + itemname;
+					}
+				}
+			}
+			else
+			{
+				if (elemdescr->substruct)
+				{
+					if (!writeDataStruct( totpath, elem, descrmap, vi))
+					{
+						qCritical() << "failed to write" << itemname << "at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+						return false;
+					}
+				}
+				else if (elemdescr->type == DataStructDescription::variableref_
+					 || elemdescr->type == DataStructDescription::atomic_)
+				{
+					// ... in an atomic array the ancessor path is always complete. So the property name is here the empty string always !
+					if (!vi->setProperty("", elem->value()))
+					{
+						qCritical() << "failed to set property '' at" << dataPathString( totpath, DataPath(), totpath.size());
+						return false;
+					}
+				}
+				else
+				{
+					qCritical() << "cannot handle element of this type at" << dataPathString( pred, group, ptsize);
+					return false;
+				}
+			}
+		}
+		leaveDataPath( ptsize, vi, true);
+	}
+	else
+	{
+		if (elemdescr->type == DataStructDescription::variableref_)
+		{
+			if (!elemdescr->variableref.isEmpty())
+			{
+				QString itemname = relativeVariableRef( totpath, elemdescr->variableref);
+	
+				QVariant vv;
+				switch (catg)
+				{
+					case AnyStruct: break;
+					case SEStructInArray:
+					{
+						QList<QVariant> ar;
+						DataStruct::const_iterator ai = elem->arraybegin(), ae = elem->arrayend();
+						for (; ai != ae; ++ai)
+						{
+							ar.push_back( ai->at(0)->value());
+						}
+						vv = ar;
+						break;
+					}
+					case ArrayInSEStruct:
+					{
+						QList<QVariant> ar;
+						DataStruct::const_iterator ai = elem->at(0)->arraybegin(), ae = elem->at(0)->arrayend();
+						for (; ai != ae; ++ai)
+						{
+							ar.push_back( ai->value());
+						}
+						vv = ar;
+						break;
+					}
+					case Atomic:
+					{
+						vv = elem->value();
+						break;
+					}
+					case AtomicInSEStruct:
+					{
+						vv = elem->at(0)->value();
+						break;
+					}
+				}
+				if  (!vi->setProperty( itemname, vv))
+				{
+					qCritical() << "failed to set property for element" << itemname << "at" << totpath;
+					return false;
+				}
+			}
+		}
+		else
+		{
+			qCritical() << "cannot handle element of this type in write group" << group << "at" << pred;
+			return false;
+		}
+	}
+	return true;
+}
+
+static bool readDataStruct( const DataPath& pred, DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi)
 {
 	bool initialized = false;
 	const DataStructDescription* descr = data->description();
-
-	DataStruct::iterator si = data->begin(), se = data->end();
+	if (data->array())
+	{
+		qCritical() << "cannot handle as root node of a structure";
+		return false;
+	}
+	DataStruct::iterator si = data->structbegin(), se = data->structend();
 	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
 	for (; si != se && di != de; ++si,++di)
 	{
@@ -239,16 +502,23 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 			DataStructDescriptionMap::const_iterator mi = descrmap.find( di->substruct);
 			if (mi != descrmap.end())
 			{
-				if (!assignDataGroupElement( pred, mi.value(), &*si, &*di, descrmap, vi, writemode))
+				if (mi.value().size())
 				{
-					return false;
+					if (!readDataGroupElement( pred, mi.value(), &*si, &*di, descrmap, vi))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					qCritical() << "skipping case of grouping without common ancestor path at" << pred;
 				}
 			}
 			else
 			{
-				if (!assignDataStruct( pred, &*si, descrmap, vi, writemode))
+				if (!readDataStruct( pred, &*si, descrmap, vi))
 				{
-					qCritical() << "failed to assign substructure" << di->name << pred;
+					qCritical() << "failed to read substructure" << di->name << "from" << pred;
 					return false;
 				}
 			}
@@ -257,13 +527,27 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 				initialized = true;
 			}
 		}
+		else if (di->type == DataStructDescription::variableref_)
+		{
+			if (!di->variableref.isEmpty())
+			{
+				QString relvar = relativeVariableRef( pred, di->variableref);
+				if (!si->setValue( vi->property( relvar)))
+				{
+					qCritical() << "failed to read element" << di->name << "to" << relvar << "in" << pred;
+					return false;
+				}
+				si->setInitialized();
+				initialized = true;
+			}
+		}
+		else if (di->type == DataStructDescription::atomic_)
+		{
+			si->setInitialized();
+		}
 		else
 		{
-			if (!assignElementVariable( pred, QString(), &*si, &*di, vi, writemode))
-			{
-				return false;
-			}
-			initialized = true;
+			qCritical() << "cannot handle data structure elements of this type" << "in" << pred;
 		}
 	}
 	if (di != de || si != se)
@@ -271,14 +555,110 @@ static bool assignDataStruct( const DataPath& pred, DataStruct* data, const Data
 		qCritical() << "internal: structures do not match" << pred;
 		return false;
 	}
-	if (initialized && !writemode)
+	if (initialized)
 	{
 		data->setInitialized();
 	}
 	return true;
 }
 
-static bool assignDataStruct( DataStruct* data, VisitorInterface* vi, bool writemode)
+static bool writeDataStruct( const DataPath& pred, const DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi)
+{
+	const DataStructDescription* descr = data->description();
+	if (data->array())
+	{
+		qCritical() << "cannot handle as root node of a structure";
+		return false;
+	}
+	DataStruct::const_iterator si = data->structbegin(), se = data->structend();
+	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
+	for (; si != se && di != de; ++si,++di)
+	{
+		if (di->substruct)
+		{
+			DataStructDescriptionMap::const_iterator mi = descrmap.find( di->substruct);
+			if (mi != descrmap.end())
+			{
+				if (mi.value().size())
+				{
+					if (!writeDataGroupElement( pred, mi.value(), &*si, &*di, descrmap, vi))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					qCritical() << "skipping case of grouping without common ancestor path at" << pred;
+				}
+			}
+			else
+			{
+				if (!writeDataStruct( pred, &*si, descrmap, vi))
+				{
+					qCritical() << "failed to write substructure" << di->name << "to" << pred;
+					return false;
+				}
+			}
+		}
+		else if (di->type == DataStructDescription::variableref_)
+		{
+			if (!di->variableref.isEmpty())
+			{
+				QString relvar = relativeVariableRef( pred, di->variableref);
+				if (!vi->setProperty( relvar, si->value()))
+				{
+					qCritical() << "failed to write element" << di->name << "to" << relvar << "in" << pred;
+					return false;
+				}
+			}
+		}
+		else
+		{
+			qCritical() << "cannot handle data structure elements of this type" << "in" << pred;
+		}
+	}
+	if (di != de || si != se)
+	{
+		qCritical() << "internal: structures do not match" << pred;
+		return false;
+	}
+	return true;
+}
+
+static bool readDataStruct( DataStruct* data, VisitorInterface* vi)
+{
+	bool rt;
+	const DataStructDescription* descr = data->description();
+	if (!descr)
+	{
+		qCritical() << "feeding data structure without description";
+		return false;
+	}
+	DataStructDescriptionMap descrmap;
+	if (!getDataStructDescriptionMap( descrmap, *descr) && descrmap.size() > 0)
+	{
+		qCritical() << "failed to feed data structure";
+		return false;
+	}
+	DataStructDescriptionMap::const_iterator mi = descrmap.find( descr);
+	if (mi != descrmap.end())
+	{
+		if (!enterDataPath( DataPath(), mi.value(), mi.value().size(), vi, false))
+		{
+			qCritical() << "failed get to data object" << mi.value();
+			return false;
+		}
+		rt = readDataStruct( mi.value(), data, descrmap, vi);
+		leaveDataPath( mi.value().size(), vi, false);
+	}
+	else
+	{
+		rt = readDataStruct( DataPath(), data, descrmap, vi);
+	}
+	return rt;
+}
+
+static bool writeDataStruct( const DataStruct* data, VisitorInterface* vi)
 {
 	bool rt;
 	const DataStructDescription* descr = data->description();
@@ -296,29 +676,32 @@ static bool assignDataStruct( DataStruct* data, VisitorInterface* vi, bool write
 	DataStructDescriptionMap::const_iterator mi = descrmap.find( descr);
 	if (mi != descrmap.end())
 	{
-		if (!enterDataPath( DataPath(), mi.value(), mi.value().size(), vi, writemode))
+		if (!enterDataPath( DataPath(), mi.value(), mi.value().size(), vi, true))
 		{
 			qCritical() << "failed get to data object" << mi.value();
 			return false;
 		}
-		rt = assignDataStruct( mi.value(), data, descrmap, vi, writemode);
-		leaveDataPath( mi.value().size(), vi, writemode);
+		rt = writeDataStruct( mi.value(), data, descrmap, vi);
+		leaveDataPath( mi.value().size(), vi, true);
 	}
 	else
 	{
-		rt = assignDataStruct( DataPath(), data, descrmap, vi, writemode);
+		rt = writeDataStruct( DataPath(), data, descrmap, vi);
 	}
 	return rt;
 }
 
 bool putDataStruct( const DataStruct& data, VisitorInterface* vi)
 {
-	return assignDataStruct( const_cast<DataStruct*>( &data), vi, true);
+	qDebug() << "write data struct" << data.toString( 60);
+	return writeDataStruct( &data, vi);
 }
 
 bool getDataStruct( DataStruct& data, VisitorInterface* vi)
 {
-	return assignDataStruct( &data, vi, false);
+	bool rt = readDataStruct( &data, vi);
+	qDebug() << "read data struct" << data.toString( 60);
+	return rt;
 }
 
 

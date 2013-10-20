@@ -1,5 +1,6 @@
 #include "serialize/DataStruct.hpp"
 #include "serialize/DataStructDescription.hpp"
+#include "DebugHelpers.hpp"
 #include <QDebug>
 
 static int arrayAllocSize( int size)
@@ -158,9 +159,13 @@ bool DataStruct::setValue( const QVariant& val)
 		if (!elem->atomic()) return false;
 		elem->setValue( val);
 	}
-	else
+	else if (m_data.elem)
 	{
 		*m_data.elem = val;
+	}
+	else
+	{
+		m_data.elem = new QVariant( val);
 	}
 	return true;
 }
@@ -293,7 +298,7 @@ void DataStruct::setDescription( const DataStructDescription* description_)
 		}
 		if (m_size >= 0)
 		{
-			for (int ii=0; ii<m_size; ++ii)
+			for (int ii=0; ii<=m_size; ++ii)
 			{
 				m_data.ref[ ii].setDescription( description_);
 			}
@@ -385,21 +390,28 @@ static void print_newitem( QString& out, const QString& indent, const QString& n
 	while (level--) out.append( indent);
 }
 
-void DataStruct::print( QString& out, const QString& indent, const QString& newitem, int level) const
+void DataStruct::print( QString& out, const QString& indent, const QString& newitem, int level, int maxElemSize) const
 {
 	if (atomic())
 	{
 		out.append("'");
-		out.append( value().toString());
+		if (maxElemSize >= 0)
+		{
+			out.append( shortenDebugMessageArgument( value().toString(), maxElemSize));
+		}
+		else
+		{
+			out.append( value().toString());
+		}
 		out.append("'");
 	}
 	else if (array())
 	{
 		int ii = 1;
-		for (; ii<m_size; ++ii)
+		for (; ii<=m_size; ++ii)
 		{
 			if (ii>1) out.append( ", ");
-			m_data.ref[ ii].print( out, indent, newitem, level+1);
+			m_data.ref[ ii].print( out, indent, newitem, level+1, maxElemSize);
 		}
 	}
 	else if (indirection())
@@ -408,7 +420,7 @@ void DataStruct::print( QString& out, const QString& indent, const QString& newi
 	else if (m_description)
 	{
 		DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
-		DataStruct::const_iterator ei = begin();
+		DataStruct::const_iterator ei = structbegin();
 		for (int idx=0; di != de; ++di,++ei)
 		{
 			if (ei->initialized())
@@ -424,12 +436,12 @@ void DataStruct::print( QString& out, const QString& indent, const QString& newi
 				if (di->attribute())
 				{
 					out.append( "=");
-					out.append( ei->toString());
+					out.append( ei->toString( maxElemSize));
 				}
 				else
 				{
 					out.append( "{");
-					ei->print( out, indent, newitem, level+1);
+					ei->print( out, indent, newitem, level+1, maxElemSize);
 					out.append( "}");
 				}
 			}
@@ -437,10 +449,10 @@ void DataStruct::print( QString& out, const QString& indent, const QString& newi
 	}
 }
 
-QString DataStruct::toString() const
+QString DataStruct::toString( int maxElemSize) const
 {
 	QString out;
-	print( out, "", " ", 0);
+	print( out, "", " ", 0, maxElemSize);
 	return out;
 }
 
@@ -458,14 +470,32 @@ DataStruct* DataStruct::back()
 
 const DataStruct* DataStruct::at( int idx) const
 {
-	if (!array() || m_size < idx || idx < 0) return 0;
-	return m_data.ref + idx + 1;
+	if (m_size >= 0)
+	{
+		if (m_size < idx || idx < 0) return 0;
+		return m_data.ref + idx + 1;
+	}
+	else if (m_description)
+	{
+		if (m_description->size() < idx || idx < 0) return 0;
+		return m_data.ref + idx;
+	}
+	return 0;
 }
 
 DataStruct* DataStruct::at( int idx)
 {
-	if (!array() || m_size < idx || idx < 0) return 0;
-	return m_data.ref + idx + 1;
+	if (m_size >= 0)
+	{
+		if (m_size < idx || idx < 0) return 0;
+		return m_data.ref + idx + 1;
+	}
+	else if (m_description)
+	{
+		if (m_description->size() < idx || idx < 0) return 0;
+		return m_data.ref + idx;
+	}
+	return 0;
 }
 
 const DataStruct* DataStruct::get( const QString& name) const
@@ -493,32 +523,44 @@ const DataStruct* DataStruct::prototype() const
 	return array()?m_data.ref:0;
 }
 
-DataStruct::const_iterator DataStruct::begin() const
+DataStruct::const_iterator DataStruct::structbegin() const
 {
-	if (m_description) return const_iterator( m_data.ref);
-	if (m_size) return const_iterator( m_data.ref+1);
-	return 0;
+	return (m_description)?const_iterator( m_data.ref):const_iterator(0);
 }
 
-DataStruct::const_iterator DataStruct::end() const
+DataStruct::const_iterator DataStruct::structend() const
 {
-	if (m_description) return const_iterator( m_data.ref + m_description->size());
-	if (m_size) return const_iterator( m_data.ref + m_size + 1);
-	return 0;
+	return (m_description)?const_iterator( m_data.ref + m_description->size()):const_iterator(0);
 }
 
-DataStruct::iterator DataStruct::begin()
+DataStruct::iterator DataStruct::structbegin()
 {
-	if (m_description) return iterator( m_data.ref);
-	if (m_size) return iterator( m_data.ref+1);
-	return 0;
+	return (m_description)?iterator( m_data.ref):iterator(0);
 }
 
-DataStruct::iterator DataStruct::end()
+DataStruct::iterator DataStruct::structend()
 {
-	if (m_description) return iterator( m_data.ref + m_description->size());
-	if (m_size) return iterator( m_data.ref + m_size + 1);
-	return 0;
+	return (m_description)?iterator( m_data.ref + m_description->size()):iterator(0);
+}
+
+DataStruct::const_iterator DataStruct::arraybegin() const
+{
+	return (m_size>=0)?const_iterator( m_data.ref+1):const_iterator(0);
+}
+
+DataStruct::const_iterator DataStruct::arrayend() const
+{
+	return (m_size>=0)?const_iterator( m_data.ref+m_size+1):const_iterator(0);
+}
+
+DataStruct::iterator DataStruct::arraybegin()
+{
+	return (m_size>=0)?iterator( m_data.ref+1):iterator(0);
+}
+
+DataStruct::iterator DataStruct::arrayend()
+{
+	return (m_size>=0)?iterator( m_data.ref+m_size+1):iterator(0);
 }
 
 DataStructIndirection::DataStructIndirection( const DataStructDescription* descr)

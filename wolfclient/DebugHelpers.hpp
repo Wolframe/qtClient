@@ -33,9 +33,9 @@
 #include <QString>
 #include <QVariant>
 
-QString shortenDebugMessageArgument( const QString& msg);
-QByteArray shortenDebugMessageArgument( const QByteArray& msg);
-QVariant shortenDebugMessageArgument( const QVariant& msg);
+QString shortenDebugMessageArgument( const QString& msg, int maxsize=80);
+QByteArray shortenDebugMessageArgument( const QByteArray& msg, int maxsize=80);
+QVariant shortenDebugMessageArgument( const QVariant& msg, int maxsize=80);
 
 class UniqueEnter
 {

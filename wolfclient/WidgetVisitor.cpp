@@ -386,7 +386,6 @@ QList<QWidget*> WidgetVisitor::children( const QString& name) const
 
 bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 {
-	TRACE_STATUS( "try enter", className(), objectName(), name)
 	if (m_stk.empty()) return false;
 
 	// [A] check if name is a multipart reference and follow it if yes:
@@ -420,8 +419,6 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 		m_stk.top().m_multipart_entercnt = ++entercnt;
 		return true;
 	}
-
-	TRACE_STATUS( "try enter internal", className(), objectName(), name)
 	// [B] check if name refers to a widget internal item and follow it if yes:
 	if (m_stk.top().m_obj->enter( name, writemode))
 	{
@@ -433,7 +430,6 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 	if (m_stk.top().m_internal_entercnt == 0)
 	{
 		// [C] check if name refers to a symbolic link and follow the link if yes:
-		TRACE_STATUS( "try enter link", className(), objectName(), name)
 		QString lnk = m_stk.top().getLink( name);
 		if (!lnk.isEmpty())
 		{
@@ -449,7 +445,6 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 		}
 
 		// [D] on top level check if name refers to an ancessor or an ancessor child and follow it if yes:
-		TRACE_STATUS( "try enter root", className(), objectName(), name)
 		if (level == 0 && !name.isEmpty() && enter_root( name))
 		{
 			TRACE_ENTER( "root", className(), objectName(), name);
@@ -459,7 +454,6 @@ bool WidgetVisitor::enter( const QString& name, bool writemode, int level)
 		// [E] check if name refers to a child and follow it if yes:
 		if (!name.isEmpty())
 		{
-			TRACE_STATUS( "try enter children", className(), objectName(), name)
 			QList<QWidget*> cn = children( name);
 			if (cn.size() > 1)
 			{
@@ -1000,8 +994,6 @@ QWidget* WidgetVisitor::getPropertyOwnerWidget( const QString& name, int level)
 
 QVariant WidgetVisitor::property( const QString& name, int level)
 {
-	TRACE_STATUS( "try get property", className(), objectName(), name)
-
 	if (m_stk.empty()) return QVariant()/*invalid*/;
 
 	// [A] check if an multipart property is referenced and try to step into the substructure to get the property if yes
@@ -1156,7 +1148,6 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 	}
 	if (followidx < 0)
 	{
-		TRACE_STATUS( "try to set internal property", className(), objectName(), name)
 		// [B] check if an internal property of the widget is referenced and set its value if yes
 		if (m_stk.top().m_obj->setProperty( name, value))
 		{
@@ -1164,7 +1155,6 @@ bool WidgetVisitor::setProperty( const QString& name, const QVariant& value, int
 			return true;
 		}
 
-		TRACE_STATUS( "try to set dynamic property", className(), objectName(), name)
 		// [C] check if a dynamic property is referenced and set its value if yes
 		if (m_stk.top().m_internal_entercnt == 0)
 		{

@@ -38,6 +38,8 @@
 #include <QList>
 #include <QSharedPointer>
 
+#error DEPRECATED
+
 ///\class DataTree
 ///\brief Defines a tree of data items
 class DataTree

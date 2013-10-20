@@ -49,7 +49,7 @@ static bool findSelfRecursion( const DataStructDescription* descr)
 	return findIndirection( descr, descr);
 }
 
-static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<QString>& lca, const DataStructDescription* descr, bool doAcceptEmpty)
+static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<QString>& lca, const DataStructDescription* descr)
 {
 	QList<StackElement> stk;
 	QList<int> scopeReferences;
@@ -67,7 +67,7 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 		if (stk.isEmpty()) break;
 
 		DataStructDescription::const_iterator di = stk.back().itr;
-		if (di->type == DataStructDescription::variableref_)
+		if (di->type == DataStructDescription::variableref_ && !di->variableref.isEmpty())
 		{
 			scopeReferences.push_back( tree.addPathNode( di->variablename()));
 		}
@@ -94,34 +94,40 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 		{
 			DataStructDescriptionMap subres;
 			QList<QString> sublca;
-			getDataStructDescriptionMap_( subres, sublca, sync_substruct, false);
-			if (sublca.isEmpty())
+			if (getDataStructDescriptionMap_( subres, sublca, sync_substruct))
 			{
-				qCritical() << "array or recursive structure elements do not have a common ancestor path";
-				return false;
-			}
-			DataStructDescriptionMap::const_iterator bi = subres.begin(), be = subres.end();
-			for (; bi != be; ++bi)
-			{
-				if (sublca.size() > bi.value().size())
+				scopeReferences.push_back( tree.addPathNode( sublca));
+	
+				DataStructDescriptionMap::const_iterator bi = subres.begin(), be = subres.end();
+				for (; bi != be; ++bi)
 				{
-					qCritical() << "logic error: common prefix of list bigger than a member";
-					return false;
+					if (sublca.size() > bi.value().size())
+					{
+						qCritical() << "logic error: common prefix of list bigger than a member";
+						return false;
+					}
 				}
-			}
-			scopeReferences.push_back( tree.addPathNode( sublca));
-			for (; bi != be; ++bi)
-			{
-				QList<QString> relative_pt;
-				QList<QString>::const_iterator ci = bi.value().begin() + sublca.size();
-				for (; ci != bi.value().end(); ++ci)
+				for (bi = subres.begin(); bi != be; ++bi)
 				{
-					relative_pt.push_back( *ci);
+					QList<QString> relative_pt;
+					QList<QString>::const_iterator ci = bi.value().begin() + sublca.size();
+					for (; ci != bi.value().end(); ++ci)
+					{
+						relative_pt.push_back( *ci);
+					}
+					res.insert( bi.key(), relative_pt);
+					//... insert relative path of substructures having a sync node
 				}
-				res.insert( bi.key(), relative_pt);
+				res.insert( sync_substruct, sublca);
+				// ... insert absolute path of current sync node
 			}
 		}
 	}
+	if (scopeReferences.isEmpty())
+	{
+		return false;
+	}
+
 	int ancestor = tree.getLowestCommonAncestor( scopeReferences);
 	if (ancestor > 0)
 	{
@@ -129,11 +135,6 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 	}
 	else if (ancestor < 0)
 	{
-		if (doAcceptEmpty)
-		{
-			lca = DataPath();
-			return true;
-		}
 		QString aa;
 		int idx = 0;
 		foreach (int ai, scopeReferences)
@@ -141,7 +142,7 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 			if (idx++) aa.append( ", ");
 			aa.append( tree.getPathString( ai));
 		}
-		qCritical() << "illegal state in get data structure description map (no common ancestor in tree for {" << aa << "})";
+		qCritical() << "illegal data structure description (no common ancestor in tree for {" << aa << "})";
 		return false;
 	}
 	return true;
@@ -150,6 +151,6 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 bool getDataStructDescriptionMap( DataStructDescriptionMap& descrmap, const DataStructDescription& descr)
 {
 	QList<QString> sublca;
-	return getDataStructDescriptionMap_( descrmap, sublca, &descr, true);
+	return getDataStructDescriptionMap_( descrmap, sublca, &descr);
 }
 

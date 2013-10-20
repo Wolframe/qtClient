@@ -21,6 +21,7 @@ QT += widgets
 SOURCES += \	
 	testDataStructMap.cpp \
 	DataPathTreeVisitor.cpp \
+	../../wolfclient/DebugHelpers.cpp \
 	../../wolfclient/serialize/DataStructMap.cpp \
 	../../wolfclient/serialize/DataPathTree.cpp \
 	../../wolfclient/serialize/DataSerializeItem.cpp \
@@ -33,6 +34,7 @@ SOURCES += \
 HEADERS += \
 	testDataStructMap.hpp \
 	DataPathTreeVisitor.hpp \
+	../../wolfclient/DebugHelpers.hpp \
 	../../wolfclient/serialize/DataPathTree.hpp \
 	../../wolfclient/serialize/DataSerializeItem.hpp \
 	../../wolfclient/serialize/DataStructDescription.hpp \

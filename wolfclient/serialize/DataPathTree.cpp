@@ -107,7 +107,12 @@ QStringList DataPathTree::getPath( int nodeidx) const
 {
 	QList<QString> rt;
 	int maxcnt = nodeidx+2;
-	while (nodeidx != -1 && maxcnt >= 0)
+	if (nodeidx > 0 && m_ar.at(nodeidx).name.isEmpty())
+	{
+		// ... empty path element (content reference) at end is cut away from path
+		nodeidx = m_ar.at(nodeidx).parent;
+	}
+	while (nodeidx > 0 && maxcnt >= 0)
 	{
 		rt.insert( 0, m_ar.at(nodeidx).name);
 		nodeidx = m_ar.at(nodeidx).parent;
@@ -145,7 +150,7 @@ int DataPathTree::getLowestCommonAncestor( const QList<int>& nodear) const
 		int ii, nn = pathar.size();
 		for (ii=1; ii<nn; ++ii)
 		{
-			if (pathar.at(ii).size() >= pi) break;
+			if (pathar.at(ii).size() <= pi) break;
 			if (pathar.at(ii).at(pi) != pathar.at(0).at(pi)) break;
 		}
 		if (ii != nn) break;

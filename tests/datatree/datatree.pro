@@ -20,7 +20,10 @@ QT += widgets
 
 SOURCES += \	
 	testDataTree.cpp \
-	../../wolfclient/DataTree.cpp
+	../../wolfclient/DebugHelpers.cpp \
+	../../wolfclient/serialize/DataStructDescription.cpp \
+	../../wolfclient/serialize/DataStructDescriptionParse.cpp \
+	../../wolfclient/serialize/DataStruct.cpp
 
 HEADERS += \
 	testDataTree.hpp

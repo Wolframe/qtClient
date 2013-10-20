@@ -5,6 +5,11 @@
 
 static void skipBrk( QString::const_iterator& itr, const QString::const_iterator& end)
 {
+	if (itr == end || *itr != '{')
+	{
+		qCritical() << "internal: illegal call in this state (skipBrk)";
+		return;
+	}
 	int brkcnt = 1;
 	++itr;
 	for (; itr != end; ++itr)
@@ -124,10 +129,10 @@ public:
 	int defineAttributeConst( const QString& name, const QVariant& value)
 	{
 		int idx = stk.back().description->addAttribute( name, value);
-		if (idx >= 0)
+		if (idx < 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
-			return false;
+			return idx;
 		}
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "CALL defineAttributeConst(" << name << value << ")";
@@ -138,10 +143,10 @@ public:
 	int defineAttributeVariable( const QString& name, const QString& var, const QVariant& defaultvalue)
 	{
 		int idx = stk.back().description->addAttributeVariable( name, var, defaultvalue);
-		if (idx >= 0)
+		if (idx < 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
-			return false;
+			return idx;
 		}
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "CALL defineAttributeVariable(" << name << var << defaultvalue << ")";
@@ -152,10 +157,10 @@ public:
 	int defineAtomConst( const QString& name, const QVariant& value)
 	{
 		int idx = stk.back().description->addAtom( name, value);
-		if (idx >= 0)
+		if (idx < 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
-			return false;
+			return idx;
 		}
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "CALL defineAtomConst(" << name << value << ")";
@@ -166,10 +171,10 @@ public:
 	int defineAtomVariable( const QString& name, const QString& var, const QVariant& defaultvalue)
 	{
 		int idx = stk.back().description->addAtomVariable( name, var, defaultvalue);
-		if (idx >= 0)
+		if (idx < 0)
 		{
 			setError( QString( "duplicate definition of value '") + name + "'");
-			return false;
+			return idx;
 		}
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "CALL defineAtomVariable(" << name << var << defaultvalue << ")";
@@ -276,46 +281,46 @@ public:
 		}
 	}
 
-	bool parseDataStructDescription( QString::const_iterator& si, const QString::const_iterator& se)
+	bool parseDataStructDescription( QString::const_iterator& bi, const QString::const_iterator& be)
 	{
-		while (si != se)
+		while (bi != be)
 		{
-			skipSpaces( si, se);
-			if (si == se) break;
+			skipSpaces( bi, be);
+			if (bi == be) break;
 
-			if (isAlphaNum(*si))
+			if (isAlphaNum(*bi))
 			{
 				QString nodename;
 				bool isArray = false;
 
-				for (; si != se && isAlphaNum(*si); ++si)
+				for (; bi != be && isAlphaNum(*bi); ++bi)
 				{
-					nodename.push_back( *si);
+					nodename.push_back( *bi);
 				}
-				skipSpaces( si, se);
-				if (*si == '[')
+				skipSpaces( bi, be);
+				if (*bi == '[')
 				{
-					if (!parseArrayMarker( si, se)) return false;
+					if (!parseArrayMarker( bi, be)) return false;
 					isArray = true;
 				}
-				skipSpaces( si, se);
-				if (si == se)
+				skipSpaces( bi, be);
+				if (bi == be)
 				{
 					setError( "unexpected end of expression");
 					return false;
 				}
-				else if (*si == '{')
+				else if (*bi == '{')
 				{
 					//... Content
-					QString::const_iterator start = si+1;
-					skipBrk( si, se);
-					if (si == se)
+					QString::const_iterator start = bi+1;
+					skipBrk( bi, be);
+					if (bi == be)
 					{
 						setError( "invalid tree (curly brackets not balanced)");
 						return false;
 					}
-					skipSpaces( start, si);
-					if (start == si)
+					skipSpaces( start, bi);
+					if (start == bi)
 					{
 						setError( "invalid tree (empty expression or variable reference: \"{}\")");
 						return false;
@@ -324,9 +329,9 @@ public:
 					{
 						//... Content variable reference
 						VariableReference vardef;
-						if (!parseVariableReference( vardef, si, se)) return false;
+						if (!parseVariableReference( vardef, start, bi)) return false;
 						int idx = defineAtomVariable( nodename, vardef.varname, vardef.defaultvalue);
-						if (idx >= 0) return false;
+						if (idx < 0) return false;
 
 						if (vardef.optional)
 						{
@@ -340,13 +345,14 @@ public:
 						{
 							stk.back().description->at( idx).makeArray();
 						}
+						++bi;
 					}
 					else if (*start == '?')
 					{
 						//... Any content
 						++start;
-						skipSpaces( start, si);
-						if (start != si)
+						skipSpaces( start, bi);
+						if (start != bi)
 						{
 							setError( "invalid tree (unexpected token after '?')");
 							return false;
@@ -354,37 +360,38 @@ public:
 						int idx = defineAtomVariable( nodename, "", QVariant());
 						if (idx < 0) return false;
 						stk.back().description->at( idx).setOptional();
+						++bi;
 					}
 					else
 					{
 						//... Content substructure
 						if (!open( nodename, isArray)) return false;
-						if (!parseDataStructDescription( start, si)) return false;
+						if (!parseDataStructDescription( start, bi)) return false;
 						if (!close()) return false;
-						++si;
+						++bi;
 					}
 				}
-				else if (*si == '=')
+				else if (*bi == '=')
 				{
 					// ... Attribute
-					++si; skipSpaces( si, se);
-					if (si == se)
+					++bi; skipSpaces( bi, be);
+					if (bi == be)
 					{
-						setError( "invalid tree (expected expression or string as attribute value)");
+						setError( "invalid tree (expected expresbion or string as attribute value)");
 						return false;
 					}
-					if (*si == '\'' || *si == '\"')
+					if (*bi == '\'' || *bi == '\"')
 					{
 						//... Attribute constant
 						QString content;
-						if (!parseString( content, si, se)) return false;
+						if (!parseString( content, bi, be)) return false;
 						if (0>defineAttributeConst( nodename, content)) return false;
 					}
-					else if (*si == '{')
+					else if (*bi == '{')
 					{
 						//... Attribute variable reference
 						VariableReference vardef;
-						if (!parseVariableReference( vardef, si, se)) return false;
+						if (!parseVariableReference( vardef, bi, be)) return false;
 						int idx = defineAttributeVariable( nodename, vardef.varname, vardef.defaultvalue);
 						if (idx < 0) return false;
 						if (vardef.optional)
@@ -400,11 +407,11 @@ public:
 							stk.back().description->at( idx).makeArray();
 						}
 					}
-					else if (isAlphaNum(*si))
+					else if (isAlphaNum(*bi))
 					{
-						QString::const_iterator start = si;
-						for (++si; si != se && isAlphaNum(*si); ++si) {}
-						if (0>defineAttributeConst( nodename, QString( start, si-start))) return false;
+						QString::const_iterator start = bi;
+						for (++bi; bi != be && isAlphaNum(*bi); ++bi) {}
+						if (0>defineAttributeConst( nodename, QString( start, bi-start))) return false;
 					}
 					else
 					{
@@ -417,18 +424,18 @@ public:
 					setError( "invalid tree (expected curly bracket expression or string after identifier)");
 				}
 			}
-			else if (*si == '\'' || *si == '\"')
+			else if (*bi == '\'' || *bi == '\"')
 			{
 				//... Content constant
 				QString content;
-				if (!parseString( content, si, se)) return false;
+				if (!parseString( content, bi, be)) return false;
 				if (0>defineAtomConst( "", content)) return false;
 			}
-			else if (*si == '{')
+			else if (*bi == '{')
 			{
 				//... Content variable
 				VariableReference vardef;
-				if (!parseVariableReference( vardef, si, se)) return false;
+				if (!parseVariableReference( vardef, bi, be)) return false;
 				int idx = defineAtomVariable( "", vardef.varname, vardef.defaultvalue);
 				if (idx < 0) return false;
 				if (vardef.optional)
@@ -440,7 +447,7 @@ public:
 					stk.back().description->at( idx).setOptional();
 				}
 			}
-			else if (*si == '?')
+			else if (*bi == '?')
 			{
 				//... Any content
 				int idx = defineAtomVariable( "", "", QVariant());
@@ -452,12 +459,16 @@ public:
 				setError( "expected expression or string");
 				return false;
 			}
-			skipSpaces( si, se);
-			if (si != se)
+			skipSpaces( bi, be);
+			if (bi != be)
 			{
-				if (*si == ';' || *si == ',')
+				if (*bi == ';' || *bi == ',')
 				{
-					++si;
+					++bi;
+				}
+				else if (*bi == '}')
+				{
+					setError( "curly brackets not balanced");
 				}
 				else
 				{
@@ -470,12 +481,41 @@ public:
 	}
 };
 
-bool DataStructDescription::parse( const QString& source, QList<QString>& err)
+bool DataStructDescription::parse( QString::const_iterator si, const QString::const_iterator& se, QList<QString>& err)
 {
-	QString::const_iterator si = source.begin(), se = source.end();
-	ParseContext ctx;
+	qDebug() << "Parse DataStructDescription [" << QString( si, se-si) << "]";
+	QString::const_iterator bi = si;
+	QString::const_iterator be = se;
+	if (*bi != '{')
+	{
+		qCritical() << "structure does not start with '{'";
+		return false;
+	}
+	skipBrk( bi, be);
+	if (bi == be)
+	{
+		qCritical() << "curly brackets not balanced in structure description";
+		return false;
+	}
+	be = bi;
+	++bi;
+	skipSpaces( bi, se);
+	if (bi != se)
+	{
+		if (*bi == '}')
+		{
+			qCritical() << "curly brackets not balanced in structure description";
+		}
+		else
+		{
+			qCritical() << "extra content at end of structure description";
+		}
+		return false;
+	}
+	bi = si+1;
 
-	if (!ctx.parseDataStructDescription( si, se))
+	ParseContext ctx;
+	if (!ctx.parseDataStructDescription( bi, be))
 	{
 		foreach (const QString& msg, ctx.errors())
 		{
@@ -494,4 +534,12 @@ bool DataStructDescription::parse( const QString& source, QList<QString>& err)
 	inherit( *res);
 	return true;
 }
+
+
+bool DataStructDescription::parse( const QString& source, QList<QString>& err)
+{
+	QString::const_iterator si = source.begin(), se = source.end();
+	return parse( si, se, err);	
+}
+
 

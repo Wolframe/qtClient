@@ -54,9 +54,9 @@ DataStructDescription::Element::Element( const Element& o)
 	{
 		if (type != indirection_)
 		{
-			substruct = new DataStructDescription( *o.substruct);
+			DataStructDescription* st = new DataStructDescription( *o.substruct);
 			initvalue = new DataStruct( *o.initvalue);
-			initvalue->setDescription( substruct);
+			initvalue->setDescription( substruct = st);
 		}
 	}
 	else if (o.initvalue)
@@ -330,15 +330,45 @@ static void print_newitem( QString& out, const QString& indent, const QString& n
 	while (level--) out.append( indent);
 }
 
+static void printVariableRef( QString& out, const DataStructDescription::const_iterator& di)
+{
+	if (di->optional())
+	{
+		if (!di->variableref.isEmpty())
+		{
+			out.append( di->variableref);
+			out.append( ":");
+		}
+		if (di->initvalue && di->initvalue->atomic() && di->initvalue->value().isValid())
+		{
+			out.append( di->initvalue->value().toString());
+		}
+		else
+		{
+			out.append( "?");
+		}
+	}
+	else
+	{
+		out.append( di->variableref);
+	}
+}
+
 void DataStructDescription::print( QString& out, const QString& indent, const QString& newitem, int level) const
 {
 	const_iterator di = begin(), de = end();
+	if (di == de)
+	{
+		out.append( "{}");
+		return;
+	}
+	out.append( "{ ");
 	for (int idx=0; di != de; ++di,++idx)
 	{
 		if (idx)
 		{
 			print_newitem( out, indent, newitem, level);
-			out.append( ";");
+			out.append( "; ");
 		}
 		switch (di->type)
 		{
@@ -348,15 +378,15 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 					printElementHeader( out, *di);
 					if (di->attribute())
 					{
-						out.append( "='");
+						out.append( " = '");
 						out.append( di->initvalue->value().toString());
 						out.append( "'");
 					}
 					else
 					{
-						out.append( "{'");
+						out.append( "'");
 						out.append( di->initvalue->value().toString());
-						out.append( "'}");
+						out.append( "'");
 					}
 				}
 				break;
@@ -365,14 +395,20 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 				printElementHeader( out, *di);
 				if (di->attribute())
 				{
-					out.append( "={");
-					out.append( di->variableref);
+					out.append( " = {");
+					printVariableRef( out, di);
+					out.append( "}");
+				}
+				else if (di->name.isEmpty())
+				{
+					out.append( "{");
+					printVariableRef( out, di);
 					out.append( "}");
 				}
 				else
 				{
 					out.append( "{{");
-					out.append( di->variableref);
+					printVariableRef( out, di);
 					out.append( "}}");
 				}
 				break;
@@ -381,9 +417,8 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 				if (di->substruct)
 				{
 					printElementHeader( out, *di);
-					out.append( "{ ");
+					out.append( " ");
 					di->substruct->print( out, indent, newitem, level+1);
-					out.append( " }");
 				}
 				break;
 
@@ -392,12 +427,13 @@ void DataStructDescription::print( QString& out, const QString& indent, const QS
 
 		}
 	}
+	out.append( " }");
 }
 
 QString DataStructDescription::toString() const
 {
 	QString out;
-	print( out, "", " ", 0);
+	print( out, "", "", 0);
 	return out;
 }
 
@@ -408,6 +444,11 @@ DataStruct* DataStructDescription::createDataInstance() const
 
 bool DataStructDescription::check() const
 {
+	if (m_nofattributes > 1000)
+	{
+		qCritical() << "data structure reference to object already released";
+		return false;
+	}
 	const_iterator di = begin(), de = end();
 	for (; di != de; ++di)
 	{
@@ -422,8 +463,5 @@ bool DataStructDescription::check() const
 	}
 	return true;
 }
-
-
-
 
 

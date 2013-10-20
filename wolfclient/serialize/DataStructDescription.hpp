@@ -174,8 +174,9 @@ public:
 	QString toString() const;
 
 	///\brief Parses this data struct description
-	//... imlemented in DataStructDescriptionParse.cpp
+	//... implemented in DataStructDescriptionParse.cpp
 	bool parse( const QString& source, QList<QString>& err);
+	bool parse( QString::const_iterator si, const QString::const_iterator& se, QList<QString>& err);
 
 	///\brief Gets an initialized instance of this structure
 	DataStruct* createDataInstance() const;

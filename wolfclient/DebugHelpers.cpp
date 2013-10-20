@@ -1,7 +1,7 @@
 #include "DebugHelpers.hpp"
 
 template <class StringType>
-static StringType shortenDebugMessageArgument_( const StringType& msg)
+static StringType shortenDebugMessageArgument_( const StringType& msg, int maxsize)
 {
 	StringType rt;
 	int cnt = 0;
@@ -12,7 +12,7 @@ static StringType shortenDebugMessageArgument_( const StringType& msg)
 		{
 			cnt = 0;
 		}
-		if (cnt == 60)
+		if (cnt == maxsize)
 		{
 			rt.append( "...");
 			for (; mi != me; ++mi)
@@ -35,34 +35,34 @@ static StringType shortenDebugMessageArgument_( const StringType& msg)
 	return rt;
 }
 
-QString shortenDebugMessageArgument( const QString& msg)
+QString shortenDebugMessageArgument( const QString& msg, int maxsize)
 {
-	return shortenDebugMessageArgument_( msg);
+	return shortenDebugMessageArgument_( msg, maxsize);
 }
 
-QByteArray shortenDebugMessageArgument( const QByteArray& msg)
+QByteArray shortenDebugMessageArgument( const QByteArray& msg, int maxsize)
 {
-	return shortenDebugMessageArgument_( msg);
+	return shortenDebugMessageArgument_( msg, maxsize);
 }
 
-QVariant shortenDebugMessageArgument( const QVariant& val)
+QVariant shortenDebugMessageArgument( const QVariant& val, int maxsize)
 {
-	if (val.type() == QVariant::String && val.toString().size() > 200)
+	if (val.type() == QVariant::String && val.toString().size() > maxsize)
 	{
-		return shortenDebugMessageArgument_( val.toString());
+		return shortenDebugMessageArgument_( val.toString(), maxsize);
 	}
-	if (val.type() == QVariant::ByteArray && val.toByteArray().size() > 200)
+	if (val.type() == QVariant::ByteArray && val.toByteArray().size() > maxsize)
 	{
-		return shortenDebugMessageArgument_( val.toByteArray());
+		return shortenDebugMessageArgument_( val.toByteArray(), maxsize);
 	}
 	if (val.type() == QVariant::List)
 	{
 		QList<QVariant> rt;
 		foreach (const QVariant& vv, val.toList())
 		{
-			rt.push_back( shortenDebugMessageArgument( vv));
+			rt.push_back( shortenDebugMessageArgument( vv, maxsize));
 		}
-		return QVariant(rt);
+		return QVariant( rt);
 	}
 	return val;
 }

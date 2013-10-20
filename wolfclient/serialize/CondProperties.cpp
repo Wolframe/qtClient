@@ -30,49 +30,78 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
-#define _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
-#include "serialize/DataSerializeItem.hpp"
-#include "WidgetVisitor.hpp"
-#include "DataTree.hpp"
-#include <QList>
-#include <QWidget>
+#include "serialize/CondProperties.hpp"
+#include <QDebug>
 
-#error DEPRECATED
-
-QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, WidgetVisitor& visitor);
-
-struct WidgetDataAssignmentInstr
+static void skipSpaces( QString::const_iterator& itr, const QString::const_iterator& end)
 {
-	enum Type {Enter, Leave, Assign};
-	static const char* typeName( Type i)
+	for (; itr != end && itr->isSpace(); ++itr);
+}
+
+QList<QString> getConditionProperties( const QString& str)
+{
+	bool isValue = false;
+	QList<QString> rt;
+
+	QString::const_iterator itr = str.begin(), end = str.end();
+	QString::const_iterator start = end;
+	for (; itr != end; ++itr)
 	{
-		const char* ar[] = {"Enter", "Leave", "Assign"};
-		return ar[ (int)i];
+		if (*itr == ';')
+		{
+			++itr;
+			skipSpaces( itr, end);
+			if (itr == end) break;
+
+			if (*itr == '{')
+			{
+				isValue = true;
+				start = itr+1;
+			}
+		}
+		else if (*itr == '{')
+		{
+			++itr;
+			skipSpaces( itr, end);
+			if (itr == end)
+			{
+				qCritical() << "Syntax error in request answer specification (brackets not balanced):" << str;
+				break;
+			}
+			if (*itr == '{')
+			{
+				isValue = true;
+				start = itr+1;
+			}
+			else
+			{
+				start = itr;
+			}
+		}
+		else if (*itr == '}')
+		{
+			if (start != end && isValue)
+			{
+				QString var = QString( start, itr-start).trimmed();
+				if (var.indexOf(':') < 0)
+				{
+					rt.push_back( var);
+				}
+				else
+				{
+					// ... definition { var : defaultvalue } is always fulfilled
+				}
+			}
+			isValue = false;
+		}
+		else if (*itr == '=')
+		{
+			start = end;
+			isValue = true;
+		}
 	}
-	Type type;
-	int arraysize;
-	QString name;
-	QVariant value;
+	return rt;
+}
 
-	WidgetDataAssignmentInstr()
-		:type(Leave),arraysize(0){}
-	WidgetDataAssignmentInstr( int arraysize_, const QString& name_)
-		:type(Enter),arraysize(arraysize_),name(name_){}
-	WidgetDataAssignmentInstr( const QString& name_, const QVariant& value_)
-		:type(Assign),arraysize(0),name(name_),value(value_){}
-	WidgetDataAssignmentInstr( const WidgetDataAssignmentInstr& o)
-		:type(o.type),arraysize(o.arraysize),name(o.name),value(o.value){}
 
-public:
-	QString toString() const {
-		return QString( "type: %1, arrsize: %2, name: %3, value: %4" )
-			.arg( typeName( type ) )
-			.arg( arraysize ).arg( name ).arg( value.toString( ) );
-	}
-};
-
-QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schematree, const QList<DataSerializeItem>& answer);
-
-#endif
 

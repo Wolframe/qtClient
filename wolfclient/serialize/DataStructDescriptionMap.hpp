@@ -69,7 +69,7 @@
 * indirection or descriptions pf array elements.
 */
 
-typedef QList<QString> DataPath;
+typedef QStringList DataPath;
 typedef QMap<const DataStructDescription*,DataPath> DataStructDescriptionMap;
 
 ///\brief Get a map of elements of a data structure description and its substructures to relative paths extracted from variable references.

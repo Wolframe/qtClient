@@ -30,49 +30,36 @@
  Project Wolframe.
 
 ************************************************************************/
-#ifndef _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
-#define _WIDGET_DATATREE_SERIALIZE_HPP_INCLUDED
-#include "serialize/DataSerializeItem.hpp"
-#include "WidgetVisitor.hpp"
-#include "DataTree.hpp"
+#ifndef _WIDGET_ACTION_DEFINITION_HPP_INCLUDED
+#define _WIDGET_ACTION_DEFINITION_HPP_INCLUDED
+#include <QString>
+#include <QVariant>
+#include <QPair>
 #include <QList>
-#include <QWidget>
+#include <QSharedPointer>
+#include "serialize/DataStructDescription.hpp"
 
-#error DEPRECATED
 
-QList<DataSerializeItem> getWidgetDataSerialization( const DataTree& datatree, WidgetVisitor& visitor);
-
-struct WidgetDataAssignmentInstr
+class ActionDefinition
 {
-	enum Type {Enter, Leave, Assign};
-	static const char* typeName( Type i)
-	{
-		const char* ar[] = {"Enter", "Leave", "Assign"};
-		return ar[ (int)i];
-	}
-	Type type;
-	int arraysize;
-	QString name;
-	QVariant value;
-
-	WidgetDataAssignmentInstr()
-		:type(Leave),arraysize(0){}
-	WidgetDataAssignmentInstr( int arraysize_, const QString& name_)
-		:type(Enter),arraysize(arraysize_),name(name_){}
-	WidgetDataAssignmentInstr( const QString& name_, const QVariant& value_)
-		:type(Assign),arraysize(0),name(name_),value(value_){}
-	WidgetDataAssignmentInstr( const WidgetDataAssignmentInstr& o)
-		:type(o.type),arraysize(o.arraysize),name(o.name),value(o.value){}
-
 public:
-	QString toString() const {
-		return QString( "type: %1, arrsize: %2, name: %3, value: %4" )
-			.arg( typeName( type ) )
-			.arg( arraysize ).arg( name ).arg( value.toString( ) );
-	}
-};
+	ActionDefinition( const QString& content);
+	ActionDefinition( const ActionDefinition& o);
+	QString toString() const;
 
-QList<WidgetDataAssignmentInstr> getWidgetDataAssignments( const DataTree& schematree, const QList<DataSerializeItem>& answer);
+	const QString& command() const			{return m_command;}
+	const QString& doctype() const			{return m_doctype;}
+	const QString& rootelement() const		{return m_rootelement;}
+	const DataStructDescription& structure() const	{return m_structure;}
+	const QList<QString>& condProperties() const	{return m_condProperties;}
+
+private:
+	QList<QString> m_condProperties;
+	QString m_command;
+	QString m_doctype;
+	QString m_rootelement;
+	DataStructDescription m_structure;
+};
 
 #endif
 

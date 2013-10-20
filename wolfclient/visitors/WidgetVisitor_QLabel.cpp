@@ -100,7 +100,8 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 		{
 			m_label->setProperty( "_w_origtext", m_label->text());
 		}
-		m_label->setText( m_label->text().replace( subst, data.toString()));
+		QString newText = m_label->text().replace( subst, data.toString());
+		m_label->setText( newText);
 		m_label->adjustSize();
 		return true;
 	}

@@ -46,6 +46,8 @@ WidgetVisitorState_QListWidget::WidgetVisitorState_QListWidget( QWidget* widget_
 void WidgetVisitorState_QListWidget::clear()
 {
 	m_listWidget->clear();
+	m_mode = Init;
+	m_row = -1;
 }
 
 bool WidgetVisitorState_QListWidget::isArrayElement( const QString& name)
@@ -104,7 +106,7 @@ QVariant WidgetVisitorState_QListWidget::property( const QString& name)
 			}
 			else if (name == "id")
 			{
-				if (m_row >= m_listWidget->count()) return false;
+				if (m_row >= m_listWidget->count()) return QVariant();
 				QListWidgetItem* item = m_listWidget->item( m_row);
 				return item->data( Qt::UserRole);
 			}
