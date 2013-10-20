@@ -1,7 +1,8 @@
 #!/bin/sh
 
-# Note: put dot_home_rpmmacros to ~/.rpmmacros to set number of CPUs for
-# parallel building
+# Note: Create a ~/.rpmmacros to set number of CPUs for
+# parallel building like this:
+# %_smp_mflags -j24
 
 # Of course you need build toold and rpm-build, also a ~/rpmbuild directory
 # set up
@@ -30,7 +31,7 @@ mv /tmp/wolframe-qtclient-$VERSION.tar.gz .
 rm -rf /tmp/wolframe-qtclient-$VERSION
 
 cp wolframe-qtclient-$VERSION.tar.gz $RPMBUILD/SOURCES/wolframe-qtclient_$VERSION.tar.gz
-cp redhat/qtClient.spec $RPMBUILD/SPECS/qtClient.spec
+cp packaging/redhat/wolfclient.spec $RPMBUILD/SPECS/wolfclient.spec
 
 cd $RPMBUILD/SPECS
 
@@ -38,6 +39,6 @@ echo "Building started, check with 'tail -f $RPMBUILD/SPECS/log'."
 
 export CC='ccache gcc'
 export CXX='ccache g++'
-rpmbuild -ba --define "$OSB_PLATFORM" qtClient.spec > log 2>&1
+rpmbuild -ba --define "$OSB_PLATFORM" wolfclient.spec > log 2>&1
 
 echo "Build done."

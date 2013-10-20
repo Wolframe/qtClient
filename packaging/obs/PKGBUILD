@@ -1,0 +1,31 @@
+# Contributor: Andreas Baumann <abaumann at yahoo dot com>
+# Maintainer: Andreas Baumann <abaumann at yahoo dot com>
+pkgname=wolfclient
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Client for Wolframe."
+license=('GPL3')
+arch=('i686' 'x86_64')
+url="http://wolframe.net/"
+depends=('qt4')
+makedepends=('mesa-libgl' 'gdb')
+source=(
+  "${pkgname}_${pkgver}.tar.gz"
+)
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  msg "Installing.."
+  make install INSTALL_ROOT=${pkgdir}
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  msg "Generating makefiles.."
+  qmake-qt4 -config release PREFIX=/usr
+  
+  msg "Building..."
+  make
+}

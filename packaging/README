@@ -1,0 +1,7 @@
+packaging for the following platforms:
+
+redhat          - Redhat, Centos, OpenSUSE/SLES
+debian          - Debian, Ubuntu
+archlinux       - ArchLinux
+windows         - WIX MSI installer setup creation
+obs             - OpenSUSE build service (build.opensuse.org)

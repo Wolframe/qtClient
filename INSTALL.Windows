@@ -98,5 +98,6 @@ See also http://qtnode.net/wiki/Qt4_with_Visual_Studio.
 Build wolfclient
 --------------
 
-C:\Qt\4.8.1\bin\qmake.exe wolfclient.pro
+C:\Qt\4.8.1\bin\qmake.exe -config debug -recursive wolfclient.pro or
+C:\Qt\4.8.1\bin\qmake.exe -config release -resucrsive wolfclient.pro
 nmake
