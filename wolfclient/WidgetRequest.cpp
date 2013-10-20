@@ -32,7 +32,6 @@
 ************************************************************************/
 #include "WidgetRequest.hpp"
 #include "WidgetVisitor.hpp"
-#include "DebugTerminal.hpp"
 #include "serialize/DataSerializeItem.hpp"
 #include "serialize/ActionDefinition.hpp"
 #include "serialize/ActionResultDefinition.hpp"
@@ -40,7 +39,8 @@
 #include "serialize/DataStructSerialize.hpp"
 #include "serialize/DataStructMap.hpp"
 #include "serialize/CondProperties.hpp"
-#include "DataFormatXML.hpp"
+#include "serialize/DataFormatXML.hpp"
+#include "DebugTerminal.hpp"
 #include "DebugHelpers.hpp"
 #include <QVariant>
 

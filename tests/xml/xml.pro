@@ -21,7 +21,7 @@ QT += widgets
 SOURCES += \	
 	testXmlSerialization.cpp \
 	../../wolfclient/DebugHelpers.cpp \
-	../../wolfclient/DataFormatXML.cpp
+	../../wolfclient/serialize/DataFormatXML.cpp
 
 HEADERS += \
 	testXmlSerialization.hpp

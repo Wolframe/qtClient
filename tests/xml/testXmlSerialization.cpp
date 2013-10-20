@@ -31,7 +31,7 @@
 
 ************************************************************************/
 
-#include "DataFormatXML.hpp"
+#include "serialize/DataFormatXML.hpp"
 #include "testXmlSerialization.hpp"
 
 #include <QtTest/QtTest>
@@ -92,12 +92,12 @@ void testXmlSerialization::testXmlDeserialization_data( )
 		<< "Form.simpleform"
 		<< "form"
 		<< "<form><elem1></elem1></form>"
-		<< "OpenTag 'elem1', Value '', CloseTag ''";	
+		<< "OpenTag 'elem1', CloseTag ''";	
 	QTest::newRow( "empty tag, is same as empty value" )
 		<< "Form.simpleform"
 		<< "form"
 		<< "<form><elem1/></form>"
-		<< "OpenTag 'elem1', Value '', CloseTag ''";	
+		<< "OpenTag 'elem1', CloseTag ''";	
 	QTest::newRow( "deep tree from configurator" )
 		<< "Tree.simpleform"
 		<< "tree"

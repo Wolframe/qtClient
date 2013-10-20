@@ -77,7 +77,7 @@ SOURCES += \
 	visitors/WidgetVisitor_QStackedWidget.cpp \
 	visitors/WidgetVisitor_FileChooser.cpp \
 	visitors/WidgetVisitor_PictureChooser.cpp \
-	DataFormatXML.cpp \
+	serialize/DataFormatXML.cpp \
 	serialize/DataStruct.cpp \
 	serialize/DataStructDescription.cpp \
 	serialize/DataStructDescriptionParse.cpp \
