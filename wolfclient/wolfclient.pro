@@ -139,7 +139,7 @@ HEADERS += \
 	visitors/WidgetVisitor_QStackedWidget.hpp \
 	visitors/WidgetVisitor_FileChooser.hpp \
 	visitors/WidgetVisitor_PictureChooser.hpp \
-	DataFormatXML.hpp \
+	serialize/DataFormatXML.hpp \
 	serialize/DataStruct.hpp \
 	serialize/DataStructDescription.hpp \
 	serialize/DataStructDescriptionMap.hpp \
