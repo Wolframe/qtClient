@@ -129,6 +129,7 @@ static bool readDataGroupElement( const DataPath& pred, const DataPath& group, D
 			return false;
 		}
 		QString itemname = group.at( ptsize);
+		QString elemname;
 		bool vi_enter = vi->enter( itemname, false);
 		if (vi_enter)
 		{
@@ -150,7 +151,7 @@ static bool readDataGroupElement( const DataPath& pred, const DataPath& group, D
 					else if (elemdescr->type == DataStructDescription::variableref_)
 					{
 						// ... in an atomic array the ancessor path is always complete. So the property name is here the empty string always !
-						elem->back()->setValue( vi->property( ""));
+						elem->back()->setValue( vi->property( elemname));
 						elem->back()->setInitialized();
 					}
 					else if (elemdescr->type == DataStructDescription::atomic_)
@@ -167,14 +168,18 @@ static bool readDataGroupElement( const DataPath& pred, const DataPath& group, D
 					if (arraywidget != vi->widget()) break;
 
 					vi_enter = vi->enter( itemname, false);
-					while (!vi_enter && ptsize && arraywidget == vi->widget())
+					if (!elemdescr->substruct)
 					{
-						vi->leave( false);
-						--ptsize;
-						vi_enter = vi->enter( group.at( ptsize), false);
-						itemname = group.at( ptsize) + "." + itemname;
+						while (!vi_enter && ptsize && arraywidget == vi->widget())
+						{
+							vi->leave( false);
+							--ptsize;
+							vi_enter = vi->enter( group.at( ptsize), false);
+							elemname = itemname;
+							itemname = group.at( ptsize) + "." + itemname;
+						}
 					}
-					if (!vi_enter && (ptsize == 0 || arraywidget != vi->widget())) break;
+					if (arraywidget != vi->widget()) break;
 				}
 			}
 			else
@@ -349,6 +354,7 @@ static bool writeDataGroupElement( const DataPath& pred, const DataPath& group, 
 			return false;
 		}
 		QString itemname = group.at( ptsize);
+		QString elemname;
 		bool vi_enter = vi->enter( itemname, true);
 		if (vi_enter)
 		{
@@ -374,7 +380,7 @@ static bool writeDataGroupElement( const DataPath& pred, const DataPath& group, 
 						|| elemdescr->type == DataStructDescription::atomic_)
 					{
 						// ... in an atomic array the ancessor path is always complete. So the property name is here the empty string always !
-						if (!vi->setProperty( "", ai->value()))
+						if (!vi->setProperty( elemname, ai->value()))
 						{
 							qCritical() << "failed to write element of atomic array" << itemname << "at" << dataPathString( pred, group, ptsize);
 							return false;
@@ -389,12 +395,16 @@ static bool writeDataGroupElement( const DataPath& pred, const DataPath& group, 
 					if (++ai == ae) break;
 
 					vi_enter = vi->enter( itemname, true);
-					while (!vi_enter && ptsize)
+					if (!elemdescr->substruct)
 					{
-						vi->leave( true);
-						--ptsize;
-						vi_enter = vi->enter( group.at( ptsize), true);
-						itemname = group.at( ptsize) + "." + itemname;
+						while (!vi_enter && ptsize)
+						{
+							vi->leave( true);
+							--ptsize;
+							vi_enter = vi->enter( group.at( ptsize), true);
+							elemname = itemname;
+							itemname = group.at( ptsize) + "." + itemname;
+						}
 					}
 				}
 			}
