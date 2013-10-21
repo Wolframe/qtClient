@@ -35,6 +35,7 @@
 ///\brief Interface to a tree structure for extracting its data (request) and initializing
 //	its data (answer).
 #include <QString>
+#include <QWidget>
 #include <QVariant>
 
 struct VisitorInterface
@@ -64,6 +65,9 @@ struct VisitorInterface
 
 	///\brief Declare the end of data initialization
 	virtual void endofDataFeed()=0;
+
+	///\brief Get the current widget visited
+	virtual QWidget* widget() const=0;
 };
 
 #endif

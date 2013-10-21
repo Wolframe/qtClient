@@ -134,6 +134,7 @@ static bool readDataGroupElement( const DataPath& pred, const DataPath& group, D
 		{
 			if (elemdescr->array())
 			{
+				QWidget* arraywidget = vi->widget();
 				for (int ai = 0; vi_enter; ++ai)
 				{
 					elem->push();
@@ -163,14 +164,17 @@ static bool readDataGroupElement( const DataPath& pred, const DataPath& group, D
 						return false;
 					}
 					vi->leave( false);
+					if (arraywidget != vi->widget()) break;
+
 					vi_enter = vi->enter( itemname, false);
-					while (!vi_enter && ptsize)
+					while (!vi_enter && ptsize && arraywidget == vi->widget())
 					{
 						vi->leave( false);
 						--ptsize;
 						vi_enter = vi->enter( group.at( ptsize), false);
 						itemname = group.at( ptsize) + "." + itemname;
 					}
+					if (!vi_enter && (ptsize == 0 || arraywidget != vi->widget())) break;
 				}
 			}
 			else

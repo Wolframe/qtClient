@@ -304,7 +304,7 @@ class WidgetVisitor
 		///\brief Get the unique identifier of the widget for server requests
 		QString widgetid() const;
 		///\brief Get the widget of the current state
-		QWidget* widget() const								{return m_stk.isEmpty()?0:m_stk.top().m_obj->widget();}
+		virtual QWidget* widget() const							{return m_stk.isEmpty()?0:m_stk.top().m_obj->widget();}
 		///\brief Get the object name of the widget of the current state
 		QString objectName() const;
 		///\brief Get the class name of the widget of the current state
