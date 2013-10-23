@@ -33,7 +33,7 @@
 #include "WidgetVisitor_QListWidget.hpp"
 #include "WidgetListener.hpp"
 #include "WidgetEnabler.hpp"
-#include "DebugHelpers.hpp"
+#include "debug/DebugHelpers.hpp"
 #include <QDebug>
 
 WidgetVisitorState_QListWidget::WidgetVisitorState_QListWidget( QWidget* widget_)

@@ -49,12 +49,19 @@ SOURCES += \
 	FileDataLoader.cpp \
 	NetworkDataLoader.cpp \
 	WidgetTree.cpp \
+	WidgetId.cpp \
+	WidgetRequestHeader.cpp \
 	WidgetVisitor.cpp \
 	WidgetEnabler.cpp \
 	WidgetListener.cpp \
 	WidgetRequest.cpp \
 	WidgetMessageDispatcher.cpp \
 	WidgetVisitorStateConstructor.cpp \
+	debug/DebugLogTree.cpp \
+	debug/DebugTerminal.cpp \
+	debug/DebugViewWidget.cpp \
+	debug/DebugHelpers.cpp \
+	debug/DebugMessageHandler.cpp \
 	visitors/WidgetVisitor_QLabel.cpp \
 	visitors/WidgetVisitor_QComboBox.cpp \
 	visitors/WidgetVisitor_QCheckBox.cpp \
@@ -95,13 +102,15 @@ SOURCES += \
 	FormChooseDialog.cpp \
 	settings.cpp \
 	LoadMode.cpp \
-	DebugTerminal.cpp \
-	DebugHelpers.cpp \
 	HistoryLineEdit.cpp \
 	wolfclient.cpp
 
 HEADERS += \
-	DebugHelpers.hpp \
+	debug/DebugViewWidget.hpp \
+	debug/DebugLogTree.hpp \
+	debug/DebugHelpers.hpp \
+	debug/DebugTerminal.hpp \
+	debug/DebugMessageHandler.hpp \
 	MainWindow.hpp \
 	FormLoader.hpp \
 	FileFormLoader.hpp \
@@ -112,6 +121,8 @@ HEADERS += \
 	WidgetTree.hpp \
 	WidgetVisitorObject.hpp \
 	WidgetVisitor.hpp \
+	WidgetId.hpp \
+	WidgetRequestHeader.hpp \
 	WidgetEnabler.hpp \
 	WidgetListener.hpp \
 	WidgetRequest.hpp \
@@ -157,7 +168,6 @@ HEADERS += \
 	FormChooseDialog.hpp \
 	settings.hpp \
 	LoadMode.hpp \
-	DebugTerminal.hpp \
 	HistoryLineEdit.hpp
 
 win32:RC_FILE=wolfclient.rc

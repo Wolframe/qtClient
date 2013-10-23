@@ -33,37 +33,27 @@
 #ifndef _WIDGET_XML_HPP_INCLUDED
 #define _WIDGET_XML_HPP_INCLUDED
 #include "WidgetVisitor.hpp"
+#include "WidgetRequestHeader.hpp"
 #include <QWidget>
 #include <QByteArray>
 
 struct WidgetRequest
 {
-	enum Type {Action,DomainLoad};
-	QString cmd;
-	QString tag;
+	WidgetRequestHeader header;
 	QByteArray content;
 
-	Type type() const;
-	QString recipientid() const;
-	QString followform() const;
-
-	static QString actionWidgetRequestTag( QString recipientid_);
-	static QString actionWidgetRequestTag( QString recipientid_, QString followform_);
-	static QString domainLoadWidgetRequestTag( QString recipientid_);
-
 	WidgetRequest(){}
-	WidgetRequest( QString tag_)
-		:tag(tag_){}
-	WidgetRequest( QString cmd_, QString tag_, QByteArray content_)
-		:cmd(cmd_),tag(tag_),content(content_){}
+	WidgetRequest( QWidget* recipient_widget)
+		:header(recipient_widget){}
+	WidgetRequest( const WidgetRequestHeader& header_, const QByteArray& content_)
+		:header(header_),content(content_){}
 	WidgetRequest( const WidgetRequest& o)
-		:cmd(o.cmd),tag(o.tag),content(o.content){}
+		:header(o.header),content(o.content){}
 };
 
 WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode);
 WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem);
 WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode, const QString& menuitem=QString());
-bool isActionRequest( const QString& tag);
 bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer);
 
 QList<QString> getMenuActionRequestProperties( WidgetVisitor& visitor, const QString& menuitem);

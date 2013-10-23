@@ -42,7 +42,7 @@
 #include "FormChooseDialog.hpp"
 #include "manageServerDefsDialog.hpp"
 #include "FormCall.hpp"
-
+#include "debug/DebugMessageHandler.hpp"
 #include <QtGui>
 #include <QApplication>
 #include <QTranslator>
@@ -73,6 +73,8 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
 	m_modalDialog( 0 ), m_modalDialogClosed( true ), m_menuSignalMapper( 0 )
 {
+	setDebugLogTree( &m_logtree);
+
 // read parameters, first and only one is the optional configurartion files
 // containint the settings
 	parseArgs( );
@@ -135,9 +137,6 @@ void MainWindow::retranslateUi( )
 	static_cast<Ui::MainWindow *>( m_ui )->retranslateUi( this );
 }
 
-static bool _debug = false;
-static DebugTerminal *_debugTerminal = 0;
-
 void MainWindow::readSettings( )
 {
 	if( m_settings.isNull( ) ) {
@@ -148,7 +147,7 @@ void MainWindow::readSettings( )
 		settings.read( m_settings );
 	}
 
-	_debug = settings.debug;
+	setDebugMode( settings.debug);
 
 	if( settings.locale == SYSTEM_LANGUAGE ) {
 		m_language = QLocale::system( ).name( );
@@ -166,112 +165,6 @@ void MainWindow::readSettings( )
 	}
 }
 
-#if QT_VERSION >= 0x050000
-static void myMessageOutput( QtMsgType type, const QMessageLogContext & /*context */, const QString &msg )
-{
-	switch( type ) {
-		case QtDebugMsg:
-			if( _debug ) {
-				if( _debugTerminal ) {
-					_debugTerminal->sendComment( msg );
-				}
-				fprintf( stderr, "%s\n", qPrintable( msg ) );
-#ifdef _WIN32
-				OutputDebugString( qPrintable( msg ) );
-#endif
-			}
-			break;
-
-		case QtWarningMsg:
-			fprintf( stderr, "WARNING: %s\n", qPrintable( msg ) );
-#ifdef _WIN32
-			OutputDebugString( qPrintable( msg ) );
-#endif
-			break;
-
-		case QtCriticalMsg:
-			fprintf( stderr, "CRITICAL: %s\n", qPrintable( msg ) );
-#ifdef _WIN32
-			OutputDebugString( qPrintable( msg ) );
-#endif
-			break;
-
-		case QtFatalMsg:
-			fprintf( stderr, "FATAL: %s\n", qPrintable( msg ) );
-#ifdef _WIN32
-			OutputDebugString( qPrintable( msg ) );
-#endif
-			break;
-
-		default:
-			break;
-	}
-}
-#else
-
-#ifdef _WIN32
-static LPWSTR s2ws( const char *s )
-{
-	int len;
-	int slength = (int)strlen( s );
-	len = MultiByteToWideChar( CP_ACP, 0, s, slength, 0, 0 );
-	wchar_t *buf = new wchar_t[len+1];
-
-	MultiByteToWideChar( CP_ACP, 0, s, slength, buf, len );
-	buf[len] = 0;
-	return buf;
-}
-#endif
-
-static void myMessageOutput( QtMsgType type, const char *msg )
-{
-	switch( type ) {
-		case QtDebugMsg:
-			if( _debug ) {
-				if( _debugTerminal ) {
-					_debugTerminal->sendComment( msg );
-				}
-				fprintf( stderr, "%s\n", msg );
-#ifdef _WIN32
-				LPWSTR wmsg = s2ws( msg );
-				OutputDebugString( wmsg );
-				delete[] wmsg;
-#endif
-			}
-			break;
-
-		case QtWarningMsg: {
-			fprintf( stderr, "WARNING: %s\n", msg );
-#ifdef _WIN32
-				LPWSTR wmsg = s2ws( msg );
-				OutputDebugString( wmsg );
-				delete[] wmsg;
-#endif
-			} break;
-
-		case QtCriticalMsg: {
-			fprintf( stderr, "CRITICAL: %s\n", msg );
-#ifdef _WIN32
-				LPWSTR wmsg = s2ws( msg );
-				OutputDebugString( wmsg );
-				delete[] wmsg;
-#endif
-			} break;
-
-		case QtFatalMsg: {
-			fprintf( stderr, "FATAL: %s\n", msg );
-#ifdef _WIN32
-				LPWSTR wmsg = s2ws( msg );
-				OutputDebugString( wmsg );
-				delete[] wmsg;
-#endif
-			} break;
-
-		default:
-			break;
-	}
-}
-#endif
 
 MainWindow::~MainWindow( )
 {
@@ -287,7 +180,7 @@ MainWindow::~MainWindow( )
 	if( m_debugTerminal ) {
 		delete m_debugTerminal;
 		m_debugTerminal = 0;
-		_debugTerminal = 0;
+		setDebugLogTree( 0);
 	}
 	if( m_formLoader ) {
 		delete m_formLoader;
@@ -319,11 +212,13 @@ void MainWindow::create( )
 {
 	SkeletonMainWindow::create( );
 
+	setDebugLogTree( &m_logtree);
+
 // install custom output handler (mainly for Unix debugging)
 #if QT_VERSION >= 0x050000
-	qInstallMessageHandler( &myMessageOutput );
+	qInstallMessageHandler( &wolframeMessageOutput );
 #else
-	qInstallMsgHandler( &myMessageOutput );
+	qInstallMsgHandler( &wolframeMessageOutput );
 #endif
 
 // a Qt UI loader for the main theme window and also used by all form widgets
@@ -519,7 +414,7 @@ void MainWindow::disconnected( )
 		m_debugTerminalAction->setChecked( false );
 		m_debugTerminal->deleteLater( );
 		m_debugTerminal = 0;
-		_debugTerminal = 0;
+		setDebugLogTree( 0);
 	}
 
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
@@ -1268,13 +1163,10 @@ void MainWindow::login( )
 
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
-		m_debugTerminal = new DebugTerminal( m_wolframeClient, this );
+		m_debugTerminal = new DebugViewWidget( this );
 		m_debugTerminal->setAttribute( Qt::WA_DeleteOnClose );
-		_debugTerminal = m_debugTerminal;
-		connect( m_wolframeClient, SIGNAL( lineSent( QString ) ),
-			m_debugTerminal, SLOT( sendLine( QString ) ) );
-		connect( m_debugTerminal,SIGNAL( destroyed( ) ),
-			this, SLOT( removeDebugToggle( ) ) );
+		setDebugLogTree( &m_logtree);
+
 		qDebug( ) << "Debug window initialized";
 	}
 }
@@ -1333,6 +1225,9 @@ void MainWindow::error( QString error )
 void MainWindow::showDebugTerminal( bool checked )
 {
 	if( m_debugTerminal ) {
+		setDebugLogTree( &m_logtree);
+		setDebugMode( checked);
+
 		if( checked ) {
 			m_debugTerminal->bringToFront( );
 		} else {
@@ -1344,7 +1239,9 @@ void MainWindow::showDebugTerminal( bool checked )
 void MainWindow::removeDebugToggle( )
 {
 	m_debugTerminalAction->setChecked( false );
-	_debugTerminal = 0;
+	m_logtree.clear();
+	setDebugLogTree( 0);
+	setDebugMode( false);
 }
 
 void MainWindow::openForm( )

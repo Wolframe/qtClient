@@ -30,36 +30,19 @@
  Project Wolframe.
 
 ************************************************************************/
+#ifndef _WOLFRAME_DEBUG_MESSAGE_HANDLER_HPP_INCLUDED
+#define _WOLFRAME_DEBUG_MESSAGE_HANDLER_HPP_INCLUDED
+#include <QDebug>
+#include <QString>
 
-#ifndef _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#define _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
-#include "WidgetRequest.hpp"
+void setDebugMode( bool v=true);
 
-///\class WidgetMessageDispatcher
-///\brief Structure to initialize widgets of a form and issue commands as client/server requests
-class WidgetMessageDispatcher
-{
-	public:
-		///\brief Constructor
-		///\param[in] root Root of widget tree visited
-		WidgetMessageDispatcher( QWidget* formwidget)
-			:m_visitor( formwidget, WidgetVisitor::None){}
-		WidgetMessageDispatcher( const WidgetVisitor& visitor_)
-			:m_visitor( visitor_){}
-
-		///\brief Copy constructor
-		///\param[in] o object to copy
-		WidgetMessageDispatcher( const WidgetMessageDispatcher& o)
-			:m_visitor(o.m_visitor){}
-
-		QList<WidgetRequest> getDomainLoadRequests( bool debugmode=false);
-		WidgetRequest getDomainLoadRequest( bool debugmode=false);
-		QList<QWidget*> findRecipientWidgets( const QVariant& widgetid) const;
-
-	private:
-		WidgetVisitor m_visitor;			//< visitor of elements
-};
+#if QT_VERSION >= 0x050000
+void wolframeMessageOutput( QtMsgType type, const QMessageLogContext & /*context */, const QString &msg );
+#else
+void wolframeMessageOutput( QtMsgType type, const char *msg );
+#endif
 
 #endif
+
 

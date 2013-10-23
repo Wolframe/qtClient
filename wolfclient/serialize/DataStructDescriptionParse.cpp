@@ -1,5 +1,5 @@
 #include "serialize/DataStructDescription.hpp"
-#include <QDebug>
+#include "debug/DebugLogTree.hpp"
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 

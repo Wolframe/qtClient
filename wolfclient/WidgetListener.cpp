@@ -137,7 +137,7 @@ void WidgetListenerImpl::trigger_reload( const QString& slotname, QWidget* recei
 		if (!domload.content.isEmpty())
 		{
 			receiver->setProperty( "_w_state", visitor.getState());
-			m_dataLoader->datarequest( domload.cmd, domload.tag, domload.content);
+			m_dataLoader->datarequest( domload.header.command.toString(), domload.header.toString(), domload.content);
 		}
 	}
 }

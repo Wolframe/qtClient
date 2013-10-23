@@ -30,36 +30,39 @@
  Project Wolframe.
 
 ************************************************************************/
+#ifndef _WOLFRAME_DEBUG_VIEW_WIDGET_HPP_INCLUDED
+#define _WOLFRAME_DEBUG_VIEW_WIDGET_HPP_INCLUDED
+#include "debug/DebugLogTree.hpp"
+#include <QWidget>
+#include <QTextEdit>
+#include <QTreeWidget>
+#include <QBoxLayout>
+#include <QLabel>
 
-#ifndef _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#define _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
-#include "WidgetRequest.hpp"
-
-///\class WidgetMessageDispatcher
-///\brief Structure to initialize widgets of a form and issue commands as client/server requests
-class WidgetMessageDispatcher
+class DebugViewWidget : public QWidget
 {
-	public:
-		///\brief Constructor
-		///\param[in] root Root of widget tree visited
-		WidgetMessageDispatcher( QWidget* formwidget)
-			:m_visitor( formwidget, WidgetVisitor::None){}
-		WidgetMessageDispatcher( const WidgetVisitor& visitor_)
-			:m_visitor( visitor_){}
+Q_OBJECT
 
-		///\brief Copy constructor
-		///\param[in] o object to copy
-		WidgetMessageDispatcher( const WidgetMessageDispatcher& o)
-			:m_visitor(o.m_visitor){}
+public:
+	DebugViewWidget( QWidget *parent_ = 0);
+	virtual ~DebugViewWidget();
+	void bringToFront();
 
-		QList<WidgetRequest> getDomainLoadRequests( bool debugmode=false);
-		WidgetRequest getDomainLoadRequest( bool debugmode=false);
-		QList<QWidget*> findRecipientWidgets( const QVariant& widgetid) const;
+public slots:
+	void refresh();
+	void printMessages( QTreeWidgetItem* item, int column);
+	void clear();
 
-	private:
-		WidgetVisitor m_visitor;			//< visitor of elements
+private:
+	void addSubTree( QTreeWidgetItem* viewnode, const DebugLogTree::NodeStruct* datanode, int level);
+
+private:
+	QTextEdit* m_output;
+	QTreeWidget* m_tree;
+	QBoxLayout* m_layout;
+	LogLevel m_level;
 };
 
 #endif
+
 

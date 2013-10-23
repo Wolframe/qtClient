@@ -32,7 +32,7 @@
 ************************************************************************/
 #include "serialize/ActionDefinition.hpp"
 #include "serialize/CondProperties.hpp"
-#include <QDebug>
+#include "debug/DebugLogTree.hpp"
 
 static bool isAlphaNum( QChar ch)
 {
@@ -56,8 +56,10 @@ ActionDefinition::ActionDefinition( const QString& str)
 	if (itr != end && *itr == ':')
 	{
 		m_command = m_doctype;
-		m_doctype.clear();
 		++itr;
+		skipSpaces( itr, end);
+		for (; itr != end && isAlphaNum(*itr); ++itr);
+		m_doctype = QString( str.begin(), itr-str.begin());
 		skipSpaces( itr, end);
 	}
 	if (itr != end && isAlphaNum(*itr))

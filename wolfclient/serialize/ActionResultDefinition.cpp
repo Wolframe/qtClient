@@ -31,7 +31,7 @@
 
 ************************************************************************/
 #include "serialize/ActionResultDefinition.hpp"
-#include <QDebug>
+#include "debug/DebugLogTree.hpp"
 
 static bool isAlphaNum( QChar ch)
 {

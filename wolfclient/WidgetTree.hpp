@@ -45,7 +45,7 @@ class WidgetTree
 {
 public:
 	WidgetTree( DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, bool debug_);
-	bool initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall);
+	bool initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall, const QString& logid);
 
 	QVariant getWidgetStates() const;
 	void setWidgetStates( const QVariant& state);

@@ -31,7 +31,7 @@
 
 ************************************************************************/
 
-#include "DebugTerminal.hpp"
+#include "debug/DebugTerminal.hpp"
 #include "serverDefinition.hpp"
 
 #include <QBoxLayout>

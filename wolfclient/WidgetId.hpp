@@ -30,36 +30,16 @@
  Project Wolframe.
 
 ************************************************************************/
+///\brief Identifier for widgets
+#ifndef _WIDGET_IDENTIFIER_HPP_INCLUDED
+#define _WIDGET_IDENTIFIER_HPP_INCLUDED
+#include <QWidget>
+#include <QString>
+#include <QVariant>
 
-#ifndef _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#define _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
-#include "WidgetRequest.hpp"
-
-///\class WidgetMessageDispatcher
-///\brief Structure to initialize widgets of a form and issue commands as client/server requests
-class WidgetMessageDispatcher
-{
-	public:
-		///\brief Constructor
-		///\param[in] root Root of widget tree visited
-		WidgetMessageDispatcher( QWidget* formwidget)
-			:m_visitor( formwidget, WidgetVisitor::None){}
-		WidgetMessageDispatcher( const WidgetVisitor& visitor_)
-			:m_visitor( visitor_){}
-
-		///\brief Copy constructor
-		///\param[in] o object to copy
-		WidgetMessageDispatcher( const WidgetMessageDispatcher& o)
-			:m_visitor(o.m_visitor){}
-
-		QList<WidgetRequest> getDomainLoadRequests( bool debugmode=false);
-		WidgetRequest getDomainLoadRequest( bool debugmode=false);
-		QList<QWidget*> findRecipientWidgets( const QVariant& widgetid) const;
-
-	private:
-		WidgetVisitor m_visitor;			//< visitor of elements
-};
-
+QVariant getWidgetId( const QWidget* wdg);
+QString askWidgetId( QWidget* wdg);
+void setWidgetId( QWidget* wdg);
+bool widgetIdMatches( const QString& id, const QWidget* wdg);
+bool isWidgetId( const QString& id);
 #endif
-

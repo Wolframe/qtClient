@@ -40,8 +40,8 @@
 #include "serialize/DataStructMap.hpp"
 #include "serialize/CondProperties.hpp"
 #include "serialize/DataFormatXML.hpp"
-#include "DebugTerminal.hpp"
-#include "DebugHelpers.hpp"
+#include "debug/DebugHelpers.hpp"
+#include "debug/DebugLogTree.hpp"
 #include <QVariant>
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
@@ -53,60 +53,9 @@
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)
 #endif
 
-QString WidgetRequest::actionWidgetRequestTag( QString recipientid_)
-{
-	return QString("-") + recipientid_;
-}
-
-QString WidgetRequest::actionWidgetRequestTag( QString recipientid_, QString followform_)
-{
-	return QString("-") + recipientid_ + "-" + followform_;
-}
-
-QString WidgetRequest::domainLoadWidgetRequestTag( QString recipientid_)
-{
-	return recipientid_;
-}
-
-WidgetRequest::Type WidgetRequest::type() const
-{
-	if (tag.size() && tag.at(0) == '-') return Action;
-	return DomainLoad;
-}
-
-QString WidgetRequest::recipientid() const
-{
-	if (type() == Action)
-	{
-		int formidx = tag.indexOf( '-', 1);
-		if (formidx < 0)
-		{
-			return tag.mid( 1, tag.size()-1);
-		}
-		else
-		{
-			return tag.mid( 1, formidx-1);
-		}
-	}
-	return tag;
-}
-
-QString WidgetRequest::followform() const
-{
-	int formidx = tag.indexOf( '-', 1);
-	if (formidx < 0)
-	{
-		return "";
-	}
-	else
-	{
-		return tag.mid( formidx+1, tag.size()-formidx-1);
-	}
-}
-
 static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode)
 {
-	WidgetRequest rt;
+	WidgetRequest rt( visitor.widget());
 
 	QString actionstr( actiondef.toString());
 
@@ -141,7 +90,7 @@ static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& 
 		TRACE_VALUE( "serialized data element", ei.toString())
 	}
 #endif
-	rt.cmd = action.command();
+	rt.header.command = action.command();
 	rt.content = getDataXML( docType, rootElement, isStandalone, elements, debugmode);
 	return rt;
 }
@@ -155,17 +104,17 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actionde
 		qCritical() << "invalid request (no widget defined)";
 		return rt;
 	}
+	WidgetRequestHeader requestheader( widget);
+	requestheader.actionid = menuitem;
+	openLogStruct( requestheader.toLogIdString());
+	openLogStruct( "request");
+	
 	rt = getWidgetRequest_( visitor, actiondef, debugmode);
-	if (menuitem.isEmpty())
+	if (!menuitem.isEmpty())
 	{
-		rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid());
-		qDebug() << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << shortenDebugMessageArgument( rt.content );
+		rt.header.actionid = menuitem;
 	}
-	else
-	{
-		rt.tag = WidgetRequest::actionWidgetRequestTag( visitor.widgetid(), menuitem);
-		qDebug() << "menu" << menuitem << "action request of " << visitor.objectName() << "=" << rt.tag << ":" << shortenDebugMessageArgument( rt.content );
-	}
+	closeLogStruct( 2);
 	return rt;
 }
 
@@ -197,6 +146,10 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode)
 		qCritical() << "request on non existing widget";
 		return rt;
 	}
+	WidgetRequestHeader requestheader( widget);
+	openLogStruct( requestheader.toLogIdString());
+	openLogStruct( "request");
+
 	QVariant action_v = widget->property( "action");
 	if (!action_v.isValid())
 	{
@@ -204,16 +157,27 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode)
 		return rt;
 	}
 	rt = getWidgetRequest_( visitor, action_v, debugmode);
-	rt.tag = WidgetRequest::domainLoadWidgetRequestTag( visitor.widgetid());
-	qDebug() << "widget request of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
+	closeLogStruct( 2);
 	return rt;
 }
 
 WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem)
 {
-	WidgetRequest rt = getWidgetRequest_( visitor, actiondef, debugmode);
-	rt.tag = WidgetRequest::domainLoadWidgetRequestTag( visitor.widgetid());
-	qDebug() << "widget request [" << menuitem << "] of " << visitor.objectName() << "=" << rt.tag << ":" << rt.content;
+	WidgetRequest rt;
+	QWidget* widget = visitor.widget();
+	if (!widget)
+	{
+		qCritical() << "request on non existing widget";
+		return rt;
+	}
+	WidgetRequestHeader requestheader( widget);
+	requestheader.actionid = menuitem;
+	openLogStruct( requestheader.toLogIdString());
+	openLogStruct( "request");
+
+	rt = getWidgetRequest_( visitor, actiondef, debugmode);
+	rt.header.actionid = menuitem;
+	closeLogStruct( 2);
 	return rt;
 }
 

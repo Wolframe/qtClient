@@ -1,7 +1,8 @@
 #include "WidgetTree.hpp"
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
-#include "DebugHelpers.hpp"
+#include "debug/DebugHelpers.hpp"
+#include "debug/DebugLogTree.hpp"
 #include <QDebug>
 #include <QPushButton>
 
@@ -221,8 +222,10 @@ void WidgetTree::saveVariables()
 	m_visitor.do_writeGlobals( *m_globals);
 }
 
-bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall)
+bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall, const QString& logid)
 {
+	openLogStruct( logid);
+
 	m_formCall.init( formcall);
 	m_visitor = WidgetVisitor( ui_);
 	m_enablers.clear();
@@ -320,14 +323,24 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	m_visitor.widget()->setProperty( "_w_formstack", QVariant( formstack));
 	m_visitor.widget()->setProperty( "_w_statestack", QVariant( statestack));
 
+	closeLogStruct();
+
 	// loads the domains
 	WidgetMessageDispatcher dispatcher( m_visitor);
 	foreach (const WidgetRequest& request, dispatcher.getDomainLoadRequests( m_debug))
 	{
-		if (!request.content.isEmpty())
+		openLogStruct( request.header.toLogIdString());
+		openLogStruct( "request");
+
+		if (request.content.isEmpty())
 		{
-			m_dataLoader->datarequest( request.cmd, request.tag, request.content);
+			qWarning() << "request is empty";
 		}
+		else
+		{
+			m_dataLoader->datarequest( request.header.command.toString(), request.header.toString(), request.content);
+		}
+		closeLogStruct( 2);
 	}
 	return true;
 }
@@ -335,14 +348,28 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& content, QString& followform)
 {
 	QWidget* rt = 0;
-	WidgetRequest rq( tag);
+	WidgetRequestHeader requestheader( tag);
 	WidgetMessageDispatcher dispatcher( m_visitor);
-	QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());
-	if (rcpl.isEmpty()) return 0;
 
-	if (rq.type() == WidgetRequest::Action)
+	openLogStruct( requestheader.toLogIdString());
+	openLogStruct( "answer");
+
+	if (!requestheader.recipient.widgetid.isValid())
 	{
-		qDebug() << "got action request answer tag=" << tag << "data=" << shortenDebugMessageArgument(content);
+		qCritical() << "cannot deliver answer for request with undefined widget id";
+		closeLogStruct( 2);
+		return 0;
+	}
+	QList<QWidget*> rcpl = dispatcher.findRecipientWidgets( requestheader.recipient.widgetid);
+	if (rcpl.isEmpty())
+	{
+		closeLogStruct( 2);
+		return 0;
+	}
+
+	if (requestheader.actionid.isValid())
+	{
+		qDebug() << "got action request answer header=[" << requestheader.toString() << "] data=" << shortenDebugMessageArgument(content);
 		foreach (QWidget* actionwidget, rcpl)
 		{
 			QPushButton* button = qobject_cast<QPushButton*>( actionwidget);
@@ -353,7 +380,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 				break;
 			}
 			rt = actionwidget;
-			followform = rq.followform();
+			followform = requestheader.actionid.toString();
 		}
 	}
 	else
@@ -433,6 +460,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 		}
 		signalEnablers();
 	}
+	closeLogStruct( 2);
 	return rt;
 }
 
@@ -440,12 +468,25 @@ QWidget* WidgetTree::deliverError( const QString& tag, const QByteArray& /*conte
 {
 	QWidget* rt = 0;
 	WidgetMessageDispatcher dispatcher( m_visitor);
-	WidgetRequest rq( tag);
-	QList<QWidget*> rcpl = dispatcher.findRecipients( rq.recipientid());
-	if (rcpl.isEmpty()) return 0;
+	WidgetRequestHeader requestheader( tag);
 
+	openLogStruct( requestheader.toLogIdString());
+	openLogStruct( "error answer");
+
+	if (!requestheader.recipient.widgetid.isValid())
+	{
+		qCritical() << "cannot deliver answer for request with undefined widget id";
+		closeLogStruct( 2);
+		return 0;
+	}
+	QList<QWidget*> rcpl = dispatcher.findRecipientWidgets( requestheader.recipient.widgetid);
+	if (rcpl.isEmpty())
+	{
+		closeLogStruct( 2);
+		return 0;
+	}
 	rt = rcpl.at(0);
-	if (rq.type() == WidgetRequest::Action)
+	if (requestheader.actionid.isValid())
 	{
 		foreach (QWidget* actionwidget, rcpl)
 		{
@@ -454,6 +495,7 @@ QWidget* WidgetTree::deliverError( const QString& tag, const QByteArray& /*conte
 			if (button) button->setDown( false);
 		}
 	}
+	closeLogStruct( 2);
 	return rt;
 }
 

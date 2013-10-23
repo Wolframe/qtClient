@@ -1,5 +1,5 @@
 #include "serialize/DataFormatXML.hpp"
-#include "DebugHelpers.hpp"
+#include "debug/DebugHelpers.hpp"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
@@ -109,7 +109,7 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 			if( ti != te ) {
 				rt.push_back( DataSerializeItem( DataSerializeItem::Value, value ) );
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-				qDebug( ) << "XML Content (start elem)" << value;
+				qDebug() << "XML Content (start elem)" << value;
 #endif
 			}
 
@@ -128,7 +128,7 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 				}
 			} else {
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-				qDebug( ) << "XML OpenTag" << tagname;
+				qDebug() << "XML OpenTag" << tagname;
 #endif
 				rt.push_back( DataSerializeItem( DataSerializeItem::OpenTag, tagname ) );
 			}
@@ -150,7 +150,7 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 				{
 					rt.push_back( DataSerializeItem( DataSerializeItem::Value, value ) );
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-					qDebug( ) << "XML Content (end elem)" << shortenDebugMessageArgument( value);
+					qDebug() << "XML Content (end elem)" << shortenDebugMessageArgument( value);
 #endif
 				}
 				value.clear( );
@@ -159,7 +159,7 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 			--tagLevel;
 			
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-			qDebug( ) << "XML CloseTag";
+			qDebug() << "XML CloseTag";
 #endif
 
 			//... root element ignored. so is the end element belonging to root element.

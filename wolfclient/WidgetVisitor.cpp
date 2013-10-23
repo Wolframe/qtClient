@@ -31,12 +31,13 @@
 
 ************************************************************************/
 #include "WidgetVisitor.hpp"
+#include "WidgetId.hpp"
 #include "WidgetRequest.hpp"
 #include "WidgetVisitorStateConstructor.hpp"
 #include "FileChooser.hpp"
 #include "PictureChooser.hpp"
 #include "FormWidget.hpp"
-#include "DebugHelpers.hpp"
+#include "debug/DebugHelpers.hpp"
 
 #include <QDebug>
 #include <QXmlStreamWriter>
@@ -97,8 +98,6 @@ WidgetVisitor::State::State()
 	,m_blockSignals(false)
 	,m_blockSignals_bak(false)
 {}
-
-static qint64 g_cnt = 0;
 
 WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 	:m_obj(obj_)
@@ -162,14 +161,8 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 			m_dataslots.push_back( vv.trimmed());
 		}
 	}
-	QVariant ruid = m_obj->widget()->property( "widgetid");
-	if (!ruid.isValid())
-	{
-		QString rt =  m_obj->widget()->objectName();
-		rt.append( ":");
-		rt.append( QVariant( ++g_cnt).toString());
-		m_obj->widget()->setProperty( "widgetid", QVariant(rt));
-	}
+	setWidgetId( m_obj->widget());
+
 	if (m_blockSignals && !m_obj->widget()->signalsBlocked())
 	{
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
@@ -208,7 +201,7 @@ bool WidgetVisitor::State::setDynamicProperty( const QString& name, const QVaria
 		QHash<QString,QVariant>::const_iterator di = m_dynamicProperties.find( name);
 		if (di == m_dynamicProperties.end())
 		{
-			qCritical() << "set a dynamic property of" << m_obj->widget()->metaObject()->className() << WidgetVisitor::widgetPath( m_obj->widget()) << "that is not predefined:" << name << shortenDebugMessageArgument( value);
+			qWarning() << "set a dynamic property of" << m_obj->widget()->metaObject()->className() << WidgetVisitor::widgetPath( m_obj->widget()) << "that is not predefined:" << name << shortenDebugMessageArgument( value);
 		}
 	}
 	m_dynamicProperties.insert( name, value);
@@ -269,30 +262,13 @@ static QList<QWidget*> getWidgetChildren( QWidget* wdg)
 	return rt;
 }
 
-static void init_widgetid( QWidget* widget)
-{
-	QVariant ruid = widget->property( "widgetid");
-	if (!ruid.isValid())
-	{
-		QString rt =  widget->objectName();
-		rt.append( ":");
-		rt.append( QVariant( ++g_cnt).toString());
-		widget->setProperty( "widgetid", QVariant(rt));
-	}
-}
-
 void WidgetVisitor::init_widgetids( QWidget* widget)
 {
-	init_widgetid( widget);
+	setWidgetId( widget);
 	foreach (QWidget* child, widget->findChildren<QWidget*>())
 	{
-		init_widgetid( child);
+		setWidgetId( child);
 	}
-}
-
-bool WidgetVisitor::is_widgetid( const QString& id)
-{
-	return id.indexOf(':') >= 0;
 }
 
 QWidget* WidgetVisitor::get_widget_reference( const QString& id)
@@ -854,8 +830,7 @@ QString WidgetVisitor::widgetPath() const
 
 static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& cond)
 {
-	QVariant requestid = widget->property( "widgetid");
-	return (requestid.isValid() && requestid == cond);
+	return widgetIdMatches( cond.toString(), widget);
 }
 
 QWidget* WidgetVisitor::resolveLink( const QString& link)
@@ -877,8 +852,10 @@ FormWidget* WidgetVisitor::findFormWidgetWithWidgetid( const QString& wid)
 	QWidget* wdg = uirootwidget();
 	foreach (FormWidget* fw, wdg->findChildren<FormWidget*>())
 	{
-		WidgetVisitor formvisitor( fw->mainwidget());
-		if (formvisitor.property( "widgetid") == wid) return fw;
+		if (widgetIdMatches( wid, fw->mainwidget()))
+		{
+			return fw;
+		}
 	}
 	return 0;
 }
@@ -1082,7 +1059,7 @@ QString WidgetVisitor::className() const
 QString WidgetVisitor::widgetid() const
 {
 	if (m_stk.isEmpty()) return QString();
-	QVariant ruid = m_stk.top().dynamicProperty( "widgetid");
+	QVariant ruid = getWidgetId( m_stk.top().m_obj->widget());
 	if (ruid.type() != QVariant::String)
 	{
 		ERROR( "property 'widgetid' missing in state");
@@ -1412,13 +1389,13 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 	{
 		address = receiverid;
 	}
-	if (is_widgetid( address))
+	if (isWidgetId( address))
 	{
 		WidgetVisitor mainvisitor( uirootwidget(), None);
 		wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, address));
 		foreach (QWidget* rcvwidget, wl)
 		{
-			TRACE_STATUS( "found widget by address", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+			TRACE_STATUS( "found widget by address", rcvwidget->metaObject()->className(), rcvwidget->objectName(), address);
 			rt.push_back( SignalReceiver( slotname, rcvwidget));
 		}
 	}
@@ -1427,7 +1404,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 		rcvwidget = get_widget_reference( address);
 		if (rcvwidget)
 		{
-			TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+			TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), address);
 			rt.push_back( SignalReceiver( slotname, rcvwidget));
 		}
 		else
@@ -1437,7 +1414,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 	}
 	else if ((rcvwidget = get_widget_reference( address)) != 0)
 	{
-		TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+		TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), address);
 		rt.push_back( SignalReceiver( slotname, rcvwidget));
 	}
 	else
@@ -1457,13 +1434,13 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 				{
 					if (sendercond.toString() == widgetid())
 					{
-						TRACE_STATUS( "found widget by data slot identifier with sender id", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+						TRACE_STATUS( "found widget by data slot identifier with sender id", rcvwidget->metaObject()->className(), rcvwidget->objectName(), getWidgetId(rcvwidget));
 						rt.push_back( SignalReceiver( slotname, rcvwidget));
 					}
 				}
 				else
 				{
-					TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), rcvwidget->property("widgetid"));
+					TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), getWidgetId(rcvwidget));
 					rt.push_back( SignalReceiver( slotname, rcvwidget));
 				}
 			}

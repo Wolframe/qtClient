@@ -1,7 +1,7 @@
 #include "serialize/DataStruct.hpp"
 #include "serialize/DataStructDescription.hpp"
-#include "DebugHelpers.hpp"
-#include <QDebug>
+#include "debug/DebugHelpers.hpp"
+#include "debug/DebugLogTree.hpp"
 
 static int arrayAllocSize( int size)
 {

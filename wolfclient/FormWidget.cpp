@@ -36,7 +36,8 @@
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
 #include "global.hpp"
-#include "DebugHelpers.hpp"
+#include "debug/DebugHelpers.hpp"
+#include "debug/DebugLogTree.hpp"
 
 #include <QDebug>
 #include <QApplication>
@@ -114,7 +115,7 @@ void FormWidget::executeAction( QWidget *actionwidget )
 
 		if (!request.content.isEmpty())
 		{
-			m_dataLoader->datarequest( request.cmd, request.tag, request.content);
+			m_dataLoader->datarequest( request.header.command.toString(), request.header.toString(), request.content);
 			button->setDown( true);
 		}
 		if (actionwidget->property( "datasignal:clicked").isValid())
@@ -143,7 +144,7 @@ void FormWidget::executeMenuAction( QWidget *actionwidget, const QString& menuac
 		WidgetRequest request = getActionRequest( visitor, action, m_debug, menuaction);
 		if (!request.content.isEmpty())
 		{
-			m_dataLoader->datarequest( request.cmd, request.tag, request.content);
+			m_dataLoader->datarequest( request.header.command.toString(), request.header.toString(), request.content);
 		}
 	}
 	else
@@ -339,8 +340,10 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 // that's not us
 	if( name != m_form ) return;
 
-	qDebug( ) << "Form " << name << " loaded";
 	FormCall formCall( name);
+	QString logid = openLogStruct( QString("form ") + formCall.name(), true);
+	
+	qDebug( ) << "Form " << name << " loaded";
 	
 	QWidget *oldUi = m_ui;
 	if( formXml.size( ) == 0 ) {
@@ -350,6 +353,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
+			closeLogStruct();
 			emit error( tr( "Unable to load form plugin '%1', does the plugin exist?" ).arg( formCall.name( ) ) );
 			return;
 		}
@@ -359,6 +363,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
+			closeLogStruct();
 			emit error( tr( "Unable to initialize form plugin '%1', something went wrong in plugin initialization!" ).arg( formCall.name( ) ) );
 			return;
 		}
@@ -371,6 +376,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
+			closeLogStruct();
 			emit error( tr( "Unable to load form '%1', does it exist?" ).arg( name ) );
 			return;
 		}
@@ -386,6 +392,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
+		closeLogStruct();
 		emit error( tr( "Calling the menu UI %1 as if it were a normal form. This is a programming mistake!" ).arg( name ) );
 		return;
 	}
@@ -397,6 +404,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
+		closeLogStruct();
 		emit formModal( name );
 		return;
 	}
@@ -408,12 +416,14 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
+		closeLogStruct();
 		emit formNewWindow( name );
 		return;
 	}
 	
 // initialize the form data
-	if (!m_widgetTree.initialize( m_ui, oldUi, m_form))
+	closeLogStruct();
+	if (!m_widgetTree.initialize( m_ui, oldUi, m_form, logid))
 	{
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
@@ -421,6 +431,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		emit error( tr( "Failed to load widget tree for form %1 (ambiguous widget id?)!" ).arg( name ) );
 		return;
 	}
+	openLogStruct(logid);
 
 // add new form to layout (which covers the whole widget)
 	m_layout->addWidget( m_ui );
@@ -455,6 +466,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	qDebug( ) << "Initiating form locatization load for " << m_form << " and locale "
 		<< m_locale.name( );
 	m_formLoader->initiateFormLocalizationLoad( m_form, m_locale );
+	closeLogStruct();
 }
 
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)

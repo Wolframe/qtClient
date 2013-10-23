@@ -1,7 +1,39 @@
+/************************************************************************
+
+ Copyright (C) 2011 - 2013 Project Wolframe.
+ All rights reserved.
+
+ This file is part of Project Wolframe.
+
+ Commercial Usage
+    Licensees holding valid Project Wolframe Commercial licenses may
+    use this file in accordance with the Project Wolframe
+    Commercial License Agreement provided with the Software or,
+    alternatively, in accordance with the terms contained
+    in a written agreement between the licensee and Project Wolframe.
+
+ GNU General Public License Usage
+    Alternatively, you can redistribute this file and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Wolframe is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Wolframe.  If not, see <http://www.gnu.org/licenses/>.
+
+ If you have questions regarding the use of this file, please contact
+ Project Wolframe.
+
+************************************************************************/
 #include "serialize/DataStructMap.hpp"
 #include "serialize/DataStructDescriptionMap.hpp"
-#include "DebugHelpers.hpp"
-#include <QDebug>
+#include "debug/DebugHelpers.hpp"
+#include "debug/DebugLogTree.hpp"
 #include <QStringList>
 
 static QString dataPathString( const DataPath& pred, const DataPath& pt, int size)
@@ -498,14 +530,38 @@ static bool writeDataGroupElement( const DataPath& pred, const DataPath& group, 
 	return true;
 }
 
+static bool hasAnyAssignment( const DataStructDescription* descr)
+{
+	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
+	for (; di != de; ++di)
+	{
+		if (di->type == DataStructDescription::variableref_ && !di->anyValue())
+		{
+			return true;
+		}
+		if (di->substruct && hasAnyAssignment( di->substruct))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 static bool readDataStruct( const DataPath& pred, DataStruct* data, const DataStructDescriptionMap& descrmap, VisitorInterface* vi)
 {
 	bool initialized = false;
 	const DataStructDescription* descr = data->description();
 	if (data->array())
 	{
-		qCritical() << "cannot handle as root node of a structure";
-		return false;
+		if (hasAnyAssignment( descr))
+		{
+			qCritical() << "cannot read array as root node of a structure";
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 	DataStruct::iterator si = data->structbegin(), se = data->structend();
 	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
@@ -581,8 +637,15 @@ static bool writeDataStruct( const DataPath& pred, const DataStruct* data, const
 	const DataStructDescription* descr = data->description();
 	if (data->array())
 	{
-		qCritical() << "cannot handle as root node of a structure";
-		return false;
+		if (hasAnyAssignment( descr))
+		{
+			qCritical() << "cannot write array as root node of a structure";
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 	DataStruct::const_iterator si = data->structbegin(), se = data->structend();
 	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
@@ -708,7 +771,8 @@ static bool writeDataStruct( const DataStruct* data, VisitorInterface* vi)
 bool putDataStruct( const DataStruct& data, VisitorInterface* vi)
 {
 	qDebug() << "write data struct" << data.toString( 60);
-	return writeDataStruct( &data, vi);
+	bool rt = writeDataStruct( &data, vi);
+	return rt;
 }
 
 bool getDataStruct( DataStruct& data, VisitorInterface* vi)

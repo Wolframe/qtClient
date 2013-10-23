@@ -291,11 +291,6 @@ class WidgetVisitor
 
 		QList<QWidget*> children( const QString& name=QString()) const;
 
-		///\brief Eval if id describes a widget id of an identifier
-		///\param[in] id identifier to check
-		///\return true if 'id' is a widget id
-		static bool is_widgetid( const QString& id);
-
 		///\brief Eval if id describes a widget reference from the current widget
 		///\param[in] id identifier to check
 		///\return the widget reference if it exists

@@ -1,5 +1,5 @@
 #include "serialize/DataPathTree.hpp"
-#include <QDebug>
+#include "debug/DebugLogTree.hpp"
 
 DataPathTree::DataPathTree()
 	:m_curidx(0)

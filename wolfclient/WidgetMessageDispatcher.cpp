@@ -32,13 +32,13 @@
 ************************************************************************/
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
+#include "WidgetId.hpp"
 #include <QDebug>
 #include <QPushButton>
 
 static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& cond)
 {
-	QVariant widgetid = widget->property( "widgetid");
-	return (widgetid.isValid() && widgetid == cond);
+	return widgetIdMatches( cond.toString(), widget);
 }
 
 ///\brief Return true if the widget is not an action widget with an action property defined.
@@ -70,10 +70,9 @@ WidgetRequest WidgetMessageDispatcher::getDomainLoadRequest( bool debugmode)
 	return getWidgetRequest( m_visitor, debugmode);
 }
 
-QList<QWidget*> WidgetMessageDispatcher::findRecipients( const QString& tag) const
+QList<QWidget*> WidgetMessageDispatcher::findRecipientWidgets( const QVariant& widgetid) const
 {
-	WidgetRequest request( tag);
-	return m_visitor.findSubNodes( nodeProperty_hasWidgetId, request.recipientid());
+	return m_visitor.findSubNodes( nodeProperty_hasWidgetId, widgetid.toString());
 }
 
 

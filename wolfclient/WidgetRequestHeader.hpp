@@ -30,36 +30,37 @@
  Project Wolframe.
 
 ************************************************************************/
+///\brief Header for server requests
+#ifndef _WIDGET_REQUEST_IDENTIFIER_HPP_INCLUDED
+#define _WIDGET_REQUEST_IDENTIFIER_HPP_INCLUDED
+#include <QWidget>
+#include <QString>
+#include <QVariant>
 
-#ifndef _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#define _WOLFRAME_WIDGET_MESSAGE_DISPATCHER_HPP_INCLUDED
-#include "WidgetVisitor.hpp"
-#include "WidgetRequest.hpp"
-
-///\class WidgetMessageDispatcher
-///\brief Structure to initialize widgets of a form and issue commands as client/server requests
-class WidgetMessageDispatcher
+class WidgetRequestHeader
 {
-	public:
-		///\brief Constructor
-		///\param[in] root Root of widget tree visited
-		WidgetMessageDispatcher( QWidget* formwidget)
-			:m_visitor( formwidget, WidgetVisitor::None){}
-		WidgetMessageDispatcher( const WidgetVisitor& visitor_)
-			:m_visitor( visitor_){}
+public:
+	WidgetRequestHeader(){}
+	WidgetRequestHeader( QWidget* recipient_widgetid);
+	WidgetRequestHeader( const QString& str);
+	WidgetRequestHeader( const WidgetRequestHeader& o);
 
-		///\brief Copy constructor
-		///\param[in] o object to copy
-		WidgetMessageDispatcher( const WidgetMessageDispatcher& o)
-			:m_visitor(o.m_visitor){}
+	struct
+	{
+		QVariant widgetid;
+	} recipient;
 
-		QList<WidgetRequest> getDomainLoadRequests( bool debugmode=false);
-		WidgetRequest getDomainLoadRequest( bool debugmode=false);
-		QList<QWidget*> findRecipientWidgets( const QVariant& widgetid) const;
+	QVariant actionid;
+	QVariant followform;
+	QVariant command;
 
-	private:
-		WidgetVisitor m_visitor;			//< visitor of elements
+	QString toString() const;
+	QString toLogIdString() const;
+
+	static QVariant getActionId( const QString& hdrstr);
+	static QVariant getFollowForm( const QString& hdrstr);
+	static QVariant getWidgetId( const QString& hdrstr);
+	static QVariant getCommand( const QString& hdrstr);
 };
 
 #endif
-
