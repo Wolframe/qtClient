@@ -265,12 +265,6 @@ static void fillIdSet( QMap<int,bool>& idset, int id, const QMap<int,QList<int> 
 	}
 }
 
-static const char* logLevelName( LogLevel lv)
-{
-	static const char* ar[] = {"DEBUG","WARNING","CRITICAL","FATAL"};
-	return ar[ (int)lv];
-}
-
 QList<DebugLogTree::MessageStruct> DebugLogTree::getMessages( int id, LogLevel level) const
 {
 	QList<MessageStruct> rt;

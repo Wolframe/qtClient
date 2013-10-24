@@ -41,7 +41,7 @@ INSTALLS += target
 # TODO: must be solved later, so far we just deploy the plugins twice:
 # as plugin (above) and as shared library (here):
 temptarget.files = *.so*
-temptarget.path = $${PREFIX}/lib
+temptarget.path = $${LIBDIR}
 INSTALLS += temptarget
 
 unix:QMAKE_LFLAGS += -Wl,-rpath,$$[QT_INSTALL_PLUGINS]/designer
