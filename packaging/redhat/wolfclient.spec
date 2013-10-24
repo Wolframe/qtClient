@@ -155,8 +155,8 @@ rm -rf $RPM_BUILD_ROOT
 %plugindir/designer/libfilechooser.so
 %plugindir/designer/libpicturechooser.so
 # those two are temporary till the plugin system in wolfclient kicks in :-)
-%{_libdir}/libfilechooser.so
-%{_libdir}/libpicturechooser.so
+%{_libdir}/wolframe/libfilechooser.so
+%{_libdir}/wolframe/libpicturechooser.so
 
 %package devel
 Summary: Wolframe Qt client development files
