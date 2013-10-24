@@ -187,8 +187,31 @@ struct StackElem
 
 DebugLogTree::NodeStructR DebugLogTree::getNodeStruct() const
 {
+	QList<Message>::const_iterator mi = m_msglist.begin(), me = m_msglist.end();
+	QMap<int,LogLevel> lvmap;
+	for (; mi != me; ++mi)
+	{
+		QMap<int,LogLevel>::iterator li = lvmap.find( mi->prefix);
+		if (li != lvmap.end())
+		{
+			if ((int)li.value() < (int)mi->level)
+			{
+				li.value() = mi->level;
+			}
+		}
+		else
+		{
+			lvmap[ mi->prefix] = mi->level;
+		}
+	}
+	QMap<int,LogLevel>::iterator li = lvmap.find( 0);
+	LogLevel maxlevel = LogDebug;
+	if (li != lvmap.end())
+	{
+		maxlevel = li.value();
+	}
 	QList<StackElem> stk;
-	DebugLogTree::NodeStructR cd( new DebugLogTree::NodeStruct( 0, ""));
+	DebugLogTree::NodeStructR cd( new DebugLogTree::NodeStruct( 0, "", maxlevel));
 	stk.push_back( StackElem( cd));
 
 	while (!stk.isEmpty())
@@ -201,7 +224,13 @@ DebugLogTree::NodeStructR DebugLogTree::getNodeStruct() const
 				QString prefix = m_prefixinv[ parentidx];
 				int ofs = prefix.size()?(prefix.size()+1):0;
 				QString name = m_prefixinv[ cl].mid( ofs);
-				DebugLogTree::NodeStructR cd( new DebugLogTree::NodeStruct( cl, name));
+				maxlevel = LogDebug;
+				QMap<int,LogLevel>::iterator li = lvmap.find( cl);
+				if (li != lvmap.end())
+				{
+					maxlevel = li.value();
+				}
+				DebugLogTree::NodeStructR cd( new DebugLogTree::NodeStruct( cl, name, maxlevel));
 				stk.back().node->chld.push_back( cd);
 			}
 			++stk.back().chldidx;
@@ -242,9 +271,9 @@ static const char* logLevelName( LogLevel lv)
 	return ar[ (int)lv];
 }
 
-QString DebugLogTree::getMessages( int id, LogLevel level) const
+QList<DebugLogTree::MessageStruct> DebugLogTree::getMessages( int id, LogLevel level) const
 {
-	QString rt;
+	QList<MessageStruct> rt;
 	QMap<int,bool> idset;
 	idset[ id] = true;
 	fillIdSet( idset, id, m_childmap);
@@ -256,10 +285,7 @@ QString DebugLogTree::getMessages( int id, LogLevel level) const
 		{
 			if (prevmsg != mi->stridx)
 			{
-				rt.append( logLevelName( mi->level));
-				rt.append( " :");
-				rt.append( m_msginv[ mi->stridx]);
-				rt.append( "\n");
+				rt.push_back( MessageStruct( mi->level, m_msginv[ mi->stridx]));
 			}
 			prevmsg = mi->stridx;
 		}
@@ -280,7 +306,7 @@ DebugLogTree::NodeStructR getLogNodeStruct()
 	}
 }
 
-QString getLogMessages( int id, LogLevel level)
+QList<DebugLogTree::MessageStruct> getLogMessages( int id, LogLevel level)
 {
 	if (g_logtree)
 	{
@@ -288,7 +314,7 @@ QString getLogMessages( int id, LogLevel level)
 	}
 	else
 	{
-		return QString();
+		return QList<DebugLogTree::MessageStruct>();
 	}
 }
 

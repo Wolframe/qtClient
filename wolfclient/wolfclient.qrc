@@ -25,5 +25,8 @@
         <file>images/development.png</file>
         <file>images/interface.png</file>
         <file>images/debug.png</file>
+        <file>images/debug-ok.png</file>
+        <file>images/debug-error.png</file>
+        <file>images/debug-warning.png</file>
     </qresource>
 </RCC>

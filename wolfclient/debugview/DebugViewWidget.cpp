@@ -37,16 +37,24 @@
 
 DebugViewWidget::DebugViewWidget( QWidget *parent_)
 	:QWidget( parent_, Qt::Tool | Qt::WindowTitleHint)
-	,m_output(0)
+	,m_icon_error( QString( ":/images/debug-error.png"))
+	,m_icon_warning( QString( ":/images/debug-warning.png"))
+	,m_icon_ok( QString( ":/images/debug-ok.png"))
+	,m_msglist(0)
 	,m_tree(0)
 	,m_layout(0)
+	,m_levelSelect(0)
+	,m_level(LogDebug)
 {
-	m_output = new QTextEdit(this);
-	m_output->setReadOnly( true);
-	m_tree = new QTreeWidget(this);
+	m_msglist = new QTableWidget( this);
+	m_msglist->setColumnCount( 2);
+	m_msglist->setHorizontalHeaderLabels( QStringList() << "Type" << "Message");
+
+	m_tree = new QTreeWidget( this);
+	m_tree->setHeaderLabel( "Navigation");
 
 	setWindowTitle( tr( "Debug Window"));
-	setFixedSize( 640, 480);
+	resize( 640, 480);
 
 	m_layout = new QBoxLayout( QBoxLayout::TopToBottom, this);
 
@@ -54,15 +62,22 @@ DebugViewWidget::DebugViewWidget( QWidget *parent_)
 	m_layout->addWidget( label);
 
 	m_layout->addWidget( m_tree);
-	m_layout->addWidget( m_output);
+	m_layout->addWidget( m_msglist);
 	QHBoxLayout* buttons = new QHBoxLayout();
 	QPushButton *buttonRefresh = new QPushButton("Refresh");
 	QPushButton *buttonClear = new QPushButton("Clear");
+	m_levelSelect = new QComboBox();
+	m_levelSelect->addItem( "Debug", (int)LogDebug);
+	m_levelSelect->addItem( "Warning", (int)LogWarning);
+	m_levelSelect->addItem( "Error", (int)LogCritical);
+	m_levelSelect->setCurrentIndex( 0);
 
 	connect( buttonRefresh, SIGNAL(clicked()), this, SLOT(refresh()), Qt::UniqueConnection);
 	connect( buttonClear, SIGNAL(clicked()), this, SLOT(clear()), Qt::UniqueConnection);
+	connect( m_levelSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(debugLevelChanged(int)), Qt::UniqueConnection);
 	
 	buttons->addStretch();
+	buttons->addWidget( m_levelSelect);
 	buttons->addWidget( buttonRefresh);
 	buttons->addWidget( buttonClear);
 	m_layout->addLayout( buttons);
@@ -78,18 +93,59 @@ DebugViewWidget::~DebugViewWidget()
 
 void DebugViewWidget::bringToFront()
 {
-	refresh();
 	show();
 	activateWindow();
 	m_tree->setFocus();
+	refresh();
+}
+
+static QString extractInternalMarker( const QString& name)
+{
+	QString rt;
+	QString::const_iterator si = name.begin(), se = name.end();
+	for (; si != se; ++si)
+	{
+		if (*si == ':' || *si == '#')
+		{
+			for (; (si+1) != se && *(si+1) >= '0' && *(si+1) <= '9'; ++si);
+			continue;
+		}
+		if (*si == '.')
+		{
+			rt.push_back( ' ');
+		}
+		else
+		{
+			rt.push_back( *si);
+		}
+	}
+	return rt;
 }
 
 void DebugViewWidget::addSubTree( QTreeWidgetItem* viewnode, const DebugLogTree::NodeStruct* node, int level)
 {
 	QTreeWidgetItem* item = new QTreeWidgetItem( viewnode);
 	item->setData( 0, Qt::UserRole, node->id);
-	item->setText( 0, node->name);
+	if (level == 0 && node->name.isEmpty())
+	{
+		item->setText( 0, "All");
+		item->setToolTip( 0, "Show all messages (also the unclassified)");
+		//... root node name
+	}
+	else
+	{
+		item->setText( 0, extractInternalMarker( node->name));
+		item->setToolTip( 0, node->name);
+	}
+	switch (node->maxlevel)
+	{
+		case LogDebug: item->setIcon( 0, m_icon_ok); break;
+		case LogWarning: item->setIcon( 0, m_icon_warning); break;
+		case LogCritical: item->setIcon( 0, m_icon_error); break;
+		case LogFatal: item->setIcon( 0, m_icon_error); break;
+	}
 	if (level == 0) item->setExpanded( true);
+	item->setSelected( false);
 
 	for (int ii=0; ii<node->chld.size(); ++ii)
 	{
@@ -100,22 +156,94 @@ void DebugViewWidget::addSubTree( QTreeWidgetItem* viewnode, const DebugLogTree:
 void DebugViewWidget::clear()
 {
 	clearLogStruct();
+	clearMessages();
+	m_tree->clear();
 	refresh();
 }
 
 void DebugViewWidget::refresh()
 {
-	m_output->clear();
+	QList<QTreeWidgetItem*> sel = m_tree->selectedItems();
+	int selid = sel.isEmpty()?-1:sel.at(0)->data( 0, Qt::UserRole).toInt();
 	m_tree->clear();
 
 	DebugLogTree::NodeStructR st = getLogNodeStruct();
 	addSubTree( m_tree->invisibleRootItem(), st.data(), 0);
+	if (selid >= 0)
+	{
+		printMessages( selid);
+	}
+	else
+	{
+		clearMessages();
+	}
+}
+
+void DebugViewWidget::clearMessages()
+{
+	m_msglist->setSortingEnabled( false );
+	m_msglist->clearContents();
+	for (int ii=m_msglist->rowCount()-1; ii >= 0; ii--)
+	{
+		m_msglist->removeRow( ii);
+	}
+}
+
+void DebugViewWidget::printMessages( int nodeid)
+{
+	clearMessages();
+	QList<DebugLogTree::MessageStruct> msgar = getLogMessages( nodeid, m_level);
+	QList<DebugLogTree::MessageStruct>::const_iterator mi = msgar.begin(), me = msgar.end();
+	for (int rowidx=0; mi != me; ++mi,++rowidx)
+	{
+		m_msglist->insertRow( rowidx);
+		QTableWidgetItem* msgitem = new QTableWidgetItem( mi->text);
+		msgitem->setToolTip( mi->text);
+		QTableWidgetItem* lvitem = 0;
+		m_msglist->setItem( rowidx, 1, msgitem);
+		switch (mi->level)
+		{
+			case LogDebug:
+				break;
+			case LogWarning:
+				lvitem = new QTableWidgetItem( m_icon_warning, "Warning");
+				break;
+			case LogCritical:
+				lvitem = new QTableWidgetItem( m_icon_error, "Critical");
+				break;
+			case LogFatal:
+				lvitem = new QTableWidgetItem( m_icon_error, "Fatal");
+				break;
+		}
+		if (lvitem)
+		{
+			m_msglist->setItem( rowidx, 0, lvitem);
+		}
+	}
+	for (int ii = 0; ii < m_msglist->columnCount(); ii++)
+	{
+		m_msglist->resizeColumnToContents( ii);
+	}
+	m_msglist->setShowGrid( false);
 }
 
 void DebugViewWidget::printMessages( QTreeWidgetItem* item, int column)
 {
-	QString text = getLogMessages( item->data( column, Qt::UserRole).toInt(), m_level);
-	m_output->clear();
-	m_output->append( text);
+	int nodeid = item->data( column, Qt::UserRole).toInt();
+	printMessages( nodeid);
+}
+
+void DebugViewWidget::debugLevelChanged( int idx)
+{
+	QVariant lv = m_levelSelect->itemData( idx);
+	if (lv.isValid())
+	{
+		m_level = (LogLevel)lv.toInt();
+	}
+	else
+	{
+		m_level = LogDebug;
+	}
+	refresh();
 }
 

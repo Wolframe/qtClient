@@ -65,16 +65,30 @@ public:
 		int id;
 		QString name;
 		QList<NodeStructR> chld;
+		LogLevel maxlevel;
 
-		NodeStruct( int id_, QString name_)
-			:id(id_),name(name_){}
+		NodeStruct( int id_, QString name_, LogLevel maxlevel_)
+			:id(id_),name(name_),maxlevel(maxlevel_){}
 		NodeStruct( const NodeStruct& o)
-			:id(o.id),name(o.name),chld(o.chld){}
+			:id(o.id),name(o.name),chld(o.chld),maxlevel(o.maxlevel){}
 		~NodeStruct(){}
 	};
 
+	struct MessageStruct
+	{
+		LogLevel level;
+		QString text;
+
+		MessageStruct()
+			:level(LogDebug){}
+		MessageStruct( const MessageStruct& o)
+			:level(o.level),text(o.text){}
+		MessageStruct( LogLevel level_, const QString& text_)
+			:level(level_),text(text_){}
+	};
+
 	NodeStructR getNodeStruct() const;
-	QString getMessages( int id, LogLevel level) const;
+	QList<MessageStruct> getMessages( int id, LogLevel level) const;
 
 private:
 	QMap<QString, int> m_prefixmap;
@@ -105,7 +119,7 @@ void clearLogStruct();
 void printLog( LogLevel level, const QString& msg);
 
 DebugLogTree::NodeStructR getLogNodeStruct();
-QString getLogMessages( int id, LogLevel level);
+QList<DebugLogTree::MessageStruct> getLogMessages( int id, LogLevel level);
 
 #endif
 

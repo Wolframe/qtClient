@@ -34,10 +34,11 @@
 #define _WOLFRAME_DEBUG_VIEW_WIDGET_HPP_INCLUDED
 #include "debugview/DebugLogTree.hpp"
 #include <QWidget>
-#include <QTextEdit>
+#include <QTableWidget>
 #include <QTreeWidget>
 #include <QBoxLayout>
 #include <QLabel>
+#include <QComboBox>
 
 class DebugViewWidget : public QWidget
 {
@@ -52,14 +53,21 @@ public slots:
 	void refresh();
 	void printMessages( QTreeWidgetItem* item, int column);
 	void clear();
+	void debugLevelChanged( int idx);
 
 private:
 	void addSubTree( QTreeWidgetItem* viewnode, const DebugLogTree::NodeStruct* datanode, int level);
+	void printMessages( int nodeid);
+	void clearMessages();
 
 private:
-	QTextEdit* m_output;
+	QIcon m_icon_error;
+	QIcon m_icon_warning;
+	QIcon m_icon_ok;
+	QTableWidget* m_msglist;
 	QTreeWidget* m_tree;
 	QBoxLayout* m_layout;
+	QComboBox* m_levelSelect;
 	LogLevel m_level;
 };
 
