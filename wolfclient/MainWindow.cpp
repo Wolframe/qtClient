@@ -64,10 +64,10 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_dataLoader( 0 ), m_settings( ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
-	m_terminating( false ), m_debugWindow( 0 ), m_debugWindowAction( 0 ),
+	m_terminating( false ), m_debugWindow( 0 ), m_logtree( 0 ), m_debugWindowAction( 0 ),
 	m_modalDialog( 0 ), m_modalDialogClosed( true ), m_menuSignalMapper( 0 )
 {
-	setDebugLogTree( &m_logtree);
+	setDebugLogTree( m_logtree = new DebugLogTree() );
 
 // read parameters, first and only one is the optional configurartion files
 // containint the settings
@@ -162,6 +162,12 @@ void MainWindow::readSettings( )
 
 MainWindow::~MainWindow( )
 {
+	setDebugLogTree( 0 );
+	if (m_logtree)
+	{
+		delete m_logtree;
+		m_logtree = 0;
+	}
 	if( settings.mdi ) {
 		if( m_mdiArea )
 			m_mdiArea->closeAllSubWindows( );
@@ -206,7 +212,7 @@ void MainWindow::create( )
 {
 	SkeletonMainWindow::create( );
 
-	setDebugLogTree( &m_logtree);
+	setDebugLogTree( m_logtree);
 
 // install custom output handler (mainly for Unix debugging)
 #if QT_VERSION >= 0x050000
@@ -405,10 +411,11 @@ void MainWindow::updateActionShortcuts( )
 void MainWindow::disconnected( )
 {
 	if( m_debugWindow ) {
-		m_debugWindowAction->setChecked( false );
-		m_debugWindow->deleteLater( );
-		m_debugWindow = 0;
 		setDebugLogTree( 0);
+		DebugViewWidget* dv = m_debugWindow;
+		m_debugWindow = 0;
+		m_debugWindowAction->setChecked( false );
+		dv->deleteLater( );
 	}
 
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
@@ -1157,10 +1164,8 @@ void MainWindow::login( )
 
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
+		setDebugLogTree( m_logtree);
 		m_debugWindow = new DebugViewWidget( this );
-		m_debugWindow->setAttribute( Qt::WA_DeleteOnClose );
-		setDebugLogTree( &m_logtree);
-
 		qDebug( ) << "Debug window initialized";
 	}
 }
@@ -1219,7 +1224,7 @@ void MainWindow::error( QString error )
 void MainWindow::showDebugTerminal( bool checked )
 {
 	if( m_debugWindow ) {
-		setDebugLogTree( &m_logtree);
+		setDebugLogTree( m_logtree);
 		setDebugMode( checked);
 
 		if( checked ) {
@@ -1233,7 +1238,7 @@ void MainWindow::showDebugTerminal( bool checked )
 void MainWindow::removeDebugToggle( )
 {
 	m_debugWindowAction->setChecked( false );
-	m_logtree.clear();
+	m_logtree->clear();
 	setDebugLogTree( 0);
 	setDebugMode( false);
 }

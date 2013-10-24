@@ -112,7 +112,7 @@ class MainWindow : public SkeletonMainWindow
 		ServerDefinition m_selectedConnection; // lastly selected connection
 		bool m_terminating;
 		DebugViewWidget* m_debugWindow;
-		DebugLogTree m_logtree;		// Logged messages as tree
+		DebugLogTree* m_logtree;	// Logged messages as tree
 		QAction *m_debugWindowAction;
 		QAction *m_openFormAction;
 		QAction *m_openFormNewWindowAction;
