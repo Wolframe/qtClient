@@ -1,6 +1,6 @@
 #include "serialize/DataStructDescription.hpp"
 #include "serialize/DataStruct.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugLogTree.hpp"
 
 DataStructDescription::Element::Element( const QString& name_)
 	:type(atomic_),name(name_),initvalue(0),substruct(0),flags(0)

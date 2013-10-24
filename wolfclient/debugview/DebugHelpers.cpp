@@ -1,4 +1,4 @@
-#include "debug/DebugHelpers.hpp"
+#include "debugview/DebugHelpers.hpp"
 
 template <class StringType>
 static StringType shortenDebugMessageArgument_( const StringType& msg, int maxsize)

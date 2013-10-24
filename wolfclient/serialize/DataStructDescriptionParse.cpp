@@ -1,5 +1,5 @@
 #include "serialize/DataStructDescription.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugLogTree.hpp"
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 

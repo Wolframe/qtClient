@@ -37,7 +37,7 @@
 #include "FileChooser.hpp"
 #include "PictureChooser.hpp"
 #include "FormWidget.hpp"
-#include "debug/DebugHelpers.hpp"
+#include "debugview/DebugHelpers.hpp"
 
 #include <QDebug>
 #include <QXmlStreamWriter>

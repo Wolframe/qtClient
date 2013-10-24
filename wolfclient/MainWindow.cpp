@@ -42,7 +42,7 @@
 #include "FormChooseDialog.hpp"
 #include "manageServerDefsDialog.hpp"
 #include "FormCall.hpp"
-#include "debug/DebugMessageHandler.hpp"
+#include "debugview/DebugMessageHandler.hpp"
 #include <QtGui>
 #include <QApplication>
 #include <QTranslator>

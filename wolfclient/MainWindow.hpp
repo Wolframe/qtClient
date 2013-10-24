@@ -55,9 +55,9 @@
 #include "ui_MainWindow.h"
 #include "settings.hpp"
 #include "serverDefinition.hpp"
-#include "debug/DebugTerminal.hpp"
-#include "debug/DebugLogTree.hpp"
-#include "debug/DebugViewWidget.hpp"
+#include "debugview/DebugTerminal.hpp"
+#include "debugview/DebugLogTree.hpp"
+#include "debugview/DebugViewWidget.hpp"
 
 #include "SkeletonMainWindow.hpp"
 

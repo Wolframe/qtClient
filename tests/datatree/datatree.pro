@@ -20,9 +20,9 @@ QT += widgets
 
 SOURCES += \	
 	testDataTree.cpp \
-	../../wolfclient/debug/DebugHelpers.cpp \
-	../../wolfclient/debug/DebugLogTree.cpp \
-	../../wolfclient/debug/DebugMessageHandler.cpp \
+	../../wolfclient/debugview/DebugHelpers.cpp \
+	../../wolfclient/debugview/DebugLogTree.cpp \
+	../../wolfclient/debugview/DebugMessageHandler.cpp \
 	../../wolfclient/serialize/DataStructDescription.cpp \
 	../../wolfclient/serialize/DataStructDescriptionParse.cpp \
 	../../wolfclient/serialize/DataStruct.cpp

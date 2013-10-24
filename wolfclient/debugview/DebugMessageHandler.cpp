@@ -30,8 +30,8 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "debug/DebugMessageHandler.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugMessageHandler.hpp"
+#include "debugview/DebugLogTree.hpp"
 
 static char g_debug = false;
 void setDebugMode( bool v)

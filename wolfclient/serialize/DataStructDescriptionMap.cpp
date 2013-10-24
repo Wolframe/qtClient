@@ -1,6 +1,6 @@
 #include "serialize/DataStructDescriptionMap.hpp"
 #include "serialize/DataPathTree.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugLogTree.hpp"
 
 struct StackElement
 {

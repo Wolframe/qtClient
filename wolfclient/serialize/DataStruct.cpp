@@ -1,7 +1,7 @@
 #include "serialize/DataStruct.hpp"
 #include "serialize/DataStructDescription.hpp"
-#include "debug/DebugHelpers.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugHelpers.hpp"
+#include "debugview/DebugLogTree.hpp"
 
 static int arrayAllocSize( int size)
 {

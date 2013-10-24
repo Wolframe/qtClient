@@ -32,8 +32,8 @@
 ************************************************************************/
 #include "serialize/DataStructMap.hpp"
 #include "serialize/DataStructDescriptionMap.hpp"
-#include "debug/DebugHelpers.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugHelpers.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QStringList>
 
 static QString dataPathString( const DataPath& pred, const DataPath& pt, int size)

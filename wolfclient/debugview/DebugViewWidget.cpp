@@ -30,8 +30,8 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "debug/DebugViewWidget.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugViewWidget.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QPushButton>
 #include <QHBoxLayout>
 

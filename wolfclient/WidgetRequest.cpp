@@ -40,8 +40,8 @@
 #include "serialize/DataStructMap.hpp"
 #include "serialize/CondProperties.hpp"
 #include "serialize/DataFormatXML.hpp"
-#include "debug/DebugHelpers.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugHelpers.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QVariant>
 
 #undef WOLFRAME_LOWLEVEL_DEBUG

@@ -35,4 +35,5 @@ tests/xml/testXmlSerialization
 *.pdb
 Makefile.*
 *.rc
+debug/
 release/

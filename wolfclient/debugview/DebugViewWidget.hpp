@@ -32,7 +32,7 @@
 ************************************************************************/
 #ifndef _WOLFRAME_DEBUG_VIEW_WIDGET_HPP_INCLUDED
 #define _WOLFRAME_DEBUG_VIEW_WIDGET_HPP_INCLUDED
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QWidget>
 #include <QTextEdit>
 #include <QTreeWidget>

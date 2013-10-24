@@ -1,8 +1,8 @@
 #include "WidgetTree.hpp"
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
-#include "debug/DebugHelpers.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugHelpers.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QDebug>
 #include <QPushButton>
 

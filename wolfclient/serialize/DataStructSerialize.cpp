@@ -33,8 +33,8 @@
 #include "serialize/DataStructSerialize.hpp"
 #include "serialize/DataStruct.hpp"
 #include "serialize/DataSerializeItem.hpp"
-#include "debug/DebugHelpers.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugHelpers.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QStringList>
 #include <QDebug>
 

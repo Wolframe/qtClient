@@ -36,8 +36,8 @@
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
 #include "global.hpp"
-#include "debug/DebugHelpers.hpp"
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugHelpers.hpp"
+#include "debugview/DebugLogTree.hpp"
 
 #include <QDebug>
 #include <QApplication>

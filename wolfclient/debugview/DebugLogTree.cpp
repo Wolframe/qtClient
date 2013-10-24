@@ -30,7 +30,7 @@
  Project Wolframe.
 
 ************************************************************************/
-#include "debug/DebugLogTree.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QDebug>
 
 DebugLogTree::DebugLogTree()

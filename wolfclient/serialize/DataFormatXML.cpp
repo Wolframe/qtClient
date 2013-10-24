@@ -1,5 +1,5 @@
 #include "serialize/DataFormatXML.hpp"
-#include "debug/DebugHelpers.hpp"
+#include "debugview/DebugHelpers.hpp"
 
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>

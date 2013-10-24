@@ -57,11 +57,11 @@ SOURCES += \
 	WidgetRequest.cpp \
 	WidgetMessageDispatcher.cpp \
 	WidgetVisitorStateConstructor.cpp \
-	debug/DebugLogTree.cpp \
-	debug/DebugTerminal.cpp \
-	debug/DebugViewWidget.cpp \
-	debug/DebugHelpers.cpp \
-	debug/DebugMessageHandler.cpp \
+	debugview/DebugLogTree.cpp \
+	debugview/DebugTerminal.cpp \
+	debugview/DebugViewWidget.cpp \
+	debugview/DebugHelpers.cpp \
+	debugview/DebugMessageHandler.cpp \
 	visitors/WidgetVisitor_QLabel.cpp \
 	visitors/WidgetVisitor_QComboBox.cpp \
 	visitors/WidgetVisitor_QCheckBox.cpp \
@@ -106,11 +106,11 @@ SOURCES += \
 	wolfclient.cpp
 
 HEADERS += \
-	debug/DebugViewWidget.hpp \
-	debug/DebugLogTree.hpp \
-	debug/DebugHelpers.hpp \
-	debug/DebugTerminal.hpp \
-	debug/DebugMessageHandler.hpp \
+	debugview/DebugViewWidget.hpp \
+	debugview/DebugLogTree.hpp \
+	debugview/DebugHelpers.hpp \
+	debugview/DebugTerminal.hpp \
+	debugview/DebugMessageHandler.hpp \
 	MainWindow.hpp \
 	FormLoader.hpp \
 	FileFormLoader.hpp \
