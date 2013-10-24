@@ -198,12 +198,14 @@ void DebugViewWidget::printMessages( int nodeid)
 	{
 		m_msglist->insertRow( rowidx);
 		QTableWidgetItem* msgitem = new QTableWidgetItem( mi->text);
+		msgitem->setFlags( msgitem->flags() ^ Qt::ItemIsEditable);
 		msgitem->setToolTip( mi->text);
 		QTableWidgetItem* lvitem = 0;
 		m_msglist->setItem( rowidx, 1, msgitem);
 		switch (mi->level)
 		{
 			case LogDebug:
+				lvitem = new QTableWidgetItem( "Debug");
 				break;
 			case LogWarning:
 				lvitem = new QTableWidgetItem( m_icon_warning, "Warning");
@@ -217,6 +219,7 @@ void DebugViewWidget::printMessages( int nodeid)
 		}
 		if (lvitem)
 		{
+			lvitem->setFlags( lvitem->flags() ^ Qt::ItemIsEditable);
 			m_msglist->setItem( rowidx, 0, lvitem);
 		}
 	}

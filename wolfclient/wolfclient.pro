@@ -58,7 +58,6 @@ SOURCES += \
 	WidgetMessageDispatcher.cpp \
 	WidgetVisitorStateConstructor.cpp \
 	debugview/DebugLogTree.cpp \
-	debugview/DebugTerminal.cpp \
 	debugview/DebugViewWidget.cpp \
 	debugview/DebugHelpers.cpp \
 	debugview/DebugMessageHandler.cpp \
@@ -109,7 +108,6 @@ HEADERS += \
 	debugview/DebugViewWidget.hpp \
 	debugview/DebugLogTree.hpp \
 	debugview/DebugHelpers.hpp \
-	debugview/DebugTerminal.hpp \
 	debugview/DebugMessageHandler.hpp \
 	MainWindow.hpp \
 	FormLoader.hpp \
