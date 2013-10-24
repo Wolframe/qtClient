@@ -117,9 +117,9 @@ Client for the Wolframe system.
 
 %build
 %if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
-qmake-qt4 wolfclient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
+qmake-qt4 wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %else
-qmake wolfclient.pro -config release PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
+qmake wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %endif
 make %{?_smp_mflags} LIBDIR=%{_libdir}/wolframe
 
@@ -145,6 +145,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/wolframe/libqtwolfclient.so.0
 %plugindir/designer/libfilechooser.so
 %plugindir/designer/libpicturechooser.so
+%{_libdir}/wolframe/libfilechooser.so
+%{_libdir}/wolframe/libpicturechooser.so
 
 %package devel
 Summary: Wolframe Qt client development files
