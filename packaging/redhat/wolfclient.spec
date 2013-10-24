@@ -145,6 +145,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/wolframe/libqtwolfclient.so.0
 %plugindir/designer/libfilechooser.so
 %plugindir/designer/libpicturechooser.so
+%{_libdir}/wolframe/libfilechooser.so
+%{_libdir}/wolframe/libpicturechooser.so
 
 %package devel
 Summary: Wolframe Qt client development files
