@@ -70,7 +70,7 @@ MainWindow::MainWindow( QWidget *_parent ) : SkeletonMainWindow( _parent ),
 	m_dataLoader( 0 ), m_settings( ),
 	m_languages( ), m_language( ),
 	m_mdiArea( 0 ), m_subWinGroup( 0 ),
-	m_terminating( false ), m_debugTerminal( 0 ), m_debugTerminalAction( 0 ),
+	m_terminating( false ), m_debugWindow( 0 ), m_debugWindowAction( 0 ),
 	m_modalDialog( 0 ), m_modalDialogClosed( true ), m_menuSignalMapper( 0 )
 {
 	setDebugLogTree( &m_logtree);
@@ -177,9 +177,9 @@ MainWindow::~MainWindow( )
 			m_formWidget = 0;
 		}
 	}
-	if( m_debugTerminal ) {
-		delete m_debugTerminal;
-		m_debugTerminal = 0;
+	if( m_debugWindow ) {
+		delete m_debugWindow;
+		m_debugWindow = 0;
 		setDebugLogTree( 0);
 	}
 	if( m_formLoader ) {
@@ -410,10 +410,10 @@ void MainWindow::updateActionShortcuts( )
 
 void MainWindow::disconnected( )
 {
-	if( m_debugTerminal ) {
-		m_debugTerminalAction->setChecked( false );
-		m_debugTerminal->deleteLater( );
-		m_debugTerminal = 0;
+	if( m_debugWindow ) {
+		m_debugWindowAction->setChecked( false );
+		m_debugWindow->deleteLater( );
+		m_debugWindow = 0;
 		setDebugLogTree( 0);
 	}
 
@@ -1151,8 +1151,8 @@ void MainWindow::updateMenusAndToolbars( )
 	activateAction( "actionSelectAll", m_wolframeClient && ( !settings.mdi || ( settings.mdi && nofSubWindows( ) > 0 ) ) );
 
 // developer menu: debug terminal
-	if( m_debugTerminalAction )
-		m_debugTerminalAction->setEnabled( m_debugTerminal );
+	if( m_debugWindowAction )
+		m_debugWindowAction->setEnabled( m_debugWindow );
 }
 
 // -- logins/logouts/connections
@@ -1163,8 +1163,8 @@ void MainWindow::login( )
 
 // create a debug terminal and attach it to the protocol client
 	if( settings.debug && settings.developEnabled ) {
-		m_debugTerminal = new DebugViewWidget( this );
-		m_debugTerminal->setAttribute( Qt::WA_DeleteOnClose );
+		m_debugWindow = new DebugViewWidget( this );
+		m_debugWindow->setAttribute( Qt::WA_DeleteOnClose );
 		setDebugLogTree( &m_logtree);
 
 		qDebug( ) << "Debug window initialized";
@@ -1224,21 +1224,21 @@ void MainWindow::error( QString error )
 
 void MainWindow::showDebugTerminal( bool checked )
 {
-	if( m_debugTerminal ) {
+	if( m_debugWindow ) {
 		setDebugLogTree( &m_logtree);
 		setDebugMode( checked);
 
 		if( checked ) {
-			m_debugTerminal->bringToFront( );
+			m_debugWindow->bringToFront( );
 		} else {
-			m_debugTerminal->hide( );
+			m_debugWindow->hide( );
 		}
 	}
 }
 
 void MainWindow::removeDebugToggle( )
 {
-	m_debugTerminalAction->setChecked( false );
+	m_debugWindowAction->setChecked( false );
 	m_logtree.clear();
 	setDebugLogTree( 0);
 	setDebugMode( false);
@@ -1265,11 +1265,11 @@ void MainWindow::addDeveloperMenu( )
 {
 	QMenu *developerMenu = menuBar( )->addMenu( tr( "&Developer" ) );
 
-	m_debugTerminalAction = new QAction( QIcon( ":/images/debug.png" ), tr( "&Debugging Terminal..." ), this );
-	m_debugTerminalAction->setStatusTip( tr( "Open debug terminal showing the Wolframe protocol" ));
-	m_debugTerminalAction->setCheckable( true );
-	m_debugTerminalAction->setShortcut( QKeySequence( "Ctrl+Alt+D" ) );
-	developerMenu->addAction( m_debugTerminalAction );
+	m_debugWindowAction = new QAction( QIcon( ":/images/debug.png" ), tr( "&Debugging Terminal..." ), this );
+	m_debugWindowAction->setStatusTip( tr( "Open debug terminal showing the Wolframe protocol" ));
+	m_debugWindowAction->setCheckable( true );
+	m_debugWindowAction->setShortcut( QKeySequence( "Ctrl+Alt+D" ) );
+	developerMenu->addAction( m_debugWindowAction );
 
 	developerMenu->addSeparator( );
 
@@ -1286,9 +1286,9 @@ void MainWindow::addDeveloperMenu( )
 	developerMenu->addAction( m_openFormNewWindowAction );
 
 	QToolBar *developerToolBar = addToolBar( tr( "Developer" ));
-	developerToolBar->addAction( m_debugTerminalAction );
+	developerToolBar->addAction( m_debugWindowAction );
 
-	connect( m_debugTerminalAction, SIGNAL( toggled( bool ) ), this,
+	connect( m_debugWindowAction, SIGNAL( toggled( bool ) ), this,
 		SLOT( showDebugTerminal( bool ) ) );
 	connect( m_openFormAction, SIGNAL( triggered( ) ), this,
 		SLOT( openForm( ) ) );

@@ -55,7 +55,6 @@
 #include "ui_MainWindow.h"
 #include "settings.hpp"
 #include "serverDefinition.hpp"
-#include "debugview/DebugTerminal.hpp"
 #include "debugview/DebugLogTree.hpp"
 #include "debugview/DebugViewWidget.hpp"
 
@@ -112,9 +111,9 @@ class MainWindow : public SkeletonMainWindow
 		ApplicationSettings settings;	// Application settings
 		ServerDefinition m_selectedConnection; // lastly selected connection
 		bool m_terminating;
-		DebugViewWidget* m_debugTerminal;
+		DebugViewWidget* m_debugWindow;
 		DebugLogTree m_logtree;		// Logged messages as tree
-		QAction *m_debugTerminalAction;
+		QAction *m_debugWindowAction;
 		QAction *m_openFormAction;
 		QAction *m_openFormNewWindowAction;
 		QDialog *m_modalDialog;
