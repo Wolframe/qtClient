@@ -31,7 +31,7 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	qmake-qt4 wolfclient.pro -config release PREFIX=/usr LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
+	qmake-qt4 wolfclient.pro -config release -recursive PREFIX=/usr LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
 	$(MAKE) LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)/wolframe
 	# --- end custom part for compiling
 

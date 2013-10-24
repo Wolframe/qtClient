@@ -34,7 +34,7 @@ build() {
   cd ${srcdir}/$_gitname-build
 
   msg "Generating makefiles.."
-  qmake-qt4 PREFIX=/usr
+  qmake-qt4 -config debug -recursive PREFIX=/usr
   
   msg "Building..."
   make
