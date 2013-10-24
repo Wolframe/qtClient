@@ -16,6 +16,10 @@ _gitname=wolfclient
 package() {
   cd ${srcdir}/$_gitname-build
 
+  # regenarete Makefiles here, as files have to exist in order for
+  # the install rules to be generated
+  qmake-qt4 -config debug -recursive PREFIX=/usr
+
   msg "Installing.."
   make install INSTALL_ROOT=${pkgdir}
 }

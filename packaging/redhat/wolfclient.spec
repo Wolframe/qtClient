@@ -125,6 +125,15 @@ make %{?_smp_mflags} LIBDIR=%{_libdir}/wolframe
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
+# regenarete Makefiles here, as files have to exist in order for
+# the install rules to be generated
+%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
+qmake-qt4 wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
+%else
+qmake wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
+%endif
+
 make INSTALL_ROOT=$RPM_BUILD_ROOT LIBDIR=%{_libdir} install
 
 %clean
