@@ -34,6 +34,7 @@
 #include "debugview/DebugLogTree.hpp"
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QHeaderView>
 
 DebugViewWidget::DebugViewWidget( QWidget *parent_)
 	:QWidget( parent_, Qt::Tool | Qt::WindowTitleHint)
@@ -233,6 +234,10 @@ void DebugViewWidget::printMessages( int nodeid)
 	{
 		m_msglist->resizeColumnToContents( ii);
 	}
+	for (int ii = 0; ii < m_msglist->rowCount(); ii++) {
+		m_msglist->resizeRowToContents( ii);
+	}
+	m_msglist->horizontalHeader()->setStretchLastSection( true);
 	m_msglist->setShowGrid( false);
 }
 

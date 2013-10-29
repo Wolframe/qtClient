@@ -18,7 +18,7 @@ package() {
 
   # regenarete Makefiles here, as files have to exist in order for
   # the install rules to be generated
-  qmake-qt4 -config debug -recursive PREFIX=/usr
+  qmake-qt4 -config debug -recursive PREFIX=/usr LIBDIR=/usr/lib/wolframe
 
   msg "Installing.."
   make install INSTALL_ROOT=${pkgdir}
@@ -38,7 +38,7 @@ build() {
   cd ${srcdir}/$_gitname-build
 
   msg "Generating makefiles.."
-  qmake-qt4 -config debug -recursive PREFIX=/usr
+  qmake-qt4 -config debug -recursive PREFIX=/usr LIBDIR=/usr/lib/wolframe
   
   msg "Building..."
   make
