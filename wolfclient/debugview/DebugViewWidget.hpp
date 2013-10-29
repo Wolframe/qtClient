@@ -39,6 +39,7 @@
 #include <QBoxLayout>
 #include <QLabel>
 #include <QComboBox>
+#include <QCloseEvent>
 
 class DebugViewWidget : public QWidget
 {
@@ -48,6 +49,11 @@ public:
 	DebugViewWidget( QWidget *parent_ = 0);
 	virtual ~DebugViewWidget();
 	void bringToFront();
+
+	virtual void closeEvent( QCloseEvent* event);
+
+signals:
+	void closed();
 
 public slots:
 	void refresh();

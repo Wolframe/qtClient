@@ -33,6 +33,8 @@
 #include "debugview/DebugLogTree.hpp"
 #include <QDebug>
 
+#define WOLFRAME_LOWLEVEL_DEBUG
+
 DebugLogTree::DebugLogTree()
 	:m_prefixcnt(0),m_msgcnt(0)
 {
@@ -126,9 +128,19 @@ void DebugLogTree::popPrefix()
 }
 
 static DebugLogTree* g_logtree = 0;
+static bool g_garbageCollect = true;
+
+void setDebugGarbageCollect( bool enabled)
+{
+	g_garbageCollect = enabled;
+}
 
 void setDebugLogTree( DebugLogTree* dbglogtree)
 {
+	if (g_logtree && !dbglogtree)
+	{
+		dbglogtree->clear();
+	}
 	g_logtree = dbglogtree;
 }
 
@@ -142,6 +154,10 @@ QString openLogStruct( const QString& name, bool unique)
 {
 	if (g_logtree)
 	{
+		if (g_garbageCollect && g_logtree->isTopLevel() == 1)
+		{
+			g_logtree->clear();
+		}
 		return g_logtree->pushPrefix( name, unique);
 	}
 	return QString();
@@ -155,12 +171,21 @@ void closeLogStruct( int cnt)
 	}
 }
 
+const char* logLevelName( LogLevel i)
+{
+	static const char* ar[] = {"Debug","Warning","Critical","Fatal"};
+	return ar[ (int)i];
+}
+
 void printLog( LogLevel level, const QString& msg)
 {
 	if (g_logtree)
 	{
 		g_logtree->insert( level, msg);
 	}
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	fprintf( stderr, "%s: %s\n", logLevelName( level), qPrintable( msg ) );
+#endif
 }
 
 void clearLogStruct()
@@ -238,6 +263,13 @@ DebugLogTree::NodeStructR DebugLogTree::getNodeStruct() const
 		else if (stk.back().chldidx >= stk.back().node->chld.size())
 		{
 			NodeStructR rt = stk.back().node;
+			foreach (const NodeStructR& cd, stk.back().node->chld)
+			{
+				if ((int)cd->maxlevel > (int)rt->maxlevel)
+				{
+					rt->maxlevel = cd->maxlevel;
+				}
+			}
 			stk.pop_back();
 			if (stk.size() == 0)
 			{

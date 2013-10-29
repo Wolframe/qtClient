@@ -401,7 +401,7 @@ bool WolframeClientProtocol::process()
 
 void WolframeClientProtocol::pushRequest( const QString& cmd, const QString& tag, const QByteArray& content)
 {
-	if (tag[0] != '-')
+	if (tag.indexOf( "a=") < 0)
 	{
 		QList<Request>::iterator ri = m_requestqueue.begin(), re = m_requestqueue.end();
 		for (; ri != re; ++ri)
@@ -421,7 +421,7 @@ void WolframeClientProtocol::pushRequest( const QString& cmd, const QString& tag
 
 void WolframeClientProtocol::pushRequest( const QString& tag, const QByteArray& content)
 {
-		pushRequest( "", tag, content);
+	pushRequest( "", tag, content);
 }
 
 bool WolframeClientProtocol::getAnswerSuccess() const

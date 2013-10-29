@@ -106,14 +106,12 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actionde
 	}
 	WidgetRequestHeader requestheader( widget);
 	requestheader.actionid = menuitem;
+
 	openLogStruct( requestheader.toLogIdString());
 	openLogStruct( "request");
 	
 	rt = getWidgetRequest_( visitor, actiondef, debugmode);
-	if (!menuitem.isEmpty())
-	{
-		rt.header.actionid = menuitem;
-	}
+	rt.header.actionid = menuitem;
 	closeLogStruct( 2);
 	return rt;
 }
@@ -147,6 +145,7 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode)
 		return rt;
 	}
 	WidgetRequestHeader requestheader( widget);
+
 	openLogStruct( requestheader.toLogIdString());
 	openLogStruct( "request");
 
@@ -172,6 +171,7 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef
 	}
 	WidgetRequestHeader requestheader( widget);
 	requestheader.actionid = menuitem;
+
 	openLogStruct( requestheader.toLogIdString());
 	openLogStruct( "request");
 

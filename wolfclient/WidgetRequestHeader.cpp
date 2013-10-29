@@ -8,6 +8,7 @@ WidgetRequestHeader::WidgetRequestHeader( QWidget* recipient_widgetid)
 
 WidgetRequestHeader::WidgetRequestHeader( const QString& str)
 {
+	type = getType( str);
 	actionid = getActionId( str);
 	followform = getFollowForm( str);
 	command = getCommand( str);
@@ -25,7 +26,12 @@ WidgetRequestHeader::WidgetRequestHeader( const WidgetRequestHeader& o)
 QString WidgetRequestHeader::toLogIdString() const
 {
 	QString rt;
-	rt.append( "action");
+	switch (type)
+	{
+		case Undefined: rt.append( "undefined"); break;
+		case Load: rt.append( "dataload"); break;
+		case Action: rt.append( "action"); break;
+	}
 	if (actionid.isValid())
 	{
 		rt.append( ".");
@@ -43,6 +49,12 @@ QString WidgetRequestHeader::toLogIdString() const
 QString WidgetRequestHeader::toString() const
 {
 	QString rt;
+	switch (type)
+	{
+		case Undefined: break;
+		case Load: rt.append( "t=L:"); break;
+		case Action: rt.append( "t=A:"); break;
+	}
 	if (actionid.isValid())
 	{
 		rt.append( "a=");
@@ -110,4 +122,11 @@ QVariant WidgetRequestHeader::getCommand( const QString& hdrstr)
 	return getId( hdrstr, "c=");
 }
 
+WidgetRequestHeader::Type WidgetRequestHeader::getType( const QString& hdrstr)
+{
+	QString typenam = getId( hdrstr, "t=").toString();
+	if (typenam == "L") return Load;
+	if (typenam == "A") return Action;
+	return Undefined;
+}
 

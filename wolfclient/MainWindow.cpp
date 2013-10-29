@@ -412,10 +412,10 @@ void MainWindow::disconnected( )
 {
 	if( m_debugWindow ) {
 		setDebugLogTree( 0);
-		DebugViewWidget* dv = m_debugWindow;
-		m_debugWindow = 0;
 		m_debugWindowAction->setChecked( false );
-		dv->deleteLater( );
+		m_debugWindow->deleteLater( );
+		m_debugWindow = 0;
+		setDebugGarbageCollect( true);
 	}
 
 	if( settings.uiLoadMode == LoadMode::NETWORK ) {
@@ -1166,6 +1166,7 @@ void MainWindow::login( )
 	if( settings.debug && settings.developEnabled ) {
 		setDebugLogTree( m_logtree);
 		m_debugWindow = new DebugViewWidget( this );
+		connect( m_debugWindow, SIGNAL( closed()), this, SLOT( closeDebugWindow()));
 		qDebug( ) << "Debug window initialized";
 	}
 }
@@ -1226,13 +1227,20 @@ void MainWindow::showDebugTerminal( bool checked )
 	if( m_debugWindow ) {
 		setDebugLogTree( m_logtree);
 		setDebugMode( checked);
-
 		if( checked ) {
 			m_debugWindow->bringToFront( );
+			setDebugGarbageCollect( false);
 		} else {
 			m_debugWindow->hide( );
+			setDebugGarbageCollect( true);
 		}
 	}
+}
+
+void MainWindow::closeDebugWindow()
+{
+	setDebugGarbageCollect( true);
+	m_debugWindowAction->setChecked( false );
 }
 
 void MainWindow::removeDebugToggle( )

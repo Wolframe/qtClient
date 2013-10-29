@@ -107,12 +107,6 @@ void PreferencesDialog::initialize( )
 
 	connect( m_developer->uiLoadModeNetwork, SIGNAL( toggled( bool ) ),
 		this, SLOT( toggleLoadMode( bool ) ) );
-
-	connect( m_developer->dataLoadModeLocalFile, SIGNAL( toggled( bool ) ),
-		this, SLOT( toggleLoadMode( bool ) ) );
-
-	connect( m_developer->dataLoadModeNetwork, SIGNAL( toggled( bool ) ),
-		this, SLOT( toggleLoadMode( bool ) ) );
 }
 
 void PreferencesDialog::loadSettings( )
@@ -143,12 +137,9 @@ void PreferencesDialog::loadSettings( )
 
 	m_developer->uiLoadModeLocalFile->setChecked( false );
 	m_developer->uiLoadModeNetwork->setChecked( false );
-	m_developer->dataLoadModeLocalFile->setChecked( false );
-	m_developer->dataLoadModeNetwork->setChecked( false );
 	m_developer->uiFormsDir->setEnabled( false );
 	m_developer->uiFormTranslationsDir->setEnabled( false );
 	m_developer->uiFormResourcesDir->setEnabled( false );
-	m_developer->dataLoaderDir->setEnabled( false );
 	m_developer->uiMenusDir->setEnabled( false );
 	switch( m_settings.uiLoadMode ) {
 		case LoadMode::FILE:
@@ -166,27 +157,10 @@ void PreferencesDialog::loadSettings( )
 		case LoadMode::UNDEFINED:
 			break;
 	}
-	switch( m_settings.dataLoadMode ) {
-		case LoadMode::FILE:
-			m_developer->dataLoadModeLocalFile->setChecked( true );
-			m_developer->dataLoaderDir->setEnabled( true );
-			break;
-
-		case LoadMode::NETWORK:
-			m_developer->dataLoadModeNetwork->setChecked( true );
-			break;
-
-		case LoadMode::UNDEFINED:
-			break;
-	}
-
-	m_developer->verboseDebug->setChecked( m_settings.debug );
 	m_developer->developerMode->setChecked( m_settings.developEnabled );
-
 	m_developer->uiFormsDir->setFileName( m_settings.uiFormsDir );
 	m_developer->uiFormTranslationsDir->setFileName( m_settings.uiFormTranslationsDir );
 	m_developer->uiFormResourcesDir->setFileName( m_settings.uiFormResourcesDir );
-	m_developer->dataLoaderDir->setFileName( m_settings.dataLoaderDir );
 	m_developer->uiMenusDir->setFileName( m_settings.uiMenusDir );
 }
 
@@ -215,17 +189,11 @@ void PreferencesDialog::apply( )
 	} else if( m_developer->uiLoadModeNetwork->isChecked( ) ) {
 		m_settings.uiLoadMode = LoadMode::NETWORK;
 	}
-	if( m_developer->dataLoadModeLocalFile->isChecked( ) ) {
-		m_settings.dataLoadMode = LoadMode::FILE;
-	} else if( m_developer->dataLoadModeNetwork->isChecked( ) ) {
-		m_settings.dataLoadMode = LoadMode::NETWORK;
-	}
-	m_settings.debug = m_developer->verboseDebug->isChecked( );
+	m_settings.debug = m_developer->developerMode->isChecked( );
 	m_settings.developEnabled = m_developer->developerMode->isChecked( );
 	m_settings.uiFormsDir = m_developer->uiFormsDir->fileName( );
 	m_settings.uiFormTranslationsDir = m_developer->uiFormTranslationsDir->fileName( );
 	m_settings.uiFormResourcesDir = m_developer->uiFormResourcesDir->fileName( );
-	m_settings.dataLoaderDir = m_developer->dataLoaderDir->fileName( );
 	m_settings.uiMenusDir = m_developer->uiMenusDir->fileName( );
 
 	accept( );
@@ -251,12 +219,9 @@ void PreferencesDialog::restoreDefaults( )
 
 	m_developer->uiLoadModeLocalFile->setChecked( false );
 	m_developer->uiLoadModeNetwork->setChecked( false );
-	m_developer->dataLoadModeLocalFile->setChecked( false );
-	m_developer->dataLoadModeNetwork->setChecked( false );
 	m_developer->uiFormsDir->setEnabled( false );
 	m_developer->uiFormTranslationsDir->setEnabled( false );
 	m_developer->uiFormResourcesDir->setEnabled( false );
-	m_developer->dataLoaderDir->setEnabled( false );
 	m_developer->uiMenusDir->setEnabled( false );
 	switch( DEFAULT_UILOADMODE ) {
 		case LoadMode::FILE:
@@ -274,25 +239,10 @@ void PreferencesDialog::restoreDefaults( )
 		case LoadMode::UNDEFINED:
 			break;
 	}
-	switch( DEFAULT_DATALOADMODE ) {
-		case LoadMode::FILE:
-			m_developer->dataLoadModeLocalFile->setChecked( true );
-			m_developer->dataLoaderDir->setEnabled( true );
-			break;
-
-		case LoadMode::NETWORK:
-			m_developer->dataLoadModeNetwork->setChecked( true );
-			break;
-
-		case LoadMode::UNDEFINED:
-			break;
-	}
-	m_developer->verboseDebug->setChecked( false );
 	m_developer->developerMode->setChecked( false );
 	m_developer->uiFormsDir->setFileName( DEFAULT_UI_FORMS_DIR );
 	m_developer->uiFormTranslationsDir->setFileName( DEFAULT_UI_FORM_TRANSLATIONS_DIR );
 	m_developer->uiFormResourcesDir->setFileName( DEFAULT_UI_FORM_RESOURCES_DIR );
-	m_developer->dataLoaderDir->setFileName( DEFAULT_DATA_LOADER_DIR );
 	m_developer->uiMenusDir->setFileName( DEFAULT_UI_MENUS_DIR );
 }
 
@@ -306,7 +256,6 @@ void PreferencesDialog::toggleLoadMode( bool /* checked */ )
 	m_developer->uiFormsDir->setEnabled( m_developer->uiLoadModeLocalFile->isChecked( ) );
 	m_developer->uiFormTranslationsDir->setEnabled( m_developer->uiLoadModeLocalFile->isChecked( ) );
 	m_developer->uiFormResourcesDir->setEnabled( m_developer->uiLoadModeLocalFile->isChecked( ) );
-	m_developer->dataLoaderDir->setEnabled( m_developer->dataLoadModeLocalFile->isChecked( ) );
 	m_developer->uiMenusDir->setEnabled( m_developer->uiLoadModeLocalFile->isChecked( ) );
 }
 

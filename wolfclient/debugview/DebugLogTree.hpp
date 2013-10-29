@@ -45,6 +45,7 @@ enum LogLevel
 	LogCritical,
 	LogFatal
 };
+const char* logLevelName( LogLevel i);
 
 class DebugLogTree
 {
@@ -90,6 +91,8 @@ public:
 	NodeStructR getNodeStruct() const;
 	QList<MessageStruct> getMessages( int id, LogLevel level) const;
 
+	bool isTopLevel() const			{return m_prefixstk.size() == 1;}
+
 private:
 	QMap<QString, int> m_prefixmap;
 	QMap<int,QString> m_prefixinv;
@@ -111,6 +114,7 @@ private:
 };
 
 void setDebugLogTree( DebugLogTree* dbglogtree);
+void setDebugGarbageCollect( bool enabled);
 const DebugLogTree* getDebugLogTree();
 
 QString openLogStruct( const QString& name, bool unique=false);

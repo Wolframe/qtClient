@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>508</width>
-    <height>739</height>
+    <height>560</height>
    </rect>
   </property>
   <layout class="QGridLayout">
@@ -159,76 +159,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_dataProcessing">
-        <property name="title">
-         <string>&amp;Data Processing</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="1" column="0">
-          <widget class="QGroupBox" name="groupBox_dataLoadMode">
-           <property name="title">
-            <string>Load mode</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="dataLoadModeLocalFile">
-              <property name="text">
-               <string>Local file</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QRadioButton" name="dataLoadModeNetwork">
-              <property name="text">
-               <string>Network</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QLabel" name="dataLoaderDir_label">
-             <property name="text">
-              <string>Data directory:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="FileChooser" name="dataLoaderDir">
-             <property name="selectionMode">
-              <enum>FileChooser::SelectExistingDir</enum>
-             </property>
-             <property name="title">
-              <string>Select a directory which contains local XML data</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="dataText_label">
-           <property name="text">
-            <string>Usually requests and answers containing data forms are sent between client and server. For testing the UI some mock data can be retrieved from the file system and saved to the file system .</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="verboseDebug">
-        <property name="text">
-         <string>Enable verbose &amp;debug output</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -274,10 +204,6 @@
   <tabstop>uiFormTranslationsDir</tabstop>
   <tabstop>uiFormResourcesDir</tabstop>
   <tabstop>uiMenusDir</tabstop>
-  <tabstop>dataLoadModeLocalFile</tabstop>
-  <tabstop>dataLoadModeNetwork</tabstop>
-  <tabstop>dataLoaderDir</tabstop>
-  <tabstop>verboseDebug</tabstop>
  </tabstops>
  <resources/>
  <connections/>

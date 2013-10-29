@@ -91,6 +91,12 @@ DebugViewWidget::~DebugViewWidget()
 	if (m_layout) delete m_layout;
 }
 
+void DebugViewWidget::closeEvent( QCloseEvent* event)
+{
+	emit closed();
+	event->accept();
+}
+
 void DebugViewWidget::bringToFront()
 {
 	show();

@@ -40,7 +40,7 @@
 class WidgetRequestHeader
 {
 public:
-	WidgetRequestHeader(){}
+	WidgetRequestHeader() :type(Undefined){}
 	WidgetRequestHeader( QWidget* recipient_widgetid);
 	WidgetRequestHeader( const QString& str);
 	WidgetRequestHeader( const WidgetRequestHeader& o);
@@ -53,6 +53,8 @@ public:
 	QVariant actionid;
 	QVariant followform;
 	QVariant command;
+	enum Type {Undefined, Load, Action};
+	Type type;
 
 	QString toString() const;
 	QString toLogIdString() const;
@@ -61,6 +63,7 @@ public:
 	static QVariant getFollowForm( const QString& hdrstr);
 	static QVariant getWidgetId( const QString& hdrstr);
 	static QVariant getCommand( const QString& hdrstr);
+	static Type getType( const QString& hdrstr);
 };
 
 #endif

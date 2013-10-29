@@ -172,6 +172,7 @@ class MainWindow : public SkeletonMainWindow
 
 // developer slots
 		void showDebugTerminal( bool checked );
+		void closeDebugWindow( );
 		void removeDebugToggle( );
 		void openForm( );
 		void openFormNew( );

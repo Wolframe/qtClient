@@ -329,6 +329,7 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	WidgetMessageDispatcher dispatcher( m_visitor);
 	foreach (const WidgetRequest& request, dispatcher.getDomainLoadRequests( m_debug))
 	{
+		/*[-]*/	fprintf( stderr, "---- REQUEST HEADER: '%s'\n", qPrintable( request.header.toString()));
 		openLogStruct( request.header.toLogIdString());
 		openLogStruct( "request");
 
@@ -351,6 +352,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 	WidgetRequestHeader requestheader( tag);
 	WidgetMessageDispatcher dispatcher( m_visitor);
 
+	/*[-]*/	fprintf( stderr, "---- ANSWER HEADER: '%s'\n", qPrintable( requestheader.toString()));
 	openLogStruct( requestheader.toLogIdString());
 	openLogStruct( "answer");
 
@@ -367,7 +369,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 		return 0;
 	}
 
-	if (requestheader.actionid.isValid())
+	if (requestheader.type == WidgetRequestHeader::Action)
 	{
 		qDebug() << "got action request answer header=[" << requestheader.toString() << "] data=" << shortenDebugMessageArgument(content);
 		foreach (QWidget* actionwidget, rcpl)
@@ -486,7 +488,7 @@ QWidget* WidgetTree::deliverError( const QString& tag, const QByteArray& /*conte
 		return 0;
 	}
 	rt = rcpl.at(0);
-	if (requestheader.actionid.isValid())
+	if (requestheader.type == WidgetRequestHeader::Action)
 	{
 		foreach (QWidget* actionwidget, rcpl)
 		{
