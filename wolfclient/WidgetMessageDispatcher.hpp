@@ -53,8 +53,8 @@ class WidgetMessageDispatcher
 		WidgetMessageDispatcher( const WidgetMessageDispatcher& o)
 			:m_visitor(o.m_visitor){}
 
-		QList<WidgetRequest> getDomainLoadRequests( bool debugmode=false);
-		WidgetRequest getDomainLoadRequest( bool debugmode=false);
+		QList<WidgetRequest> getDataloadRequests( bool debugmode=false);
+		WidgetRequest getDataloadRequest( bool debugmode=false);
 		QList<QWidget*> findRecipientWidgets( const QVariant& widgetid) const;
 
 	private:

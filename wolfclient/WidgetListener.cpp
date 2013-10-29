@@ -133,7 +133,7 @@ void WidgetListenerImpl::trigger_reload( const QString& slotname, QWidget* recei
 	}
 	if (actiondef.isValid())
 	{
-		WidgetRequest domload = getWidgetRequest( visitor, actiondef.toString(), m_debug, slotname);
+		WidgetRequest domload = getDataloadRequest( visitor, actiondef.toString(), m_debug, slotname);
 		if (!domload.content.isEmpty())
 		{
 			receiver->setProperty( "_w_state", visitor.getState());

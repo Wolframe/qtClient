@@ -112,6 +112,7 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actionde
 	
 	rt = getWidgetRequest_( visitor, actiondef, debugmode);
 	rt.header.actionid = menuitem;
+	rt.header.type = WidgetRequestHeader::Action;
 	closeLogStruct( 2);
 	return rt;
 }
@@ -135,7 +136,7 @@ QList<QString> getActionRequestProperties( WidgetVisitor& visitor)
 	return actiondef.condProperties();
 }
 
-WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode)
+WidgetRequest getDataloadRequest( WidgetVisitor& visitor, bool debugmode)
 {
 	WidgetRequest rt;
 	QWidget* widget = visitor.widget();
@@ -157,10 +158,11 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode)
 	}
 	rt = getWidgetRequest_( visitor, action_v, debugmode);
 	closeLogStruct( 2);
+	rt.header.type = WidgetRequestHeader::Load;
 	return rt;
 }
 
-WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem)
+WidgetRequest getDataloadRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem)
 {
 	WidgetRequest rt;
 	QWidget* widget = visitor.widget();
@@ -177,6 +179,7 @@ WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef
 
 	rt = getWidgetRequest_( visitor, actiondef, debugmode);
 	rt.header.actionid = menuitem;
+	rt.header.type = WidgetRequestHeader::Load;
 	closeLogStruct( 2);
 	return rt;
 }

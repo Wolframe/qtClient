@@ -327,7 +327,7 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 
 	// loads the domains
 	WidgetMessageDispatcher dispatcher( m_visitor);
-	foreach (const WidgetRequest& request, dispatcher.getDomainLoadRequests( m_debug))
+	foreach (const WidgetRequest& request, dispatcher.getDataloadRequests( m_debug))
 	{
 		openLogStruct( request.header.toLogIdString());
 		openLogStruct( "request");

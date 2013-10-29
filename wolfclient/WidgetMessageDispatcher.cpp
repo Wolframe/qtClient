@@ -50,13 +50,13 @@ static bool nodeProperty_isEnabledNonActionWidgetWithAction( const QWidget* widg
 	return (widget->property( "action").isValid());
 }
 
-QList<WidgetRequest> WidgetMessageDispatcher::getDomainLoadRequests( bool debugmode)
+QList<WidgetRequest> WidgetMessageDispatcher::getDataloadRequests( bool debugmode)
 {
 	QList<WidgetRequest> rt;
 	foreach (QWidget* widget, m_visitor.findSubNodes( nodeProperty_isEnabledNonActionWidgetWithAction))
 	{
 		WidgetVisitor visitor( widget);
-		WidgetRequest request = getWidgetRequest( visitor, debugmode);
+		WidgetRequest request = ::getDataloadRequest( visitor, debugmode);
 		rt.push_back( request);
 	}
 	int nn = rt.size()/2;
@@ -65,9 +65,9 @@ QList<WidgetRequest> WidgetMessageDispatcher::getDomainLoadRequests( bool debugm
 	return rt;
 }
 
-WidgetRequest WidgetMessageDispatcher::getDomainLoadRequest( bool debugmode)
+WidgetRequest WidgetMessageDispatcher::getDataloadRequest( bool debugmode)
 {
-	return getWidgetRequest( m_visitor, debugmode);
+	return ::getDataloadRequest( m_visitor, debugmode);
 }
 
 QList<QWidget*> WidgetMessageDispatcher::findRecipientWidgets( const QVariant& widgetid) const

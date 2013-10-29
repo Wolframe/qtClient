@@ -51,8 +51,8 @@ struct WidgetRequest
 		:header(o.header),content(o.content){}
 };
 
-WidgetRequest getWidgetRequest( WidgetVisitor& visitor, bool debugmode);
-WidgetRequest getWidgetRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem);
+WidgetRequest getDataloadRequest( WidgetVisitor& visitor, bool debugmode);
+WidgetRequest getDataloadRequest( WidgetVisitor& visitor, const QString& actiondef, bool debugmode, const QString& menuitem);
 WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode, const QString& menuitem=QString());
 bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer);
 
