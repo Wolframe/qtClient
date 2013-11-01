@@ -139,7 +139,7 @@ void setDebugLogTree( DebugLogTree* dbglogtree)
 {
 	if (g_logtree && !dbglogtree)
 	{
-		dbglogtree->clear();
+		g_logtree->clear();
 	}
 	g_logtree = dbglogtree;
 }
