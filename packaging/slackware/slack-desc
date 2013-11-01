@@ -1,0 +1,6 @@
+wolfclient-0.0.3-1: Wolframe client
+wolfclient-0.0.3-1:
+wolfclient-0.0.3-1: Wolframe frontend written in Qt. Needed to write
+wolfclient-0.0.3-1: portable desktop applications using the Wolframe
+wolfclient-0.0.3-1: server.
+
