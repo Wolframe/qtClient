@@ -40,7 +40,7 @@ INSTALLS += target
 # only because wolfclient links in visitors directly to the plugins
 # TODO: must be solved later, so far we just deploy the plugins twice:
 # as plugin (above) and as shared library (here):
-temptarget.files = *.so*
+temptarget.files = libpicturechooser.so
 temptarget.path = $${LIBDIR}
 INSTALLS += temptarget
 

@@ -38,7 +38,7 @@
 #define ORGANIZATION_DOMAIN "wolframe.org"
 #define APPLICATION_NAME "Wolframe Client"
 
-#define WOLFRAME_VERSION "0.0.1"
+#define WOLFRAME_VERSION "0.0.3"
 
 #define RESTART_CODE 1000
 
