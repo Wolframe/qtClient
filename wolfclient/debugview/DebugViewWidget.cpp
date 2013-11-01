@@ -45,6 +45,7 @@ DebugViewWidget::DebugViewWidget( QWidget *parent_)
 	,m_tree(0)
 	,m_layout(0)
 	,m_levelSelect(0)
+	,m_patternEdit(0)
 	,m_level(LogDebug)
 {
 	m_msglist = new QTableWidget( this);
@@ -73,11 +74,17 @@ DebugViewWidget::DebugViewWidget( QWidget *parent_)
 	m_levelSelect->addItem( "Error", (int)LogCritical);
 	m_levelSelect->setCurrentIndex( 0);
 
+	m_patternEdit = new QLineEdit();
+	m_patternEdit->setPlaceholderText( "<Message Substring>");
+	m_patternEdit->setMaxLength ( 24);
+
 	connect( buttonRefresh, SIGNAL(clicked()), this, SLOT(refresh()), Qt::UniqueConnection);
 	connect( buttonClear, SIGNAL(clicked()), this, SLOT(clear()), Qt::UniqueConnection);
 	connect( m_levelSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(debugLevelChanged(int)), Qt::UniqueConnection);
-	
+	connect( m_patternEdit, SIGNAL(textChanged(const QString&)), this, SLOT(currentSubstringChanged(const QString&)), Qt::UniqueConnection);
+
 	buttons->addStretch();
+	buttons->addWidget( m_patternEdit);
 	buttons->addWidget( m_levelSelect);
 	buttons->addWidget( buttonRefresh);
 	buttons->addWidget( buttonClear);
@@ -165,6 +172,7 @@ void DebugViewWidget::clear()
 	clearLogStruct();
 	clearMessages();
 	m_tree->clear();
+	m_patternEdit->clear();
 	refresh();
 }
 
@@ -182,7 +190,7 @@ void DebugViewWidget::refresh()
 	}
 	else
 	{
-		clearMessages();
+		printMessages( 0);
 	}
 }
 
@@ -201,33 +209,39 @@ void DebugViewWidget::printMessages( int nodeid)
 	clearMessages();
 	QList<DebugLogTree::MessageStruct> msgar = getLogMessages( nodeid, m_level);
 	QList<DebugLogTree::MessageStruct>::const_iterator mi = msgar.begin(), me = msgar.end();
-	for (int rowidx=0; mi != me; ++mi,++rowidx)
+	for (int rowidx=0; mi != me; ++mi)
 	{
-		m_msglist->insertRow( rowidx);
-		QTableWidgetItem* msgitem = new QTableWidgetItem( mi->text);
-		msgitem->setFlags( msgitem->flags() ^ Qt::ItemIsEditable);
-		msgitem->setToolTip( mi->text);
-		QTableWidgetItem* lvitem = 0;
-		m_msglist->setItem( rowidx, 1, msgitem);
-		switch (mi->level)
+		if (m_substr.isEmpty() || mi->text.indexOf( m_substr) >= 0)
 		{
-			case LogDebug:
-				lvitem = new QTableWidgetItem( "Debug");
-				break;
-			case LogWarning:
-				lvitem = new QTableWidgetItem( m_icon_warning, "Warning");
-				break;
-			case LogCritical:
-				lvitem = new QTableWidgetItem( m_icon_error, "Critical");
-				break;
-			case LogFatal:
-				lvitem = new QTableWidgetItem( m_icon_error, "Fatal");
-				break;
-		}
-		if (lvitem)
-		{
-			lvitem->setFlags( lvitem->flags() ^ Qt::ItemIsEditable);
-			m_msglist->setItem( rowidx, 0, lvitem);
+			//... filter out non matching text if pattern is defined
+	
+			m_msglist->insertRow( rowidx);
+			QTableWidgetItem* msgitem = new QTableWidgetItem( mi->text);
+			msgitem->setFlags( msgitem->flags() ^ Qt::ItemIsEditable);
+			msgitem->setToolTip( QString::number(mi->msgindex) + ": " + mi->text);
+			QTableWidgetItem* lvitem = 0;
+			m_msglist->setItem( rowidx, 1, msgitem);
+			switch (mi->level)
+			{
+				case LogDebug:
+					lvitem = new QTableWidgetItem( "Debug");
+					break;
+				case LogWarning:
+					lvitem = new QTableWidgetItem( m_icon_warning, "Warning");
+					break;
+				case LogCritical:
+					lvitem = new QTableWidgetItem( m_icon_error, "Critical");
+					break;
+				case LogFatal:
+					lvitem = new QTableWidgetItem( m_icon_error, "Fatal");
+					break;
+			}
+			if (lvitem)
+			{
+				lvitem->setFlags( lvitem->flags() ^ Qt::ItemIsEditable);
+				m_msglist->setItem( rowidx, 0, lvitem);
+			}
+			++rowidx;
 		}
 	}
 	for (int ii = 0; ii < m_msglist->columnCount(); ii++)
@@ -258,6 +272,12 @@ void DebugViewWidget::debugLevelChanged( int idx)
 	{
 		m_level = LogDebug;
 	}
+	refresh();
+}
+
+void DebugViewWidget::currentSubstringChanged( const QString& substr)
+{
+	m_substr = substr;
 	refresh();
 }
 

@@ -78,14 +78,15 @@ public:
 	struct MessageStruct
 	{
 		LogLevel level;
+		int msgindex;
 		QString text;
 
 		MessageStruct()
 			:level(LogDebug){}
 		MessageStruct( const MessageStruct& o)
-			:level(o.level),text(o.text){}
-		MessageStruct( LogLevel level_, const QString& text_)
-			:level(level_),text(text_){}
+			:level(o.level),msgindex(o.msgindex),text(o.text){}
+		MessageStruct( LogLevel level_, int msgindex_, const QString& text_)
+			:level(level_),msgindex(msgindex_),text(text_){}
 	};
 
 	NodeStructR getNodeStruct() const;

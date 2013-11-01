@@ -40,6 +40,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QCloseEvent>
+#include <QLineEdit>
 
 class DebugViewWidget : public QWidget
 {
@@ -60,6 +61,7 @@ public slots:
 	void printMessages( QTreeWidgetItem* item, int column);
 	void clear();
 	void debugLevelChanged( int idx);
+	void currentSubstringChanged( const QString& substr);
 
 private:
 	void addSubTree( QTreeWidgetItem* viewnode, const DebugLogTree::NodeStruct* datanode, int level);
@@ -74,7 +76,9 @@ private:
 	QTreeWidget* m_tree;
 	QBoxLayout* m_layout;
 	QComboBox* m_levelSelect;
+	QLineEdit* m_patternEdit;
 	LogLevel m_level;
+	QString m_substr;
 };
 
 #endif

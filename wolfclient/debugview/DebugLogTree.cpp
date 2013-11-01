@@ -305,13 +305,14 @@ QList<DebugLogTree::MessageStruct> DebugLogTree::getMessages( int id, LogLevel l
 	fillIdSet( idset, id, m_childmap);
 	QList<Message>::const_iterator mi = m_msglist.begin(), me = m_msglist.end();
 	int prevmsg = -1;
-	for (; mi != me; ++mi)
+	int msgindex = 1;
+	for (; mi != me; ++mi,++msgindex)
 	{
 		if ((int)level <= (int)mi->level && idset[ mi->prefix])
 		{
 			if (prevmsg != mi->stridx)
 			{
-				rt.push_back( MessageStruct( mi->level, m_msginv[ mi->stridx]));
+				rt.push_back( MessageStruct( mi->level, msgindex, m_msginv[ mi->stridx]));
 			}
 			prevmsg = mi->stridx;
 		}
