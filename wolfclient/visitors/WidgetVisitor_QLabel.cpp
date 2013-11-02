@@ -138,14 +138,9 @@ bool WidgetVisitorState_QLabel::setProperty( const QString& name, const QVariant
 	return false;
 }
 
-void WidgetVisitorState_QLabel::setState( const QVariant& state)
+void WidgetVisitorState_QLabel::setState( const QVariant&)
 {
 	qDebug() << "set state for label" << m_label->objectName();
-	if (state.isValid())
-	{
-		m_label->setText( state.toString());
-		m_label->adjustSize();
-	}
 }
 
 QVariant WidgetVisitorState_QLabel::getState() const

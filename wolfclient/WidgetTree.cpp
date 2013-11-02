@@ -235,6 +235,7 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	bool rudpflag_bk = m_visitor.allowUndefDynPropsInit( true);
 
 	WidgetVisitor::init_widgetids( m_visitor.widget());
+
 	m_visitor.do_readGlobals( *m_globals);
 
 	// initialize the form variables given by form parameters

@@ -1,4 +1,5 @@
 #include "WidgetId.hpp"
+#include <QDebug>
 
 static qint64 g_cnt = 0;
 
@@ -13,9 +14,12 @@ QString askWidgetId( QWidget* wdg)
 	if (rt.isValid()) return rt.toString();
 
 	QString newid =  wdg->objectName();
-	newid.append( ":");
-	newid.append( QVariant( ++g_cnt).toString());
-	wdg->setProperty( "widgetid", newid);
+	if (newid.size() && !newid.startsWith("qt_"))
+	{
+		newid.append( ":");
+		newid.append( QVariant( ++g_cnt).toString());
+		wdg->setProperty( "widgetid", newid);
+	}
 	return newid;
 }
 
@@ -26,12 +30,8 @@ void setWidgetId( QWidget* wdg)
 
 bool widgetIdMatches( const QString& id, const QWidget* wdg)
 {
-	if (id.startsWith(wdg->objectName()) && wdg->objectName().size() < id.size() && id.at(wdg->objectName().size()) == ':')
-	{
-		QVariant wid = getWidgetId( wdg);
-		return (wid.toString() == id);
-	}
-	return false;
+	QVariant wid = getWidgetId( wdg);
+	return (wid.isValid() && wid.toString() == id);
 }
 
 bool isWidgetId( const QString& id)

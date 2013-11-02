@@ -265,8 +265,12 @@ static QList<QWidget*> getWidgetChildren( QWidget* wdg)
 void WidgetVisitor::init_widgetids( QWidget* widget)
 {
 	setWidgetId( widget);
+
 	foreach (QWidget* child, widget->findChildren<QWidget*>())
 	{
+		FormWidget* fw = qobject_cast<FormWidget*>(child);
+		if (fw) WidgetVisitor::init_widgetids( fw->mainwidget());
+
 		setWidgetId( child);
 	}
 }

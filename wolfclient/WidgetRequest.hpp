@@ -43,8 +43,8 @@ struct WidgetRequest
 	QByteArray content;
 
 	WidgetRequest(){}
-	WidgetRequest( QWidget* recipient_widget)
-		:header(recipient_widget){}
+	WidgetRequest( WidgetRequestHeader::Type type, QWidget* recipient_widget)
+		:header(type,recipient_widget){}
 	WidgetRequest( const WidgetRequestHeader& header_, const QByteArray& content_)
 		:header(header_),content(content_){}
 	WidgetRequest( const WidgetRequest& o)

@@ -1,7 +1,8 @@
 #include "WidgetRequestHeader.hpp"
 #include "WidgetId.hpp"
 
-WidgetRequestHeader::WidgetRequestHeader( QWidget* recipient_widgetid)
+WidgetRequestHeader::WidgetRequestHeader( Type type_, QWidget* recipient_widgetid)
+	:type(type_)
 {
 	recipient.widgetid = askWidgetId( recipient_widgetid);
 }
@@ -19,6 +20,7 @@ WidgetRequestHeader::WidgetRequestHeader( const WidgetRequestHeader& o)
 	:actionid(o.actionid)
 	,followform(o.followform)
 	,command(o.command)
+	,type(o.type)
 {
 	recipient.widgetid = o.recipient.widgetid;
 }

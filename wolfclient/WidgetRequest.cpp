@@ -53,9 +53,9 @@
 #define TRACE_ASSIGNMENT( TITLE, NAME, VALUE)
 #endif
 
-static WidgetRequest getWidgetRequest_( WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode)
+static WidgetRequest getWidgetRequest_( WidgetRequestHeader::Type type, WidgetVisitor& visitor, const QVariant& actiondef, bool debugmode)
 {
-	WidgetRequest rt( visitor.widget());
+	WidgetRequest rt( type, visitor.widget());
 
 	QString actionstr( actiondef.toString());
 
@@ -104,15 +104,14 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actionde
 		qCritical() << "invalid request (no widget defined)";
 		return rt;
 	}
-	WidgetRequestHeader requestheader( widget);
+	WidgetRequestHeader requestheader( WidgetRequestHeader::Action, widget);
 	requestheader.actionid = menuitem;
 
 	openLogStruct( requestheader.toLogIdString());
 	openLogStruct( "request");
 	
-	rt = getWidgetRequest_( visitor, actiondef, debugmode);
+	rt = getWidgetRequest_( WidgetRequestHeader::Action, visitor, actiondef, debugmode);
 	rt.header.actionid = menuitem;
-	rt.header.type = WidgetRequestHeader::Action;
 	closeLogStruct( 2);
 	return rt;
 }
@@ -145,7 +144,7 @@ WidgetRequest getDataloadRequest( WidgetVisitor& visitor, bool debugmode)
 		qCritical() << "request on non existing widget";
 		return rt;
 	}
-	WidgetRequestHeader requestheader( widget);
+	WidgetRequestHeader requestheader( WidgetRequestHeader::Load, widget);
 
 	openLogStruct( requestheader.toLogIdString());
 	openLogStruct( "request");
@@ -156,9 +155,8 @@ WidgetRequest getDataloadRequest( WidgetVisitor& visitor, bool debugmode)
 		qCritical() << "undefined request. action (property action) does not exist in" << visitor.className() << visitor.objectName();
 		return rt;
 	}
-	rt = getWidgetRequest_( visitor, action_v, debugmode);
+	rt = getWidgetRequest_( WidgetRequestHeader::Load, visitor, action_v, debugmode);
 	closeLogStruct( 2);
-	rt.header.type = WidgetRequestHeader::Load;
 	return rt;
 }
 
@@ -171,15 +169,14 @@ WidgetRequest getDataloadRequest( WidgetVisitor& visitor, const QString& actiond
 		qCritical() << "request on non existing widget";
 		return rt;
 	}
-	WidgetRequestHeader requestheader( widget);
+	WidgetRequestHeader requestheader( WidgetRequestHeader::Load, widget);
 	requestheader.actionid = menuitem;
 
 	openLogStruct( requestheader.toLogIdString());
 	openLogStruct( "request");
 
-	rt = getWidgetRequest_( visitor, actiondef, debugmode);
+	rt = getWidgetRequest_( WidgetRequestHeader::Load, visitor, actiondef, debugmode);
 	rt.header.actionid = menuitem;
-	rt.header.type = WidgetRequestHeader::Load;
 	closeLogStruct( 2);
 	return rt;
 }
@@ -495,11 +492,14 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 		QString resultschemastr = resultschema.toString();
 		foreach (const QString& cond, getConditionProperties( resultschemastr))
 		{
-			QWidget* wdg = visitor.getPropertyOwnerWidget( cond);
-			if (wdg)
+			if (cond != "?")
 			{
-				WidgetVisitor vv( wdg);
-				vv.clear();
+				QWidget* wdg = visitor.getPropertyOwnerWidget( cond);
+				if (wdg)
+				{
+					WidgetVisitor vv( wdg);
+					vv.clear();
+				}
 			}
 		}
 		visitor.clear();
