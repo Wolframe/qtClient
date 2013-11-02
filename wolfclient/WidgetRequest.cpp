@@ -492,11 +492,14 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 		QString resultschemastr = resultschema.toString();
 		foreach (const QString& cond, getConditionProperties( resultschemastr))
 		{
-			QWidget* wdg = visitor.getPropertyOwnerWidget( cond);
-			if (wdg)
+			if (cond != "?")
 			{
-				WidgetVisitor vv( wdg);
-				vv.clear();
+				QWidget* wdg = visitor.getPropertyOwnerWidget( cond);
+				if (wdg)
+				{
+					WidgetVisitor vv( wdg);
+					vv.clear();
+				}
 			}
 		}
 		visitor.clear();
