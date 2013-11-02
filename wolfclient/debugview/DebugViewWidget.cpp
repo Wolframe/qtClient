@@ -75,7 +75,9 @@ DebugViewWidget::DebugViewWidget( QWidget *parent_)
 	m_levelSelect->setCurrentIndex( 0);
 
 	m_patternEdit = new QLineEdit();
+#if (QT_VERSION >= 0x407000)
 	m_patternEdit->setPlaceholderText( "<Message Substring>");
+#endif
 	m_patternEdit->setMaxLength ( 24);
 
 	connect( buttonRefresh, SIGNAL(clicked()), this, SLOT(refresh()), Qt::UniqueConnection);
