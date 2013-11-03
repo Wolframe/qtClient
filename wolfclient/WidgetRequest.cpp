@@ -112,6 +112,8 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actionde
 	
 	rt = getWidgetRequest_( WidgetRequestHeader::Action, visitor, actiondef, debugmode);
 	rt.header.actionid = menuitem;
+
+	qDebug() << "get request" << rt.header.toString() << "[" << rt.content.data() << "]";
 	closeLogStruct( 2);
 	return rt;
 }
