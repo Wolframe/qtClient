@@ -1,0 +1,4 @@
+wolfclient - Wolframe client
+
+Wolframe frontend written in Qt. Needed to write portable desktop applications
+using the Wolframe server.

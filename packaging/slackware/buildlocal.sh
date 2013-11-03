@@ -45,9 +45,8 @@ make INSTALL_ROOT=$PKGBUILD/PKG install PREFIX=/usr LIBDIR=$LIBDIR
 
 mkdir $PKGBUILD/PKG/install
 cp packaging/slackware/slack-desc $PKGBUILD/PKG/install/.
-cp packaging/slackware/doinst-$ARCH.sh $PKGBUILD/PKG/install/.
 cd $PKGBUILD/PKG
-makepkg -l y -c n $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION.tgz
+makepkg -l y -c n $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$ARCH.tgz
 
 # rm -rf $PKGBUILD/BUILD
 # rm -rf $PKGBUILD/PKG
