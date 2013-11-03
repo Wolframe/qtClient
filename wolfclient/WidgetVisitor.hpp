@@ -237,7 +237,8 @@ class WidgetVisitor
 		///\brief Copy constructor
 		///\param[in] o object to copy
 		WidgetVisitor( const WidgetVisitor& o)
-			:m_stk(o.m_stk)
+			:VisitorInterface()
+			,m_stk(o.m_stk)
 			,m_blockSignals(o.m_blockSignals)
 			,m_allowUndefDynPropsInit(o.m_allowUndefDynPropsInit){}
 
