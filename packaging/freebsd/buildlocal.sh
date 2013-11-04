@@ -9,7 +9,7 @@ else
 if test "x$ORIG_ARCH" = "xi386"; then
 	ARCH="i686"
 else
-	echo "ERROR: Unknown slackware architecture '$ARCH'"
+	echo "ERROR: Unknown slackware architecture '$ORIG_ARCH'"
 	exit 1
 fi
 fi
