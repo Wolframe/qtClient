@@ -58,7 +58,7 @@ AGAIN:
 					// the attribute into the element
 					goto AGAIN;
 				}
-				else
+				else if (ie->value().isValid())
 				{
 					xml.writeAttribute( attribute.toString(), ie->value().toString());
 				}

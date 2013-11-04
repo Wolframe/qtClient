@@ -111,7 +111,19 @@ bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const 
 				}
 				else
 				{
-					out.attribute( di->name, ei->value());
+					QVariant vv = ei->value();
+					if (vv.isValid())
+					{
+						out.attribute( di->name, vv);
+					}
+					else if (di->optional() && di->initvalue)
+					{
+						vv = di->initvalue->value();
+						if (vv.isValid())
+						{
+							out.attribute( di->name, vv);
+						}
+					}
 				}
 			}
 			else
@@ -126,7 +138,27 @@ bool getDataStructSerialization( QList<DataSerializeItem>& serialization, const 
 						out.closeTag();
 					}
 				}
-				else
+				else if (di->type == DataStructDescription::variableref_)
+				{
+					QVariant vv = ei->value();
+					if (vv.isValid())
+					{
+						out.openTag( di->name);
+						out.value( vv);
+						out.closeTag();
+					}
+					else if (di->optional() && di->initvalue)
+					{
+						vv = di->initvalue->value();
+						if (vv.isValid())
+						{
+							out.openTag( di->name);
+							out.value( vv);
+							out.closeTag();
+						}
+					}
+				}
+				else if (ei->initialized())
 				{
 					out.openTag( di->name);
 					out.content( *ei);
