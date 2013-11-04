@@ -19,7 +19,7 @@ rm -rf $PKGBUILD/BUILD $PKGBUILD/PKG
 mkdir -p $PKGBUILD $PKGBUILD/BUILD $PKGBUILD/PKG $PKGBUILD/PKGS/$ARCH
 
 rm -f wolfclient-$VERSION.tar.gz
-rm -f $RPMBUILD/BUILD/wolfclient_$VERSION.tar.gz
+rm -f $PKGBUILD/BUILD/wolfclient_$VERSION.tar.gz
 
 gmake distclean
 mkdir /tmp/wolfclient-$VERSION
