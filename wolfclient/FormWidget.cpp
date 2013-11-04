@@ -33,6 +33,7 @@
 
 #include "FormWidget.hpp"
 #include "FormCall.hpp"
+#include "FormPluginRequestHeader.hpp"
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
 #include "global.hpp"
@@ -341,10 +342,11 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	if( name != m_form ) return;
 
 	FormCall formCall( name);
-	QString logid = openLogStruct( QString("form ") + formCall.name(), true);
-	
+	m_logId = openLogStruct( QString("form ") + formCall.name(), true);
+	openLogStruct( "load");
+
 	qDebug( ) << "Form " << name << " loaded";
-	
+
 	QWidget *oldUi = m_ui;
 	if( formXml.size( ) == 0 ) {
 // byte array 0 indicates no UI description, so we call the plugin
@@ -353,7 +355,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
-			closeLogStruct();
+			closeLogStruct(2);
 			emit error( tr( "Unable to load form plugin '%1', does the plugin exist?" ).arg( formCall.name( ) ) );
 			return;
 		}
@@ -363,7 +365,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
-			closeLogStruct();
+			closeLogStruct(2);
 			emit error( tr( "Unable to initialize form plugin '%1', something went wrong in plugin initialization!" ).arg( formCall.name( ) ) );
 			return;
 		}
@@ -376,7 +378,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 			if( !oldUi ) oldUi = new QLabel( "error", this );
 			m_ui = oldUi;
 			m_form = m_previousForm;
-			closeLogStruct();
+			closeLogStruct(2);
 			emit error( tr( "Unable to load form '%1', does it exist?" ).arg( name ) );
 			return;
 		}
@@ -392,7 +394,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
-		closeLogStruct();
+		closeLogStruct(2);
 		emit error( tr( "Calling the menu UI %1 as if it were a normal form. This is a programming mistake!" ).arg( name ) );
 		return;
 	}
@@ -404,7 +406,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
-		closeLogStruct();
+		closeLogStruct(2);
 		emit formModal( name );
 		return;
 	}
@@ -416,14 +418,14 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
 		m_form = m_previousForm;
-		closeLogStruct();
+		closeLogStruct(2);
 		emit formNewWindow( name );
 		return;
 	}
 	
 // initialize the form data
-	closeLogStruct();
-	if (!m_widgetTree.initialize( m_ui, oldUi, m_form, logid))
+	closeLogStruct(2);
+	if (!m_widgetTree.initialize( m_ui, oldUi, m_form, m_logId))
 	{
 		if( !oldUi ) oldUi = new QLabel( "error", this );
 		m_ui = oldUi;
@@ -431,7 +433,8 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 		emit error( tr( "Failed to load widget tree for form %1 (ambiguous widget id?)!" ).arg( name ) );
 		return;
 	}
-	openLogStruct(logid);
+	openLogStruct(m_logId);
+	openLogStruct("load");
 
 // add new form to layout (which covers the whole widget)
 	m_layout->addWidget( m_ui );
@@ -466,7 +469,7 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	qDebug( ) << "Initiating form locatization load for " << m_form << " and locale "
 		<< m_locale.name( );
 	m_formLoader->initiateFormLocalizationLoad( m_form, m_locale );
-	closeLogStruct();
+	closeLogStruct(2);
 }
 
 void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
@@ -480,24 +483,41 @@ void FormWidget::gotAnswer( const QString& tag_, const QByteArray& data_)
 
 // hand-written plugin, custom request, pass it back directly, don't go over
 // generic widget answer part (TODO: there should be a registry map here perhaps)
-	FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
-	if( plugin ) {
-		qDebug( ) << "Answer for form plugin" << plugin->name() << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
-		plugin->gotAnswer( tag_, data_ );
+	if (FormPluginRequestHeader::isValidFormPluginRequestHeader( tag_))
+	{
+		if (FormCall::name( m_form ) == FormPluginRequestHeader::getPluginName(tag_))
+		{
+			openLogStruct( m_logId);
+			openLogStruct( "answer");
+
+			// ... for this form
+			FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
+			if( plugin ) {
+				qDebug( ) << "Answer for form plugin" << plugin->name() << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
+				plugin->gotAnswer( tag_, data_ );
+			}
+			else
+			{
+				qCritical() << "Cannot deliver answer for plugin" << tag_;
+			}
+			closeLogStruct(2);
+		}
 		return;
 	}
-
-	QString followform;
-	QWidget* rcp = m_widgetTree.deliverAnswer( tag_, data_, followform);
-	if (rcp)
+	else
 	{
-		qDebug( ) << "Answer for form" << m_form << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
-
-		if (!followform.isEmpty() || rcp->property( "form").isValid())
+		QString followform;
+		QWidget* rcp = m_widgetTree.deliverAnswer( tag_, data_, followform);
+		if (rcp)
 		{
-			WidgetVisitor actionvisitor( rcp);
-			FormWidget* THIS_ = actionvisitor.formwidget();
-			THIS_->switchForm( rcp, followform);
+			qDebug( ) << "Answer for form" << m_form << "and tag" << tag_ << ":\n" << shortenDebugMessageArgument(data_);
+	
+			if (!followform.isEmpty() || rcp->property( "form").isValid())
+			{
+				WidgetVisitor actionvisitor( rcp);
+				FormWidget* THIS_ = actionvisitor.formwidget();
+				THIS_->switchForm( rcp, followform);
+			}
 		}
 	}
 }
@@ -506,16 +526,29 @@ void FormWidget::gotError( const QString& tag_, const QByteArray& data_)
 {
 // hand-written plugin, custom request, pass it back directly, don't go over
 // generic widget answer part (TODO: there should be a registry map here perhaps)
-	FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
-	if( plugin ) {
-		plugin->gotError( tag_, data_ );
+	if (FormPluginRequestHeader::isValidFormPluginRequestHeader( tag_))
+	{
+		if (FormCall::name( m_form ) == FormPluginRequestHeader::getPluginName(tag_))
+		{
+			openLogStruct( m_logId);
+			openLogStruct( "answer");
+
+			FormPluginInterface *plugin = formPlugin( FormCall::name( m_form ) );
+			if( plugin ) {
+				plugin->gotError( tag_, data_ );
+				return;
+			}
+			closeLogStruct(2);
+		}
 		return;
 	}
-
-	if (m_widgetTree.deliverError( tag_, data_))
+	else
 	{
-		qDebug( ) << "Error for form" << m_form << "and tag" << tag_;
-		emit error( QString( data_));
+		if (m_widgetTree.deliverError( tag_, data_))
+		{
+			qDebug( ) << "Error for form" << m_form << "and tag" << tag_;
+			emit error( QString( data_));
+		}
 	}
 }
 

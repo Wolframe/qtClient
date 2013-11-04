@@ -33,6 +33,7 @@ QString WidgetRequestHeader::toLogIdString() const
 		case Undefined: rt.append( "undefined"); break;
 		case Load: rt.append( "dataload"); break;
 		case Action: rt.append( "action"); break;
+		case Plugin: rt.append( "plugin"); break;
 	}
 	if (actionid.isValid())
 	{
@@ -56,6 +57,7 @@ QString WidgetRequestHeader::toString() const
 		case Undefined: break;
 		case Load: rt.append( "t=L:"); break;
 		case Action: rt.append( "t=A:"); break;
+		case Plugin: rt.append( "t=P:"); break;
 	}
 	if (actionid.isValid())
 	{
@@ -129,6 +131,7 @@ WidgetRequestHeader::Type WidgetRequestHeader::getType( const QString& hdrstr)
 	QString typenam = getId( hdrstr, "t=").toString();
 	if (typenam == "L") return Load;
 	if (typenam == "A") return Action;
+	if (typenam == "P") return Plugin;
 	return Undefined;
 }
 

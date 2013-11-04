@@ -113,7 +113,7 @@ WidgetRequest getActionRequest( WidgetVisitor& visitor, const QVariant& actionde
 	rt = getWidgetRequest_( WidgetRequestHeader::Action, visitor, actiondef, debugmode);
 	rt.header.actionid = menuitem;
 
-	qDebug() << "get request" << rt.header.toString() << "[" << rt.content.data() << "]";
+	qDebug() << "get action request" << rt.header.toString() << "[" << shortenDebugMessageArgument(rt.content).data() << "]";
 	closeLogStruct( 2);
 	return rt;
 }
@@ -158,6 +158,7 @@ WidgetRequest getDataloadRequest( WidgetVisitor& visitor, bool debugmode)
 		return rt;
 	}
 	rt = getWidgetRequest_( WidgetRequestHeader::Load, visitor, action_v, debugmode);
+	qDebug() << "get data load request" << rt.header.toString() << "[" << shortenDebugMessageArgument(rt.content).data() << "]";
 	closeLogStruct( 2);
 	return rt;
 }
@@ -179,6 +180,7 @@ WidgetRequest getDataloadRequest( WidgetVisitor& visitor, const QString& actiond
 
 	rt = getWidgetRequest_( WidgetRequestHeader::Load, visitor, actiondef, debugmode);
 	rt.header.actionid = menuitem;
+	qDebug() << "get data load request" << rt.header.toString() << "[" << shortenDebugMessageArgument(rt.content).data() << "]";
 	closeLogStruct( 2);
 	return rt;
 }
@@ -491,6 +493,8 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 
 	if (resultschema.isValid())
 	{
+		qDebug() << "deliver widget answer (with result schema) for" << visitor.widgetid() << "[" << shortenDebugMessageArgument(answer).data() << "]";
+
 		QString resultschemastr = resultschema.toString();
 		foreach (const QString& cond, getConditionProperties( resultschemastr))
 		{
@@ -499,6 +503,7 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 				QWidget* wdg = visitor.getPropertyOwnerWidget( cond);
 				if (wdg)
 				{
+					qDebug() << "Clearing widget that is owner of property" << cond << "before delivering answer";
 					WidgetVisitor vv( wdg);
 					vv.clear();
 				}
@@ -525,6 +530,8 @@ bool setWidgetAnswer( WidgetVisitor& visitor, const QByteArray& answer)
 	}
 	else
 	{
+		qDebug() << "deliver widget answer (implicit) for" << visitor.widgetid() << "[" << shortenDebugMessageArgument(answer).data() << "]";
+
 		return setImplicitWidgetAnswer( visitor, answer);
 	}
 }

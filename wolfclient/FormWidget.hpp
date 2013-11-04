@@ -100,6 +100,7 @@ class FormWidget : public QWidget
 		bool m_mdi;
 		QString m_formDir;
 		WolframeClient *m_wolframeClient;
+		QString m_logId;			// identifier for log message nodes (log message tree)
 
 	private:
 		void initialize( );

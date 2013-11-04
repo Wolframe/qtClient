@@ -30,7 +30,7 @@
  Project Wolframe.
 
 ************************************************************************/
-///\brief Header for server requests
+///\brief Header for widget requests to the server
 #ifndef _WIDGET_REQUEST_IDENTIFIER_HPP_INCLUDED
 #define _WIDGET_REQUEST_IDENTIFIER_HPP_INCLUDED
 #include <QWidget>
@@ -40,7 +40,7 @@
 class WidgetRequestHeader
 {
 public:
-	enum Type {Undefined, Load, Action};
+	enum Type {Undefined, Load, Action, Plugin};
 
 	WidgetRequestHeader() :type(Undefined){}
 	WidgetRequestHeader( Type type_, QWidget* recipient_widgetid);

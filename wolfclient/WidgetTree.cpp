@@ -225,6 +225,7 @@ void WidgetTree::saveVariables()
 bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall, const QString& logid)
 {
 	openLogStruct( logid);
+	openLogStruct( "load");
 
 	m_formCall.init( formcall);
 	m_visitor = WidgetVisitor( ui_);
@@ -324,7 +325,7 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	m_visitor.widget()->setProperty( "_w_formstack", QVariant( formstack));
 	m_visitor.widget()->setProperty( "_w_statestack", QVariant( statestack));
 
-	closeLogStruct();
+	closeLogStruct(2);
 
 	// loads the domains
 	WidgetMessageDispatcher dispatcher( m_visitor);
@@ -341,7 +342,7 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 		{
 			m_dataLoader->datarequest( request.header.command.toString(), request.header.toString(), request.content);
 		}
-		closeLogStruct( 2);
+		closeLogStruct(2);
 	}
 	return true;
 }
@@ -357,7 +358,7 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 
 	if (!requestheader.recipient.widgetid.isValid())
 	{
-		qCritical() << "cannot deliver answer for request with undefined widget id";
+		qCritical() << "cannot deliver answer for request with undefined widget id (tag " << tag << ")";
 		closeLogStruct( 2);
 		return 0;
 	}
@@ -476,7 +477,7 @@ QWidget* WidgetTree::deliverError( const QString& tag, const QByteArray& /*conte
 
 	if (!requestheader.recipient.widgetid.isValid())
 	{
-		qCritical() << "cannot deliver answer for request with undefined widget id";
+		qCritical() << "cannot deliver error for request with undefined widget id (tag " << tag << ")";
 		closeLogStruct( 2);
 		return 0;
 	}
