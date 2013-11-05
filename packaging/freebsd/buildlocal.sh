@@ -56,7 +56,7 @@ pkg_create -S $PKGBUILD -z -v \
 	-f PKG/packlist \
 	"wolfclient-$VERSION"
 
-mv $PKGBUILD/wolfclient-$VERSION.tgz $PKGBUILD/PKGS/$ARCH/.	
+mv $PKGBUILD/wolfclient-$VERSION.tgz $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$ARCH.tgz
 
 # rm -rf $PKGBUILD/BUILD
 # rm -rf $PKGBUILD/PKG
