@@ -14,7 +14,7 @@ else
 fi
 fi
 
-rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG
+rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolframe-$VERSION
 
 mkdir -p $PKGBUILD $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolfclient-$VERSION $PKGBUILD/PKGS/$ARCH
 
