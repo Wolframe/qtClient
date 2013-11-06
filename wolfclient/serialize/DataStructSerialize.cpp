@@ -38,7 +38,7 @@
 #include <QStringList>
 #include <QDebug>
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 
 namespace {
 class SerializationOutput

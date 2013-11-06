@@ -44,15 +44,16 @@ private:
 	struct Element
 	{
 		QString name;
+		QString structname;
 		bool isArray;
 		QSharedPointer<DataStructDescription> description;
 
 		Element( const Element& o)
-			:name(o.name),isArray(o.isArray),description(o.description){}
-		Element( const QString& name_, bool isArray_)
-			:name(name_),isArray(isArray_),description(new DataStructDescription()){}
+			:name(o.name),structname(o.structname),isArray(o.isArray),description(o.description){}
+		Element( const QString& name_, const QString& structname_, bool isArray_)
+			:name(name_),structname(structname_),isArray(isArray_),description(new DataStructDescription()){}
 		Element()
-			:name(""),isArray(false),description(new DataStructDescription()){}
+			:isArray(false),description(new DataStructDescription()){}
 	};
 
 	QList<Element> stk;
@@ -88,11 +89,11 @@ public:
 		return &*stk.back().description;
 	}
 
-	bool open( const QString& name, bool array)
+	bool open( const QString& name, const QString& structname, bool array)
 	{
-		stk.push_back( Element( name, array));
+		stk.push_back( Element( name, structname, array));
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-		qDebug() << "CALL open(" << name << ")";
+		qDebug() << "CALL open(" << name << "," << structname << ")";
 #endif
 		return true;
 	}
@@ -193,7 +194,7 @@ public:
 		while (ei != stk.begin())
 		{
 			--ei;
-			if (ei->name == indirection_structname)
+			if (ei->structname == indirection_structname)
 			{
 				idx = stk.back().description->addIndirection( name, ei->description.data());
 				if (idx < 0)
@@ -331,7 +332,7 @@ public:
 			{
 				QString nodename;
 
-				QString indirection_structname;
+				QString structname;
 				bool isArray = false;
 
 				for (; bi != be && isAlphaNum(*bi); ++bi)
@@ -339,23 +340,19 @@ public:
 					nodename.push_back( *bi);
 				}
 				skipSpaces( bi, be);
-
-				if (isIndirection)
+				if (*bi == ':')
 				{
-					if (*bi == ':')
+					structname.clear();
+					++bi;
+					for (; bi != be && isAlphaNum(*bi); ++bi)
 					{
-						indirection_structname.clear();
-						++bi;
-						for (; bi != be && isAlphaNum(*bi); ++bi)
-						{
-							indirection_structname.push_back( *bi);
-						}
-						skipSpaces( bi, be);
+						structname.push_back( *bi);
 					}
-					else
-					{
-						indirection_structname = nodename;
-					}
+					skipSpaces( bi, be);
+				}
+				else
+				{
+					structname = nodename;
 				}
 				if (*bi == '[')
 				{
@@ -365,7 +362,7 @@ public:
 				}
 				if (isIndirection)
 				{
-					int idx = defineIndirection( nodename, indirection_structname);
+					int idx = defineIndirection( nodename, structname);
 					if (idx < 0) return false;
 					if (isArray)
 					{
@@ -433,7 +430,7 @@ public:
 					else
 					{
 						//... Content substructure
-						if (!open( nodename, isArray)) return false;
+						if (!open( nodename, structname, isArray)) return false;
 						if (!parseDataStructDescription( start, bi)) return false;
 						if (!close()) return false;
 						++bi;
