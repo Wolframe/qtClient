@@ -14,9 +14,9 @@ else
 fi
 fi
 
-rm -rf $PKGBUILD/BUILD $PKGBUILD/PKG
+rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolframe-$VERSION
 
-mkdir -p $PKGBUILD $PKGBUILD/BUILD $PKGBUILD/PKG $PKGBUILD/PKGS/$ARCH
+mkdir -p $PKGBUILD $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolfclient-$VERSION $PKGBUILD/PKGS/$ARCH
 
 rm -f wolfclient-$VERSION.tar.gz
 rm -f $PKGBUILD/BUILD/wolfclient_$VERSION.tar.gz
@@ -42,21 +42,19 @@ make CXX='ccache g++' PREFIX=/usr/local LIBDIR=/usr/local/lib
 
 find . -name Makefile -exec rm -f {} \;
 qmake-qt4 -config release -recursive wolfclient.pro PREFIX=/usr/local LIBDIR=/usr/local/lib
-make INSTALL_ROOT=$PKGBUILD/PKG install PREFIX=/usr/local LIBDIR=/usr/local/lib
+make INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION install PREFIX=/usr/local LIBDIR=/usr/local/lib
 
-cp packaging/freebsd/comment $PKGBUILD/PKG/.
-cp packaging/freebsd/description $PKGBUILD/PKG/.
-cp packaging/freebsd/packlist $PKGBUILD/PKG/.
+cp packaging/freebsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/freebsd/description $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/freebsd/packlist $PKGBUILD/PKG/wolfclient-$VERSION/.
 
 cd $PKGBUILD
 
 pkg_create -S $PKGBUILD -z -v \
-	-c PKG/comment \
-	-d PKG/description \
-	-f PKG/packlist \
-	"wolfclient-$VERSION"
-
-mv $PKGBUILD/wolfclient-$VERSION.tgz $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$ARCH.tgz
+	-c PKG/wolfclient-$VERSION/comment \
+	-d PKG/wolfclient-$VERSION/description \
+	-f PKG/wolfclient-$VERSION/packlist \
+	$PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$ARCH.tgz
 
 # rm -rf $PKGBUILD/BUILD
 # rm -rf $PKGBUILD/PKG
