@@ -91,4 +91,13 @@ bool UniqueEnter::operator()( const QString& tag)
 	return true;
 }
 
+QString scalarToHex( qlonglong v)
+{
+	return QString("%1").arg(v, 0, 16);
+}
+
+QString scalarToHex( const void* p)
+{
+	return QString("%1").arg((qlonglong)p, 0, 16);
+}
 

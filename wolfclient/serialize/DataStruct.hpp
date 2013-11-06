@@ -80,7 +80,7 @@ public:
 	bool initialized() const				{return m_initialized;}
 	void setInitialized( bool v=true)			{m_initialized = v;}
 
-	void expandIndirection();
+	void expandIndirection( bool arrayind);
 	bool check() const;
 
 public:
@@ -159,6 +159,7 @@ private:
 	friend class DataStructIndirection;
 	void setDescription( const DataStructDescription* description_);
 	void assign( const DataStruct& o);
+	void initStructElements();
 	void release();
 	bool makeArray();
 

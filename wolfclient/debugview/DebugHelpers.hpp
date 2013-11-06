@@ -45,3 +45,7 @@ public:
 private:
 	int taghash;
 };
+
+QString scalarToHex( qlonglong v);
+QString scalarToHex( const void* p);
+

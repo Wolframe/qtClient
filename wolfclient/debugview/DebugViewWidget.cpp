@@ -213,7 +213,7 @@ void DebugViewWidget::printMessages( int nodeid)
 	QList<DebugLogTree::MessageStruct>::const_iterator mi = msgar.begin(), me = msgar.end();
 	for (int rowidx=0; mi != me; ++mi)
 	{
-		if (m_substr.isEmpty() || mi->text.indexOf( m_substr) >= 0)
+		if (m_substr.isEmpty() || mi->text.indexOf( m_substr, 0, Qt::CaseInsensitive) >= 0)
 		{
 			//... filter out non matching text if pattern is defined
 	

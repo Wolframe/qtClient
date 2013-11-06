@@ -105,16 +105,27 @@ DataStruct::~DataStruct()
 	release();
 }
 
-DataStruct::DataStruct( const DataStructDescription* description_)
-	:m_size(-1),m_description(description_),m_initialized(false)
+void DataStruct::initStructElements()
 {
 	m_data.ref = new DataStruct[ arrayAllocSize( m_description->size())];
-
 	DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
 	for (int idx=0; di != de; ++di,++idx)
 	{
-		m_data.ref[ idx] = *(di->initvalue);
+		if (di->type == DataStructDescription::indirection_)
+		{
+			m_data.ref[ idx] = DataStructIndirection( di->substruct);
+		}
+		else if (di->initvalue)
+		{
+			m_data.ref[ idx] = *(di->initvalue);
+		}
 	}
+}
+
+DataStruct::DataStruct( const DataStructDescription* description_)
+	:m_size(-1),m_description(description_),m_initialized(false)
+{
+	initStructElements();
 }
 
 bool DataStruct::makeArray()
@@ -134,11 +145,12 @@ bool DataStruct::makeArray()
 	return true;
 }
 
-void DataStruct::expandIndirection()
+void DataStruct::expandIndirection( bool arrayind)
 {
 	if (m_size < 0 && m_description && m_data.ref == 0)
 	{
-		m_data.ref = new DataStruct( m_description);
+		initStructElements();
+		if (arrayind) makeArray();
 	}
 }
 
@@ -303,7 +315,7 @@ void DataStruct::setDescription( const DataStructDescription* description_)
 				m_data.ref[ ii].setDescription( description_);
 			}
 		}
-		else
+		else if (m_data.ref)
 		{
 			int ii=0;
 			DataStructDescription::const_iterator di=description_->begin(), de=description_->end();
@@ -329,7 +341,7 @@ bool DataStruct::check() const
 	}
 	if (m_size < 0)
 	{
-		if (m_description)
+		if (m_description && m_data.ref)
 		{
 			std::size_t si = 0, se = m_description->size();
 			DataStructDescription::const_iterator di = m_description->begin(), de = m_description->end();
@@ -338,7 +350,7 @@ bool DataStruct::check() const
 				if (m_data.ref[ si].m_description != di->substruct)
 				{
 					qCritical() << "internal: check description failed (substruct)";
-					return false;
+					continue;
 				}
 				if (!m_data.ref[ si].check()) return false;
 			}
@@ -416,6 +428,7 @@ void DataStruct::print( QString& out, const QString& indent, const QString& newi
 	}
 	else if (indirection())
 	{
+		// ... unexpanded indirection is ignored
 	}
 	else if (m_description)
 	{

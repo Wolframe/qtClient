@@ -182,6 +182,39 @@ public:
 		return idx;
 	}
 
+	///\brief define indirection node (recursive structure)
+	///\param[in] name name of the node
+	///\param[in] indirection_structname name of the structure of the indirection (currently a parent but could also be an "oncle")
+	int defineIndirection( const QString& name, const QString& indirection_structname)
+	{
+		int idx = -1;
+		bool resolved = false;
+		QList<Element>::const_iterator ei = stk.end();
+		while (ei != stk.begin())
+		{
+			--ei;
+			if (ei->name == indirection_structname)
+			{
+				idx = stk.back().description->addIndirection( name, ei->description.data());
+				if (idx < 0)
+				{
+					setError( QString( "duplicate definition of element '") + indirection_structname + "'");
+					return idx;
+				}
+				resolved = true;
+				break;
+			}
+		}
+		if (!resolved)
+		{
+			setError( QString( "failed to resolve indirection '") + indirection_structname + "'");
+		}
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+		qDebug() << "CALL defineIndirection(" << name << "," << indirection_structname << ")";
+#endif
+		return idx;
+	}
+
 	struct VariableReference
 	{
 		QString varname;
@@ -285,12 +318,20 @@ public:
 	{
 		while (bi != be)
 		{
+			bool isIndirection = false;
 			skipSpaces( bi, be);
 			if (bi == be) break;
 
+			if (*bi == '^')
+			{
+				++bi;
+				isIndirection = true;
+			}
 			if (isAlphaNum(*bi))
 			{
 				QString nodename;
+
+				QString indirection_structname;
 				bool isArray = false;
 
 				for (; bi != be && isAlphaNum(*bi); ++bi)
@@ -298,13 +339,40 @@ public:
 					nodename.push_back( *bi);
 				}
 				skipSpaces( bi, be);
+
+				if (isIndirection)
+				{
+					if (*bi == ':')
+					{
+						indirection_structname.clear();
+						++bi;
+						for (; bi != be && isAlphaNum(*bi); ++bi)
+						{
+							indirection_structname.push_back( *bi);
+						}
+						skipSpaces( bi, be);
+					}
+					else
+					{
+						indirection_structname = nodename;
+					}
+				}
 				if (*bi == '[')
 				{
 					if (!parseArrayMarker( bi, be)) return false;
 					isArray = true;
+					skipSpaces( bi, be);
 				}
-				skipSpaces( bi, be);
-				if (bi == be)
+				if (isIndirection)
+				{
+					int idx = defineIndirection( nodename, indirection_structname);
+					if (idx < 0) return false;
+					if (isArray)
+					{
+						stk.back().description->at( idx).makeArray();
+					}
+				}
+				else if (bi == be)
 				{
 					setError( "unexpected end of expression");
 					return false;
@@ -494,7 +562,7 @@ bool DataStructDescription::parse( QString::const_iterator si, const QString::co
 	skipBrk( bi, be);
 	if (bi == be)
 	{
-		qCritical() << "curly brackets not balanced in structure description";
+		qCritical() << "curly brackets not balanced in structure description:" << QString( si, se-si);
 		return false;
 	}
 	be = bi;
@@ -504,7 +572,7 @@ bool DataStructDescription::parse( QString::const_iterator si, const QString::co
 	{
 		if (*bi == '}')
 		{
-			qCritical() << "curly brackets not balanced in structure description";
+			qCritical() << "curly brackets not balanced in structure description:" << QString( si, se-si);
 		}
 		else
 		{

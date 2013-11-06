@@ -40,10 +40,22 @@ QString DataStructDescription::Element::variablename() const
 
 bool DataStructDescription::Element::makeArray()
 {
-	if (type == indirection_) return false;
 	if (array()) return false;
-	if (!initvalue->makeArray()) return false;
-	flags |= (unsigned char)Array;
+	if (type == indirection_)
+	{
+		flags |= (unsigned char)Array;
+	}
+	else
+	{
+		if (initvalue && initvalue->makeArray())
+		{
+			flags |= (unsigned char)Array;
+		}
+		else
+		{
+			return false;
+		}
+	}
 	return true;
 }
 

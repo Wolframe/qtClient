@@ -65,7 +65,7 @@ static WidgetRequest getWidgetRequest_( WidgetRequestHeader::Type type, WidgetVi
 		if (!visitor.property( cond).isValid())
 		{
 			// one of the preconditions is not met, return empty (no) request
-			qDebug() << "suppressing action" << actionstr << "because condition" << cond << "is not met (condition not valid)";
+			qCritical() << "suppressing action" << actionstr << "because condition" << cond << "is not met (condition not valid)";
 			return rt;
 		}
 	}

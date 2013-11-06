@@ -95,7 +95,7 @@ static QString relativeVariableRef( const DataPath& pred, const QString& variabl
 	{
 		if (*pi != *vi)
 		{
-			qCritical() << "internal: wrong common ancestor calculation in variable reference (node values)";
+			qCritical() << "internal: wrong common ancestor calculation in variable reference (variable path=" << variablePath << ", pred="  << pred << ")";
 			return QString();
 		}
 	}
@@ -173,10 +173,22 @@ static bool readDataGroupElement( const DataPath& pred, const DataPath& group, D
 					elem->push();
 					if (elemdescr->substruct)
 					{
-						if (!readDataStruct( totpath, elem->back(), descrmap, vi))
+						if (elemdescr->type == DataStructDescription::indirection_)
 						{
-							qCritical() << "failed to read" << itemname << "[" << ai << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
-							return false;
+							// ... in indirection grouping happens recursively (no total path)
+							if (!readDataStruct( group, elem->back(), descrmap, vi))
+							{
+								qCritical() << "failed to read" << itemname << "[" << ai << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+								return false;
+							}
+						}
+						else
+						{
+							if (!readDataStruct( totpath, elem->back(), descrmap, vi))
+							{
+								qCritical() << "failed to read" << itemname << "[" << ai << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+								return false;
+							}
 						}
 						elem->back()->setInitialized();
 					}
@@ -218,10 +230,22 @@ static bool readDataGroupElement( const DataPath& pred, const DataPath& group, D
 			{
 				if (elemdescr->substruct)
 				{
-					if (!readDataStruct( totpath, elem, descrmap, vi))
+					if (elemdescr->type == DataStructDescription::indirection_)
 					{
-						qCritical() << "failed to read structure at" << dataPathString( totpath, DataPath(), totpath.size());
-						return false;
+						// ... in indirection grouping happens recursively (no total path)
+						if (!readDataStruct( group, elem, descrmap, vi))
+						{
+							qCritical() << "failed to read structure at" << dataPathString( totpath, DataPath(), totpath.size());
+							return false;
+						}
+					}
+					else
+					{
+						if (!readDataStruct( totpath, elem, descrmap, vi))
+						{
+							qCritical() << "failed to read structure at" << dataPathString( totpath, DataPath(), totpath.size());
+							return false;
+						}
 					}
 					elem->setInitialized();
 				}
@@ -402,10 +426,22 @@ static bool writeDataGroupElement( const DataPath& pred, const DataPath& group, 
 					}
 					if (elemdescr->substruct)
 					{
-						if (!writeDataStruct( totpath, &*ai, descrmap, vi))
+						if (elemdescr->type == DataStructDescription::indirection_)
 						{
-							qCritical() << "failed to write" << itemname << "[" << ((ae-ai)+1) << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
-							return false;
+							// ... in indirection grouping happens recursively (no total path)
+							if (!writeDataStruct( group, &*ai, descrmap, vi))
+							{
+								qCritical() << "failed to write" << itemname << "[" << ((ae-ai)+1) << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+								return false;
+							}
+						}
+						else
+						{
+							if (!writeDataStruct( totpath, &*ai, descrmap, vi))
+							{
+								qCritical() << "failed to write" << itemname << "[" << ((ae-ai)+1) << "] at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+								return false;
+							}
 						}
 					}
 					else if (elemdescr->type == DataStructDescription::variableref_
@@ -444,10 +480,22 @@ static bool writeDataGroupElement( const DataPath& pred, const DataPath& group, 
 			{
 				if (elemdescr->substruct)
 				{
-					if (!writeDataStruct( totpath, elem, descrmap, vi))
+					if (elemdescr->type == DataStructDescription::indirection_)
 					{
-						qCritical() << "failed to write" << itemname << "at" << dataPathString( totpath, DataPath(), totpath.size()-1);
-						return false;
+						// ... in indirection grouping happens recursively (no total path)
+						if (!writeDataStruct( group, elem, descrmap, vi))
+						{
+							qCritical() << "failed to write" << itemname << "at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+							return false;
+						}
+					}
+					else
+					{
+						if (!writeDataStruct( totpath, elem, descrmap, vi))
+						{
+							qCritical() << "failed to write" << itemname << "at" << dataPathString( totpath, DataPath(), totpath.size()-1);
+							return false;
+						}
 					}
 				}
 				else if (elemdescr->type == DataStructDescription::variableref_
@@ -567,7 +615,11 @@ static bool readDataStruct( const DataPath& pred, DataStruct* data, const DataSt
 	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
 	for (; si != se && di != de; ++si,++di)
 	{
-		if (di->substruct)
+		if (si->indirection())
+		{
+			// ... unexpanded indirection is ignored
+		}
+		else if (di->substruct)
 		{
 			DataStructDescriptionMap::const_iterator mi = descrmap.find( di->substruct);
 			if (mi != descrmap.end())
@@ -651,7 +703,11 @@ static bool writeDataStruct( const DataPath& pred, const DataStruct* data, const
 	DataStructDescription::const_iterator di = descr->begin(), de = descr->end();
 	for (; si != se && di != de; ++si,++di)
 	{
-		if (di->substruct)
+		if (si->indirection())
+		{
+			// ... unexpanded indirection is ignored
+		}
+		else if (di->substruct)
 		{
 			DataStructDescriptionMap::const_iterator mi = descrmap.find( di->substruct);
 			if (mi != descrmap.end())

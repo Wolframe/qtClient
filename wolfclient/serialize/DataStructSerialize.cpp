@@ -38,7 +38,7 @@
 #include <QStringList>
 #include <QDebug>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 
 namespace {
 class SerializationOutput
@@ -204,11 +204,14 @@ bool fillDataStructSerialization( DataStruct& data, const QList<DataSerializeIte
 				}
 				DataStruct::iterator ei = stk.back()->structbegin() + idx;
 				DataStructDescription::const_iterator di = descr->begin() + idx;
+				path.push_back( di->name);
 
 				if (ei->indirection())
 				{
 					// Handle Indirection:
-					ei->expandIndirection();
+					ei->check();
+					ei->expandIndirection( di->array());
+					ei->check();
 				}
 				if (di->anyValue())
 				{
@@ -225,6 +228,11 @@ bool fillDataStructSerialization( DataStruct& data, const QList<DataSerializeIte
 						}
 						if (taglevel == 0) break;
 					}
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+					qDebug() << "fillDataStruct visit element CloseTag (content ignored and skipped)";
+#endif
+					path.pop_back();
+
 					if (si == se)
 					{
 						qCritical() << "tags not balanced in structure fill input";
@@ -244,7 +252,7 @@ bool fillDataStructSerialization( DataStruct& data, const QList<DataSerializeIte
 					ei->setInitialized();
 					if (ei->back()->indirection())
 					{
-						ei->back()->expandIndirection();
+						ei->back()->expandIndirection( di->array());
 					}
 					ei->back()->setInitialized();
 					stk.push_back( ei->back());
@@ -288,6 +296,8 @@ bool fillDataStructSerialization( DataStruct& data, const QList<DataSerializeIte
 					qCritical() << "tags not balanced in serialization" << "at" << path.join("/");
 					return false;
 				}
+				if (!path.isEmpty()) path.pop_back();
+
 				lastelemtype = si->type();
 				attributename.clear();
 				break;
@@ -400,6 +410,7 @@ bool fillDataStructSerialization( DataStruct& data, const QList<DataSerializeIte
 				break;
 		}
 	}
+	qDebug() << "[fill datastruct] complete content" << data.toString( 80);
 	return true;
 }
 

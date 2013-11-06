@@ -72,7 +72,12 @@ static bool getDataStructDescriptionMap_( DataStructDescriptionMap& res, QList<Q
 			scopeReferences.push_back( tree.addPathNode( di->variablename()));
 		}
 		const DataStructDescription* sync_substruct = 0;
-		if (di->array())
+		if (di->type == DataStructDescription::indirection_)
+		{
+			//... do nothing. The common prefix is calculated from 
+			// the rest and is the same as for the structure referenced (assumption)
+		}
+		else if (di->array())
 		{
 			if (di->substruct)
 			{

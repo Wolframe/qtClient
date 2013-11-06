@@ -54,7 +54,7 @@ public:
 	};
 	static const char* stateName( State i)
 	{
-		static const char* ar[] = {"Enabled","Disabled","Hidden","Visible"};
+		static const char* ar[] = {"enabled","disabled","hidden","visible"};
 		return ar[i];
 	}
 

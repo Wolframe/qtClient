@@ -55,6 +55,12 @@ public:
 		struct_,
 		indirection_
 	};
+	static const char* typeName( Type i)
+	{
+		static const char* ar[] = {"atomic","variableref","struct","indirection"};
+		return ar[(int)i];
+	}
+
 	///\brief Constructor
 	DataStructDescription()
 		:m_nofattributes(0){}
@@ -113,7 +119,9 @@ public:
 		void setAnyValue( bool v=true)					{if (v) flags |= (unsigned char)AnyValue; else flags -= (flags & (unsigned char)AnyValue);}
 
 		bool makeArray();
-		QString variablename() const;					//< return the name of the variable referenced in case of a variableref_
+		///\brief Get the name of the variable referenced in case of a variableref_
+		QString variablename() const;
+		const char* typeName() const					{return DataStructDescription::typeName(type);}
 	};
 
 	///\brief Const iterator on the elements of the definition
