@@ -9,7 +9,7 @@ else
 if test "x$ORIG_ARCH" = "xi386"; then
 	ARCH="i686"
 else
-	echo "ERROR: Unknown slackware architecture '$ARCH'"
+	echo "ERROR: Unknown slackware architecture '$ORIG_ARCH'"
 	exit 1
 fi
 fi
@@ -19,7 +19,7 @@ rm -rf $PKGBUILD/BUILD $PKGBUILD/PKG
 mkdir -p $PKGBUILD $PKGBUILD/BUILD $PKGBUILD/PKG $PKGBUILD/PKGS/$ARCH
 
 rm -f wolfclient-$VERSION.tar.gz
-rm -f $RPMBUILD/BUILD/wolfclient_$VERSION.tar.gz
+rm -f $PKGBUILD/BUILD/wolfclient_$VERSION.tar.gz
 
 gmake distclean
 mkdir /tmp/wolfclient-$VERSION
@@ -56,7 +56,7 @@ pkg_create -S $PKGBUILD -z -v \
 	-f PKG/packlist \
 	"wolfclient-$VERSION"
 
-mv $PKGBUILD/wolfclient-$VERSION.tgz $PKGBUILD/PKGS/$ARCH/.	
+mv $PKGBUILD/wolfclient-$VERSION.tgz $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$ARCH.tgz
 
 # rm -rf $PKGBUILD/BUILD
 # rm -rf $PKGBUILD/PKG
