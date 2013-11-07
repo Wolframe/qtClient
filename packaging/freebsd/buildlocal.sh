@@ -40,8 +40,6 @@ make CXX='ccache g++' PREFIX=/usr/local LIBDIR=/usr/local/lib
 # needs X11 or headless X11 server, disabled for now
 #make test
 
-find . -name Makefile -exec rm -f {} \;
-qmake-qt4 -config release -recursive wolfclient.pro PREFIX=/usr/local LIBDIR=/usr/local/lib
 make INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION install PREFIX=/usr/local LIBDIR=/usr/local/lib
 
 cp packaging/freebsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.
