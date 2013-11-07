@@ -40,7 +40,7 @@ class FormPluginRequestHeader
 {
 public:
 	FormPluginRequestHeader()
-		:recipientid(0),cnt(0){}
+		:cnt(0){}
 
 	FormPluginRequestHeader( const QString& str)
 	{
@@ -54,13 +54,13 @@ public:
 		:recipientid(o.recipientid),cnt(o.cnt),command(o.command),pluginName(o.pluginName){}
 
 	FormPluginRequestHeader( WId recipientid_, QString command_, QString pluginName_)
-		:recipientid(recipientid_),cnt(0),command(command_),pluginName(pluginName_)
+		:recipientid(QString::number((int)recipientid_)),cnt(0),command(command_),pluginName(pluginName_)
 	{
 		static int g_cnt = 0;
 		cnt = ++g_cnt;
 	}
 
-	WId recipientid;
+	QString recipientid;
 	int cnt;
 	QString command;
 	QString pluginName;
@@ -94,9 +94,9 @@ public:
 		return QVariant();
 	}
 
-	static WId getRecipientId( const QString& hdrstr)
+	static QString getRecipientId( const QString& hdrstr)
 	{
-		return getId( hdrstr, "w=").toInt();
+		return getId( hdrstr, "w=").toString();
 	}
 
 	static int getCnt( const QString& hdrstr)
