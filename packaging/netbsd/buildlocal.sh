@@ -9,7 +9,7 @@ else
 if test "x$ORIG_ARCH" = "xi386"; then
 	ARCH="i686"
 else
-	echo "ERROR: Unknown FreeBSD architecture '$ORIG_ARCH'"
+	echo "ERROR: Unknown NetBSD architecture '$ORIG_ARCH'"
 	exit 1
 fi
 fi
@@ -35,14 +35,24 @@ cd $PKGBUILD/BUILD
 tar zxf wolfclient-$VERSION.tar.gz
 cd wolfclient-$VERSION
 
-qmake-qt4 -config release -recursive wolfclient.pro PREFIX=/usr/local LIBDIR=/usr/local/lib
-make CXX='ccache g++' PREFIX=/usr/local LIBDIR=/usr/local/lib
+export PATH=/usr/pkg/qt4/bin:/usr/pkg/bin:${PATH}
+export QTDIR=/usr/pkg/qt4
+
+qmake -config release -recursive wolfclient.pro PREFIX=/usr/pkg LIBDIR=/usr/pkg/lib
+find . -name Makefile -exec sh -c \
+	"sed 's/libtool --silent/libtool --silent --tag=CXX/g' {} > x && mv x {}" \;
+make INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION CXX='ccache g++' PREFIX=/usr/pkg LIBDIR=/usr/pkg/lib
 # needs X11 or headless X11 server, disabled for now
 #make test
 
-find . -name Makefile -exec rm -f {} \;
-qmake-qt4 -config release -recursive wolfclient.pro PREFIX=/usr/local LIBDIR=/usr/local/lib
-make INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION install PREFIX=/usr/local LIBDIR=/usr/local/lib
+make INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION install PREFIX=/usr/pkg LIBDIR=/usr/pkg/lib
+
+# some cleanup after libtool
+rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/libqtwolfclient.la
+rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/libqtwolfclient.so
+rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/libskeleton.la
+rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/libskeleton.so
+rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/qt4/plugins/designer/*.la
 
 cp packaging/freebsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.
 cp packaging/freebsd/description $PKGBUILD/PKG/wolfclient-$VERSION/.

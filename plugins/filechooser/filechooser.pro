@@ -29,8 +29,11 @@ INSTALLS += target
 # only because wolfclient links in visitors directly to the plugins
 # TODO: must be solved later, so far we just deploy the plugins twice:
 # as plugin (above) and as shared library (here):
-temptarget.files = libfilechooser.so
+INSTALL_AS_LIBRARY = libfilefilechooser.so
+!exists($$INSTALL_AS_LIBRARY) { INSTALL_AS_LIBRARY = .libs/libfilechooser.so }
+temptarget.files = $$INSTALL_AS_LIBRARY
 temptarget.path = $${LIBDIR}
+temptarget.CONFIG = no_check_exist
 INSTALLS += temptarget
 
 build_all:!build_pass {
