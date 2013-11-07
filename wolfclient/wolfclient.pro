@@ -56,6 +56,7 @@ SOURCES += \
 	WidgetListener.cpp \
 	WidgetRequest.cpp \
 	WidgetMessageDispatcher.cpp \
+	WidgetDragAndDrop.cpp \
 	WidgetVisitorStateConstructor.cpp \
 	debugview/DebugLogTree.cpp \
 	debugview/DebugViewWidget.cpp \
@@ -126,6 +127,7 @@ HEADERS += \
 	WidgetRequest.hpp \
 	WidgetMessageDispatcher.hpp \
 	WidgetVisitorStateConstructor.hpp \
+	WidgetDragAndDrop.hpp \
 	visitors/WidgetVisitor_QLabel.hpp \
 	visitors/WidgetVisitor_QComboBox.hpp \
 	visitors/WidgetVisitor_QCheckBox.hpp \

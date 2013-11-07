@@ -47,12 +47,13 @@ public:
 	virtual void clear();
 	virtual QVariant property( const QString& name);
 	virtual bool setProperty( const QString& name, const QVariant& data);
-	virtual bool isArrayElement( const QString& name);
+	virtual bool isArrayElement( const QString& name) const;
 	virtual void setState( const QVariant& state);
 	virtual QVariant getState() const;
 	virtual void endofDataFeed();
 	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
+	virtual bool hasDrag() const	{return true;}
 
 private:
 	void initSelected( const QVariant& selected);

@@ -49,7 +49,7 @@ void WidgetVisitorState_QListWidget::clear()
 	m_row = -1;
 }
 
-bool WidgetVisitorState_QListWidget::isArrayElement( const QString& name)
+bool WidgetVisitorState_QListWidget::isArrayElement( const QString& name) const
 {
 	return name == "item";
 }

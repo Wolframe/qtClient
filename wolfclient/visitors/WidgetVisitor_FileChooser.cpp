@@ -100,7 +100,7 @@ bool WidgetVisitorState_FileChooser::setProperty( const QString& /*name*/, const
 	return false;
 }
 
-bool WidgetVisitorState_FileChooser::isArrayElement( const QString& name)
+bool WidgetVisitorState_FileChooser::isArrayElement( const QString& name) const
 {
 	if (name == "file") return true;
 	return false;

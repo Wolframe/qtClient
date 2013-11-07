@@ -257,7 +257,7 @@ bool WidgetVisitorState_QTableWidget::leave( bool writemode)
 	return false;
 }
 
-bool WidgetVisitorState_QTableWidget::isArrayElement( const QString& name)
+bool WidgetVisitorState_QTableWidget::isArrayElement( const QString& name) const
 {
 	if (m_mode == Init && (name == "row" || name == "column")) return true;
 	return false;

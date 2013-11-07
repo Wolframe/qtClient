@@ -104,7 +104,7 @@ bool WidgetVisitorState_QTreeWidget::leave( bool /*writemode*/)
 	return true;
 }
 
-bool WidgetVisitorState_QTreeWidget::isArrayElement( const QString& name)
+bool WidgetVisitorState_QTreeWidget::isArrayElement( const QString& name) const
 {
 	static const QString item_str( "item");
 	static const QString row_str( "row");

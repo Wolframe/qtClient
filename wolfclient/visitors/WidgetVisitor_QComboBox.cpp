@@ -198,7 +198,7 @@ bool WidgetVisitorState_QComboBox::setProperty( const QString& name, const QVari
 	return false;
 }
 
-bool WidgetVisitorState_QComboBox::isArrayElement( const QString& name)
+bool WidgetVisitorState_QComboBox::isArrayElement( const QString& name) const
 {
 	return (name == m_elementname || name == "item");
 }

@@ -30,29 +30,12 @@
  Project Wolframe.
 
 ************************************************************************/
+///\brief Interface for drag and drop for widgets
+#ifndef _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
+#define _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
+#include <QWidget>
+#include <QMouseEvent>
 
-#ifndef _WIDGET_VISIOR_QLineEdit_HPP_INCLUDED
-#define _WIDGET_VISIOR_QLineEdit_HPP_INCLUDED
-#include "WidgetVisitorObject.hpp"
-#include <QLineEdit>
-
-class WidgetVisitorState_QLineEdit
-	:public WidgetVisitorObject
-{
-public:
-	WidgetVisitorState_QLineEdit( QWidget* widget_);
-
-	virtual void clear();
-	virtual QVariant property( const QString& name);
-	virtual bool setProperty( const QString& name, const QVariant& data);
-	virtual void setState( const QVariant& state);
-	virtual QVariant getState() const;
-	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
-	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
-	virtual bool hasDrag() const	{return true;}
-
-private:
-	QLineEdit* m_lineEdit;
-};
+void mousePressEventHandleDrag( QWidget* this_, QMouseEvent *event);
 
 #endif

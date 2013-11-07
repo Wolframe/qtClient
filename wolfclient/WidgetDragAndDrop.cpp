@@ -30,29 +30,44 @@
  Project Wolframe.
 
 ************************************************************************/
+///\brief Implement drag and drop for widgets
+#include "WidgetVisitor.hpp"
+#include "WidgetDragAndDrop.hpp"
+#include "WidgetId.hpp"
+#include <QDrag>
+#include <QMimeData>
 
-#ifndef _WIDGET_VISIOR_QLineEdit_HPP_INCLUDED
-#define _WIDGET_VISIOR_QLineEdit_HPP_INCLUDED
-#include "WidgetVisitorObject.hpp"
-#include <QLineEdit>
-
-class WidgetVisitorState_QLineEdit
-	:public WidgetVisitorObject
+static bool containsPoint( const QWidget* widget, const QVariant& cond)
 {
-public:
-	WidgetVisitorState_QLineEdit( QWidget* widget_);
+	return widget->rect().contains( cond.toPoint(), true);
+}
 
-	virtual void clear();
-	virtual QVariant property( const QString& name);
-	virtual bool setProperty( const QString& name, const QVariant& data);
-	virtual void setState( const QVariant& state);
-	virtual QVariant getState() const;
-	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
-	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
-	virtual bool hasDrag() const	{return true;}
+void mousePressEventHandleDrag( QWidget* this_, QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton && this_->rect().contains(event->pos()))
+	{
+		WidgetVisitor visitor( this_);
 
-private:
-	QLineEdit* m_lineEdit;
-};
+		foreach (QWidget* subnode, visitor.findSubNodes( containsPoint, event->pos()))
+		{
+			WidgetVisitor subvisitor( subnode);
+			if (subvisitor.hasDrag())
+			{
+				QDrag *drag = new QDrag(this_);
+				QMimeData *mimeData = new QMimeData;
+				mimeData->setData( WIDGETID_MIMETYPE, subvisitor.widgetid().toLatin1());
+				drag->setMimeData( mimeData);
+		
+				Qt::DropAction dropAction = drag->exec( Qt::CopyAction | Qt::MoveAction);
+				switch (dropAction)
+				{
+					case Qt::CopyAction: qDebug() << "Handle event copy action drag on widget" << subvisitor.widgetid(); break;
+					case Qt::MoveAction: qDebug() << "Handle event move action drag on widget" << subvisitor.widgetid(); break;
+					default: qCritical() << "internal: illegal state in handle drag event"; break;
+				}
+				return;
+			}
+		}
+	}
+}
 
-#endif

@@ -36,10 +36,36 @@
 #include <QWidget>
 #include <QString>
 #include <QVariant>
+#include <QDataStream>
+#include <QMetaType>
+
+#define WIDGETID_MIMETYPE "text/widgetid"
+
+class WidgetId
+{
+public:
+	const QString& objectName() const	{return m_objectName;}
+	int cnt() const				{return m_cnt;}
+
+	WidgetId() :m_cnt(0){}
+	WidgetId( const QWidget* wdg);
+	WidgetId( const QString& str);
+
+private:
+	QString m_objectName;
+	int m_cnt;
+};
+
+QDataStream &operator<<(QDataStream &out, const WidgetId& myObj);
+QDataStream &operator>>(QDataStream &in, WidgetId& myObj);
 
 QVariant getWidgetId( const QWidget* wdg);
 QString askWidgetId( QWidget* wdg);
+QString getObjectNameFromWidgetId( const QString& wid);
+int getCntWidgetId( const QString& wid);
 void setWidgetId( QWidget* wdg);
 bool widgetIdMatches( const QString& id, const QWidget* wdg);
 bool isWidgetId( const QString& id);
+
+
 #endif

@@ -832,6 +832,12 @@ QString WidgetVisitor::widgetPath() const
 	return widgetPath( widget());
 }
 
+bool WidgetVisitor::hasDrag() const
+{
+	if (m_stk.isEmpty()) return false;
+	return m_stk.top().m_obj->hasDrag();
+}
+
 static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& cond)
 {
 	return widgetIdMatches( cond.toString(), widget);

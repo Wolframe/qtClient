@@ -325,6 +325,8 @@ class WidgetVisitor
 		QString widgetPath() const;
 		static QString widgetPath( const QWidget* widget);
 
+		bool hasDrag() const;
+		
 		///\brief Resolve a symbolic link to a widget
 		///\param[in] link name of symbolic link to resolve
 		QWidget* resolveLink( const QString& link);

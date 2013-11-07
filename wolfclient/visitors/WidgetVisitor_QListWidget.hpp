@@ -44,7 +44,7 @@ public:
 
 	virtual bool enter( const QString& name, bool writemode);
 	virtual bool leave( bool writemode);
-	virtual bool isArrayElement( const QString& name);
+	virtual bool isArrayElement( const QString& name) const;
 	virtual void clear();
 	virtual QVariant property( const QString& name);
 	virtual bool setProperty( const QString& name, const QVariant& data);
@@ -53,6 +53,7 @@ public:
 	virtual void endofDataFeed();
 	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
+	virtual bool hasDrag() const	{return true;}
 
 private:
 	void initSelected( const QVariant& selected);

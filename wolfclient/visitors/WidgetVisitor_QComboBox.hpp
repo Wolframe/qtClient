@@ -47,7 +47,7 @@ public:
 	virtual bool leave( bool writemode);
 	virtual QVariant property( const QString& name);
 	virtual bool setProperty( const QString& name, const QVariant& data);
-	virtual bool isArrayElement( const QString& name);
+	virtual bool isArrayElement( const QString& name) const;
 	virtual void setState( const QVariant& state);
 	virtual QVariant getState() const;
 	virtual void endofDataFeed();

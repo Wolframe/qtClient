@@ -49,6 +49,7 @@ public:
 	virtual QVariant getState() const;
 	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
+	virtual bool hasDrag() const	{return true;}
 
 private:
 	QTextEdit* m_textEdit;
