@@ -53,17 +53,20 @@ rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/libqtwolfclient.so
 rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/libskeleton.la
 rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/libskeleton.so
 rm -f $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/qt4/plugins/designer/*.la
+# relinking libtool issue, copy library manually and hoping the best..
+cp -a $PKGBUILD/BUILD/wolfclient-$VERSION/skeleton/.libs/libskeleton.so.* $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/.
+cp -a $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/qt4/plugins/designer/*.so $PKGBUILD/PKG/wolfclient-$VERSION/usr/pkg/lib/.
 
-cp packaging/freebsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.
-cp packaging/freebsd/description $PKGBUILD/PKG/wolfclient-$VERSION/.
-cp packaging/freebsd/packlist $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/netbsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/netbsd/description $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/netbsd/packlist $PKGBUILD/PKG/wolfclient-$VERSION/.
 
-cd $PKGBUILD
+cd $PKGBUILD/PKG/wolfclient-0.0.3
 
-pkg_create -S $PKGBUILD -z -v \
-	-c PKG/wolfclient-$VERSION/comment \
-	-d PKG/wolfclient-$VERSION/description \
-	-f PKG/wolfclient-$VERSION/packlist \
+pkg_create -v -p . \
+	-c comment \
+	-d description \
+	-f packlist \
 	$PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$ARCH.tgz
 
 # rm -rf $PKGBUILD/BUILD
