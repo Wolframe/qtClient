@@ -37,3 +37,4 @@ Makefile.*
 *.rc
 debug/
 release/
+*~
