@@ -1,6 +1,8 @@
 #include "WidgetId.hpp"
 #include <QDebug>
 
+Q_DECLARE_METATYPE(WidgetId)
+
 static qint64 g_cnt = 0;
 static int g_metatype_id = qRegisterMetaType<WidgetId>( WIDGETID_MIMETYPE);
 
@@ -69,5 +71,3 @@ WidgetId::WidgetId( const QString& str)
 	m_objectName = getObjectNameFromWidgetId( str);
 	m_cnt = getCntWidgetId( str);
 }
-
-Q_DECLARE_METATYPE(WidgetId)
