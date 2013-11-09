@@ -5,9 +5,11 @@ PKGBUILD=$HOME/bsdbuild
 ORIG_ARCH=`uname -m`
 if test "x$ORIG_ARCH" = "xamd64"; then
 	ARCH="x86_64"
+	PACK_ARCH="x86_64"
 else
 if test "x$ORIG_ARCH" = "xi386"; then
 	ARCH="i686"
+	PACK_ARCH="i386"
 else
 	echo "ERROR: Unknown NetBSD architecture '$ORIG_ARCH'"
 	exit 1
@@ -64,7 +66,7 @@ cp packaging/netbsd/packlist $PKGBUILD/PKG/wolfclient-$VERSION/.
 OPSYS=`uname -s`
 OS_VERSION=`uname -r`
 cat <<EOF > $PKGBUILD/PKG/wolfclient-$VERSION/build-info
-MACHINE_ARCH=$ORIG_ARCH
+MACHINE_ARCH=$PACK_ARCH
 OPSYS=$OPSYS
 OS_VERSION=$OS_VERSION
 PKGTOOLS_VERSION=20091115
