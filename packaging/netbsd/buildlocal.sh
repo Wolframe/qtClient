@@ -72,7 +72,7 @@ OS_VERSION=$OS_VERSION
 PKGTOOLS_VERSION=20091115
 EOF
 
-cd $PKGBUILD/PKG/wolfclient-0.0.3
+cd $PKGBUILD/PKG/wolfclient-$VERSION
 
 pkg_create -v -p .  -I / \
 	-B build-info \
