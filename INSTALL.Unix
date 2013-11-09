@@ -214,13 +214,13 @@ Build with:
 
 qmake -config debug -recursive
 
-Apply a patch for libtool for all generated makefiles
+Apply a patch for libtool for all generated makefiles:
 
 find . -name Makefile -exec sh -c \
 	"sed 's/libtool --silent/libtool --silent --tag=CXX/g' {} > x && mv x {}" \;
 
-Build with
+Continue building with:
 
 gmake
 
-To run 'wolfclient' you have currently to set LD_LIBRARY_PATH is set to '/usr/X11R7/lib'.
+To run 'wolfclient' you have currently to set LD_LIBRARY_PATH to '/usr/X11R7/lib'.
