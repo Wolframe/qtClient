@@ -223,5 +223,4 @@ Build with
 
 gmake
 
-When you run the libtool wrapper scripts, make sure LD_LIBRARY_PATH is set to /usr/X11R7/lib
-
+To run 'wolfclient' you have currently to set LD_LIBRARY_PATH is set to '/usr/X11R7/lib'.

@@ -61,9 +61,19 @@ cp packaging/netbsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.
 cp packaging/netbsd/description $PKGBUILD/PKG/wolfclient-$VERSION/.
 cp packaging/netbsd/packlist $PKGBUILD/PKG/wolfclient-$VERSION/.
 
+OPSYS=`uname -s`
+OS_VERSION=`uname -r`
+cat <<EOF > $PKGBUILD/PKG/wolfclient-$VERSION/build-info
+MACHINE_ARCH=$ORIG_ARCH
+OPSYS=$OPSYS
+OS_VERSION=$OS_VERSION
+PKGTOOLS_VERSION=20091115
+EOF
+
 cd $PKGBUILD/PKG/wolfclient-0.0.3
 
-pkg_create -v -p . \
+pkg_create -v -p .  -I / \
+	-B build-info \
 	-c comment \
 	-d description \
 	-f packlist \
