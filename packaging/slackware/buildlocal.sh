@@ -39,8 +39,6 @@ make CXX='ccache g++' PREFIX=/usr LIBDIR=$LIBDIR
 # needs X11 or headless X11 server, disabled for now
 #make test
 
-find . -name Makefile -exec rm -f {} \;
-qmake -config release -recursive wolfclient.pro PREFIX=/usr LIBDIR=$LIBDIR
 make INSTALL_ROOT=$PKGBUILD/PKG install PREFIX=/usr LIBDIR=$LIBDIR
 
 mkdir $PKGBUILD/PKG/install

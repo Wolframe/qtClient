@@ -9,12 +9,12 @@ else
 if test "x$ORIG_ARCH" = "xi386"; then
 	ARCH="i686"
 else
-	echo "ERROR: Unknown slackware architecture '$ORIG_ARCH'"
+	echo "ERROR: Unknown FreeBSD architecture '$ORIG_ARCH'"
 	exit 1
 fi
 fi
 
-rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolframe-$VERSION
+rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolfclient-$VERSION
 
 mkdir -p $PKGBUILD $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolfclient-$VERSION $PKGBUILD/PKGS/$ARCH
 
@@ -40,8 +40,6 @@ make CXX='ccache g++' PREFIX=/usr/local LIBDIR=/usr/local/lib
 # needs X11 or headless X11 server, disabled for now
 #make test
 
-find . -name Makefile -exec rm -f {} \;
-qmake-qt4 -config release -recursive wolfclient.pro PREFIX=/usr/local LIBDIR=/usr/local/lib
 make INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION install PREFIX=/usr/local LIBDIR=/usr/local/lib
 
 cp packaging/freebsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.

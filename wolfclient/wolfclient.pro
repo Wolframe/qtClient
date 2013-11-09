@@ -11,22 +11,17 @@ DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT SKELETON_VISIBILITY=Q_DECL
 
 QMAKE_RPATHDIR += $$QMAKE_LIBDIR_X11
 
-QMAKE_LIBDIR += ../libqtwolfclient
-QMAKE_LIBDIR += ../skeleton
-QMAKE_LIBDIR += ../plugins/filechooser
-QMAKE_LIBDIR += ../plugins/picturechooser
-unix:LIBS += -lqtwolfclient -lskeleton -lfilechooser -lpicturechooser
-#unix:LIBS += -L../libqtwolfclient -lqtwolfclient -L../skeleton -lskeleton -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
+unix:LIBS += -L../libqtwolfclient -lqtwolfclient -L../skeleton -lskeleton -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 macx:LIBS += ../libqtwolfclient/build/Release/libqtwolfclient0.dylib ../skeleton/build/Release/skeleton0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
 INCLUDEPATH += ../libqtwolfclient ../skeleton ../plugins/filechooser ../plugins/picturechooser
 
-#unix:PRE_TARGETDEPS += ../libqtwolfclient/libqtwolfclient.so ../skeleton/libskeleton.so ../plugins/filechooser/libfilechooser.so ../plugins/picturechooser/libpicturechooser.so
+# needed for certain non-standard installation pathes of libraries
+isEmpty(LIBDIR) {
+  LIBDIR = $${PREFIX}/lib
+}
 unix:QMAKE_LFLAGS += -Wl,-rpath,$$LIBDIR
-#unix:QMAKE_LFLAGS += -Wl,-rpath,$$[QT_INSTALL_PLUGINS]/designer
-win32:PRE_TARGETDEPS += ../libqtwolfclient/debug/qtwolfclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
-macx:PRE_TARGETDEPS += ../libqtwolfclient/build/release/libqtwolfclient0.dylib ../skeleton/build/Release/skeleton0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
 
 QT += core gui network
 

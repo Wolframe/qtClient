@@ -1,6 +1,8 @@
 #include "WidgetId.hpp"
 #include <QDebug>
 
+Q_DECLARE_METATYPE(WidgetId)
+
 static qint64 g_cnt = 0;
 static int g_metatype_id = qRegisterMetaType<WidgetId>( WIDGETID_MIMETYPE);
 
@@ -85,4 +87,3 @@ QString WidgetId::toString() const
 	return rt;
 }
 
-Q_DECLARE_METATYPE(WidgetId)
