@@ -36,6 +36,8 @@
 #include <QWidget>
 #include <QMouseEvent>
 
-void mousePressEventHandleDrag( QWidget* this_, QMouseEvent *event);
+bool mousePressEventHandleDrag( QWidget* mainwidget, QMouseEvent *event);
+bool mousePressEventHandleDragEnter( QWidget* mainwidget, QDragEnterEvent *event);
+bool mousePressEventHandleDrop( QWidget* mainwidget, QDropEvent* event);
 
 #endif

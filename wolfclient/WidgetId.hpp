@@ -50,6 +50,9 @@ public:
 	WidgetId() :m_cnt(0){}
 	WidgetId( const QWidget* wdg);
 	WidgetId( const QString& str);
+	WidgetId( const QString& objectName_, int cnt_);
+
+	QString toString() const;
 
 private:
 	QString m_objectName;

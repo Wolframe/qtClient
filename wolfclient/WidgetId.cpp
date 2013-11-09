@@ -14,14 +14,17 @@ QString askWidgetId( QWidget* wdg)
 	QVariant rt = wdg->property( "widgetid");
 	if (rt.isValid()) return rt.toString();
 
-	QString newid =  wdg->objectName();
-	if (newid.size() && !newid.startsWith("qt_"))
+	if (wdg->objectName().size() && !wdg->objectName().startsWith("qt_"))
 	{
-		newid.append( ":");
-		newid.append( QVariant( ++g_cnt).toString());
-		wdg->setProperty( "widgetid", newid);
+		WidgetId wid( wdg->objectName(), ++g_cnt);
+		QString widprop( wid.toString());
+		wdg->setProperty( "widgetid", widprop);
+		return widprop;
 	}
-	return newid;
+	else
+	{
+		return wdg->objectName();
+	}
 }
 
 void setWidgetId( QWidget* wdg)
@@ -68,6 +71,18 @@ WidgetId::WidgetId( const QString& str)
 {
 	m_objectName = getObjectNameFromWidgetId( str);
 	m_cnt = getCntWidgetId( str);
+}
+
+WidgetId::WidgetId( const QString& objectName_, int cnt_)
+	:m_objectName(objectName_),m_cnt(cnt_)
+{}
+
+QString WidgetId::toString() const
+{
+	QString rt( m_objectName);
+	rt.append( ":");
+	rt.append( QVariant( m_cnt).toString());
+	return rt;
 }
 
 Q_DECLARE_METATYPE(WidgetId)

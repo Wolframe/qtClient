@@ -33,7 +33,7 @@
 #include "debugview/DebugLogTree.hpp"
 #include <QDebug>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 
 DebugLogTree::DebugLogTree()
 	:m_prefixcnt(0),m_msgcnt(0)

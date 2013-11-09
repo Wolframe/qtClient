@@ -36,6 +36,7 @@
 #include "FormPluginRequestHeader.hpp"
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetRequest.hpp"
+#include "WidgetDragAndDrop.hpp"
 #include "global.hpp"
 #include "debugview/DebugHelpers.hpp"
 #include "debugview/DebugLogTree.hpp"
@@ -572,4 +573,33 @@ void FormWidget::triggerClose()
 {
 	emit closed();
 }
+
+bool FormWidget::eventFilter( QObject *obj, QEvent *event)
+{
+	if (event->type() == QEvent::MouseButtonPress)
+	{
+		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+		if (::mousePressEventHandleDrag( mainwidget(), mouseEvent)) return true;
+	}
+	else if (event->type() == QEvent::DragEnter)
+	{
+		QDragEnterEvent* enterEvent = static_cast<QDragEnterEvent*>( event);
+		if (::mousePressEventHandleDragEnter( mainwidget(), enterEvent)) return true;
+	}
+	else if (event->type() == QEvent::DragLeave)
+	{
+		/*[-]*/qDebug() << "[drag/drop handler] drag leave";
+	}
+	else if (event->type() == QEvent::DragMove)
+	{
+		/*[-]*/qDebug() << "[drag/drop handler] drag move";
+	}
+	else if (event->type() == QEvent::Drop)
+	{
+		QDropEvent* dropEvent = static_cast<QDropEvent*>(event);
+		if (::mousePressEventHandleDrop( mainwidget(), dropEvent)) return true;
+	}
+	return QWidget::eventFilter( obj, event);
+}
+
 

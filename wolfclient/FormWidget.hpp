@@ -67,6 +67,7 @@ class FormWidget : public QWidget
 		QVariant getWidgetStates() const;
 		void setWidgetStates( const QVariant& state);
 		void triggerClose();
+		bool eventFilter( QObject *obj, QEvent *event);
 
 	public:
 		QString formCall( ) const;

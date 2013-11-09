@@ -147,7 +147,7 @@ class MainWindow : public SkeletonMainWindow
 		void addDeveloperMenu( );
 		void removeApplicationMenus( );
 		void addGlueMenuAction( QMenu *menu );
-		
+
 	private slots:
 // menu slots
 		void languageSelected( QAction *action );

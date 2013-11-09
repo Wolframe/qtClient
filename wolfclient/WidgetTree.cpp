@@ -222,6 +222,17 @@ void WidgetTree::saveVariables()
 	m_visitor.do_writeGlobals( *m_globals);
 }
 
+static void enableDropActions( QWidget* widget)
+{
+	foreach (const QByteArray& prop, widget->dynamicPropertyNames())
+	{
+		if (prop.startsWith( "drop:"))
+		{
+			widget->setAcceptDrops(true);
+		}
+	}
+}
+
 bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formcall, const QString& logid)
 {
 	openLogStruct( logid);
@@ -236,7 +247,11 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	bool rudpflag_bk = m_visitor.allowUndefDynPropsInit( true);
 
 	WidgetVisitor::init_widgetids( m_visitor.widget());
-
+	enableDropActions( ui_);
+	foreach (QWidget* child, ui_->findChildren<QWidget*>())
+	{
+		enableDropActions( child);
+	}
 	m_visitor.do_readGlobals( *m_globals);
 
 	// initialize the form variables given by form parameters

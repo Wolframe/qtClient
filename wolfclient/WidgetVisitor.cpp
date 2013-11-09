@@ -222,6 +222,23 @@ QString WidgetVisitor::State::getLink( const QString& name) const
 	return QString();
 }
 
+void WidgetVisitor::State::defineLink( const QString& name, const QString& value)
+{
+	int ii = 0, nn = m_links.size();
+	for (; ii<nn; ++ii)
+	{
+		if (m_links.at( ii).first == name)
+		{
+			m_links[ ii].second = value;
+			break;
+		}
+	}
+	if (ii == nn)
+	{
+		m_links.push_back( LinkDef( name, value));
+	}
+}
+
 static void getWidgetChildren_( QList<QWidget*>& rt, QObject* wdg)
 {
 	static const QString str_QWidget("QWidget");
@@ -756,6 +773,19 @@ bool WidgetVisitor::evalCondition( const QVariant& expr)
 			return op1.toInt() <= op2.toInt();
 	}
 	return false;
+}
+
+void WidgetVisitor::defineLink( const QString& name, const QString& value)
+{
+	if (m_stk.isEmpty())
+	{
+		qCritical() << "internal: illegal call of definedLink" << name << value;
+		return;
+	}
+	else
+	{
+		m_stk.top().defineLink( name, value);
+	}
 }
 
 FormWidget* WidgetVisitor::formwidget() const

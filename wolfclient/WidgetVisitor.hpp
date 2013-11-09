@@ -373,8 +373,11 @@ class WidgetVisitor
 		///\brief Create listener object for the widget and wire all data signals
 		WidgetListenerImpl* createListener( DataLoader* dataLoader);
 
-		///\brief sets the AllowUndefDynPropsInit flag to value and return the previous value of it
+		///\brief Sets the AllowUndefDynPropsInit flag to value and return the previous value of it
 		bool allowUndefDynPropsInit( bool value);
+
+		///\brief Define a line (linke property "link:<name>" definition) 
+		void defineLink( const QString& name, const QString& value);
 
 	private:
 		///\brief Internal property get using 'level' to check property resolving step (B).
@@ -411,6 +414,7 @@ class WidgetVisitor
 
 		public://Common methods:
 			QString getLink( const QString& name) const;
+			void defineLink( const QString& name, const QString& value);
 			QVariant dynamicProperty( const QString& name) const;
 			bool setDynamicProperty( const QString&, const QVariant& value, bool reportUndefined);
 
