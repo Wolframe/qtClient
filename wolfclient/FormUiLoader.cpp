@@ -44,37 +44,42 @@ QWidget* FormUiLoader::createWidget( const QString& className, QWidget* parent, 
 {
 	if (className == "QTreeWidget")
 	{
-		QWidget* rt = new WidgetWithDragAndDrop<QTreeWidget>( parent);
+		QTreeWidget* rt = new WidgetWithDragAndDrop<QTreeWidget>( parent);
 		rt->setObjectName( name);
+		rt->setDragEnabled( true);
+		rt->showDropIndicator();
 		return rt;
 	}
 	else if (className == "QLineEdit")
 	{
-		QWidget* rt = new WidgetWithDragAndDrop<QLineEdit>( parent);
+		QLineEdit* rt = new WidgetWithDragAndDrop<QLineEdit>( parent);
 		rt->setObjectName( name);
+		rt->setDragEnabled( true);
 		return rt;
 	}
 	else if (className == "QListWidget")
 	{
-		QWidget* rt = new WidgetWithDragAndDrop<QListWidget>( parent);
+		QListWidget* rt = new WidgetWithDragAndDrop<QListWidget>( parent);
 		rt->setObjectName( name);
+		rt->setDragEnabled( true);
 		return rt;
 	}
 	else if (className == "QPlainTextEdit")
 	{
-		QWidget* rt = new WidgetWithDragAndDrop<QPlainTextEdit>( parent);
+		QPlainTextEdit* rt = new WidgetWithDragAndDrop<QPlainTextEdit>( parent);
 		rt->setObjectName( name);
 		return rt;
 	}
 	else if (className == "QTableWidget")
 	{
-		QWidget* rt = new WidgetWithDragAndDrop<QTableWidget>( parent);
+		QTableWidget* rt = new WidgetWithDragAndDrop<QTableWidget>( parent);
 		rt->setObjectName( name);
+		rt->setDragEnabled( true);
 		return rt;
 	}
 	else if (className == "QTextEdit")
 	{
-		QWidget* rt = new WidgetWithDragAndDrop<QTextEdit>( parent);
+		QTextEdit* rt = new WidgetWithDragAndDrop<QTextEdit>( parent);
 		rt->setObjectName( name);
 		return rt;
 	}

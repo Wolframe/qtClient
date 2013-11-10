@@ -65,12 +65,14 @@ public:
 		if (event->button() == Qt::LeftButton)
 		{
 			m_dragStartPosition = event->pos();
+			m_drag = true;
 		}
 		WidgetType::mousePressEvent( event);
 	}
 
 	void mouseMoveEvent( QMouseEvent *event)
 	{
+		if (!m_drag) return;
 		if (!(event->buttons() & Qt::LeftButton)) return;
 		if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance()) return;
 
@@ -79,6 +81,7 @@ public:
 		{
 			WidgetType::mouseMoveEvent( event);
 		}
+		m_drag = false;
 	}
 
 	void dragEnterEvent( QDragEnterEvent *event)
@@ -105,6 +108,7 @@ public:
 
 private:
 	QPoint m_dragStartPosition;
+	bool m_drag;
 };
 
 #endif
