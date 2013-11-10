@@ -36,6 +36,7 @@
 
 #include "DataLoader.hpp"
 #include "FormLoader.hpp"
+#include "FormUiLoader.hpp"
 #include "WidgetTree.hpp"
 #include <QWidget>
 #include <QPushButton>
@@ -56,7 +57,7 @@ class FormWidget : public QWidget
 	Q_OBJECT
 
 	public:
-		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient, bool _mdi );
+		FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, FormUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient, bool _mdi );
 		virtual ~FormWidget( );
 
 		void loadForm( QString name, bool modal = false, bool newWindow = false );
@@ -67,7 +68,6 @@ class FormWidget : public QWidget
 		QVariant getWidgetStates() const;
 		void setWidgetStates( const QVariant& state);
 		void triggerClose();
-		bool eventFilter( QObject *obj, QEvent *event);
 
 	public:
 		QString formCall( ) const;
@@ -84,7 +84,7 @@ class FormWidget : public QWidget
 	private:
 		QString m_form;				// name of the form
 		QString m_previousForm;
-		QUiLoader *m_uiLoader;			// UI loader to user for loading designer XML files
+		FormUiLoader *m_uiLoader;		// UI loader to user for loading designer XML files
 		FormLoader *m_formLoader;		// form loader (visible form)
 		DataLoader *m_dataLoader;		// load and saves data (data form)
 		QWidget *m_ui;				// the ui loaded from the designer XML file

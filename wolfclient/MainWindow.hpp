@@ -49,6 +49,7 @@
 
 #include "global.hpp"
 #include "FormLoader.hpp"
+#include "FormUiLoader.hpp"
 #include "WolframeClient.hpp"
 #include "FormWidget.hpp"
 #include "LoadMode.hpp"
@@ -96,7 +97,7 @@ class MainWindow : public SkeletonMainWindow
 		QTranslator m_translatorApp;	// contains the translations for this application
 		QTranslator m_translatorQt; 	// contains the translations for qt
 		FormWidget *m_formWidget;	// current active form
-		QUiLoader *m_uiLoader;		// the UI loader for all forms
+		FormUiLoader *m_uiLoader;	// the UI loader for all forms
 		FormLoader *m_formLoader;	// form loader (visible form)
 		DataLoader *m_dataLoader;	// load and saves data (data form)
 		QHash<QString,QVariant> m_globals;// global form variables

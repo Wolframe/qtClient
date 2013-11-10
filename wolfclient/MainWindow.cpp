@@ -222,7 +222,7 @@ void MainWindow::create( )
 #endif
 
 // a Qt UI loader for the main theme window and also used by all form widgets
-	m_uiLoader = new QUiLoader( );
+	m_uiLoader = new FormUiLoader( );
 	m_uiLoader->setLanguageChangeEnabled( true );
 // for Windows, to find plugins in local installation directory
 	m_uiLoader->addPluginPath( "." );

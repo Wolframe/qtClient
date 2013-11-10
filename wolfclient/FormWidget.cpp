@@ -53,7 +53,7 @@
 #include <QApplication>
 #include <QMainWindow>
 
-FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, QUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient, bool _mdi )
+FormWidget::FormWidget( FormLoader *_formLoader, DataLoader *_dataLoader, QHash<QString,QVariant>* _globals, FormUiLoader *_uiLoader, QWidget *_parent, bool _debug, const QString &_formDir, WolframeClient *_wolframeClient, bool _mdi )
 	: QWidget( _parent ), m_form( ),
 	  m_uiLoader( _uiLoader ), m_formLoader( _formLoader ),
 	  m_dataLoader( _dataLoader ), m_ui( 0 ),
@@ -574,32 +574,5 @@ void FormWidget::triggerClose()
 	emit closed();
 }
 
-bool FormWidget::eventFilter( QObject *obj, QEvent *event)
-{
-	if (event->type() == QEvent::MouseButtonPress)
-	{
-		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-		if (::mousePressEventHandleDrag( mainwidget(), mouseEvent)) return true;
-	}
-	else if (event->type() == QEvent::DragEnter)
-	{
-		QDragEnterEvent* enterEvent = static_cast<QDragEnterEvent*>( event);
-		if (::mousePressEventHandleDragEnter( mainwidget(), enterEvent)) return true;
-	}
-	else if (event->type() == QEvent::DragLeave)
-	{
-		/*[-]*/qDebug() << "[drag/drop handler] drag leave";
-	}
-	else if (event->type() == QEvent::DragMove)
-	{
-		/*[-]*/qDebug() << "[drag/drop handler] drag move";
-	}
-	else if (event->type() == QEvent::Drop)
-	{
-		QDropEvent* dropEvent = static_cast<QDropEvent*>(event);
-		if (::mousePressEventHandleDrop( mainwidget(), dropEvent)) return true;
-	}
-	return QWidget::eventFilter( obj, event);
-}
 
 

@@ -35,9 +35,77 @@
 #define _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
 #include <QWidget>
 #include <QMouseEvent>
+#include <QApplication>
 
-bool mousePressEventHandleDrag( QWidget* mainwidget, QMouseEvent *event);
-bool mousePressEventHandleDragEnter( QWidget* mainwidget, QDragEnterEvent *event);
-bool mousePressEventHandleDrop( QWidget* mainwidget, QDropEvent* event);
+class WidgetWithDragAndDropBase
+{
+public:
+	static bool handleDragPickEvent( QWidget* this_, QMouseEvent *event, const QVariant& sourceobj);
+	static bool handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event);
+	static bool handleDropEvent( QWidget* this_, QDropEvent *event, const QVariant& targetobj);
+};
+
+template <class WidgetType>
+class WidgetWithDragAndDrop :public WidgetType, public WidgetWithDragAndDropBase
+{
+public:
+	WidgetWithDragAndDrop( QWidget* parent = 0)
+		:WidgetType(parent)
+	{
+		WidgetType::setAcceptDrops( true);
+	}
+
+	virtual QVariant getDragObjectId( const QPoint&) const
+	{
+		return QVariant();
+	}
+
+	void mousePressEvent( QMouseEvent *event)
+	{
+		if (event->button() == Qt::LeftButton)
+		{
+			m_dragStartPosition = event->pos();
+		}
+		WidgetType::mousePressEvent( event);
+	}
+
+	void mouseMoveEvent( QMouseEvent *event)
+	{
+		if (!(event->buttons() & Qt::LeftButton)) return;
+		if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance()) return;
+
+		QVariant objid = getDragObjectId( m_dragStartPosition);
+		if (!WidgetWithDragAndDropBase::handleDragPickEvent( this, event, objid))
+		{
+			WidgetType::mouseMoveEvent( event);
+		}
+	}
+
+	void dragEnterEvent( QDragEnterEvent *event)
+	{
+		if (!WidgetWithDragAndDropBase::handleDragEnterEvent( this, event))
+		{
+			WidgetType::dragEnterEvent( event);
+		}
+	}
+
+	void dragLeaveEvent( QDragLeaveEvent * event)
+	{
+		WidgetType::dragLeaveEvent( event);
+	}
+
+	void dropEvent( QDropEvent *event)
+	{
+		QVariant objid = getDragObjectId( event->pos());
+		if (!WidgetWithDragAndDropBase::handleDropEvent( this, event, objid))
+		{
+			WidgetType::dropEvent( event);
+		}
+	}
+
+private:
+	QPoint m_dragStartPosition;
+};
 
 #endif
+

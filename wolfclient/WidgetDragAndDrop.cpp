@@ -39,143 +39,89 @@
 
 #define WOLFRAME_LOWLEVEL_DEBUG
 
-static bool containsPoint( const QWidget* actWidget, const QVariant& cond)
+bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent *event, const QVariant& /*sourceobj*/)
 {
-	QRect globalWidgetRect = QRect(actWidget->mapToGlobal(QPoint(0,0)), actWidget->size());
-	QPoint mousePos = cond.toPoint();
-	if (actWidget->objectName().isEmpty() || actWidget->objectName().startsWith("qt_")) return false;
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-	qDebug() << "[drag/drop handler] test position" << mousePos << "in" << globalWidgetRect << actWidget->objectName();
+	qDebug() << "[drag/drop handler] handle drag pick" << this_->objectName();
 #endif
-	return (globalWidgetRect.contains( mousePos));
+	WidgetVisitor visitor( this_);
+
+	QDrag *drag = new QDrag( this_);
+	QMimeData *mimeData = new QMimeData;
+	mimeData->setData( WIDGETID_MIMETYPE, visitor.widgetid().toLatin1());
+	drag->setMimeData( mimeData);
+	drag->setPixmap( QPixmap( ":/images/16x16/copy.png"));
+
+	Qt::DropAction dropAction = drag->exec( Qt::CopyAction | Qt::MoveAction);
+	switch (dropAction)
+	{
+		case Qt::CopyAction: qDebug() << "Handle event copy action drag on widget" << visitor.widgetid(); break;
+		case Qt::MoveAction: qDebug() << "Handle event move action drag on widget" << visitor.widgetid(); break;
+		case Qt::IgnoreAction: qDebug() << "Ignore drag event on widget" << visitor.widgetid(); return false;
+		default: qCritical() << "internal: illegal state in handle drag event"; return false;
+	}
+	event->accept();
+	return true;
 }
 
-bool mousePressEventHandleDrag( QWidget* mainwidget, QMouseEvent *event)
+bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event)
 {
-	if (event->button() == Qt::LeftButton && event->type() == QEvent::MouseButtonPress)
-	{
-		WidgetVisitor visitor( mainwidget);
-		QPoint eventPos = event->globalPos();
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
-		const char* eventnam = "unknown";
-		if (event->button() == Qt::LeftButton) eventnam = "LeftButton";
-		else if (event->button() == Qt::RightButton) eventnam = "RightButton";
-		QRect globalWidgetRect = QRect( mainwidget->mapToGlobal( QPoint(0,0)), mainwidget->size());
-
-		qDebug() << "[drag/drop handler] mousePressEvent" << eventnam << "at" << eventPos << "in" << globalWidgetRect;
+	qDebug() << "[drag/drop handler] handle drag enter" << this_->objectName();
 #endif
-		foreach (QWidget* subnode, visitor.findSubNodes( containsPoint, eventPos))
-		{
-			WidgetVisitor subvisitor( subnode);
-			if (subvisitor.hasDrag())
-			{
-				qDebug() << "[drag/drop handler] has drag" << subnode->objectName() << eventPos;
+	WidgetVisitor visitor( this_);
+	Qt::DropAction dropAction = event->dropAction();
+	const char* dropActionStr = 0;
+	switch (dropAction)
+	{
+		case Qt::CopyAction: dropActionStr = "copy"; break;
+		case Qt::MoveAction: dropActionStr = "move"; break;
+		case Qt::IgnoreAction: break;
+		default: break;
+	}
+	if (dropActionStr)
+	{
+		WidgetId widgetId( this_);
+		QString propname = QString("drop") + dropActionStr + ":" + widgetId.objectName();
 
-				QDrag *drag = new QDrag( subnode);
-				QMimeData *mimeData = new QMimeData;
-				mimeData->setText( subvisitor.widgetid());
-				//Data( WIDGETID_MIMETYPE, subvisitor.widgetid().toLatin1());
-				drag->setMimeData( mimeData);
-				drag->setPixmap( QPixmap( ":/images/16x16/copy.png"));
-				event->accept();
-		
-				Qt::DropAction dropAction = drag->exec();
-				switch (dropAction)
-				{
-					case Qt::CopyAction: qDebug() << "Handle event copy action drag on widget" << subvisitor.widgetid(); break;
-					case Qt::MoveAction: qDebug() << "Handle event move action drag on widget" << subvisitor.widgetid(); break;
-					case Qt::IgnoreAction: qDebug() << "Ignore drag event on widget" << subvisitor.widgetid(); continue;
-					default: qCritical() << "internal: illegal state in handle drag event"; continue;
-				}
-				return true;
-			}
+		if (this_->property(propname.toLatin1()).isValid())
+		{
+			event->acceptProposedAction();
+			qDebug() << "[drag/drop handler] drag enter accept " << this_->objectName() << "at" << event->pos();
+			return true;
 		}
 	}
 	return false;
 }
 
-bool mousePressEventHandleDragEnter( QWidget* mainwidget, QDragEnterEvent *event)
+bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *event, const QVariant& /*targetobj*/)
 {
-	const QMimeData* mimeData = event->mimeData();
-	if (mimeData->hasFormat( WIDGETID_MIMETYPE))
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "[drag/drop handler] handle drop" << this_->objectName();
+#endif
+	WidgetVisitor visitor( this_);
+	Qt::DropAction dropAction = event->dropAction();
+	const char* dropActionStr = 0;
+	switch (dropAction)
 	{
-		WidgetVisitor visitor( mainwidget);
-		QPoint eventPos = event->pos() + mainwidget->mapToGlobal( QPoint(0,0));
-
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-		QRect globalWidgetRect = QRect( mainwidget->mapToGlobal( QPoint(0,0)), mainwidget->size());
-
-		qDebug() << "[drag/drop handler] dragEnterEvent at" << eventPos << "in" << globalWidgetRect;
-#endif
-		foreach (QWidget* subnode, visitor.findSubNodes( containsPoint, eventPos))
-		{
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-			qDebug() << "[drag/drop handler] check drag enter" << subnode->objectName() << eventPos;
-#endif
-			WidgetVisitor subvisitor( subnode);
-			Qt::DropAction dropAction = event->dropAction();
-			const char* dropActionStr = 0;
-			switch (dropAction)
-			{
-				case Qt::CopyAction: dropActionStr = "copy"; break;
-				case Qt::IgnoreAction: 
-				case Qt::MoveAction: dropActionStr = "move"; break;
-				default: continue;
-			}
-			if (dropActionStr)
-			{
-				WidgetId widgetId( subnode);
-				QString propname = QString("drop") + dropActionStr + ":" + widgetId.objectName();
-
-				if (subnode->property(propname.toLatin1()).isValid())
-				{
-					event->acceptProposedAction();
-					qDebug() << "[drag/drop handler] drag enter accept " << subnode->objectName() << "at" << eventPos;
-					return true;
-				}
-			}
-		}
+		case Qt::CopyAction: dropActionStr = "copy"; break;
+		case Qt::MoveAction: dropActionStr = "move"; break;
+		case Qt::IgnoreAction: return false;
+		default: return false;
 	}
-	return false;
-}
-
-bool mousePressEventHandleDrop( QWidget* mainwidget, QDropEvent *event)
-{
-	WidgetVisitor visitor( mainwidget);
-	QPoint eventPos = event->pos() + mainwidget->mapToGlobal( QPoint(0,0));
-
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-	qDebug() << "[drag/drop handler] drop at" << eventPos;
-#endif
-	foreach (QWidget* subnode, visitor.findSubNodes( containsPoint, eventPos))
+	if (dropActionStr)
 	{
-#ifdef WOLFRAME_LOWLEVEL_DEBUG
-		qDebug() << "[drag/drop handler] check drop" << subnode->objectName() << eventPos;
-#endif
-		WidgetVisitor subvisitor( subnode);
-		Qt::DropAction dropAction = event->dropAction();
-		const char* dropActionStr = 0;
-		switch (dropAction)
-		{
-			case Qt::CopyAction: dropActionStr = "copy"; break;
-			case Qt::IgnoreAction: 
-			case Qt::MoveAction: dropActionStr = "move"; break;
-			default: continue;
-		}
-		if (dropActionStr)
-		{
-			WidgetId widgetId( subnode);
-			QString propname = QString("drop") + dropActionStr + ":" + widgetId.objectName();
+		WidgetId widgetId( this_);
+		QString propname = QString("drop") + dropActionStr + ":" + widgetId.objectName();
 
-			QVariant action = subnode->property(propname.toLatin1());
-			if (action.isValid())
-			{
-				qDebug() << "[drag/drop handler] define 'drag' link" << widgetId.toString();
-				subvisitor.defineLink( "drag", widgetId.toString());
+		QVariant action = this_->property(propname.toLatin1());
+		if (action.isValid())
+		{
+			qDebug() << "[drag/drop handler] define 'drag' link" << widgetId.toString();
+			visitor.defineLink( "drag", widgetId.toString());
 
-				// ... submit request
-				qDebug() << "[drag/drop handler] submit drop request" << action.toString();
-			}
+			// ... submit request
+			qDebug() << "[drag/drop handler] submit drop request" << action.toString();
 		}
 	}
 	return false;

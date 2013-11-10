@@ -38,6 +38,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 SOURCES += \
 	MainWindow.cpp \
 	FormLoader.cpp \
+	FormUiLoader.cpp \
 	FileFormLoader.cpp \
 	NetworkFormLoader.cpp \
 	DataLoader.cpp \
@@ -107,6 +108,7 @@ HEADERS += \
 	debugview/DebugMessageHandler.hpp \
 	MainWindow.hpp \
 	FormLoader.hpp \
+	FormUiLoader.hpp \
 	FileFormLoader.hpp \
 	NetworkFormLoader.hpp \
 	DataLoader.hpp \
