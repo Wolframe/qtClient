@@ -13,7 +13,7 @@ QMAKE_RPATHDIR += $$QMAKE_LIBDIR_X11
 
 unix:LIBS += -L../libqtwolfclient -lqtwolfclient -L../skeleton -lskeleton -L../plugins/filechooser -lfilechooser -L../plugins/picturechooser -lpicturechooser
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
-macx:LIBS += ../libqtwolfclient/build/Release/libqtwolfclient0.dylib ../skeleton/build/Release/skeleton0.dylib ../plugins/filechooser/build/Release/libfilechooser.dylib ../plugins/picturechooser/build/Release/libpicturechooser.dylib
+macx:LIBS += ../libqtwolfclient/build/Debug/libqtwolfclient.dylib ../skeleton/build/Debug/libskeleton.dylib ../plugins/filechooser/build/Debug/libfilechooser.dylib ../plugins/picturechooser/build/Debug/libpicturechooser.dylib
 
 INCLUDEPATH += ../libqtwolfclient ../skeleton ../plugins/filechooser ../plugins/picturechooser
 
