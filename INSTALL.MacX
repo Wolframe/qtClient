@@ -7,11 +7,11 @@ Requirements
 Build
 -----
 
-cd plugins
-qmake
-xcodebuild -configuration Debug
-cd ..
-qmake
+for all subdirectories do (SUBDIR recursive builds don't work with xcode?),
+build in the order plugins/filechooser, plugins/picturechooser, libqtwolfclient,
+skeleton, wolfclient:
+
+qmake -config debug
 xcodebuild -configuration Debug
 
 On error manually correct -lQtUiTools_debug to -lQtUiTools
@@ -19,5 +19,12 @@ On error manually correct -lQtUiTools_debug to -lQtUiTools
 Run
 ---
 
-export DYLD_LIBRARY_PATH=plugins/build/Debug/
-build/Debug/wolfclient.app/Contents/MacOS/wolfclient -c apps/configurator.conf 
+cd wolfclient
+export DYLD_LIBRARY_PATH=../plugins/picturechooser/build/Debug/:../plugins/filechooser/build/Debug:../libqtwolfclient/build/Debug:../skeleton/build/Debug
+build/Debug/wolfclient.app/Contents/MacOS/wolfclient <configuration-file>
+
+Clean
+-----
+
+find . -name build -type f | xargs rm -rf
+find . -name '*xcodeproj' -type d | xargs rm -rf

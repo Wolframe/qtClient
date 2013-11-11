@@ -23,6 +23,7 @@ QT += widgets
 
 unix:LIBS += -L../libqtwolfclient -lqtwolfclient
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib
+macx:LIBS += ../libqtwolfclient/build/Debug/libqtwolfclient.dylib
 
 INCLUDEPATH += ../libqtwolfclient
 

@@ -18,6 +18,8 @@ QMAKE_RPATHDIR += $$QMAKE_LIBDIR_X11
 
 unix:LIBS += -L../libqtwolfclient -lqtwolfclient -L../skeleton -lskeleton
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib ../skeleton/debug/skeleton0.lib
+macx:LIBS += ../libqtwolfclient/build/Debug/libqtwolfclient.dylib ../skeleton/build/Debug/libskeleton.dylib
+
 
 SOURCES += \
 	main.cpp \
