@@ -34,6 +34,7 @@
 #include "WidgetVisitor.hpp"
 #include "WidgetDragAndDrop.hpp"
 #include "WidgetId.hpp"
+#include "WidgetRequest.hpp"
 #include "FormWidget.hpp"
 #include "debugview/DebugLogTree.hpp"
 #include <QDrag>
@@ -76,10 +77,20 @@ bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent
 	drag->setPixmap( QPixmap( ":/images/16x16/copy.png"));
 	closeLogStruct(2);
 	Qt::DropAction dropAction = drag->exec( Qt::CopyAction | Qt::MoveAction);
-	//... drag->exec is blocking !
+	//... drag->exec is blocking till end of drop. so the following code is executed after !
+
 	const char* dropActionStr = dropActionName(dropAction);
 	openLogStruct( visitor.formwidget()->logId());
 	openLogStruct( "drag");
+	if (dropAction == Qt::MoveAction)
+	{
+		WidgetRequest domload = getDataloadRequest( visitor, m_debug);
+		if (!domload.content.isEmpty())
+		{
+			this_->setProperty( "_w_state", visitor.getState());
+			m_dataLoader->datarequest( domload.header.command.toString(), domload.header.toString(), domload.content);
+		}
+	}
 	qDebug() << "[drag/drop handler] drop action" << (dropActionStr?dropActionStr:"ignore") << visitor.widgetid();
 	closeLogStruct(2);
 	return true;
@@ -234,8 +245,33 @@ bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *eve
 
 	// ... submit request
 	qDebug() << "[drag/drop handler] signal drop request" << action.toString();
+	sendDropRequest( this_, dragWidgetId, action.toString(), visitor.valueAt( event->pos()));
 	closeLogStruct( 2);
-	emit drop( dragWidgetId, action.toString());
 	return true;
 }
+
+void WidgetWithDragAndDropBase::sendDropRequest( QWidget* dropWidget, const WidgetId& dragWidgetid, const QString& action, const QVariant& dropvalue)
+{
+	WidgetVisitor visitor( dropWidget);
+
+	qDebug() << "[drag/drop handler] define 'drag' link in drop visitor" << dragWidgetid.toString();
+	visitor.defineLink( "dragobj", dragWidgetid.toString());
+	visitor.setProperty( "dropobj", dropvalue);
+
+	// ... submit request
+	qDebug() << "[drag/drop handler] submit drop request" << action;
+	WidgetRequest request = getActionRequest( visitor, action, m_debug);
+	if (!request.content.isEmpty())
+	{
+		if (m_dataLoader)
+		{
+			m_dataLoader->datarequest( request.header.command.toString(), request.header.toString(), request.content);
+		}
+		else
+		{
+			qCritical() << "no data loader defined. cannot send drop request";
+		}
+	}
+}
+
 

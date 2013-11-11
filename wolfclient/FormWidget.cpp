@@ -133,32 +133,6 @@ void FormWidget::executeAction( QWidget *actionwidget )
 	}
 }
 
-void FormWidget::executeDrop( const WidgetId& dragWidgetid, const QString& action)
-{
-	QWidget* senderwdg = qobject_cast<QWidget*>( QObject::sender());
-	openLogStruct( m_logId);
-	openLogStruct( "drop");
-	if (!senderwdg)
-	{
-		qCritical() << "[drag/drop handler] unknown sender of drop signal";
-		closeLogStruct(2);
-		return;
-	}
-	WidgetVisitor visitor( senderwdg);
-
-	qDebug() << "[drag/drop handler] define 'drag' link in drop visitor" << dragWidgetid.toString();
-	visitor.defineLink( "drag", dragWidgetid.toString());
-
-	// ... submit request
-	qDebug() << "[drag/drop handler] submit drop request" << action;
-	WidgetRequest request = getActionRequest( visitor, action, m_debug);
-	if (!request.content.isEmpty())
-	{
-		m_dataLoader->datarequest( request.header.command.toString(), request.header.toString(), request.content);
-	}
-	closeLogStruct( 2);
-}
-
 void FormWidget::executeMenuAction( QWidget *actionwidget, const QString& menuaction)
 {
 	qDebug() << "execute menu action" << menuaction;
@@ -462,12 +436,6 @@ void FormWidget::formLoaded( QString name, QByteArray formXml )
 	}
 	openLogStruct(m_logId);
 	openLogStruct("load");
-
-// link all drop signals
-	foreach (WidgetWithDragAndDropBase* ddwdg, m_ui->findChildren<WidgetWithDragAndDropBase*>())
-	{
-		QObject::connect( ddwdg, SIGNAL( drop(const WidgetId&, const QString&)), this, SLOT(executeDrop(const WidgetId&, const QString&)), Qt::UniqueConnection);
-	}
 
 // add new form to layout (which covers the whole widget)
 	m_layout->addWidget( m_ui );

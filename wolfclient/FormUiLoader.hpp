@@ -33,16 +33,28 @@
 ///\brief Own UI Loader implementation to add features to custom widgets
 #ifndef _WIDGET_UILOADER_HPP_INCLUDED
 #define _WIDGET_UILOADER_HPP_INCLUDED
+#include "DataLoader.hpp"
 #include <QUiLoader>
 #include <QWidget>
 
 class FormUiLoader :public QUiLoader
 {
 public:
-	FormUiLoader( QObject* parent=0)
-		:QUiLoader(parent){}
+	FormUiLoader( bool debug_, QObject* parent_=0)
+		:QUiLoader(parent_)
+		,m_dataLoader(0)
+		,m_debug(debug_){}
 
 	virtual QWidget* createWidget( const QString& className, QWidget* parent = 0, const QString& name = QString());
+
+	void setDataLoader( DataLoader* dataLoader_)
+	{
+		m_dataLoader = dataLoader_;
+	}
+
+private:
+	DataLoader* m_dataLoader;
+	bool m_debug;
 };
 
 #endif

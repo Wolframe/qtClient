@@ -34,6 +34,7 @@
 #ifndef _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
 #define _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
 #include "WidgetId.hpp"
+#include "DataLoader.hpp"
 #include <QWidget>
 #include <QMouseEvent>
 #include <QApplication>
@@ -43,26 +44,36 @@
 #include <QStringList>
 #include <QDebug>
 
-class WidgetWithDragAndDropBase: public QObject
-{
-	Q_OBJECT
 
-signals:
-	void drop( const WidgetId& dragWidgetid, const QString& action);
+class WidgetWithDragAndDropBase
+{
+public:
+	WidgetWithDragAndDropBase( DataLoader* dataLoader_, bool debug_)
+		:m_dataLoader(dataLoader_),m_debug(debug_){}
+
+protected:
+	void sendDropRequest( QWidget* dropWidget, const WidgetId& dragWidgetid, const QString& action, const QVariant& dropvalue);
 
 public:
 	bool handleDragPickEvent( QWidget* this_, QMouseEvent *event);
 	bool handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event);
 	bool handleDropEvent( QWidget* this_, QDropEvent *event);
+
+private:
+	DataLoader* m_dataLoader;
+	bool m_debug;
 };
+
 
 template <class WidgetType>
 class WidgetWithDragAndDrop :public WidgetType, public WidgetWithDragAndDropBase
 {
 public:
-	WidgetWithDragAndDrop( QWidget* parent = 0)
-		:WidgetType(parent)
+	WidgetWithDragAndDrop( DataLoader* dataLoader_, QWidget* parent_, const QString& name_, bool debug_)
+		:WidgetType(parent_)
+		,WidgetWithDragAndDropBase(dataLoader_,debug_)
 	{
+		WidgetType::setObjectName( name_);
 		WidgetType::setAcceptDrops( true);
 	}
 

@@ -135,7 +135,6 @@ class FormWidget : public QWidget
 		void gotError( const QString& tag_, const QByteArray& data_);
 
 		void executeAction( QWidget *object );
-		void executeDrop( const WidgetId& dragWidgetid, const QString& action);
 };
 	
 #endif // _FORM_WIDGET_HPP_INCLUDED
