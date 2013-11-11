@@ -150,8 +150,9 @@ public://Interface methods implemented for different widget types:
 	virtual void endofDataFeed(){}
 	///\brief Check if a an element can appear more than once
 	virtual bool isArrayElement( const QString&/*name*/) const		{return false;}
-	///\brief Check if a an element has is draggable
-	virtual bool hasDrag() const						{return false;}
+
+	///\brief Get the value of the element at position 'p' in the widget
+	virtual QVariant valueAt( const QPoint&) const				{return QVariant();}
 
 	///\brief Connect all widget signals that should trigger an event on a signal of type 'type'
 	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& /*listener*/)

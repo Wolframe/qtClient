@@ -110,6 +110,23 @@ WidgetVisitorState_QTableWidget::~WidgetVisitorState_QTableWidget()
 	foreach (QWidget* wdg, m_cellwidgets) if (wdg) delete wdg;
 }
 
+QVariant WidgetVisitorState_QTableWidget::valueAt( const QPoint& p) const
+{
+	QTableWidgetItem* itm = m_tableWidget->itemAt( p.x(), p.y());
+	if (m_rowcount)
+	{
+		return getColumnValue( itm->column());
+	}
+	else if (m_columncount)
+	{
+		return getRowValue( itm->row());
+	}
+	else
+	{
+		return itm->data( Qt::UserRole);
+	}
+}
+
 void WidgetVisitorState_QTableWidget::clear()
 {
 	m_tableWidget->setSortingEnabled( false );

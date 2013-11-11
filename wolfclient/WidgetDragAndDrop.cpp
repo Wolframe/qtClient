@@ -34,6 +34,8 @@
 #include "WidgetVisitor.hpp"
 #include "WidgetDragAndDrop.hpp"
 #include "WidgetId.hpp"
+#include "FormWidget.hpp"
+#include "debugview/DebugLogTree.hpp"
 #include <QDrag>
 #include <QMimeData>
 
@@ -45,53 +47,64 @@ static const char* dropActionName( const Qt::DropAction& dropAction)
 	{
 		case Qt::CopyAction: return "copy";
 		case Qt::MoveAction: return "move";
-		case Qt::IgnoreAction: return "ignore";
-		default: return "unknown";
+		default: return 0;
 	}
 }
 
-bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent *event, const QVariant& /*sourceobj*/)
+bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent *event)
 {
+	QDrag *drag;
+	WidgetVisitor visitor( this_);
+	FormWidget* form = visitor.formwidget();
+	if (!form) return false;
+
+	openLogStruct( form->logId());
+	openLogStruct( "drag");
+	
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 	qDebug() << "[drag/drop handler] handle drag pick" << this_->objectName();
 #endif
-	WidgetVisitor visitor( this_);
-
-	QWidget* item = this_->childAt( event->x(), event->y());
-	if (!item)
-	{
-		qDebug() << "[drag/drop handler] no drag item at" << event->pos();
-		item = this_;
-	}
-	QDrag *drag = new QDrag( this_);
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "[drag/drop handler] flag accept drops" << (this_->acceptDrops()?"TRUE":"FALSE");
+	qDebug() << "[drag/drop handler] drag item value" << visitor.valueAt( event->pos());
+#endif
+	event->accept();
+	drag = new QDrag( this_);
 	QMimeData *mimeData = new QMimeData;
 	mimeData->setData( WIDGETID_MIMETYPE, visitor.widgetid().toLatin1());
 	drag->setMimeData( mimeData);
 	drag->setPixmap( QPixmap( ":/images/16x16/copy.png"));
-
+	closeLogStruct(2);
 	Qt::DropAction dropAction = drag->exec( Qt::CopyAction | Qt::MoveAction);
-	switch (dropAction)
-	{
-		case Qt::CopyAction: qDebug() << "Handle event copy action drag on widget" << visitor.widgetid(); break;
-		case Qt::MoveAction: qDebug() << "Handle event move action drag on widget" << visitor.widgetid(); break;
-		case Qt::IgnoreAction: qDebug() << "Ignore drag event on widget" << visitor.widgetid(); return false;
-		default: qCritical() << "internal: illegal state in handle drag event"; return false;
-	}
-	event->accept();
+	//... drag->exec is blocking !
+	const char* dropActionStr = dropActionName(dropAction);
+	openLogStruct( visitor.formwidget()->logId());
+	openLogStruct( "drag");
+	qDebug() << "[drag/drop handler] drop action" << (dropActionStr?dropActionStr:"ignore") << visitor.widgetid();
+	closeLogStruct(2);
 	return true;
 }
 
 bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event)
 {
+	bool rt = false;
+	WidgetVisitor visitor( this_);
+	FormWidget* form = visitor.formwidget();
+	if (!form) return false;
+
+	openLogStruct( form->logId());
+	openLogStruct( "drag");
+
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 	qDebug() << "[drag/drop handler] handle drag enter" << this_->objectName() << event->mimeData()->formats();
 #endif
 	if (event->mimeData()->hasFormat( WIDGETID_MIMETYPE))
 	{
+		event->accept();
+
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 		qDebug() << "[drag/drop handler] handle drag enter for mime type" << WIDGETID_MIMETYPE << "on" << this_->objectName();
 #endif
-		WidgetVisitor visitor( this_);
 		WidgetId widgetId( this_);
 
 		if (widgetId.objectName() == this_->objectName())
@@ -103,101 +116,126 @@ bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnter
 					event->setDropAction( Qt::MoveAction);
 					event->accept();
 					qDebug() << "[drag/drop handler] drag enter accept move forced in itself at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-					return true;
+					rt = true;
 				}
 				else if (event->dropAction() == Qt::MoveAction)
 				{
 					event->acceptProposedAction();
 					qDebug() << "[drag/drop handler] drag enter accept move proposed in itself at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-					return true;
+					rt = true;
 				}
 			}
-			if (this_->property("dropcopy").isValid())
+			if (!rt && this_->property("dropcopy").isValid())
 			{
 				if (event->dropAction() == Qt::IgnoreAction)
 				{
 					event->setDropAction( Qt::CopyAction);
 					event->accept();
 					qDebug() << "[drag/drop handler] drag enter accept copy forced in itself at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-					return true;
+					rt = true;
 				}
 				else if (event->dropAction() == Qt::CopyAction)
 				{
 					event->acceptProposedAction();
 					qDebug() << "[drag/drop handler] drag enter accept copy proposed in itself at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-					return true;
+					rt = true;
 				}
 			}
 		}
-		QString propname_move = QString("dropmove:") + widgetId.objectName();
-		QString propname_copy = QString("dropcopy:") + widgetId.objectName();
-
-		if (this_->property(propname_move.toLatin1()).isValid())
+		else
 		{
-			if (event->dropAction() == Qt::IgnoreAction)
+			QString propname_move = QString("dropmove:") + widgetId.objectName();
+			QString propname_copy = QString("dropcopy:") + widgetId.objectName();
+	
+			if (this_->property(propname_move.toLatin1()).isValid())
 			{
-				event->setDropAction( Qt::MoveAction);
-				event->accept();
-				qDebug() << "[drag/drop handler] drag enter accept move forced to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-				return true;
+				if (event->dropAction() == Qt::IgnoreAction)
+				{
+					event->setDropAction( Qt::MoveAction);
+					event->accept();
+					qDebug() << "[drag/drop handler] drag enter accept move forced to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
+					rt = true;
+				}
+				else if (event->dropAction() == Qt::MoveAction)
+				{
+					event->acceptProposedAction();
+					qDebug() << "[drag/drop handler] drag enter accept move proposed to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
+					rt = true;
+				}
 			}
-			else if (event->dropAction() == Qt::MoveAction)
+			if (!rt && this_->property(propname_copy.toLatin1()).isValid())
 			{
-				event->acceptProposedAction();
-				qDebug() << "[drag/drop handler] drag enter accept move proposed to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-				return true;
-			}
-		}
-		if (this_->property(propname_copy.toLatin1()).isValid())
-		{
-			if (event->dropAction() == Qt::IgnoreAction)
-			{
-				event->setDropAction( Qt::CopyAction);
-				event->accept();
-				qDebug() << "[drag/drop handler] drag enter accept copy forced to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-				return true;
-			}
-			else if (event->dropAction() == Qt::CopyAction)
-			{
-				event->acceptProposedAction();
-				qDebug() << "[drag/drop handler] drag enter accept copy proposed to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
-				return true;
+				if (event->dropAction() == Qt::IgnoreAction)
+				{
+					event->setDropAction( Qt::CopyAction);
+					event->accept();
+					qDebug() << "[drag/drop handler] drag enter accept copy forced to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
+					rt = true;
+				}
+				else if (event->dropAction() == Qt::CopyAction)
+				{
+					event->acceptProposedAction();
+					qDebug() << "[drag/drop handler] drag enter accept copy proposed to" << this_->objectName() << "at" << event->pos() << (event->isAccepted()?"ACCEPTED":"REJECTED");
+					rt = true;
+				}
 			}
 		}
 	}
-	return false;
+	closeLogStruct( 2);
+	return rt;
 }
 
-bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *event, const QVariant& /*targetobj*/)
+bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *event)
 {
+	WidgetVisitor visitor( this_);
+	FormWidget* form = visitor.formwidget();
+	if (!form) return false;
+
+	openLogStruct( form->logId());
+	openLogStruct( "drop");
+
 #ifdef WOLFRAME_LOWLEVEL_DEBUG
 	qDebug() << "[drag/drop handler] handle drop" << this_->objectName();
 #endif
-	WidgetVisitor visitor( this_);
 	Qt::DropAction dropAction = event->dropAction();
-	const char* dropActionStr = 0;
-	switch (dropAction)
-	{
-		case Qt::CopyAction: dropActionStr = "copy"; break;
-		case Qt::MoveAction: dropActionStr = "move"; break;
-		case Qt::IgnoreAction: return false;
-		default: return false;
-	}
-	if (dropActionStr)
-	{
-		WidgetId widgetId( this_);
-		QString propname = QString("drop") + dropActionStr + ":" + widgetId.objectName();
+	const char* dropActionStr = dropActionName( dropAction);
 
-		QVariant action = this_->property(propname.toLatin1());
-		if (action.isValid())
-		{
-			qDebug() << "[drag/drop handler] define 'drag' link" << widgetId.toString();
-			visitor.defineLink( "drag", widgetId.toString());
-
-			// ... submit request
-			qDebug() << "[drag/drop handler] submit drop request" << action.toString();
-		}
+	if (!dropActionStr)
+	{
+		qCritical() << "[drag/drop handler] unknown drop action";
+		closeLogStruct( 2);
+		return false;
 	}
-	return false;
+	const QMimeData* mimedata = event->mimeData();
+	if (!mimedata)
+	{
+		qCritical() << "[drag/drop handler] missing drop data";
+		closeLogStruct( 2);
+		return false;
+	}
+	QByteArray dropdata = mimedata->data( WIDGETID_MIMETYPE);
+	WidgetId dragWidgetId( dropdata);
+	QString propname;
+	if (dragWidgetId.objectName() == this_->objectName())
+	{
+		propname = QString("drop") + dropActionStr;
+	}
+	else
+	{
+		propname = QString("drop") + dropActionStr + ":" + dragWidgetId.objectName();
+	}
+	QVariant action = this_->property(propname.toLatin1());
+	if (!action.isValid())
+	{
+		qCritical() << "[drag/drop handler] drop action not defined";
+		closeLogStruct( 2);
+		return false;
+	}
+
+	// ... submit request
+	qDebug() << "[drag/drop handler] signal drop request" << action.toString();
+	closeLogStruct( 2);
+	emit drop( dragWidgetId, action.toString());
+	return true;
 }
 

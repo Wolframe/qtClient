@@ -33,16 +33,27 @@
 ///\brief Interface for drag and drop for widgets
 #ifndef _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
 #define _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
+#include "WidgetId.hpp"
 #include <QWidget>
 #include <QMouseEvent>
 #include <QApplication>
+#include <QListWidget>
+#include <QTableWidget>
+#include <QTreeWidget>
+#include <QStringList>
+#include <QDebug>
 
-class WidgetWithDragAndDropBase
+class WidgetWithDragAndDropBase: public QObject
 {
+	Q_OBJECT
+
+signals:
+	void drop( const WidgetId& dragWidgetid, const QString& action);
+
 public:
-	static bool handleDragPickEvent( QWidget* this_, QMouseEvent *event, const QVariant& sourceobj);
-	static bool handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event);
-	static bool handleDropEvent( QWidget* this_, QDropEvent *event, const QVariant& targetobj);
+	bool handleDragPickEvent( QWidget* this_, QMouseEvent *event);
+	bool handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event);
+	bool handleDropEvent( QWidget* this_, QDropEvent *event);
 };
 
 template <class WidgetType>
@@ -53,11 +64,6 @@ public:
 		:WidgetType(parent)
 	{
 		WidgetType::setAcceptDrops( true);
-	}
-
-	virtual QVariant getDragObjectId( const QPoint&) const
-	{
-		return QVariant();
 	}
 
 	void mousePressEvent( QMouseEvent *event)
@@ -76,8 +82,7 @@ public:
 		if (!(event->buttons() & Qt::LeftButton)) return;
 		if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance()) return;
 
-		QVariant objid = getDragObjectId( m_dragStartPosition);
-		if (!WidgetWithDragAndDropBase::handleDragPickEvent( this, event, objid))
+		if (!WidgetWithDragAndDropBase::handleDragPickEvent( this, event))
 		{
 			WidgetType::mouseMoveEvent( event);
 		}
@@ -99,11 +104,22 @@ public:
 
 	void dropEvent( QDropEvent *event)
 	{
-		QVariant objid = getDragObjectId( event->pos());
-		if (!WidgetWithDragAndDropBase::handleDropEvent( this, event, objid))
+		if (!WidgetWithDragAndDropBase::handleDropEvent( this, event))
 		{
 			WidgetType::dropEvent( event);
 		}
+	}
+
+	QStringList mimeTypes() const
+	{
+		QStringList rt;
+		rt.append( WIDGETID_MIMETYPE);
+		return rt;
+	}
+
+	Qt::DropActions supportedDropActions() const
+	{
+		return Qt::CopyAction | Qt::MoveAction;
 	}
 
 private:

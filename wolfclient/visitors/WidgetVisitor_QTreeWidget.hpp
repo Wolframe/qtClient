@@ -35,6 +35,7 @@
 #define _WIDGET_VISIOR_QTreeWidget_HPP_INCLUDED
 #include "WidgetVisitorObject.hpp"
 #include <QTreeWidget>
+#include <QPoint>
 
 class WidgetVisitorState_QTreeWidget
 	:public WidgetVisitorObject
@@ -53,7 +54,7 @@ public:
 	virtual void endofDataFeed();
 	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
-	virtual bool hasDrag() const	{return true;}
+	virtual QVariant valueAt( const QPoint& p) const;
 
 private:
 	void initSelected( const QVariant& selected);

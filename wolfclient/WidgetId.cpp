@@ -40,23 +40,23 @@ bool widgetIdMatches( const QString& id, const QWidget* wdg)
 	return (wid.isValid() && wid.toString() == id);
 }
 
-bool isWidgetId( const QString& id)
+bool WidgetId::isValid( const QString& id)
 {
 	return id.indexOf(':') >= 0;
 }
 
-QString getObjectNameFromWidgetId( const QString& wid)
+QString WidgetId::objectName( const QString& id)
 {
-	int endpos = wid.indexOf(':');
-	if (endpos < 0) endpos = wid.size();
-	return wid.mid( 0, endpos);
+	int endpos = id.indexOf(':');
+	if (endpos < 0) endpos = id.size();
+	return id.mid( 0, endpos);
 }
 
-int getCntWidgetId( const QString& wid)
+int WidgetId::cnt( const QString& id)
 {
-	int startpos = wid.indexOf(':');
+	int startpos = id.indexOf(':');
 	if (startpos < 0) return -1;
-	return wid.mid( startpos).toInt();
+	return id.mid( startpos).toInt();
 }
 
 WidgetId::WidgetId( const QWidget* wdg)
@@ -64,15 +64,15 @@ WidgetId::WidgetId( const QWidget* wdg)
 	QVariant rt = wdg->property( "widgetid");
 	if (rt.isValid())
 	{
-		m_objectName = getObjectNameFromWidgetId( rt.toString());
-		m_cnt = getCntWidgetId( rt.toString());
+		m_objectName = WidgetId::objectName( rt.toString());
+		m_cnt = WidgetId::cnt( rt.toString());
 	}
 }
 
 WidgetId::WidgetId( const QString& str)
 {
-	m_objectName = getObjectNameFromWidgetId( str);
-	m_cnt = getCntWidgetId( str);
+	m_objectName = WidgetId::objectName( str);
+	m_cnt = WidgetId::cnt( str);
 }
 
 WidgetId::WidgetId( const QString& objectName_, int cnt_)

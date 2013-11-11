@@ -38,6 +38,7 @@
 #include "FormLoader.hpp"
 #include "FormUiLoader.hpp"
 #include "WidgetTree.hpp"
+#include "WidgetId.hpp"
 #include <QWidget>
 #include <QPushButton>
 #include <QBuffer>
@@ -76,6 +77,7 @@ class FormWidget : public QWidget
 		{
 			return m_ui;
 		}
+		QString logId() const	{return m_logId;}
 
 	public slots:
 		void setFormCall( const QString &_formCall );
@@ -133,6 +135,7 @@ class FormWidget : public QWidget
 		void gotError( const QString& tag_, const QByteArray& data_);
 
 		void executeAction( QWidget *object );
+		void executeDrop( const WidgetId& dragWidgetid, const QString& action);
 };
 	
 #endif // _FORM_WIDGET_HPP_INCLUDED

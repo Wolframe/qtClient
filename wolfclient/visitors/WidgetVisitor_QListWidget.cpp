@@ -54,6 +54,12 @@ bool WidgetVisitorState_QListWidget::isArrayElement( const QString& name) const
 	return name == "item";
 }
 
+QVariant WidgetVisitorState_QListWidget::valueAt( const QPoint& p) const
+{
+	QListWidgetItem* itm = m_listWidget->itemAt( p.x(), p.y());
+	return itm->data( Qt::UserRole);
+}
+
 bool WidgetVisitorState_QListWidget::enter( const QString& name, bool writemode)
 {
 	static const QString item_str( "item");

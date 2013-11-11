@@ -35,6 +35,7 @@
 #define _WIDGET_VISIOR_QListWidget_HPP_INCLUDED
 #include "WidgetVisitorObject.hpp"
 #include <QListWidget>
+#include <QPoint>
 
 class WidgetVisitorState_QListWidget
 	:public WidgetVisitorObject
@@ -53,7 +54,7 @@ public:
 	virtual void endofDataFeed();
 	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
-	virtual bool hasDrag() const	{return true;}
+	virtual QVariant valueAt( const QPoint& p) const;
 
 private:
 	void initSelected( const QVariant& selected);

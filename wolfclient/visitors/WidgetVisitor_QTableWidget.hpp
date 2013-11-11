@@ -35,6 +35,7 @@
 #define _WIDGET_VISIOR_QTableWidget_HPP_INCLUDED
 #include "WidgetVisitorObject.hpp"
 #include <QTableWidget>
+#include <QPoint>
 
 class WidgetVisitorState_QTableWidget
 	:public WidgetVisitorObject
@@ -54,7 +55,7 @@ public:
 	virtual void endofDataFeed();
 	virtual void connectDataSignals( WidgetListener::DataSignalType dt, WidgetListener& listener);
 	virtual void connectWidgetEnabler( WidgetEnabler& enabler);
-	virtual bool hasDrag() const	{return true;}
+	virtual QVariant valueAt( const QPoint& p) const;
 
 private:
 	void fill_cell( int row, int col, int itemidx);

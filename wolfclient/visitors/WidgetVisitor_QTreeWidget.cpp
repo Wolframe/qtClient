@@ -113,6 +113,12 @@ bool WidgetVisitorState_QTreeWidget::isArrayElement( const QString& name) const
 	return false;
 }
 
+QVariant WidgetVisitorState_QTreeWidget::valueAt( const QPoint& p) const
+{
+	QTreeWidgetItem* itm = m_treeWidget->itemAt( p.x(), p.y());
+	return itm->data( 0, Qt::UserRole);
+}
+
 QVariant WidgetVisitorState_QTreeWidget::property( const QString& name)
 {
 	static const QString selected_str( "selected");

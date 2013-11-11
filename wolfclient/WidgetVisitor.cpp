@@ -862,10 +862,10 @@ QString WidgetVisitor::widgetPath() const
 	return widgetPath( widget());
 }
 
-bool WidgetVisitor::hasDrag() const
+QVariant WidgetVisitor::valueAt( const QPoint& p) const
 {
 	if (m_stk.isEmpty()) return false;
-	return m_stk.top().m_obj->hasDrag();
+	return m_stk.top().m_obj->valueAt( p);
 }
 
 static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& cond)
@@ -1429,7 +1429,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const Q
 	{
 		address = receiverid;
 	}
-	if (isWidgetId( address))
+	if (WidgetId::isValid( address))
 	{
 		WidgetVisitor mainvisitor( uirootwidget(), None);
 		wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, address));

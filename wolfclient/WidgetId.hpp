@@ -47,6 +47,10 @@ public:
 	const QString& objectName() const	{return m_objectName;}
 	int cnt() const				{return m_cnt;}
 
+	static QString objectName( const QString& id);
+	static int cnt( const QString& id);
+	static bool isValid( const QString& id);
+
 	WidgetId() :m_cnt(0){}
 	WidgetId( const QWidget* wdg);
 	WidgetId( const QString& str);
@@ -64,11 +68,8 @@ QDataStream &operator>>(QDataStream &in, WidgetId& myObj);
 
 QVariant getWidgetId( const QWidget* wdg);
 QString askWidgetId( QWidget* wdg);
-QString getObjectNameFromWidgetId( const QString& wid);
-int getCntWidgetId( const QString& wid);
 void setWidgetId( QWidget* wdg);
 bool widgetIdMatches( const QString& id, const QWidget* wdg);
-bool isWidgetId( const QString& id);
-
 
 #endif
+
