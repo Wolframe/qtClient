@@ -79,21 +79,27 @@ WidgetVisitorState_QTableWidget::WidgetVisitorState_QTableWidget( QWidget* widge
 	if (vc.isValid())
 	{
 		m_valueidx = vc.toInt();
+		if (m_rowcount) m_rowcount++;
+		else if (m_columncount) m_columncount++;
 	}
 	else
 	{
 		if (m_rowcount)
 		{
 			m_valueidx = m_rowcount++;
+			m_tableWidget->setSortingEnabled( false); //... see comment in leave(..)
 			m_tableWidget->insertRow( m_valueidx);
 			m_tableWidget->setRowHidden( m_valueidx, true);
+			m_tableWidget->setSortingEnabled( true);
 			m_tableWidget->setProperty( "_w_valueidx", m_valueidx);
 		}
 		else if (m_columncount)
 		{
 			m_valueidx = m_columncount++;
+			m_tableWidget->setSortingEnabled( false); //... see comment in leave(..)
 			m_tableWidget->insertColumn( m_valueidx);
 			m_tableWidget->setColumnHidden( m_valueidx, true);
+			m_tableWidget->setSortingEnabled( true);
 			m_tableWidget->setProperty( "_w_valueidx", m_valueidx);
 		}
 	}
@@ -214,6 +220,13 @@ bool WidgetVisitorState_QTableWidget::leave( bool writemode)
 		case Row:
 			if (writemode)
 			{
+				m_tableWidget->setSortingEnabled( false);
+				//... [NOTE:qtcentre.org] Disable sorting because,
+				// with sorting enabled, as soon as you insert a new item 
+				// in a row, QTableWidget runs the sorting check on the 
+				// new row item and relocates the item as per set sorting 
+				// order, this means that the item row number is changed,
+				// and the row variable which you hold is no more valid.
 				if (m_row == m_tableWidget->rowCount())
 				{
 					m_tableWidget->insertRow( m_row);
@@ -224,6 +237,7 @@ bool WidgetVisitorState_QTableWidget::leave( bool writemode)
 				}
 				m_items.clear();
 				m_cellwidgets.clear();
+				m_tableWidget->setSortingEnabled( true);
 			}
 			m_row = -1;
 			m_column = -1;
@@ -232,6 +246,7 @@ bool WidgetVisitorState_QTableWidget::leave( bool writemode)
 		case Column:
 			if (writemode)
 			{
+				m_tableWidget->setSortingEnabled( false);
 				if (m_column == m_tableWidget->columnCount())
 				{
 					m_tableWidget->insertColumn( m_column);
@@ -242,6 +257,7 @@ bool WidgetVisitorState_QTableWidget::leave( bool writemode)
 				}
 				m_items.clear();
 				m_cellwidgets.clear();
+				m_tableWidget->setSortingEnabled( true);
 			}
 			m_row = -1;
 			m_column = -1;
@@ -669,15 +685,6 @@ void WidgetVisitorState_QTableWidget::setState( const QVariant& state)
 	{
 		initSelected( state);
 	}
-
-	// Aba: this makes the manual resizing of the first column impossible, maybe
-	// TODO: make this a dynamic property if needed
-//~ #if QT_VERSION >= 0x050000
-	//~ m_tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-//~ #else
-	//~ m_tableWidget->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
-//~ #endif
-
 	for( int ii = 0; ii < m_tableWidget->columnCount(); ii++)
 	{
 		m_tableWidget->resizeColumnToContents( ii);
