@@ -31,10 +31,10 @@
 
 ************************************************************************/
 ///\brief Implement drag and drop for widgets
-#include "WidgetVisitor.hpp"
 #include "WidgetDragAndDrop.hpp"
 #include "WidgetId.hpp"
 #include "WidgetRequest.hpp"
+#include "WidgetDataSignal.hpp"
 #include "FormWidget.hpp"
 #include "debugview/DebugLogTree.hpp"
 #include <QDrag>
@@ -49,6 +49,25 @@ static const char* dropActionName( const Qt::DropAction& dropAction)
 		case Qt::CopyAction: return "copy";
 		case Qt::MoveAction: return "move";
 		default: return 0;
+	}
+}
+
+void WidgetWithDragAndDropBase::handleDatasignal( WidgetVisitor& visitor, const char* sigpropname)
+{
+	DataSignalHandler dshandler( m_dataLoader, m_debug);
+	QList<DataSignalReceiver> rcvlist;
+	QVariant prop = visitor.property( sigpropname);
+	if (prop.isValid())
+	{
+		foreach (const QString& rcvaddr, parseDataSignalList( prop.toString()))
+		{
+			rcvlist.append( getDataSignalReceivers( visitor, rcvaddr));
+		}
+		foreach (const DataSignalReceiver& receiver, rcvlist)
+		{
+			dshandler.trigger( receiver.first, receiver.second);
+			qDebug() << "[drag/drop handler] refresh of" << getWidgetId( receiver.second) << "invoked by" << sigpropname;
+		}
 	}
 }
 
@@ -84,12 +103,7 @@ bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent
 	openLogStruct( "drag");
 	if (dropAction == Qt::MoveAction)
 	{
-		WidgetRequest domload = getDataloadRequest( visitor, m_debug);
-		if (!domload.content.isEmpty())
-		{
-			this_->setProperty( "_w_state", visitor.getState());
-			m_dataLoader->datarequest( domload.header.command.toString(), domload.header.toString(), domload.content);
-		}
+		handleDatasignal( visitor, "datasignal:drag");
 	}
 	qDebug() << "[drag/drop handler] drop action" << (dropActionStr?dropActionStr:"ignore") << visitor.widgetid();
 	closeLogStruct(2);
@@ -245,12 +259,16 @@ bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *eve
 
 	// ... submit request
 	qDebug() << "[drag/drop handler] signal drop request" << action.toString();
-	sendDropRequest( this_, dragWidgetId, action.toString(), visitor.valueAt( event->pos()));
+	bool rt = sendDropRequest( this_, dragWidgetId, action.toString(), visitor.valueAt( event->pos()));
+	if (rt)
+	{
+		handleDatasignal( visitor, "datasignal:drop");
+	}
 	closeLogStruct( 2);
-	return true;
+	return rt;
 }
 
-void WidgetWithDragAndDropBase::sendDropRequest( QWidget* dropWidget, const WidgetId& dragWidgetid, const QString& action, const QVariant& dropvalue)
+bool WidgetWithDragAndDropBase::sendDropRequest( QWidget* dropWidget, const WidgetId& dragWidgetid, const QString& action, const QVariant& dropvalue)
 {
 	WidgetVisitor visitor( dropWidget);
 
@@ -266,12 +284,14 @@ void WidgetWithDragAndDropBase::sendDropRequest( QWidget* dropWidget, const Widg
 		if (m_dataLoader)
 		{
 			m_dataLoader->datarequest( request.header.command.toString(), request.header.toString(), request.content);
+			return true;
 		}
 		else
 		{
 			qCritical() << "no data loader defined. cannot send drop request";
 		}
 	}
+	return false;
 }
 
 

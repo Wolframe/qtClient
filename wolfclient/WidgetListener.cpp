@@ -35,6 +35,7 @@
 #include "WidgetVisitorStateConstructor.hpp"
 #include "WidgetVisitor.hpp"
 #include "WidgetMessageDispatcher.hpp"
+#include "WidgetDataSignal.hpp"
 #include "FormWidget.hpp"
 #include "FormCall.hpp"
 #include <QAbstractButton>
@@ -103,102 +104,15 @@ void WidgetListenerImpl::setDebug( bool v)
 	m_debug = v;
 }
 
-void WidgetListenerImpl::trigger_close( QWidget* receiver)
-{
-	FormWidget* formwidget = qobject_cast<FormWidget*>( receiver);
-	if (!formwidget) formwidget = qobject_cast<FormWidget*>( receiver->parent());
-	if (formwidget)
-	{
-		formwidget->triggerClose();
-	}
-}
-
-void WidgetListenerImpl::trigger_reload( const QString& slotname, QWidget* receiver)
-{
-	WidgetVisitor visitor( receiver, WidgetVisitor::None);
-	qDebug() << "reload triggered of" << visitor.className() << visitor.objectName() << "on dataslot" << slotname;
-	visitor.readAssignments();
-
-	QAbstractButton* button = qobject_cast<QAbstractButton*>( receiver);
-	if (button)
-	{
-		button->toggle();
-		button->click();
-	}
-	QVariant actiondef;
-	actiondef = receiver->property( QByteArray("action:") + slotname.toLatin1());
-	if (!actiondef.isValid())
-	{
-		actiondef = receiver->property( "action");
-	}
-	if (actiondef.isValid())
-	{
-		WidgetRequest domload = getDataloadRequest( visitor, actiondef.toString(), m_debug, slotname);
-		if (!domload.content.isEmpty())
-		{
-			receiver->setProperty( "_w_state", visitor.getState());
-			m_dataLoader->datarequest( domload.header.command.toString(), domload.header.toString(), domload.content);
-		}
-	}
-}
-
-QList<QWidget*> WidgetListenerImpl::get_forward_receivers( QWidget* receiver)
-{
-	QList<QWidget*> forwardlist;
-	int forwardlistidx = 0, forwardlistsize = 0;
-	forwardlist.push_back( receiver);
-
-	do
-	{
-		forwardlistsize = forwardlist.size();
-		for (;forwardlistidx < forwardlistsize; ++forwardlistidx)
-		{
-			QWidget* forwardsnd = forwardlist.at( forwardlistidx);
-			if (forwardsnd->property("datasignal:signaled").isValid())
-			{
-				WidgetVisitor sndvisitor( forwardsnd, WidgetVisitor::None);
-				foreach (const QString& forward_rcvid, sndvisitor.property( "datasignal:signaled").toString().split(','))
-				{
-					typedef QPair<QString,QWidget*> Receiver;
-					foreach (const Receiver& forward_rcv, sndvisitor.get_datasignal_receivers( forward_rcvid.trimmed()))
-					{
-						if (!forwardlist.contains( forward_rcv.second))
-						{
-							forwardlist.push_back( forward_rcv.second);
-						}
-					}
-
-				}
-			}
-		}
-	}
-	while (forwardlistsize < forwardlist.size());
-
-	forwardlist.removeFirst();
-	return forwardlist;
-}
-
-
 void WidgetListenerImpl::handleDataSignal( DataSignalType dt)
 {
 	WidgetVisitor tv( m_state, WidgetVisitor::None);
-	typedef QPair<QString,QWidget*> Receiver;
 	qDebug() << "handle datasignal [" << dataSignalTypeName( dt) << "]";
+	DataSignalHandler dshandler( m_dataLoader, m_debug);
 
-	foreach (const Receiver& receiver, tv.get_datasignal_receivers( dt))
+	foreach (const DataSignalReceiver& receiver, tv.get_datasignal_receivers( dt))
 	{
-		if (receiver.first == "close")
-		{
-			trigger_close( receiver.second);
-		}
-		else
-		{
-			trigger_reload( receiver.first, receiver.second);
-			foreach (QWidget* fwd, get_forward_receivers( receiver.second))
-			{
-				trigger_reload( receiver.first, fwd);
-			}
-		}
+		dshandler.trigger( receiver.first, receiver.second);
 	}
 }
 

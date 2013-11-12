@@ -34,6 +34,7 @@
 #ifndef _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
 #define _WIDGET_DRAG_AND_DROP_HPP_INCLUDED
 #include "WidgetId.hpp"
+#include "WidgetVisitor.hpp"
 #include "DataLoader.hpp"
 #include <QWidget>
 #include <QMouseEvent>
@@ -51,8 +52,9 @@ public:
 	WidgetWithDragAndDropBase( DataLoader* dataLoader_, bool debug_)
 		:m_dataLoader(dataLoader_),m_debug(debug_){}
 
-protected:
-	void sendDropRequest( QWidget* dropWidget, const WidgetId& dragWidgetid, const QString& action, const QVariant& dropvalue);
+private:
+	bool sendDropRequest( QWidget* dropWidget, const WidgetId& dragWidgetid, const QString& action, const QVariant& dropvalue);
+	void handleDatasignal( WidgetVisitor& visitor, const char* sigpropname);
 
 public:
 	bool handleDragPickEvent( QWidget* this_, QMouseEvent *event);

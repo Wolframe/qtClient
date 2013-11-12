@@ -401,8 +401,9 @@ bool WolframeClientProtocol::process()
 
 void WolframeClientProtocol::pushRequest( const QString& cmd, const QString& tag, const QByteArray& content)
 {
-	if (tag.indexOf( "a=") < 0)
+	if (tag.indexOf( "t=L") >= 0)
 	{
+		//... is a load request -> do eliminate duplicates
 		QList<Request>::iterator ri = m_requestqueue.begin(), re = m_requestqueue.end();
 		for (; ri != re; ++ri)
 		{

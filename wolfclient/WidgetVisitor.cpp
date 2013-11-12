@@ -34,6 +34,7 @@
 #include "WidgetId.hpp"
 #include "WidgetRequest.hpp"
 #include "WidgetVisitorStateConstructor.hpp"
+#include "WidgetDataSignal.hpp"
 #include "FileChooser.hpp"
 #include "PictureChooser.hpp"
 #include "FormWidget.hpp"
@@ -128,11 +129,8 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 			else if (prop.startsWith( "datasignal:"))
 			{
 				const char* signalname = (const char*)prop + 11/*std::strlen( "datasignal:")*/;
-				QList<QString> values;
-				foreach (const QString& vv, m_obj->widget()->property( prop).toString().trimmed().split(','))
-				{
-					values.push_back( vv.trimmed());
-				}
+				QList<QString> values = parseDataSignalList( m_obj->widget()->property( prop).toString());
+
 				WidgetListener::DataSignalType dt;
 				if (strcmp( signalname, "signaled") != 0)
 				{
@@ -1369,126 +1367,6 @@ void WidgetVisitor::ERROR( const char* msg) const
 	logError( *this, msg);
 }
 
-static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& cond)
-{
-	QVariant dataslots = widget->property( "dataslot");
-	int idx = 0;
-	while ((idx=dataslots.toString().indexOf( cond.toString(), idx)) >= 0)
-	{
-		idx += cond.toString().length();
-		QString dd = dataslots.toString();
-		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ','  || dd.at(idx) == '[') return true;
-	}
-	return false;
-}
-
-static QVariant getDatasignalSender( QWidget* widget, const QVariant& cond)
-{
-	WidgetVisitor visitor( widget, WidgetVisitor::None);
-	QVariant dataslots = visitor.property( "dataslot");
-	int idx = 0;
-	QString dd = dataslots.toString();
-	while ((idx=dd.indexOf( cond.toString(), idx)) >= 0)
-	{
-		idx += cond.toString().length();
-		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ','  || dd.at(idx) == '[') break;
-	}
-	if (idx >= 0)
-	{
-		while (idx < dd.size() && dd.at(idx) == ' ') ++idx;
-		if (idx < dd.size() && dd.at(idx) == '[')
-		{
-			int endidx = dd.indexOf( ']', ++idx);
-			if (endidx >= idx)
-			{
-				QVariant rt( dd.mid( idx, endidx-idx).trimmed());
-				return rt;
-			}
-		}
-	}
-	return QVariant();
-}
-
-typedef QPair<QString,QWidget*> SignalReceiver;
-
-QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( const QString& receiverid)
-{
-	QList<QPair<QString,QWidget*> > rt;
-	TRACE_STATUS( "find datasignal receiver", className(), objectName(), receiverid);
-	QWidget* rcvwidget;
-	QList<QWidget*> wl;
-	int atidx = receiverid.indexOf('@');
-	QString slotname;
-	QString address;
-	if (atidx >= 0)
-	{
-		slotname = receiverid.mid( 0, atidx).trimmed();
-		address = receiverid.mid( atidx+1, receiverid.size() - (atidx+1)).trimmed();
-	}
-	else
-	{
-		address = receiverid;
-	}
-	if (WidgetId::isValid( address))
-	{
-		WidgetVisitor mainvisitor( uirootwidget(), None);
-		wl.append( mainvisitor.findSubNodes( nodeProperty_hasWidgetId, address));
-		foreach (QWidget* rcvwidget, wl)
-		{
-			TRACE_STATUS( "found widget by address", rcvwidget->metaObject()->className(), rcvwidget->objectName(), address);
-			rt.push_back( SignalReceiver( slotname, rcvwidget));
-		}
-	}
-	else if (address.indexOf('.') >= 0)
-	{
-		rcvwidget = get_widget_reference( address);
-		if (rcvwidget)
-		{
-			TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), address);
-			rt.push_back( SignalReceiver( slotname, rcvwidget));
-		}
-		else
-		{
-			ERROR( "unable to resolve local widget reference:", address);
-		}
-	}
-	else if ((rcvwidget = get_widget_reference( address)) != 0)
-	{
-		TRACE_STATUS( "found widget reference", rcvwidget->metaObject()->className(), rcvwidget->objectName(), address);
-		rt.push_back( SignalReceiver( slotname, rcvwidget));
-	}
-	else
-	{
-		if (slotname.isEmpty())
-		{
-			slotname = address;
-		}
-		WidgetVisitor mainvisitor( uirootwidget(), None);
-		QWidget* thiswidget = widget();
-		foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, address))
-		{
-			if (rcvwidget != thiswidget)
-			{
-				QVariant sendercond = getDatasignalSender( rcvwidget, address);
-				if (sendercond.isValid())
-				{
-					if (sendercond.toString() == widgetid())
-					{
-						TRACE_STATUS( "found widget by data slot identifier with sender id", rcvwidget->metaObject()->className(), rcvwidget->objectName(), getWidgetId(rcvwidget));
-						rt.push_back( SignalReceiver( slotname, rcvwidget));
-					}
-				}
-				else
-				{
-					TRACE_STATUS( "found widget by data slot identifier", rcvwidget->metaObject()->className(), rcvwidget->objectName(), getWidgetId(rcvwidget));
-					rt.push_back( SignalReceiver( slotname, rcvwidget));
-				}
-			}
-		}
-	}
-	return rt;
-}
-
 QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetListener::DataSignalType type)
 {
 	QList<QPair<QString,QWidget*> > rt;
@@ -1498,7 +1376,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetL
 	{
 		TRACE_STATUS( "resolve data signal receiver", className(), objectName(), receiverprop);
 		QVariant receiverid = resolve( receiverprop);
-		rt.append( get_datasignal_receivers( receiverid.toString()));
+		rt.append( getDataSignalReceivers( *this, receiverid.toString()));
 	}
 	return rt;
 }

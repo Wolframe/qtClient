@@ -347,8 +347,6 @@ class WidgetVisitor
 
 		///\brief Get all receivers of a datasignal (type)
 		QList<QPair<QString,QWidget*> > get_datasignal_receivers( WidgetListener::DataSignalType type);
-		///\brief Get all datasignal receivers specified by id or dataslot definition
-		QList<QPair<QString,QWidget*> > get_datasignal_receivers( const QString& receiverid);
 
 		///\brief Execute dynamic properties declared as 'assign:var' := 'value' as assingments "var = <value>"
 		void readAssignments();

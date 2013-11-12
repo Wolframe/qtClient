@@ -30,42 +30,38 @@
  Project Wolframe.
 
 ************************************************************************/
-
-#ifndef _WIDGET_LISTENER_HPP_INCLUDED
-#define _WIDGET_LISTENER_HPP_INCLUDED
-#include "WidgetVisitorObject.hpp"
+#ifndef _WIDGET_DATASIGNAL_HPP_INCLUDED
+#define _WIDGET_DATASIGNAL_HPP_INCLUDED
 #include "DataLoader.hpp"
+#include "WidgetVisitor.hpp"
 #include <QObject>
 #include <QWidget>
-#include <QSharedPointer>
+#include <QPair>
+#include <QString>
+#include <QList>
 
-///\class WidgetListenerImpl
-///\brief Implementation of WidgetListener
-class WidgetListenerImpl :public WidgetListener
+typedef QPair<QString,QWidget*> DataSignalReceiver;
+
+QList<QString> parseDataSignalList( const QString& datasiglist);
+
+///\brief Get all datasignal receivers specified by id or dataslot definition
+QList<DataSignalReceiver> getDataSignalReceivers( WidgetVisitor& visitor, const QString& receiverAddr);
+
+class DataSignalHandler
 {
 public:
-	///\brief Function to check, if data signal lister has to be created for a widget
-	static bool hasDataSignals( const QWidget* widget_);
+	DataSignalHandler( DataLoader* dataLoader_, bool debug_)
+		:m_dataLoader(dataLoader_),m_debug(debug_){}
 
-public:
-	///\brief Constructor
-	WidgetListenerImpl( QWidget* widget_, DataLoader* dataLoader_);
-	virtual ~WidgetListenerImpl(){}
-
-	virtual void handleDataSignal( DataSignalType dt);
-	virtual void handleShowContextMenu( const QPoint& pos);
-
-	void setDebug( bool v);
-	void blockSignals( bool v);
+	void trigger( const QString& signame, QWidget* receiver);
 
 private:
-	WidgetVisitorObjectR m_state;
 	DataLoader* m_dataLoader;
 	bool m_debug;
-	bool m_hasContextMenu;
 };
 
-typedef QSharedPointer<WidgetListenerImpl> WidgetListenerR;
+
+
 
 #endif
 

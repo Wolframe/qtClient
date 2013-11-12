@@ -48,6 +48,7 @@ SOURCES += \
 	WidgetId.cpp \
 	WidgetRequestHeader.cpp \
 	WidgetVisitor.cpp \
+	WidgetDataSignal.cpp \
 	WidgetEnabler.cpp \
 	WidgetListener.cpp \
 	WidgetRequest.cpp \
@@ -117,6 +118,7 @@ HEADERS += \
 	WidgetTree.hpp \
 	WidgetVisitorObject.hpp \
 	WidgetVisitor.hpp \
+	WidgetDataSignal.hpp \
 	WidgetId.hpp \
 	WidgetRequestHeader.hpp \
 	WidgetEnabler.hpp \
