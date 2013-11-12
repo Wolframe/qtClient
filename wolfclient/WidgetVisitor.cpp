@@ -132,12 +132,18 @@ WidgetVisitor::State::State( WidgetVisitorObjectR obj_, bool blockSignals_)
 				QList<QString> values = parseDataSignalList( m_obj->widget()->property( prop).toString());
 
 				WidgetListener::DataSignalType dt;
-				if (strcmp( signalname, "signaled") != 0)
+				// ... handled differently
+				if (WidgetListener::getDataSignalType( signalname, dt))
 				{
-					// ... forward is handled differently
-					if (WidgetListener::getDataSignalType( signalname, dt))
+					m_datasignals.id[ (int)dt] = values;
+				}
+				else
+				{
+					if (strcmp( signalname, "signaled") == 0
+					||  strcmp( signalname, "drop") == 0
+					||  strcmp( signalname, "drag") == 0)
 					{
-						m_datasignals.id[ (int)dt] = values;
+						//... these are handled differently
 					}
 					else
 					{
