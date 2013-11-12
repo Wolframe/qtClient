@@ -35,6 +35,21 @@
 %define centos6 1
 %endif
 
+%define scilin 0
+%define scilin5 0
+%if 0%{?scilin_version} >= 500 && 0%{?scilin_version} <= 599
+%define dist scilin5
+%define scilin 1
+%define scilin5 1
+%endif
+
+%define scilin6 0
+%if 0%{?scilin_version} >= 600 && 0%{?scilin_version} <= 699
+%define dist scilin6
+%define scilin 1
+%define scilin6 1
+%endif
+
 %define fedora 0
 %define fc18 0
 %if 0%{?fedora_version} == 18
@@ -93,11 +108,11 @@ URL: http://www.wolframe.net/
 
 BuildRoot: %{_tmppath}/%{name}-root
 
-%if %{rhel} || %{centos} || %{fedora}
+%if %{rhel} || %{centos} || %{scilin} || %{fedora}
 BuildRequires: qt4-devel >= 4.5
 Requires: qt4 >= 4.5
 # somehow there is no c++ compiler per default installed on RHEL6/Centos6
-%if %{rhel6} || %{centos6}
+%if %{rhel6} || %{centos6} || %{scilin6}
 BuildRequires: gcc-c++
 %endif
 %endif
@@ -116,7 +131,7 @@ Client for the Wolframe system.
 %setup -q
 
 %build
-%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version}
+%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scilin_version}
 qmake-qt4 wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %else
 qmake wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
@@ -134,10 +149,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr( -, root, root )
-# funny, why?!
-#%if !%{sles} && !%{fc18}
-#%dir %{_bindir}
-#%endif
 %{_bindir}/wolfclient
 %dir %{_libdir}/wolframe
 %{_libdir}/wolframe/libskeleton.so.0.0.1

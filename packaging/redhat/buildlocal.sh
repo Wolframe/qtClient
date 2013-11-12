@@ -35,10 +35,8 @@ cp packaging/redhat/wolfclient.spec $RPMBUILD/SPECS/wolfclient.spec
 
 cd $RPMBUILD/SPECS
 
-echo "Building started, check with 'tail -f $RPMBUILD/SPECS/log'."
-
 export CC='ccache gcc'
 export CXX='ccache g++'
-rpmbuild -ba --define "$OSB_PLATFORM" wolfclient.spec > log 2>&1
+rpmbuild -ba --define "$OSB_PLATFORM" wolfclient.spec
 
 echo "Build done."

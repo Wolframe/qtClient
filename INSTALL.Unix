@@ -69,12 +69,13 @@ Qt (4.2.1) is too old, compile your own one.
 RHEL/Centos/SL 6
 ----------------
 
-Qt (4.2.1) is too old, compile your own one.
+Required packages: qt4-devel (4.6.2)
+Optional packages: openssl-devel (1.0.0)
 
 Fedora 18
 ---------
 
-Required pacakges: qt4-devel (4.8.4)
+Required packages: qt4-devel (4.8.4)
 Optional packages: openssl-devel (1.0.1c)
 
 Fedora 19
