@@ -7,8 +7,9 @@ Table of Contents
   Prerequisites
     OpenSSL
       Compile and install openssl
-    Compile and install Qt
-  Using ccache with MSVC
+    Qt
+      Compile and install Qt
+  Build wolfclient
 
 Prerequisites
 -------------
@@ -96,7 +97,11 @@ nmake
 See also http://qtnode.net/wiki/Qt4_with_Visual_Studio.
 
 Build wolfclient
---------------
+----------------
+
+Per default the wolfclient is built with SSL enabled. If you do not
+want this, remove the WITH_SSL flag in the DEFINE sections of the qmake
+*.pro files.
 
 C:\Qt\4.8.1\bin\qmake.exe -config debug -recursive wolfclient.pro or
 C:\Qt\4.8.1\bin\qmake.exe -config release -resucrsive wolfclient.pro
