@@ -61,23 +61,6 @@ QWidget* FormUiLoader::createWidget( const QString& className, QWidget* parent, 
 		rt->setDragEnabled( true);
 		return rt;
 	}
-	else if (className == "QLineEdit")
-	{
-		QLineEdit* rt = new WidgetWithDragAndDrop<QLineEdit>( m_dataLoader, parent, name, m_debug);
-		rt->setDragEnabled( true);
-		return rt;
-	}
-	else if (className == "QPlainTextEdit")
-	{
-		QPlainTextEdit* rt = new WidgetWithDragAndDrop<QPlainTextEdit>( m_dataLoader, parent, name, m_debug);
-		return rt;
-	}
-	else if (className == "QTextEdit")
-	{
-		QTextEdit* rt = new WidgetWithDragAndDrop<QTextEdit>( m_dataLoader, parent, name, m_debug);
-		rt->setObjectName( name);
-		return rt;
-	}
 	else
 	{
 		return QUiLoader::createWidget( className, parent, name);
