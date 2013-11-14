@@ -45,7 +45,7 @@ typedef QPair<QString,QWidget*> DataSignalReceiver;
 QList<QString> parseDataSignalList( const QString& datasiglist);
 
 ///\brief Get all datasignal receivers specified by id or dataslot definition
-QList<DataSignalReceiver> getDataSignalReceivers( WidgetVisitor& visitor, const QString& receiverAddr);
+QList<DataSignalReceiver> getDataSignalReceivers( WidgetVisitor& visitor, const QString& receiverAddr, bool withThis);
 
 class DataSignalHandler
 {

@@ -116,6 +116,7 @@ bool WidgetVisitorState_QTreeWidget::isArrayElement( const QString& name) const
 QVariant WidgetVisitorState_QTreeWidget::valueAt( const QPoint& p) const
 {
 	QTreeWidgetItem* itm = m_treeWidget->itemAt( p.x(), p.y());
+	if (!itm) return QVariant();
 	return itm->data( 0, Qt::UserRole);
 }
 

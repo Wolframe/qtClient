@@ -57,6 +57,7 @@ bool WidgetVisitorState_QListWidget::isArrayElement( const QString& name) const
 QVariant WidgetVisitorState_QListWidget::valueAt( const QPoint& p) const
 {
 	QListWidgetItem* itm = m_listWidget->itemAt( p.x(), p.y());
+	if (!itm) return QVariant();
 	return itm->data( Qt::UserRole);
 }
 

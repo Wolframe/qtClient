@@ -35,7 +35,7 @@
 #include "WidgetRequest.hpp"
 #include "FormWidget.hpp"
 
-#define WOLFRAME_LOWLEVEL_DEBUG
+#undef WOLFRAME_LOWLEVEL_DEBUG
 
 static bool nodeProperty_hasWidgetId( const QWidget* widget, const QVariant& cond)
 {
@@ -50,7 +50,10 @@ static bool nodeProperty_hasDataSlot( const QWidget* widget, const QVariant& con
 	{
 		idx += cond.toString().length();
 		QString dd = dataslots.toString();
-		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ','  || dd.at(idx) == '[') return true;
+		if (dd.size() == idx || dd.at(idx) == ' ' || dd.at(idx) == ','  || dd.at(idx) == '[')
+		{
+			return true;
+		}
 	}
 	return false;
 }
@@ -82,7 +85,7 @@ static QVariant getDatasignalSender( QWidget* widget, const QVariant& cond)
 	return QVariant();
 }
 
-QList<DataSignalReceiver> getDataSignalReceivers( WidgetVisitor& visitor, const QString& receiverAddr)
+QList<DataSignalReceiver> getDataSignalReceivers( WidgetVisitor& visitor, const QString& receiverAddr, bool withThis)
 {
 	QList<DataSignalReceiver> rt;
 	QWidget* widget = visitor.widget();
@@ -147,7 +150,7 @@ QList<DataSignalReceiver> getDataSignalReceivers( WidgetVisitor& visitor, const 
 		WidgetVisitor mainvisitor( visitor.uirootwidget(), WidgetVisitor::None);
 		foreach (QWidget* rcvwidget, mainvisitor.findSubNodes( nodeProperty_hasDataSlot, address))
 		{
-			if (rcvwidget != widget)
+			if (withThis || rcvwidget != widget)
 			{
 				QVariant sendercond = getDatasignalSender( rcvwidget, address);
 				if (sendercond.isValid())
@@ -203,7 +206,7 @@ static QList<QWidget*> getTransitiveCoverOfSignaledReceivers( QWidget* receiver)
 				foreach (const QString& forward_rcvid, sndvisitor.property( "datasignal:signaled").toString().split(','))
 				{
 					typedef QPair<QString,QWidget*> Receiver;
-					foreach (const Receiver& forward_rcv, getDataSignalReceivers( sndvisitor, forward_rcvid.trimmed()))
+					foreach (const Receiver& forward_rcv, getDataSignalReceivers( sndvisitor, forward_rcvid.trimmed(), false))
 					{
 						if (!forwardlist.contains( forward_rcv.second))
 						{

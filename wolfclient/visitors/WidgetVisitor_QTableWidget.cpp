@@ -113,6 +113,7 @@ WidgetVisitorState_QTableWidget::~WidgetVisitorState_QTableWidget()
 QVariant WidgetVisitorState_QTableWidget::valueAt( const QPoint& p) const
 {
 	QTableWidgetItem* itm = m_tableWidget->itemAt( p.x(), p.y());
+	if (!itm) return QVariant();
 	if (m_rowcount)
 	{
 		return getColumnValue( itm->column());

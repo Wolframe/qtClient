@@ -56,7 +56,7 @@ int WidgetId::cnt( const QString& id)
 {
 	int startpos = id.indexOf(':');
 	if (startpos < 0) return -1;
-	return id.mid( startpos).toInt();
+	return id.mid( startpos+1).toInt();
 }
 
 WidgetId::WidgetId( const QWidget* wdg)
@@ -79,11 +79,16 @@ WidgetId::WidgetId( const QString& objectName_, int cnt_)
 	:m_objectName(objectName_),m_cnt(cnt_)
 {}
 
+WidgetId::WidgetId( const WidgetId& o)
+	:m_objectName(o.m_objectName),m_cnt(o.m_cnt)
+{}
+
 QString WidgetId::toString() const
 {
 	QString rt( m_objectName);
 	rt.append( ":");
-	rt.append( QVariant( m_cnt).toString());
+	rt.append( QString::number( m_cnt));
 	return rt;
 }
+
 

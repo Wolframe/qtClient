@@ -52,9 +52,10 @@ public:
 	static bool isValid( const QString& id);
 
 	WidgetId() :m_cnt(0){}
-	WidgetId( const QWidget* wdg);
-	WidgetId( const QString& str);
+	explicit WidgetId( const QWidget* wdg);
+	explicit WidgetId( const QString& str);
 	WidgetId( const QString& objectName_, int cnt_);
+	WidgetId( const WidgetId& o);
 
 	QString toString() const;
 

@@ -1382,7 +1382,7 @@ QList<QPair<QString,QWidget*> > WidgetVisitor::get_datasignal_receivers( WidgetL
 	{
 		TRACE_STATUS( "resolve data signal receiver", className(), objectName(), receiverprop);
 		QVariant receiverid = resolve( receiverprop);
-		rt.append( getDataSignalReceivers( *this, receiverid.toString()));
+		rt.append( getDataSignalReceivers( *this, receiverid.toString(), false));
 	}
 	return rt;
 }
