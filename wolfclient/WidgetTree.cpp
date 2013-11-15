@@ -1,5 +1,6 @@
 #include "WidgetTree.hpp"
 #include "WidgetMessageDispatcher.hpp"
+#include "WidgetDragAndDrop.hpp"
 #include "WidgetRequest.hpp"
 #include "debugview/DebugHelpers.hpp"
 #include "debugview/DebugLogTree.hpp"
@@ -254,16 +255,6 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	m_visitor.do_readAssignments();
 	m_visitor.allowUndefDynPropsInit( rudpflag_bk);
 
-	// Aba: disabled for now, breaks all opening dialogs which communicate
-	// values back to their calling form (e.g. configurator, edit category,
-	// add required feature)
-	//~ QString wid = m_visitor.property( "widgetid").toString();
-	//~ if (m_visitor.findFormWidgetWithWidgetid( wid))
-	//~ {
-		//~ qCritical() << "Refused to load form with ambigous (duplicate) widget id" << wid;
-		//~ return false;
-	//~ }
-
 	// restore widget states if form was opened with a '_CLOSE_'
 	if (m_state.isValid())
 	{
@@ -271,12 +262,15 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	}
 
 	// set widget state according to 'state:..' properties and their conditionals
-	foreach (QWidget* chld, m_visitor.widget()->findChildren<QWidget *>())
+	foreach (QWidget* chld, ui_->findChildren<QWidget*>())
 	{
 		setDeclaredEnablers( chld);
 	}
 
-	foreach (QWidget* chld, m_visitor.widget()->findChildren<QWidget *>()) {
+	// enable drop in all sub widgets where 'drop..' properties exists:
+	enableDropForFormWidgetChildren( ui_);
+
+	foreach (QWidget* chld, ui_->findChildren<QWidget *>()) {
 		QVariant initialFocus = chld->property( "initialFocus");
 		if (initialFocus.toBool()) chld->setFocus();
 	}

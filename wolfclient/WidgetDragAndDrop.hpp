@@ -46,6 +46,8 @@
 #include <QDebug>
 
 
+void enableDropForFormWidgetChildren( QWidget* widget);
+
 class WidgetWithDragAndDropBase
 {
 public:
@@ -76,7 +78,6 @@ public:
 		,WidgetWithDragAndDropBase(dataLoader_,debug_)
 	{
 		WidgetType::setObjectName( name_);
-		WidgetType::setAcceptDrops( true);
 	}
 
 	void mousePressEvent( QMouseEvent *event)

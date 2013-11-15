@@ -42,6 +42,31 @@
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 
+static bool hasWidgetDropDefined( const QWidget* widget)
+{
+	foreach (const QByteArray& prop, widget->dynamicPropertyNames())
+	{
+		if (prop.startsWith("dropmove"))
+		{
+			if (prop.startsWith("dropmove:") || prop == "dropmove") return true;
+		}
+		else if (prop.startsWith("dropcopy"))
+		{
+			if (prop.startsWith("dropcopy:") || prop == "dropcopy") return true;
+		}
+	}
+	return false;
+}
+
+void enableDropForFormWidgetChildren( QWidget* widget)
+{
+	if (hasWidgetDropDefined( widget)) widget->setAcceptDrops( true);
+	foreach (QWidget* chld, widget->findChildren<QWidget*>())
+	{
+		if (hasWidgetDropDefined( chld)) chld->setAcceptDrops( true);
+	}
+}
+
 static const char* dropActionName( const Qt::DropAction& dropAction)
 {
 	switch (dropAction)
@@ -117,7 +142,6 @@ bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnter
 
 	if (event->mimeData()->hasFormat( WIDGETID_MIMETYPE))
 	{
-		event->accept();
 		WidgetId widgetId( this_);
 
 		if (widgetId.objectName() == this_->objectName())
@@ -191,6 +215,7 @@ bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnter
 	{
 		qDebug() << "[drag/drop handler] drag enter in" << visitor.widgetid() << "with unknown mime type" << event->mimeData()->formats();
 	}
+	if (rt) event->accept();
 	closeLogStruct( 2);
 	return rt;
 }
