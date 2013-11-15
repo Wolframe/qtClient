@@ -53,6 +53,7 @@ QWidget* FormUiLoader::createWidget( const QString& className, QWidget* parent, 
 	{
 		QListWidget* rt = new WidgetWithDragAndDrop<QListWidget>( m_dataLoader, parent, name, m_debug);
 		rt->setDragEnabled( true);
+		rt->showDropIndicator();
 		return rt;
 	}
 	else if (className == "QTableWidget")

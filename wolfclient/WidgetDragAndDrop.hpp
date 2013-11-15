@@ -60,6 +60,7 @@ private:
 
 public:
 	bool handleDragPickEvent( QWidget* this_, QMouseEvent *event);
+	bool handleDragMoveEvent( QWidget* this_, QDragMoveEvent* event);
 	bool handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event);
 	bool handleDropEvent( QWidget* this_, QDropEvent *event);
 
@@ -111,8 +112,17 @@ public:
 		}
 	}
 
+	void dragMoveEvent( QDragMoveEvent *event)
+	{
+		if (!WidgetWithDragAndDropBase::handleDragMoveEvent( this, event))
+		{
+			WidgetType::dragMoveEvent( event);
+		}
+	}
+
 	void dragLeaveEvent( QDragLeaveEvent * event)
 	{
+		qDebug() << "drag leave";
 		WidgetType::dragLeaveEvent( event);
 	}
 

@@ -40,7 +40,7 @@
 #include <QDrag>
 #include <QMimeData>
 
-#undef WOLFRAME_LOWLEVEL_DEBUG
+#define WOLFRAME_LOWLEVEL_DEBUG
 
 static bool hasWidgetDropDefined( const QWidget* widget)
 {
@@ -48,11 +48,19 @@ static bool hasWidgetDropDefined( const QWidget* widget)
 	{
 		if (prop.startsWith("dropmove"))
 		{
-			if (prop.startsWith("dropmove:") || prop == "dropmove") return true;
+			if (prop.startsWith("dropmove:") || prop == "dropmove")
+			{
+				qDebug() << "widget" << widget->objectName() << "will accept drops of visitor objects (widgetid mime type)";
+				return true;
+			}
 		}
 		else if (prop.startsWith("dropcopy"))
 		{
-			if (prop.startsWith("dropcopy:") || prop == "dropcopy") return true;
+			if (prop.startsWith("dropcopy:") || prop == "dropcopy")
+			{
+				qDebug() << "widget" << widget->objectName() << "will accept drops of visitor objects (widgetid mime type)";
+				return true;
+			}
 		}
 	}
 	return false;
@@ -77,11 +85,12 @@ static const char* dropActionName( const Qt::DropAction& dropAction)
 	}
 }
 
-void WidgetWithDragAndDropBase::handleDatasignal( WidgetVisitor& visitor, const char* sigpropname)
+void WidgetWithDragAndDropBase::handleDatasignal( WidgetVisitor& visitor, const char* signame)
 {
 	DataSignalHandler dshandler( m_dataLoader, m_debug);
 	QList<DataSignalReceiver> rcvlist;
-	QVariant prop = visitor.property( sigpropname);
+	QWidget* widget = visitor.widget();
+	QVariant prop = widget->property( QByteArray("datasignal:") + signame);
 	if (prop.isValid())
 	{
 		foreach (const QString& rcvaddr, parseDataSignalList( prop.toString()))
@@ -91,8 +100,12 @@ void WidgetWithDragAndDropBase::handleDatasignal( WidgetVisitor& visitor, const 
 		foreach (const DataSignalReceiver& receiver, rcvlist)
 		{
 			dshandler.trigger( receiver.first, receiver.second);
-			qDebug() << "[drag/drop handler] refresh of" << getWidgetId( receiver.second) << "invoked by" << sigpropname;
+			qDebug() << "[drag/drop handler] refresh of" << getWidgetId( receiver.second) << "invoked by datasignal" << signame;
 		}
+	}
+	else
+	{
+		dshandler.trigger( signame, widget);
 	}
 }
 
@@ -112,7 +125,7 @@ bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent
 	QMimeData *mimeData = new QMimeData;
 	mimeData->setData( WIDGETID_MIMETYPE, visitor.widgetid().toLatin1());
 	drag->setMimeData( mimeData);	
-	drag->setPixmap( QPixmap( ":/images/16x16/copy.png"));
+	// drag->setPixmap( QPixmap( ":/images/16x16/copy.png"));
 	closeLogStruct(2);
 	Qt::DropAction dropAction = drag->exec( Qt::CopyAction | Qt::MoveAction);
 	//... drag->exec is blocking till end of drop. so the following code is executed after !
@@ -121,18 +134,31 @@ bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent
 	openLogStruct( visitor.formwidget()->logId());
 	openLogStruct( "drag");
 
-	qDebug() << "[drag/drop handler] 'drop' action result (" << dropActionStr << ")" << visitor.widgetid();
+	qDebug() << "[drag/drop handler] 'drop' action result (" << (dropActionStr?dropActionStr:"ignored") << ")" << visitor.widgetid();
 	if (dropAction == Qt::MoveAction)
 	{
-		handleDatasignal( visitor, "datasignal:drag");
+		handleDatasignal( visitor, "drag");
 	}
 	closeLogStruct(2);
 	return true;
 }
 
+bool WidgetWithDragAndDropBase::handleDragMoveEvent( QWidget*, QDragMoveEvent* event)
+{
+#ifdef WOLFRAME_LOWLEVEL_DEBUG
+	qDebug() << "[drag/drop handler] move to" << event->pos();
+#endif
+	if (event->mimeData()->hasFormat( WIDGETID_MIMETYPE))
+	{
+		event->acceptProposedAction();
+		return true;
+	}
+	return false;
+}
+
 bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnterEvent* event)
 {
-	bool rt = false;
+	const char* acceptType = 0;
 	WidgetVisitor visitor( this_);
 	FormWidget* form = visitor.formwidget();
 	if (!form) return false;
@@ -150,28 +176,28 @@ bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnter
 			{
 				if (event->dropAction() == Qt::IgnoreAction)
 				{
+					acceptType = "accept forced";
 					event->setDropAction( Qt::MoveAction);
 					event->accept();
-					rt = true;
 				}
 				else if (event->dropAction() == Qt::MoveAction)
 				{
+					acceptType = "accept proposed";
 					event->acceptProposedAction();
-					rt = true;
 				}
 			}
-			if (!rt && this_->property("dropcopy").isValid())
+			if (!acceptType && this_->property("dropcopy").isValid())
 			{
 				if (event->dropAction() == Qt::IgnoreAction)
 				{
+					acceptType = "accept forced";
 					event->setDropAction( Qt::CopyAction);
 					event->accept();
-					rt = true;
 				}
 				else if (event->dropAction() == Qt::CopyAction)
 				{
+					acceptType = "accept proposed";
 					event->acceptProposedAction();
-					rt = true;
 				}
 			}
 		}
@@ -184,51 +210,54 @@ bool WidgetWithDragAndDropBase::handleDragEnterEvent( QWidget* this_, QDragEnter
 			{
 				if (event->dropAction() == Qt::IgnoreAction)
 				{
+					acceptType = "accept forced";
 					event->setDropAction( Qt::MoveAction);
 					event->accept();
-					rt = true;
 				}
 				else if (event->dropAction() == Qt::MoveAction)
 				{
+					acceptType = "accept proposed";
 					event->acceptProposedAction();
-					rt = true;
 				}
 			}
-			if (!rt && this_->property(propname_copy.toLatin1()).isValid())
+			if (!acceptType && this_->property(propname_copy.toLatin1()).isValid())
 			{
 				if (event->dropAction() == Qt::IgnoreAction)
 				{
+					acceptType = "accept forced";
 					event->setDropAction( Qt::CopyAction);
 					event->accept();
-					rt = true;
 				}
 				else if (event->dropAction() == Qt::CopyAction)
 				{
+					acceptType = "accept proposed";
 					event->acceptProposedAction();
-					rt = true;
 				}
 			}
 		}
-		qDebug() << "[drag/drop handler]" << (rt?"accept":"reject") << "drag enter for mime type" << WIDGETID_MIMETYPE << "on" << visitor.widgetid() << "at" << event->pos() << "action" << dropActionName( event->dropAction());
+		qDebug() << "[drag/drop handler]" << (acceptType?acceptType:"reject") << "drag enter for mime type" << WIDGETID_MIMETYPE << "on" << visitor.widgetid() << "at" << event->pos() << "action" << dropActionName( event->dropAction());
 	}
 	else
 	{
 		qDebug() << "[drag/drop handler] drag enter in" << visitor.widgetid() << "with unknown mime type" << event->mimeData()->formats();
 	}
-	if (rt) event->accept();
+	if (acceptType) event->accept();
 	closeLogStruct( 2);
-	return rt;
+	return (acceptType != 0);
 }
 
 bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *event)
 {
 	WidgetVisitor visitor( this_);
 	FormWidget* form = visitor.formwidget();
-	if (!form) return false;
-
 	openLogStruct( form->logId());
 	openLogStruct( "drop");
 
+	if (!form)
+	{
+		qWarning() << "drop rejected in a widget that is not a subwidget of a form";
+		return false;
+	}
 	Qt::DropAction dropAction = event->dropAction();
 	const char* dropActionStr = dropActionName( dropAction);
 
@@ -271,7 +300,7 @@ bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *eve
 	// Submit request
 	if (sendDropRequest( this_, dragWidgetId, action.toString(), dropid))
 	{
-		handleDatasignal( visitor, "datasignal:drop");
+		handleDatasignal( visitor, "drop");
 	}
 	closeLogStruct( 2);
 	return true; //... tells that the event should not be interpreted differently
@@ -298,6 +327,10 @@ bool WidgetWithDragAndDropBase::sendDropRequest( QWidget* dropWidget, const Widg
 		{
 			qCritical() << "no data loader defined. cannot send drop request";
 		}
+	}
+	else
+	{
+		qWarning() << "action for drop request is empty. No drop action performed";
 	}
 	return false;
 }
