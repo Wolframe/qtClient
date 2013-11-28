@@ -395,6 +395,15 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 				break;
 			}
 			rt = actionwidget;
+			if (!content.isEmpty())
+			{
+				// set widget answer for dependent actions/forms:
+				WidgetVisitor rcpvisitor( actionwidget, (WidgetVisitor::VisitorFlags)(WidgetVisitor::BlockSignals));
+				if (!setWidgetAnswer( rcpvisitor, content))
+				{
+					qCritical() << "Failed to assign action answer to widget:" << rcpvisitor.widgetPath() << "message tag:" << tag << "message data:" << shortenDebugMessageArgument(content);
+				}
+			}
 			followform = requestheader.actionid.toString();
 		}
 	}
