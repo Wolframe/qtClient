@@ -229,6 +229,10 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 			loadForm( nextForm );
 		}
 	}
+	else
+	{
+		qCritical() << "Failed to switch form to invalid form link '" << formlink << "'";
+	}
 }
 
 void FormWidget::reload( )

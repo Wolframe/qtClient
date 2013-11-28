@@ -65,6 +65,7 @@ private:
 	///\brief sets the enablers declared with 'state:..' properties
 	void setDeclaredEnablers( QWidget* widget);
 	void signalEnablers();
+	void handleDatasignal( WidgetVisitor& visitor, const char* signame);
 
 private:
 	FormCall m_formCall;

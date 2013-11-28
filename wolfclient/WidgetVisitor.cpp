@@ -528,39 +528,56 @@ static QVariant variable_value( WidgetVisitor& visitor, const QString& var)
 	}
 	else
 	{
-		QString value;
+		/*[-]*/qDebug() << "+++ EVAL " << var;
+		QVariant value;
 		QVariant val = visitor.property( var.mid( 0, dpidx));
+		QString valstr;
 
 		int altidx = var.indexOf( ':', dpidx +1);
 		if (altidx >= 0)
 		{
 			if (val.isValid())
 			{
-				value = var.mid( dpidx+1, altidx - (dpidx+1)).trimmed();
+				valstr = var.mid( dpidx+1, altidx - (dpidx+1)).trimmed();
 			}
 			else
 			{
-				value = var.mid( altidx+1, var.size()-(altidx+1)).trimmed();
+				valstr = var.mid( altidx+1, var.size()-(altidx+1)).trimmed();
 			}
 		}
 		else
 		{
 			if (val.isValid()) return val;
-			value = var.mid( dpidx+1, var.size()-(dpidx+1)).trimmed();
+			QString valstr = var.mid( dpidx+1, var.size()-(dpidx+1)).trimmed();
 		}
-		if (value == "?")
+		if (valstr.size() && valstr.at(0) >= '0' && valstr.at(0) <= '9')
 		{
-			return QVariant();
+			value = valstr.toInt();
 		}
-		foreach (QChar ch, value)
+		else if (valstr == "?")
 		{
-			if (!ch.isDigit() && !ch.isLetter() && ch != '_')
+		}
+		else if (valstr.size()>=2 && (valstr.at(0) == '\'' || valstr.at(0) == '\"'))
+		{
+			char eb = valstr.at(0).toLatin1();
+			if (valstr.at(valstr.size()-1) == eb)
 			{
-				qCritical() << "illegal character in default value (currently only non negative numbers and alphanumeric or empty value allowed):" << ch << value << "(widget" << visitor.widgetPath() << ")";
-				break;
+				value = valstr.mid( 1, valstr.size()-2);
+			}
+			else
+			{
+				qCritical() << "string not terminated or containing ':' (" << valstr << ")";
 			}
 		}
-		return QVariant( value);
+		else if (valstr.size() && (((valstr.at(0).toLatin1()|32) >= 'a' && ((char)valstr.at(0).toLatin1()|32) <= 'z') || valstr.at(0) == '_'))
+		{
+			value = visitor.property( valstr);
+		}
+		else
+		{
+			qCritical() << "illegal character in default value (currently only non negative numbers and alphanumeric or empty value allowed):" << valstr.at(0) << value << "(widget" << visitor.widgetPath() << ")";
+		}
+		return value;
 	}
 }
 

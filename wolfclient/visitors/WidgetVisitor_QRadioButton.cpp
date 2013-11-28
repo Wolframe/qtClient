@@ -37,6 +37,11 @@ QVariant WidgetVisitorState_QRadioButton::property( const QString& name)
 	{
 		return QVariant( m_radioButton->isChecked());
 	}
+	else if (name == "checked")
+	{
+		if (m_radioButton->isChecked()) return QVariant(1);
+		return QVariant();
+	}
 	else if (name == "text")
 	{
 		return QVariant( m_radioButton->text());

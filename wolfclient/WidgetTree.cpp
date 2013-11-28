@@ -2,6 +2,7 @@
 #include "WidgetMessageDispatcher.hpp"
 #include "WidgetDragAndDrop.hpp"
 #include "WidgetRequest.hpp"
+#include "WidgetDataSignal.hpp"
 #include "debugview/DebugHelpers.hpp"
 #include "debugview/DebugLogTree.hpp"
 #include <QDebug>
@@ -340,6 +341,25 @@ bool WidgetTree::initialize( QWidget* ui_, QWidget* oldUi, const QString& formca
 	return true;
 }
 
+void WidgetTree::handleDatasignal( WidgetVisitor& visitor, const char* signame)
+{
+	DataSignalHandler dshandler( m_dataLoader, m_debug);
+	QList<DataSignalReceiver> rcvlist;
+	QWidget* widget = visitor.widget();
+	QVariant prop = widget->property( QByteArray("datasignal:") + signame);
+	if (prop.isValid())
+	{
+		foreach (const QString& rcvaddr, parseDataSignalList( prop.toString()))
+		{
+			rcvlist.append( getDataSignalReceivers( visitor, rcvaddr, true));
+		}
+		foreach (const DataSignalReceiver& receiver, rcvlist)
+		{
+			dshandler.trigger( receiver.first, receiver.second);
+		}
+	}
+}
+
 QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& content, QString& followform)
 {
 	QWidget* rt = 0;
@@ -415,6 +435,12 @@ QWidget* WidgetTree::deliverAnswer( const QString& tag, const QByteArray& conten
 				qCritical() << "Failed to assign request answer to widget:" << rcpvisitor.widgetPath() << "message tag:" << tag << "message data:" << shortenDebugMessageArgument(content);
 			}
 			rcpvisitor.setState( rcp->property( "_w_state"));
+
+			// handle data signal 'loaded' if defined:
+			if (rcp->property( "datasignal:loaded").isValid())
+			{
+				handleDatasignal( rcpvisitor, "loaded");
+			}
 
 			//unblock blocked signals after assigning the answer
 			TraceMap::const_iterator ti = blksig.find( rcp);
