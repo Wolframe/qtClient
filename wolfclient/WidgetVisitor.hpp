@@ -109,47 +109,7 @@ Internally happens the same.
 
 3. Dynamic Properties Used
 
- 'contextmenu'           Defines a context menu with a comma separated list of identifiers of actions defined as propery value. Two following commas without menu entry identifier are used to define a separator (QMenu::addSeparator())
- 'contextmenu:NAME'      Defines the (translatable) text of a context menu entry. NAME refers to a non empty name in the list of context menu entries
-
- 'action'                Defines an action. This can either be
-                         a) load action request for a widget that is not a push button
-                         b) action without answer than OK/ERROR for a push button
- 'action:IDENTIFIER'     Defines an action either
-                         a) related to a context menu entry (when clicked) or
-                         b) related to a dataslot declaration of this widget named with IDENTIFIER.
-
- 'form'                  Defines a form to be opened on click (push button).
-                         If the widget has an action defined, then the action is executed before and the form is opened when the action succeeds and not opened when it fails.
- 'form:IDENTIFIER'       Defines a form related to a context menu entry (when clicked)
-			 If the context menu entry has also an action defined, then the action is executed before and the form is opened when the action succeeds and not opened when it fails.
-
- 'answer'                Defines the format of a validated load action answer
-
- 'global:IDENTIFIER'     Defines an assignment from a global variable IDENTIFIER at initialization and writing the global variable when closing the widget (WidgetVisitor::readGlobals()/writeGlobals())
- 'assign:PROP'           Defines an assingment of property PROP to the property defined as value "assign:PROP" on data load and refresh (WidgetVisitor::readAssignments()/writeAssignments())
- 'link:'                 Defines a symbolic link to another widget.
-                         Defining the property "link:<name>" = <widgetid>: defines <name> to be a reference to the widget with the widgetid set to <widgetid>.
-                         Used to read data from other widgets. The widgetid can be passed as parameter for children to reference or defined hardcoded for singleton widgets.
-
- 'datasignal:IDENTIFIER' Defines a signal of type IDENTIFIER (clicked,doubleclicked,destroyed,signaled,...) with the slot name and destination address defined as property value of "datasignal:IDENTIFIER"
-                         Datasignal destinations can be defined as follows
-                         a) As widgetid (Attention HACK: If something is a widgetid is decided by searching for a ':' !!! Do not use ':' in slot identifiers.
-                         b) As slot identifier (declared with 'dataslot')
-                         c) widget path
-                         For a) and and c) a preceding identifier followed by '@' specifies the name of the identifier of the target slot.
-
- 'state:IDENFITIER'      Defines a conditional state of the widget. IDENTIFIER is one of 'enabled','disabled','hidden','visible' the property value defines the condition that defines the state defined with IDENTIFIER.
-                         A condition can either be
-                         a) A property reference in '{' '}' brackets. The condition is met when the property referenced is valid
-                         b) An expression of the form <prop> <op> <value>, where <prop> is a property reference in '{' '}' brackets, <op> an operator and <value> a constant value
-                            Valid operators are: '==' (string),'!=' (string),'<=' (integer), '<' (integer) ,'>=' (integer), '>' (integer)
-                         Remark: The owner widget of the properties referenced must exist when the widget is initialized. Otherwise the trigger for state change will not be installed !!!
-                         Remark: For 'action' definitions there are conditional state triggers ('state:enabled') installed automatically for all referenced action properties without default value
- 'dataslot'              Defines a comma separated list of slots for the signal of with the property value as slot identifer and optionally a sender widget id in '(..)' brackets.
- 'widgetid'              Unique identifier of the widget used for identifying it (resolving symbolic links, address of a request aswer)
- 'synonym:NAME'          Defines a mapping from the identifier NAME to the property value. The map is used to describe a renaming of an answer tag of an implicitely mapped request answer (when no 'answer' is defined. used only for recursive structures)
-
+ For dynamic properties to stear the application see section 'States and Behaviour of widgets' in WolfBook.
 
 3.1 Reserved Internal Dynamic Properties of Widgets
 The '_w_' prefix is used for internal widget properties not of interest for the user.
@@ -187,10 +147,10 @@ The '_w_' prefix is used for internal widget properties not of interest for the 
     (1) show error
     (2) emit data load error if defined
 
-4.3. Refresh With Domain Load Request
+4.3. Refresh With Load Request
     (1) emit domain load request if defined
 
-4.3. Refresh Without Domain Load Request
+4.3. Refresh Without Load Request
     (1) save widget state
     (2) clear widget data
     (3) read globals

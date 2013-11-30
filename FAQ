@@ -1,0 +1,5 @@
+What means the warning "Using deprecated implicit mapping of request answer to widget. We recommend to define a property 'answer' for an explicit mapping of the answer. Implicit mapping will not be supported in the future"
+
+- You are relying on a mechanism called implicit mapping. This means you are not explicitely defining the request answer structure with the assignment of result elements to widgets. This is considered harmful because the answer can not be validated and it will be harder to spot errors in your client. The problem is that the feedback the system can give you on errors is much weaker. We encourage you to explicitely define the request answer structure.
+
+

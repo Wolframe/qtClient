@@ -365,6 +365,7 @@ static bool setImplicitWidgetAnswer( WidgetVisitor& visitor, const QByteArray& a
 #endif
 
 	visitor.clear();
+	qWarning() << "Using deprecated implicit mapping of request answer to widget. We recommend to define a property 'answer' for an explicit mapping of the answer. Implicit mapping will not be supported in the future";
 	qDebug() << "feeding widget " << visitor.objectName() << "with implicitely mapped answer";
 
 	DataSerializeItem::Type prevType = DataSerializeItem::CloseTag;
