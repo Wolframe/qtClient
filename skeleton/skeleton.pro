@@ -9,7 +9,7 @@ isEmpty(LIBDIR) {
 target.path = $$LIBDIR
 INSTALLS += target
 
-VERSION = 0.0.1
+VERSION = 0.0.3
 
 CONFIG += qt warn_on
 
