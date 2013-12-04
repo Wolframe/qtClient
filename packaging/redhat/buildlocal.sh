@@ -18,17 +18,9 @@ rm -rf $RPMBUILD/BUILDROOT $RPMBUILD/BUILD $RPMBUILD/RPMS/*/* \
 	$RPMBUILD/SRPMS/* $RPMBUILD/SPECS/log
 touch $RPMBUILD/SPECS/log
 
-rm -f wolfclient-$VERSION.tar.gz
 rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 
-make distclean
-mkdir /tmp/wolfclient-$VERSION
-cp -av * /tmp/wolfclient-$VERSION
-cd /tmp
-tar zcvf wolfclient-$VERSION.tar.gz wolfclient-$VERSION
-cd -
-mv /tmp/wolfclient-$VERSION.tar.gz .
-rm -rf /tmp/wolfclient-$VERSION
+make dist-gz
 
 cp wolfclient-$VERSION.tar.gz $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 cp packaging/redhat/wolfclient.spec $RPMBUILD/SPECS/wolfclient.spec
