@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION=0.0.3
-OSC_HOME=$HOME/home:andreas_baumann/wolfclient
+OSC_HOME=$HOME/home:wolframe_user/wolfclient
 
 if test "x$TMPDIR" = "x"; then
 	TMPDIR=/tmp
