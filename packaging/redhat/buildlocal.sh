@@ -20,6 +20,9 @@ touch $RPMBUILD/SPECS/log
 
 rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 
+# This is actually wrong for openSUSE, but we don't build it locally, only
+# on OBS:
+qmake-qt4 wolfclient.pro -config release -recursive
 make dist-gz
 
 cp wolfclient-$VERSION.tar.gz $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz

@@ -19,6 +19,7 @@ mkdir -p $PKGBUILD $PKGBUILD/BUILD $PKGBUILD/PKG $PKGBUILD/PKGS/$ARCH
 
 rm -f $PKGBUILD/BUILD/wolfclient_$VERSION.tar.gz
 
+qmake -config release -recursive wolfclient.pro
 make dist-gz
 
 cp wolfclient-$VERSION.tar.gz $PKGBUILD/BUILD/.
