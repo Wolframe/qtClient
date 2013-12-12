@@ -74,7 +74,7 @@ for PLATFORM in $PLATFORMS; do
 		echo "Copying packages for '$PLATFORM', '$ARCH'.."
 		destdir="$SOURCEFORGE_ROOT/$PROJECT-binaries/$VERSION/$NICE_PLATFORM/$NICE_ARCH"
 		srcdir="$PACKAGE_ROOT/$PLATFORM/$ARCH"
-		cp -av $srcdir/* $destdir
+		cp -av $srcdir/*${PROJECT}* $destdir
 	done		
 done
 
