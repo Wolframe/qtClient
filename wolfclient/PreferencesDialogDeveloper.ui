@@ -11,7 +11,16 @@
    </rect>
   </property>
   <layout class="QGridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>9</number>
+   </property>
+   <property name="topMargin">
+    <number>9</number>
+   </property>
+   <property name="rightMargin">
+    <number>9</number>
+   </property>
+   <property name="bottomMargin">
     <number>9</number>
    </property>
    <property name="spacing">
@@ -81,12 +90,9 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="FileChooser" name="uiFormTranslationsDir">
-             <property name="selectionMode">
-              <enum>FileChooser::SelectExistingDir</enum>
-             </property>
-             <property name="title">
-              <string>Select a directory holding UI form translations</string>
+            <widget class="FileChooser" name="uiFormTranslationsDir" native="true">
+             <property name="title" stdset="0">
+              <string>Select a directory holding UI forms translations</string>
              </property>
             </widget>
            </item>
@@ -95,11 +101,8 @@
          <item row="2" column="0">
           <layout class="QGridLayout" name="gridLayout_6">
            <item row="0" column="1">
-            <widget class="FileChooser" name="uiFormsDir">
-             <property name="selectionMode">
-              <enum>FileChooser::SelectExistingDir</enum>
-             </property>
-             <property name="title">
+            <widget class="FileChooser" name="uiFormsDir" native="true">
+             <property name="title" stdset="0">
               <string>Select a directory holding UI forms</string>
              </property>
             </widget>
@@ -123,12 +126,9 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="FileChooser" name="uiFormResourcesDir">
-             <property name="selectionMode">
-              <enum>FileChooser::SelectExistingDir</enum>
-             </property>
-             <property name="title">
-              <string>Select a directory holding UI form resources</string>
+            <widget class="FileChooser" name="uiFormResourcesDir" native="true">
+             <property name="title" stdset="0">
+              <string>Select a directory holding UI forms resources</string>
              </property>
             </widget>
            </item>
@@ -144,12 +144,9 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="FileChooser" name="uiMenusDir">
-             <property name="selectionMode">
-              <enum>FileChooser::SelectExistingDir</enum>
-             </property>
-             <property name="title">
-              <string>Select a directory holding UI form resources</string>
+            <widget class="FileChooser" name="uiMenusDir" native="true">
+             <property name="title" stdset="0">
+              <string>Select a directory holding UI menus</string>
              </property>
             </widget>
            </item>
