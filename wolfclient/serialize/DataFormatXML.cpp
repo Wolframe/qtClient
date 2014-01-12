@@ -5,6 +5,7 @@
 #include <QXmlStreamReader>
 #include <QQueue>
 #include <QDebug>
+#include <QStringList>
 
 #undef WOLFRAME_LOWLEVEL_DEBUG
 
@@ -84,13 +85,60 @@ static void getXMLAttributes( QList<DataSerializeItem>& list, const QXmlStreamAt
 	}
 }
 
+static QString getDocid( const QByteArray& content)
+{
+	int idx = content.indexOf( "<!DOCTYPE");
+	if (idx < 0) return QString();
+
+	int endidx = content.indexOf( '>', idx);
+	if (endidx < 0)
+	{
+		qCritical() << "Cannot parse <!DOCTYPE ..> definition";
+		return QString();
+	}
+	QString doctypedef( content.mid( idx, endidx-idx));
+
+	int sysidx = doctypedef.indexOf( "SYSTEM");
+	if (sysidx < 0)
+	{
+		qCritical() << "Cannot parse <!DOCTYPE ..> definition (SYSTEM declaration missing)";
+		return QString();
+	}
+	int sbidx = doctypedef.indexOf( '\'', sysidx);
+	char br = '\'';
+	if (sbidx < 0)
+	{
+		br = '\"';
+		sbidx = doctypedef.indexOf( '\"', sysidx);
+	}
+	if (sbidx < 0)
+	{
+		qCritical() << "Cannot parse <!DOCTYPE ..> definition (SYSTEM declaration not a string)";
+		return QString();
+	}
+	++sbidx;
+	int ebidx = doctypedef.indexOf( '.', sbidx);
+	if (ebidx < 0) ebidx = doctypedef.indexOf( br, sbidx);
+	if (ebidx < 0) 
+	{
+		qCritical() << "Cannot parse <!DOCTYPE ..> definition (SYSTEM string not terminated)";
+		return QString();
+	}
+	int slidx = doctypedef.lastIndexOf( '/', sbidx);
+	if (slidx >= 0)
+	{
+		sbidx = slidx+1;
+	}
+	return doctypedef.mid( sbidx, ebidx-sbidx);
+}
+
 // In a non-DTD/schema model we don't know anything about mixed
 // content. As we have structs we can assume that only leaves can contain
 // text, hence significant whitespaces. All other sequences of whitespaces
 // get eliminated. If we compare to JSON then there is no such thing as
 // mixed content in non-leaf elements, so the assumption should be sane.
 
-QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, const QString& rootElement, const QByteArray& content )
+QList<DataSerializeItem> getXMLSerialization( const QString& docType, const QString& rootElement, const QByteArray& content )
 {
 	QList<DataSerializeItem> rt;
 	QXmlStreamReader xml( content );
@@ -98,6 +146,21 @@ QList<DataSerializeItem> getXMLSerialization( const QString& /* docType */, cons
 	QString value;
 	bool lastElementWasOpenTag = true;
 
+	if (!docType.isEmpty())
+	{
+		QString xmlDocType = getDocid( content);
+		if (xmlDocType != docType)
+		{
+			if (xmlDocType.isEmpty())
+			{
+				qCritical() << "Document type is not defined but expected to be equal to " << docType;
+			}
+			else
+			{
+				qCritical() << "Document type does not match: (" << xmlDocType << "!=" << docType << ")";
+			}
+		}
+	}
 	while( !xml.atEnd( ) ) {
 		xml.readNext( );
 		

@@ -234,6 +234,10 @@ void DataSignalHandler::trigger( const QString& signame, QWidget* receiver)
 		{
 			formwidget->triggerClose();
 		}
+		else
+		{
+			qCritical() << "action 'close' not implemented for this widget. Must be a form widget";
+		}
 	}
 	else
 	{

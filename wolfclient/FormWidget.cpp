@@ -162,13 +162,16 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 	// switch form now, formLoaded will inform parent and others
 	WidgetVisitor visitor( actionwidget);
 	QVariant formlink;
+	QString formLinkProperty;
 	if (followform.isEmpty())
 	{
+		formLinkProperty = "form";
 		formlink = visitor.property( "form");
 	}
 	else
 	{
-		formlink = visitor.property( QString("form") + ":" + followform);
+		formLinkProperty = "form:" + followform;
+		formlink = visitor.property( formLinkProperty);
 	}
 	if (formlink.isValid())
 	{
@@ -231,7 +234,7 @@ void FormWidget::switchForm( QWidget *actionwidget, const QString& followform)
 	}
 	else
 	{
-		qCritical() << "Failed to switch form to invalid form link '" << formlink << "'";
+		qCritical() << "Failed to switch form because property '" << formLinkProperty << "' is not defined";
 	}
 }
 

@@ -528,7 +528,6 @@ static QVariant variable_value( WidgetVisitor& visitor, const QString& var)
 	}
 	else
 	{
-		/*[-]*/qDebug() << "+++ EVAL " << var;
 		QVariant value;
 		QVariant val = visitor.property( var.mid( 0, dpidx));
 		QString valstr;
