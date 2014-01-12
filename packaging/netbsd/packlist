@@ -1,8 +1,8 @@
 @name wolfclient-0.0.3
 @cwd /
-usr/pkg/lib/libqtwolfclient.so.0.0.1
+usr/pkg/lib/libqtwolfclient.so.0.0.3
 usr/pkg/lib/libqtwolfclient.so.0
-usr/pkg/lib/libskeleton.so.0.0.1
+usr/pkg/lib/libskeleton.so.0.0.3
 usr/pkg/lib/libskeleton.so.0
 usr/pkg/qt4/plugins/designer/libfilechooser.so
 usr/pkg/qt4/plugins/designer/libpicturechooser.so

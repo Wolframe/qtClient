@@ -1,7 +1,7 @@
 # Contributor: Andreas Baumann <abaumann at yahoo dot com>
 # Maintainer: Andreas Baumann <abaumann at yahoo dot com>
 pkgname=wolfclient
-pkgver=0.0.1
+pkgver=0.0.3
 pkgrel=1
 pkgdesc="Client for Wolframe."
 license=('GPL3')

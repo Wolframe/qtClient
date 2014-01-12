@@ -17,17 +17,10 @@ rm -rf $PKGBUILD/BUILD $PKGBUILD/PKG
 
 mkdir -p $PKGBUILD $PKGBUILD/BUILD $PKGBUILD/PKG $PKGBUILD/PKGS/$ARCH
 
-rm -f wolfclient-$VERSION.tar.gz
 rm -f $PKGBUILD/BUILD/wolfclient_$VERSION.tar.gz
 
-make distclean
-mkdir /tmp/wolfclient-$VERSION
-cp -a * /tmp/wolfclient-$VERSION
-cd /tmp
-tar zcf wolfclient-$VERSION.tar.gz wolfclient-$VERSION
-cd -
-mv /tmp/wolfclient-$VERSION.tar.gz .
-rm -rf /tmp/wolfclient-$VERSION
+qmake -config release -recursive wolfclient.pro
+make dist-gz
 
 cp wolfclient-$VERSION.tar.gz $PKGBUILD/BUILD/.
 cd $PKGBUILD/BUILD

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-VERSION=0.0.1
-OSC_HOME=$HOME/home:andreas_baumann/wolfclient
+VERSION=0.0.3
+OSC_HOME=$HOME/home:wolframe_user/wolfclient
 
 if test "x$TMPDIR" = "x"; then
 	TMPDIR=/tmp
@@ -11,16 +11,9 @@ rm -f wolfclient-$VERSION.tar.gz
 rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.orig.tar.gz
 rm -rf $OSC_HOME/wolfclient_$VERSION-$OS.debian.tar.gz
-        
-test ! -f Makefile || make distclean
-mkdir $TMPDIR/wolfclient-$VERSION
-cp -a * $TMPDIR/wolfclient-$VERSION
-cd $TMPDIR
-tar zcf wolfclient-$VERSION.tar.gz wolfclient-$VERSION
-cd -
-mv $TMPDIR/wolfclient-$VERSION.tar.gz .
-rm -rf $TMPDIR/wolfclient-$VERSION
 
+make dist-gz
+        
 cp wolfclient-$VERSION.tar.gz $OSC_HOME/wolfclient_$VERSION.tar.gz
 cp packaging/redhat/wolfclient.spec $OSC_HOME/wolfclient.spec
 

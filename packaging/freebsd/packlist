@@ -1,11 +1,11 @@
 @name wolfclient-0.0.3
 @cwd /
 @srcdir PKG/wolfclient-0.0.3
-usr/local/lib/libqtwolfclient.so.0.0.1
+usr/local/lib/libqtwolfclient.so.0.0.3
 usr/local/lib/libqtwolfclient.so
 usr/local/lib/libqtwolfclient.so.0
 usr/local/lib/libqtwolfclient.so.0.0
-usr/local/lib/libskeleton.so.0.0.1
+usr/local/lib/libskeleton.so.0.0.3
 usr/local/lib/libskeleton.so
 usr/local/lib/libskeleton.so.0
 usr/local/lib/libskeleton.so.0.0

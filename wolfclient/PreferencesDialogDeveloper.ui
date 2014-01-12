@@ -86,7 +86,7 @@
               <enum>FileChooser::SelectExistingDir</enum>
              </property>
              <property name="title">
-              <string>Select a directory holding UI form translations</string>
+              <string>Select a directory holding UI forms translations</string>
              </property>
             </widget>
            </item>
@@ -128,7 +128,7 @@
               <enum>FileChooser::SelectExistingDir</enum>
              </property>
              <property name="title">
-              <string>Select a directory holding UI form resources</string>
+              <string>Select a directory holding UI forms resources</string>
              </property>
             </widget>
            </item>
@@ -149,7 +149,7 @@
               <enum>FileChooser::SelectExistingDir</enum>
              </property>
              <property name="title">
-              <string>Select a directory holding UI form resources</string>
+              <string>Select a directory holding UI menus</string>
              </property>
             </widget>
            </item>

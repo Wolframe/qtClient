@@ -63,6 +63,12 @@
 %define fc19 1
 %define fedora 1
 %endif
+%define fc20 0
+%if 0%{?fedora_version} == 20
+%define dist fc20
+%define fc20 1
+%define fedora 1
+%endif
 
 %define suse 0
 %define osu114 0
@@ -98,7 +104,7 @@
 
 Summary: Qt client for Wolframe
 Name: wolfclient
-Version: 0.0.1
+Version: 0.0.3
 Release: 0.1
 License: Wolframe License
 Group: Application/Business
@@ -151,9 +157,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr( -, root, root )
 %{_bindir}/wolfclient
 %dir %{_libdir}/wolframe
-%{_libdir}/wolframe/libskeleton.so.0.0.1
+%{_libdir}/wolframe/libskeleton.so.0.0.3
 %{_libdir}/wolframe/libskeleton.so.0
-%{_libdir}/wolframe/libqtwolfclient.so.0.0.1
+%{_libdir}/wolframe/libqtwolfclient.so.0.0.3
 %{_libdir}/wolframe/libqtwolfclient.so.0
 %plugindir/designer/libfilechooser.so
 %plugindir/designer/libpicturechooser.so
@@ -178,5 +184,11 @@ Requires: %{name} >= %{version}-%{release}
 %{_libdir}/wolframe/libqtwolfclient.so    
 
 %changelog
+* Tue Dec 04 2013 Andreas Baumann <abaumann@yahoo.com> 0.0.3-0.1
+- intermediary release
+
+* Tue Dec 04 2013 Andreas Baumann <abaumann@yahoo.com> 0.0.2-0.1
+- intermediary release
+
 * Tue May 14 2013 Andreas Baumann <abaumann@yahoo.com> 0.0.1-0.1
 - preliminary release
