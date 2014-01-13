@@ -137,6 +137,7 @@ bool WidgetWithDragAndDropBase::handleDragPickEvent( QWidget* this_, QMouseEvent
 	qDebug() << "[drag/drop handler] 'drop' action result (" << (dropActionStr?dropActionStr:"ignored") << ")" << visitor.widgetid();
 	if (dropAction == Qt::MoveAction)
 	{
+		// Refresh of involved widget via a datasignal
 		handleDatasignal( visitor, "drag");
 	}
 	closeLogStruct(2);
@@ -300,6 +301,7 @@ bool WidgetWithDragAndDropBase::handleDropEvent( QWidget* this_, QDropEvent *eve
 	// Submit request
 	if (sendDropRequest( this_, dragWidgetId, action.toString(), dropid))
 	{
+		// Refresh of involved widget via a datasignal
 		handleDatasignal( visitor, "drop");
 	}
 	closeLogStruct( 2);
