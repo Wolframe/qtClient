@@ -1,6 +1,6 @@
 /************************************************************************
 
- Copyright (C) 2011 - 2013 Project Wolframe.
+ Copyright (C) 2011 - 2014 Project Wolframe.
  All rights reserved.
 
  This file is part of Project Wolframe.
@@ -946,7 +946,7 @@ void MainWindow::on_actionAbout_triggered( )
 	QMessageBox aboutBox( this );
 	aboutBox.setParent( this );
 	QString info = QString(
-		tr( "wolfclient\n\nVersion %1\n\n(c) 2011 - 2013 Wolframe Group" )
+		tr( "wolfclient\n\nVersion %1\n\n(c) 2011 - 2014 Wolframe Group" )
 			.arg( WOLFRAME_VERSION ) );
 	aboutBox.setText( info );
 	aboutBox.setIconPixmap( QPixmap( QString( ":/images/wolfClient.png" ) ) );

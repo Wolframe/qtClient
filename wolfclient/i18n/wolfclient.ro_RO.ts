@@ -434,12 +434,12 @@
 
 Version %1
 
-(c) 2011 - 2013 Wolframe Group</source>
+(c) 2011 - 2014 Wolframe Group</source>
         <translation>Wolframe - client Qt
 
 Versiunea %1
 
-(c) 2011 - 2013 Wolframe Group</translation>
+(c) 2011 - 2014 Wolframe Group</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="1056"/>

@@ -114,7 +114,7 @@
 
 Version %1
 
-(c) 2011 - 2013 Wolframe Group</source>
+(c) 2011 - 2014 Wolframe Group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
