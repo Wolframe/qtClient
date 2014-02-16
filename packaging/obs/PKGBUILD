@@ -9,9 +9,7 @@ arch=('i686' 'x86_64')
 url="http://wolframe.net/"
 depends=('qt4')
 makedepends=('mesa-libgl' 'gdb')
-source=(
-  "${pkgname}_${pkgver}.tar.gz"
-)
+source=("http://sourceforge.net/projects/wolframe/files/${pkgname}/${pkgname}-${pkgver}.tar.gz")
 
 package() {
   cd ${srcdir}/${pkgname}-${pkgver}
