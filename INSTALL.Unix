@@ -21,9 +21,8 @@ Table of Contents
     Ubuntu 13.04
     Ubuntu 13.10
     Debian 6.0
-    OpenSuSE 11.4
-    OpenSuSE 12.1
-    OpenSuSE 12.2
+    OpenSuSE 12.3
+    OpenSuSE 13.1
     SLES 11 SP1/SP2
     Slackware 14.0
     Archlinux
@@ -150,10 +149,17 @@ Required packages: qt-devel (4.7.4)
 
 Optional packages: libopenssl-devel
 
-OpenSuSE 12.2
+OpenSuSE 12.3
 -------------
 
 Required packages: qt-devel (4.8.1)
+
+Optional packages: libopenssl-devel
+
+OpenSuSE 13.1
+-------------
+
+Required packages: qt-devel (4.8.5)
 
 Optional packages: libopenssl-devel
 
