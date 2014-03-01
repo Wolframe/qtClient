@@ -25,9 +25,11 @@ CHKSUM=`md5sum $OSC_HOME/wolfclient_$VERSION.orig.tar.gz | cut -f 1 -d' '`
 cat packaging/obs/wolfclient.dsc > $OSC_HOME/wolfclient.dsc
 echo " $CHKSUM $SIZE wolfclient_$VERSION.orig.tar.gz" >> $OSC_HOME/wolfclient.dsc
 
+GIT_COMMIT_COUNT=`git rev-list HEAD --count`
 
 rm -rf $TMPDIR/debian
 cp -a packaging/debian $TMPDIR/.
+sed -i "s/wolfclient (\([0-9.]*\)-\([0-9]*\))/wolfclient (\1-$GIT_COMMIT_COUNT)/" $TMPDIR/debian/changelog
 OLDDIR=$PWD
 cd $TMPDIR
 tar zcf $TMPDIR/wolfclient_$VERSION.debian.tar.gz debian
@@ -38,6 +40,7 @@ DEBIAN_CHKSUM=`md5sum  $OSC_HOME/wolfclient_$VERSION.debian.tar.gz | cut -f 1 -d
 echo " $DEBIAN_CHKSUM $DEBIAN_SIZE wolfclient_$VERSION.debian.tar.gz" >> $OSC_HOME/wolfclient.dsc
 
 cat packaging/obs/PKGBUILD > $OSC_HOME/PKGBUILD
+sed -i "s/pkgrel=.*/pkgrel=$GIT_COMMIT_COUNT/" $OSC_HOME/PKGBUILD
 echo "md5sums=('$CHKSUM' '$CHKSUM2' '$CHKSUM3')" >> $OSC_HOME/PKGBUILD
 
 # the revision of the git branch we are currently building (master hash at the moment)
