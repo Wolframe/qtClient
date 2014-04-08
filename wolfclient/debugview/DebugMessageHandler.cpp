@@ -45,6 +45,20 @@ void setDebugMode( bool v)
 	g_debug = v;
 }
 
+#ifdef _WIN32
+static LPWSTR s2ws( const char *s )
+{
+	int len;
+	int slength = (int)strlen( s );
+	len = MultiByteToWideChar( CP_ACP, 0, s, slength, 0, 0 );
+	wchar_t *buf = new wchar_t[len+1];
+
+	MultiByteToWideChar( CP_ACP, 0, s, slength, buf, len );
+	buf[len] = 0;
+	return buf;
+}
+#endif
+
 #if QT_VERSION >= 0x050000
 void wolframeMessageOutput( QtMsgType type, const QMessageLogContext & /*context */, const QString &msg )
 {
@@ -58,7 +72,9 @@ void wolframeMessageOutput( QtMsgType type, const QMessageLogContext & /*context
 				else
 				{
 #ifdef _WIN32
-					OutputDebugString( qPrintable( msg ) );
+					LPWSTR wmsg = s2ws( qPrintable( msg ) );
+					OutputDebugString( wmsg );
+					delete[] wmsg;
 #else
 					fprintf( stderr, "%s\n", qPrintable( msg ) );
 #endif
@@ -74,7 +90,9 @@ void wolframeMessageOutput( QtMsgType type, const QMessageLogContext & /*context
 			else
 			{
 #ifdef _WIN32
-				OutputDebugString( qPrintable( msg ) );
+				LPWSTR wmsg = s2ws( qPrintable( msg ) );
+				OutputDebugString( wmsg );
+				delete[] wmsg;
 #else
 				fprintf( stderr, "WARNING: %s\n", qPrintable( msg ) );
 #endif
@@ -89,7 +107,9 @@ void wolframeMessageOutput( QtMsgType type, const QMessageLogContext & /*context
 			else
 			{
 #ifdef _WIN32
-				OutputDebugString( qPrintable( msg ) );
+				LPWSTR wmsg = s2ws( qPrintable( msg ) );
+				OutputDebugString( wmsg );
+				delete[] wmsg;
 #else
 				fprintf( stderr, "CRITICAL: %s\n", qPrintable( msg ) );
 #endif
@@ -104,7 +124,9 @@ void wolframeMessageOutput( QtMsgType type, const QMessageLogContext & /*context
 			else
 			{
 #ifdef _WIN32
-				OutputDebugString( qPrintable( msg ) );
+				LPWSTR wmsg = s2ws( qPrintable( msg ) );
+				OutputDebugString( wmsg );
+				delete[] wmsg;
 #else
 				fprintf( stderr, "FATAL: %s\n", qPrintable( msg ) );
 #endif
@@ -116,20 +138,6 @@ void wolframeMessageOutput( QtMsgType type, const QMessageLogContext & /*context
 	}
 }
 #else
-
-#ifdef _WIN32
-static LPWSTR s2ws( const char *s )
-{
-	int len;
-	int slength = (int)strlen( s );
-	len = MultiByteToWideChar( CP_ACP, 0, s, slength, 0, 0 );
-	wchar_t *buf = new wchar_t[len+1];
-
-	MultiByteToWideChar( CP_ACP, 0, s, slength, buf, len );
-	buf[len] = 0;
-	return buf;
-}
-#endif
 
 void wolframeMessageOutput( QtMsgType type, const char *msg )
 {
