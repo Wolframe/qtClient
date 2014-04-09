@@ -102,23 +102,75 @@ Project Wolframe.
 							</Component>
 							
 							<Component Id="QtDlls" Guid="{dd8be206-3e1d-4871-a1f7-8a5835026a7a}">
-								<?ifdef var.debug?>
-									<File Id="QtCored4.dll" Name="QtCored4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtCored4.dll"/>
-									<File Id="QtGuid4.dll" Name="QtGuid4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtGuid4.dll"/>
-									<File Id="QtNetworkd4.dll" Name="QtNetworkd4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtNetworkd4.dll"/>
-									<File Id="QtXmld4.dll" Name="QtXmld4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtXmld4.dll"/>
-								<?else?>
-									<File Id="QtCore4.dll" Name="QtCore4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtCore4.dll"/>
-									<File Id="QtGui4.dll" Name="QtGui4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtGui4.dll"/>
-									<File Id="QtNetwork4.dll" Name="QtNetwork4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtNetwork4.dll"/>
-									<File Id="QtXml4.dll" Name="QtXmld4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtXml4.dll"/>
+								<?if $(var.qt_version) = "4" ?>
+									<?ifdef var.debug?>
+										<File Id="QtCored4.dll" Name="QtCored4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtCored4.dll"/>
+										<File Id="QtGuid4.dll" Name="QtGuid4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtGuid4.dll"/>
+										<File Id="QtNetworkd4.dll" Name="QtNetworkd4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtNetworkd4.dll"/>
+										<File Id="QtXmld4.dll" Name="QtXmld4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtXmld4.dll"/>
+									<?else?>
+										<File Id="QtCore4.dll" Name="QtCore4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtCore4.dll"/>
+										<File Id="QtGui4.dll" Name="QtGui4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtGui4.dll"/>
+										<File Id="QtNetwork4.dll" Name="QtNetwork4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtNetwork4.dll"/>
+										<File Id="QtXml4.dll" Name="QtXml4.dll" DiskId="1" Source="$(var.qt_dir)\bin\QtXml4.dll"/>
+									<?endif?>
+								<?endif?>
+								<?if $(var.qt_version) = "5" ?>
+									<?ifdef var.debug?>
+										<File Id="Qt5Cored.dll" Name="Qt5Cored.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Cored.dll"/>
+										<File Id="Qt5Guid.dll" Name="Qt5Guid.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Guid.dll"/>
+										<File Id="Qt5Networkd.dll" Name="Qt5Networkd.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Networkd.dll"/>
+										<File Id="Qt5Xmld.dll" Name="Qt5Xmld.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Xmld.dll"/>
+										<File Id="Qt5Widgetsd.dll" Name="Qt5Widgetsd.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Widgetsd.dll"/>
+										<File Id="libGLESv2d.dll" Name="libGLESv2d.dll" DiskId="1" Source="$(var.qt_dir)\bin\libGLESv2d.dll"/>
+										<File Id="libEGLd.dll" Name="libEGLd.dll" DiskId="1" Source="$(var.qt_dir)\bin\libEGLd.dll"/>
+									<?else?>
+										<File Id="Qt5Core.dll" Name="QtCore5.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Core.dll"/>
+										<File Id="Qt5Gui.dll" Name="QtGui5.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Gui.dll"/>
+										<File Id="Qt5Network.dll" Name="Qt5Network.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Network.dll"/>
+										<File Id="Qt5Xml.dll" Name="Qt5Xml.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Xml.dll"/>
+										<File Id="Qt5Widgets.dll" Name="Qt5Widgets.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Widgets.dll"/>
+										<File Id="libGLESv2.dll" Name="libGLESv2.dll" DiskId="1" Source="$(var.qt_dir)\bin\libGLESv2.dll"/>
+										<File Id="libEGL.dll" Name="libEGL.dll" DiskId="1" Source="$(var.qt_dir)\bin\libEGL.dll"/>
+									<?endif?>
+									<File Id="icuin51.dll" Name="icuin51.dll" DiskId="1" Source="$(var.qt_dir)\bin\icuin51.dll"/>
+									<File Id="icuuc51.dll" Name="icuuc51.dll" DiskId="1" Source="$(var.qt_dir)\bin\icuuc51.dll"/>
+									<File Id="icudt51.dll" Name="icudt51.dll" DiskId="1" Source="$(var.qt_dir)\bin\icudt51.dll"/>
 								<?endif?>
 							</Component>
+							
+							<?if $(var.qt_version) = "5" ?>
+								<Directory Id="PlutformsDir" Name="platforms">
+									<Component Id="QtPlatformPlugins" Guid="{922bc2e4-48a4-435e-a3f9-3294e23eaf70}">
+										<?ifdef var.debug?>
+											<File Id="qwindowsd.dll" Name="qwindowsd.dll" DiskId="1" Source="$(var.qt_dir)\plugins\platforms\qwindowsd.dll"/>
+										<?else?>
+											<File Id="qwindows.dll" Name="qwindows.dll" DiskId="1" Source="$(var.qt_dir)\plugins\platforms\qwindows.dll"/>
+										<?endif?>
+									</Component>
+								</Directory>
+							<?endif?>
 
 							<Directory Id="ImageformatsDir" Name="imageformats">
 								<Component Id="QtImagePlugins" Guid="{a2ec821e-0456-4c1c-aab1-189371497785}">
-									<File Id="qgifd4.dll" Name="qgifd4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qgifd4.dll"/>
-									<File Id="qjpegd4.dll" Name="qjpegd4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qjpegd4.dll"/>
+									<?if $(var.qt_version) = "4" ?>
+										<?ifdef var.debug?>
+											<File Id="qgifd4.dll" Name="qgifd4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qgifd4.dll"/>
+											<File Id="qjpegd4.dll" Name="qjpegd4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qjpegd4.dll"/>
+										<?else?>
+											<File Id="qgif4.dll" Name="qgif4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qgif4.dll"/>
+											<File Id="qjpeg4.dll" Name="qjpeg4.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qjpeg4.dll"/>
+										<?endif?>
+									<?endif?>
+									<?if $(var.qt_version) = "5" ?>
+										<?ifdef var.debug?>
+											<File Id="qgifd.dll" Name="qgifd.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qgifd.dll"/>
+											<File Id="qjpegd.dll" Name="qjpegd.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qjpegd.dll"/>
+										<?else?>
+											<File Id="qgif.dll" Name="qgif.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qgif.dll"/>
+											<File Id="qjpeg.dll" Name="qjpeg.dll" DiskId="1" Source="$(var.qt_dir)\plugins\imageformats\qjpeg.dll"/>
+										<?endif?>
+									<?endif?>
 								</Component>
 							</Directory>
 
@@ -167,6 +219,9 @@ Project Wolframe.
 				<ComponentRef Id="WolframeQtPlugins"/>
 				<ComponentRef Id="QtDlls"/>
 				<ComponentRef Id="QtImagePlugins"/>
+				<?if $(var.qt_version) = "5" ?>
+					<ComponentRef Id="QtPlatformPlugins"/>
+				<?endif?>
 				<ComponentRef Id="MsvcRuntime"/>
 				<?ifdef var.with_ssl?>				
 				<ComponentRef Id="OpenSSL"/>

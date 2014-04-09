@@ -3,13 +3,13 @@ TOPDIR = ..\..
 # configuration, adapt before building
 
 # base installation dir of WIX
-WIX_DIR = C:\Program Files\Windows Installer XML v3.5
+WIX_DIR = C:\Program Files\Wix Toolset v3.8
 
 # where is Qt installed
-QT_DIR = C:\Qt\4.8.1
+QT_DIR = C:\Qt\Qt5.2.1\5.2.1\msvc2010
 
 # where is OpenSSL installed
-OPENSSL_DIR = C:\OpenSSL\openssl-1.0.1-win32-debug
+OPENSSL_DIR = C:\develop\openssl-1.0.0l-win32-debug
 
 # libraries to link into the installer
 WIX_LIBS = dutil_2008.lib wcautil_2008.lib
@@ -22,8 +22,12 @@ WIX_ARCH = x86
 # define if you want to deploy the debug version
 DEBUG = 1
 
-# deinfe for SSL support
+# define for SSL support
 WITH_SSL = 1
+
+# set correct major version of Qt
+#QT_MAJOR_VERSION = 4
+QT_MAJOR_VERSION = 5
 
 # end configuration
 
@@ -52,6 +56,9 @@ WIX_FLAGS = $(WIX_FLAGS) \
 	-dwith_ssl=1 \
 	-dopenssl_dir=$(OPENSSL_DIR)
 !ENDIF
+
+WIX_FLAGS = $(WIX_FLAGS) \
+	-dqt_version=$(QT_MAJOR_VERSION)
 
 WIX_EXTENSIONS = \
 	-ext WixUIExtension -ext WixUtilExtension
