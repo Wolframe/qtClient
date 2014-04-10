@@ -38,8 +38,7 @@
 
 NetworkDataLoader::NetworkDataLoader( WolframeClient *_wolframeClient, bool _debug )
 	: m_wolframeClient( _wolframeClient ),
-	  m_map( new QHash<QByteArray, QPair<QString, QString> >( ) ),
-	  m_debug( _debug )
+	  m_map( new QHash<QByteArray, QPair<QString, QString> >( ) )
 {
 	connect( m_wolframeClient, SIGNAL( answerReceived( bool,const QString&,const QByteArray&) ),
 		this, SLOT( gotAnswer( bool,const QString&,const QByteArray&) ) );

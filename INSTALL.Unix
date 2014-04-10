@@ -29,6 +29,7 @@ Table of Contents
   Instructions for other Unixes
     FreeBSD 8.4
     FreeBSD 9.2
+    FreeBSD 10.0
     NetBSD 6.1.1
 
 Prerequisites
@@ -212,6 +213,21 @@ Required packages: qt4-gui (4.8.4), qt4-moc (4.8.4), qt4-network (4.8.4),
 OpenSSL is part of the system libraries.
 
 You need 'gmake' (3.82).
+
+FreeBSD 10.0
+------------
+
+Required packages: qt5-gui (5.2.1), qt5-network (5.2.1), qt5-widgets (5.2.1),
+                   qt5-designer (5.2.1), qt5-concurrent (5.2.1),
+                   qt5-uitools (5.2.1), qt5-buildtools (5.2.1),
+                   qt5-qmake (5.2.1),  qt5-linguisttools (5.2.1)
+                   
+OpenSSL is part of the system libraries.
+
+You need 'gmake' (3.82).
+
+/usr/local/lib/qt5/bin/qmake -recursive -config debug
+make CXX='ccache c++' test
 
 NetBSD 6.1.1
 ------------

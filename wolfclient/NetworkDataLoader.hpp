@@ -57,7 +57,6 @@ class NetworkDataLoader : public DataLoader
 	private:
 		WolframeClient *m_wolframeClient;
 		QScopedPointer<QHash<QByteArray, QPair<QString, QString> > > m_map;
-		bool m_debug;
 };
 
 #endif // _NETWORK_DATA_LOADER_INCLUDED
