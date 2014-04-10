@@ -136,6 +136,7 @@ Project Wolframe.
 									<File Id="icuin51.dll" Name="icuin51.dll" DiskId="1" Source="$(var.qt_dir)\bin\icuin51.dll"/>
 									<File Id="icuuc51.dll" Name="icuuc51.dll" DiskId="1" Source="$(var.qt_dir)\bin\icuuc51.dll"/>
 									<File Id="icudt51.dll" Name="icudt51.dll" DiskId="1" Source="$(var.qt_dir)\bin\icudt51.dll"/>
+									<File Id="D3DCompiler_43.dll" Name="D3DCompiler_43.dll" DiskId="1" Source="$(var.qt_dir)\bin\D3DCompiler_43.dll"/>
 								<?endif?>
 							</Component>
 							
