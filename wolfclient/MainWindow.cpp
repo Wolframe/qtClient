@@ -449,7 +449,7 @@ void MainWindow::authOk( )
 
 // ...and data loaders
 	if( settings.dataLoadMode == LoadMode::NETWORK ) {
-		m_dataLoader = new NetworkDataLoader( m_wolframeClient, settings.debug );
+		m_dataLoader = new NetworkDataLoader( m_wolframeClient );
 		m_uiLoader->setDataLoader( m_dataLoader);
 	}
 

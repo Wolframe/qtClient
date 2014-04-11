@@ -36,7 +36,7 @@
 #include <QByteArray>
 #include <QXmlStreamWriter>
 
-NetworkDataLoader::NetworkDataLoader( WolframeClient *_wolframeClient, bool _debug )
+NetworkDataLoader::NetworkDataLoader( WolframeClient *_wolframeClient )
 	: m_wolframeClient( _wolframeClient ),
 	  m_map( new QHash<QByteArray, QPair<QString, QString> >( ) )
 {

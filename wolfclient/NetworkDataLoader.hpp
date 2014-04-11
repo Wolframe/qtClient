@@ -46,7 +46,7 @@ class NetworkDataLoader : public DataLoader
 	// intentionally omitting Q_OBJECT here, is done in DataLoader!
 	
 	public:
-		NetworkDataLoader( WolframeClient *_wolframeClient, bool _debug = false );
+		NetworkDataLoader( WolframeClient *_wolframeClient );
 		virtual ~NetworkDataLoader( ) {}
 
 		virtual void datarequest( const QString& cmd, const QString& tag, const QByteArray& content);
