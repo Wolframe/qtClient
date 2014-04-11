@@ -1,0 +1,33 @@
+name: wolfclient
+version: 0.0.3
+origin: wolframe/wolfclient
+comment: Wolframe client
+www: http://wolframe.net
+maintainer: abaumann@yahoo.com
+prefix: /usr/local
+licenselogic: or
+licenses: [GPLv3, commercial]
+desc: |-
+ wolfclient - Wolframe client
+
+ Wolframe frontend written in Qt. Needed to write portable desktop
+ applications
+ using the Wolframe server.
+files:
+ /usr/local/bin/wolfclient: 'sha256sum'
+ /usr/local/lib/libqtwolfclient.so.0.0.3: 'sha256sum'
+ /usr/local/lib/libqtwolfclient.so.0.0: 'sha256sum'
+ /usr/local/lib/libqtwolfclient.so.0: 'sha256sum'
+ /usr/local/lib/libqtwolfclient.so: 'sha256sum'
+ /usr/local/lib/libskeleton.so.0.0.3: 'sha256sum'
+ /usr/local/lib/libskeleton.so.0.0: 'sha256sum'
+ /usr/local/lib/libskeleton.so.0: 'sha256sum'
+ /usr/local/lib/libskeleton.so: 'sha256sum'
+ /usr/local/lib/libfilechooser.so: 'sha256sum'
+ /usr/local/lib/libpicturechooser.so: 'sha256sum'
+ /usr/local/lib/qt5/plugins/designer/libfilechooser.so: 'sha256sum'
+ /usr/local/lib/qt5/plugins/designer/libpicturechooser.so: 'sha256sum'
+dirs:
+- /usr/local/lib/qt5
+- /usr/local/lib/qt5/plugins
+- /usr/local/lib/qt5/plugins/designer
