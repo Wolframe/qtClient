@@ -39,7 +39,7 @@ tar zxf wolfclient-$VERSION.tar.gz
 cd wolfclient-$VERSION
 
 $QMAKE -config release -recursive wolfclient.pro PREFIX=/usr/local LIBDIR=/usr/local/lib QMAKE_CXX="$QMAKE_CXX"
-make CXX='ccache g++' PREFIX=/usr/local LIBDIR=/usr/local/lib
+make CXX="$QMAKE_CXX" PREFIX=/usr/local LIBDIR=/usr/local/lib
 # needs X11 or headless X11 server, disabled for now
 #make test
 
