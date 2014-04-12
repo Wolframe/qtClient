@@ -15,7 +15,7 @@ unix:LIBS += -L../libqtwolfclient -lqtwolfclient -L../skeleton -lskeleton -L../p
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib ../skeleton/debug/skeleton0.lib ../plugins/filechooser/debug/filechooserd.lib ../plugins/picturechooser/debug/picturechooserd.lib
 macx:LIBS += ../libqtwolfclient/build/Debug/libqtwolfclient.dylib ../skeleton/build/Debug/libskeleton.dylib ../plugins/filechooser/build/Debug/libfilechooser.dylib ../plugins/picturechooser/build/Debug/libpicturechooser.dylib
 
-INCLUDEPATH += ../libqtwolfclient ../skeleton ../plugins/filechooser ../plugins/picturechooser
+INCLUDEPATH += ../libqtwolfclient ../skeleton ../plugins/filechooser ../plugins/picturechooser $$PWD
 
 # needed for certain non-standard installation pathes of libraries
 isEmpty(LIBDIR) {

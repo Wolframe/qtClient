@@ -97,7 +97,9 @@ Project Wolframe.
 									<File Id="picturechooserd.dll" Name="picturechooserd.dll" DiskId="1" Source="$(var.topdir)\plugins\picturechooser\$(var.builddir)\picturechooserd.dll"/>
 								<?else?>
 									<File Id="filechooser.dll" Name="filechooser.dll" DiskId="1" Source="$(var.topdir)\plugins\filechooser\$(var.builddir)\filechooser.dll"/>
-									<File Id="picturechooser.dll" Name="picturechhoser.dll" DiskId="1" Source="$(var.topdir)\plugins\picturechhoser\$(var.builddir)\picturechhoser.dll"/>
+									<File Id="picturechooser.dll" Name="picturechooser.dll" DiskId="1" Source="$(var.topdir)\plugins\picturechooser\$(var.builddir)\picturechooser.dll"/>
+									<File Id="filechooserd.dll" Name="filechooserd.dll" DiskId="1" Source="$(var.topdir)\plugins\filechooser\$(var.builddir)\filechooser.dll"/>
+									<File Id="picturechooserd.dll" Name="picturechooserd.dll" DiskId="1" Source="$(var.topdir)\plugins\picturechooser\$(var.builddir)\picturechooser.dll"/>
 								<?endif?>
 							</Component>
 							
@@ -125,8 +127,8 @@ Project Wolframe.
 										<File Id="libGLESv2d.dll" Name="libGLESv2d.dll" DiskId="1" Source="$(var.qt_dir)\bin\libGLESv2d.dll"/>
 										<File Id="libEGLd.dll" Name="libEGLd.dll" DiskId="1" Source="$(var.qt_dir)\bin\libEGLd.dll"/>
 									<?else?>
-										<File Id="Qt5Core.dll" Name="QtCore5.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Core.dll"/>
-										<File Id="Qt5Gui.dll" Name="QtGui5.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Gui.dll"/>
+										<File Id="Qt5Core.dll" Name="Qt5Core.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Core.dll"/>
+										<File Id="Qt5Gui.dll" Name="Qt5Gui.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Gui.dll"/>
 										<File Id="Qt5Network.dll" Name="Qt5Network.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Network.dll"/>
 										<File Id="Qt5Xml.dll" Name="Qt5Xml.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Xml.dll"/>
 										<File Id="Qt5Widgets.dll" Name="Qt5Widgets.dll" DiskId="1" Source="$(var.qt_dir)\bin\Qt5Widgets.dll"/>
