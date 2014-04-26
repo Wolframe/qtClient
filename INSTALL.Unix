@@ -1,255 +1,200 @@
-Build Instructions for Unixes
-=============================
-
-Table of Contents
------------------
-
-  Prerequisites
-  Manually build the prerequisites
-    Compile and install openssl
-    Compile and install Qt
-  Build instructions for specific Linux Distributions
-    RHEL/Centos/SL 5
-    RHEL/Centos/SL 6
-    Fedora 18
-    Fedora 19
-    Fedora 20
-    Ubuntu 10.04.1 LTS
-    Ubuntu 11.04
-    Ubuntu 12.04 LTS
-    Ubuntu 12.10
-    Ubuntu 13.04
-    Ubuntu 13.10
-    Debian 6.0
-    OpenSuSE 12.3
-    OpenSuSE 13.1
-    SLES 11 SP1/SP2
-    Slackware 14.0
-    Archlinux
-  Instructions for other Unixes
-    FreeBSD 8.4
-    FreeBSD 9.2
-    FreeBSD 10.0
-    NetBSD 6.1.1
+Wolfclient Installation Unix
 
-Prerequisites
--------------
+Installation and Configuration Guide for Unix
 
-- gcc c++ 4.1.x or later (preferably 512 MB RAM or Swap)
-- GNU make (preferably 3.82 or newer)
-- optionally (WITH_SSL) openssl 0.9.7 or later
-- Qt 4, 4.6.x or later, or Qt 5
+Copyright ? 2010 - 2014 Project Wolframe
 
-Manually build the prerequisites
---------------------------------
+Commercial Usage.  Licensees holding valid Project Wolframe Commercial licenses
+may use this file in accordance with the Project Wolframe Commercial License
+Agreement provided with the Software or, alternatively, in accordance with the
+terms contained in a written agreement between the licensee and Project
+Wolframe.
 
-Compile and install openssl
----------------------------
+GNU General Public License Usage.  Alternatively, you can redistribute this
+file and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-Unless you have a good reason, use the openssl library of
-your Linux distribution.
+Wolframe is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-Compile and install Qt
-----------------------
+You should have received a copy of the GNU General Public License along with
+Wolframe. If not, see http://www.gnu.org/licenses/
 
-./configure --prefix /usr/local/qt-4.x.y -openssl
-make
-cd src/3rdparty/webkit/JavaScriptCore/
-make
-cd -
-make install
+If you have questions regarding the use of this file, please contact Project
+Wolframe.
 
-Build instructions for specific Linux Distributions
----------------------------------------------------
+April 12, 2014 version 0.0.1
 
-RHEL/Centos/SL 5
-----------------
+-------------------------------------------------------------------------------
 
-Qt (4.2.1) is too old, compile your own one.
+1. Prerequisites
 
-RHEL/Centos/SL 6
-----------------
+For building the wolfclient you need:
 
-Required packages: qt4-devel (4.6.2)
-Optional packages: openssl-devel (1.0.0)
+  * Qt 4.6.x or later, or Qt 5, http://qt-project.org/
 
-Fedora 18
----------
+  * For secure communication between the wolfclient and the Wolframe server you
+    need the OpenSSL library 0.9.7 or newer, http://www.openssl.org
 
-Required packages: qt4-devel (4.8.4)
-Optional packages: openssl-devel (1.0.1c)
+2. Building the wolfclient
 
-Fedora 19
----------
+The wolfclient is a Qt-based client for the Wolframe server.
 
-Required pacakges: qt4-devel (4.8.4)
-Optional packages: openssl-devel (1.0.1e)
+You build it with:
 
-Fedora 20
----------
+        qmake -config debug -recursive
+        make
+        make install
 
-Required pacakges: qt4-devel (4.8.5)
-Optional packages: openssl-devel (1.0.1e)
 
-Ubuntu 10.04.1 LTS
-------------------
+respectively for a release version:
 
-Required packages: libqt4-dev (4.6.2)
-Optional packages: ibssl-dev (0.9.8o)
+        qmake -config release -recursive
+        make
+        make install
 
-Ubuntu 11.04
-------------
 
-Required packages: libqt4-dev (4.7/2)
-Optional packages: libssl-dev (0.9.8o)
+Note: qmake is on some platforms called qmake-qt4 or qmake-qt5 and may be
+installed in non-standard locations.
 
-Ubuntu 12.04
-------------
+Note: Use gmake instead of make on FreeBSD, NetBSD and Solaris.
 
-Required packages: libqt4-dev (4.8.1)
-Optional packages: libssl-dev (1.0.1)
+You can run the unit tests of the client with:
 
-Ubuntu 12.10
-------------
+        make test
 
-Required packages: libqt4-dev (4.8.3)
-Optional packages: libssl-dev (1.0.1c)
 
-Ubuntu 13.04
-------------
+Note:For the tests to run you need an installed X server and have to set the
+DISPLAY variable correctly.
 
-Required packages: libqt4-dev (4.8.4)
+You need the Qt libarary of the Unix system you are building on. The following
+list gives Linux distribution respectively Unix specific instructions and lists
+the required packages.
 
-Optional packages: libssl-dev (1.0.1c)
+You can use the Qt 4 or 5 version to build the client.
 
-Ubuntu 13.10
-------------
+RedHat/Centos/Scientific Linux 5 and similar Linux distributions
 
-Required packages: libqt4-dev (4.8.4)
+The official Qt 4 package is too old, build your own Qt library.
 
-Optional packages: libssl-dev (1.0.1e)
+For Qt 5 compile your own version of the library.
 
-Debian 6.0
-----------
+RedHat/Centos/Scientific Linux 6 and similar Linux distributions
 
-Required packages: libqt4-dev (4.6.3)
+For Qt 4 you need the 'qt4-devel' package.
 
-Optional packages:  libssl0.9.8 (0.9.8)
+For Qt 5 compile your own version of the library.
 
-OpenSuSE 11.4
--------------
+Fedora 19 and 20 and similar distributions
 
-Required packages: qt-devel (4.7.1)
+For Qt 4 you need the 'qt4-devel' package.
 
-Optional packages: libopenssl-devel
+For Qt 5 you need the following packages: 'qt5-qtbase-devel',
+'qt5-qttools-devel', 'qt5-qttools-static'.
 
-OpenSuSE 12.1
--------------
+Debian 6 and 7
 
-Required packages: qt-devel (4.7.4)
+For Qt 4 you need the 'libqt4-dev' package.
 
-Optional packages: libopenssl-devel
+For Qt 5 compile your own version of the library.
 
-OpenSuSE 12.3
--------------
+Ubuntu 10.04.1, 11.04, 12.04 and 12.10
 
-Required packages: qt-devel (4.8.1)
+For Qt 4 you need the 'libqt4-dev' package.
 
-Optional packages: libopenssl-devel
+For Qt 5 compile your own version of the library.
 
-OpenSuSE 13.1
--------------
+Ubuntu 13.04 and 13.10
 
-Required packages: qt-devel (4.8.5)
+For Qt 4 you need the 'libqt4-dev' package.
 
-Optional packages: libopenssl-devel
+For Qt 5 you need the following packages: 'qt5-qmake', 'libqt5designer5',
+'qtbase5-dev', 'qttools5-dev', 'qttools5-dev-tools'.
 
-SLES 11 SP1
------------
+openSUSE 12.3, SLES and similar Linux distributions
 
-Required packages: libqt4-devel (4.6.2)
+For Qt 4 you need the 'libqt4-devel' package.
 
-Optional packages: libopenssl-devel
+For Qt 5 compile your own version of the library.
 
-SLES 11 SP2
------------
+openSUSE 13.1
 
-Required packages: libqt4-devel (4.6.3)
+For Qt 4 you need the 'libqt4-devel' package.
 
-Optional packages: libopenssl-devel
+For Qt 5 you need the following packages: 'libqt5-qtbase-devel',
+'libqt5-qttools-devel'.
 
-Slackware 14.0
---------------
+ArchLinux
 
-openssl and qt are there (select the correct "disk" sets while installing)
+For Qt 4 you need the 'qt4' package.
 
-Archlinux
----------
+For Qt 5 you need the 'qt5-base' and the 'qt5-tools' package.
 
-Required packages: qt4 or qt5-base
-Optional packages: openssl
+Slackware
 
-Instructions for other Unixes
------------------------------
+For Qt 4 you need the 'qt' package. This package is part of the 'l' package
+series.
 
-FreeBSD 8.4
------------
+For Qt 5 compile your own version of the library.
 
-Required packages: qt4-gui (4.8.4), qt4-moc (4.8.4), qt4-network (4.8.4),
-                   qt4-designer (4.8.4), qt4-rcc (4.8.4), qt4-uic (4.8.4),
-                   qt4-qmake (4.8.4), qt4-linguist (4.8.4)
+FreeBSD 8 and 9
 
-OpenSSL is part of the system libraries.
+For Qt 4 you need the following packages: 'qt4-gui', 'qt4-moc', 'qt4-network',
+'qt4-designer', 'qt4-rcc', 'qt4-uic', 'qt4-qmake', 'qt4-linguist'.
 
-You need 'gmake' (3.82).
+For Qt 5 compile your own version of the library.
 
-FreeBSD 9.2
------------
+FreeBSD 10
 
-Required packages: qt4-gui (4.8.4), qt4-moc (4.8.4), qt4-network (4.8.4),
-                   qt4-designer (4.8.4), qt4-rcc (4.8.4), qt4-uic (4.8.4),
-                   qt4-qmake (4.8.4), qt4-linguist (4.8.4)
+For Qt 4 you need the following packages: 'qt4-gui', 'qt4-moc', 'qt4-network',
+'qt4-designer', 'qt4-rcc', 'qt4-uic', 'qt4-qmake', 'qt4-linguist'.
 
-OpenSSL is part of the system libraries.
+For Qt 5 you need the following packages: 'qt5-gui', 'qt5-network',
+'qt5-widgets', 'qt5-designer', 'qt5-concurrent', 'qt5-uitools',
+'qt5-buildtools', 'qt5-qmake', 'qt5-linguisttools'.
 
-You need 'gmake' (3.82).
+NetBSD
 
-FreeBSD 10.0
-------------
+For Qt 4 you need the 'qt4' package.
 
-Required packages: qt5-gui (5.2.1), qt5-network (5.2.1), qt5-widgets (5.2.1),
-                   qt5-designer (5.2.1), qt5-concurrent (5.2.1),
-                   qt5-uitools (5.2.1), qt5-buildtools (5.2.1),
-                   qt5-qmake (5.2.1),  qt5-linguisttools (5.2.1)
-                   
-OpenSSL is part of the system libraries.
+Make sure /usr/pkg/qt4/bin and /usr/pkg/bin are part of the path.
 
-You need 'gmake' (3.82).
+Also set 'QTDIR' to /usr/pkg/qt4.
 
-/usr/local/lib/qt5/bin/qmake -recursive -config debug
-make CXX='ccache c++' test
+Build the wolfclient with:
 
-NetBSD 6.1.1
-------------
+        qmake -config debug -recursive
 
-Required packages: qt4 (4.8.5nb5)
 
-You also need 'gmake' (3.82nb7).
+respectively
 
-Make sure '/usr/pkg/qt4/bin' and '/usr/pkg/bin' are part of the path.
-Also set 'QTDIR' to '/usr/pkg/qt4'.
+        qmake -config release -recursive
 
-Build with:
 
-qmake -config debug -recursive
+Before compiling apply the following patch command to the generated makefiles:
 
-Apply a patch for libtool for all generated makefiles:
+        find . -name Makefile -exec sh -c \
+                "sed 's/libtool --silent/libtool --silent --tag=CXX/g' {} > x && mv x {}" \;
 
-find . -name Makefile -exec sh -c \
-	"sed 's/libtool --silent/libtool --silent --tag=CXX/g' {} > x && mv x {}" \;
 
-Continue building with:
+Now build normally with:
 
-gmake
+        gmake
+        gmake install
 
-To run 'wolfclient' you have currently to set LD_LIBRARY_PATH to '/usr/X11R7/lib'.
+
+To run the wolfclient you have currently to set 'LD_LIBRARY_PATH' to /usr/X11R7
+/lib.
+
+For Qt 5 compile your own version of the library.
+
+OpenIndiana 151a8
+
+Currently there is no wolfclient for OpenIndiana.
+
+Solaris 10
+
+Currently there is no wolfclient for Solaris.
+
