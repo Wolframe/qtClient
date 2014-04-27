@@ -154,8 +154,30 @@ directive in libqtwolfclient/libqtwolfclient.pro.
 
 Build your own version of Qt
 
+Set the following environment variables in order for Qt to find the OpenSSL
+header files and libraries:\
+
+        set OPENSSL_DIR=C:\openssl-1.0.1g-win32-debug
+        set INCLUDE=%INCLUDE%;%OPENSSL_DIR%\include
+        set LIB=%LIB%;%OPENSSL_DIR%\lib
+
+
+or for the release version:
+
+        set OPENSSL_DIR=C:\openssl-1.0.1g-win32-release
+        set INCLUDE=%INCLUDE%;%OPENSSL_DIR%\include
+        set LIB=%LIB%;%OPENSSL_DIR%\lib
+
+
 Compile Qt with OpenSSL enabled:
 
-        configure -platform win32-msvc -openssl
+        configure -platform win32-msvc2010 -debug -openssl
+        nmake
+
+
+For a release version use:
+
+        configure -platform win32-msvc2010 -release -openssl
+        nmake
 
 
