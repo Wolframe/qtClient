@@ -50,7 +50,7 @@ if test "x$ORIG_OS_VER" = "x10.0"; then
 	cp packaging/freebsd/+MANIFEST $PKGBUILD/PKG/.
 	cd $PKGBUILD
 	pkg create -o $PKGBUILD/PKGS/$ARCH -m PKG -r PKG/wolfclient-$VERSION
-	mv $PKGBUILD/PKGS/$ARCH/wolframe-$VERSION.txz $PKGBUILD/PKGS/$ARCH/wolframe-$VERSION-$ARCH.txz
+	mv $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION.txz $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$ARCH.txz
 else
 	cp packaging/freebsd/comment $PKGBUILD/PKG/wolfclient-$VERSION/.
 	cp packaging/freebsd/description $PKGBUILD/PKG/wolfclient-$VERSION/.
