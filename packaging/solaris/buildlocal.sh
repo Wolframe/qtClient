@@ -33,28 +33,25 @@ gmake INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION CXX='ccache g++' PREFIX=/op
 
 gmake INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION install PREFIX=/opt/csw LIBDIR=/opt/csw/lib
 
-#OPSYS=`uname -s`
-#OS_VERSION=`uname -r`
-#cat <<EOF > $PKGBUILD/PKG/wolfclient-$VERSION/build-info
-#MACHINE_ARCH=$PACK_ARCH
-#OPSYS=$OPSYS
-#OS_VERSION=$OS_VERSION
-#PKGTOOLS_VERSION=20091115
-#EOF
+cp packaging/solaris/pkginfo $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/solaris/copyright $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/solaris/prototype $PKGBUILD/PKG/wolfclient-$VERSION/.
 
-#cd $PKGBUILD/PKG/wolfclient-$VERSION
+ARCH=`uname -m`
+OSARCH=`uname -p`
+OSVER=`uname -r`
+cat <<EOF >> $PKGBUILD/PKG/wolfclient-$VERSION/pkginfo
+ARCH="$OSARCH"
+EOF
 
-#pkg_create -v -p . -I / \
-#       -B build-info \
-#       -c comment \
-#       -d description \
-#       -f packlist \
-#       -i iscript \
-#       -k dscript \
-#       $PKGBUILD/PKGS/$ARCH/wolframe-$VERSION-$ARCH.tgz
-#check_for_errors
+cd $PKGBUILD/PKG/wolfclient-$VERSION
 
-# rm -rf $PKGBUILD/BUILD
-# rm -rf $PKGBUILD/PKG
+pkgmk -o -r .
+pkgtrans -s /var/spool/pkg $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$OSARCH-$OSVER.pkg WFRGclient
+
+compress $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$OSARCH-$OSVER.pkg
+
+# rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION
+# rm -rf $PKGBUILD/PKG/wolfclient-$VERSION
 
 echo "Build done."
