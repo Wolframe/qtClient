@@ -1,0 +1,5 @@
+P CSWlibqtcore4     TrollTech C++ application framework, libQtCore.so.4
+P CSWlibqtgui4      TrollTech C++ application framework, libQtGui.so.4
+P CSWlibqtxml4      TrollTech C++ application framework, libQtXml.so.4
+P CSWlibqtdesigner4 TrollTech C++ application framework, libQtDesigner.so.4
+P CSWlibstdc++6     The GNU Compiler Collection, libstdc++.so.6

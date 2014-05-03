@@ -36,6 +36,7 @@ gmake INSTALL_ROOT=$PKGBUILD/PKG/wolfclient-$VERSION install PREFIX=/opt/csw LIB
 cp packaging/solaris/pkginfo $PKGBUILD/PKG/wolfclient-$VERSION/.
 cp packaging/solaris/copyright $PKGBUILD/PKG/wolfclient-$VERSION/.
 cp packaging/solaris/prototype $PKGBUILD/PKG/wolfclient-$VERSION/.
+cp packaging/solaris/depend $PKGBUILD/PKG/wolfclient-$VERSION/.
 
 ARCH=`uname -m`
 OSARCH=`uname -p`
