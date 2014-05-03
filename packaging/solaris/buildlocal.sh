@@ -49,7 +49,7 @@ cd $PKGBUILD/PKG/wolfclient-$VERSION
 pkgmk -o -r .
 pkgtrans -s /var/spool/pkg $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$OSARCH-$OSVER.pkg WFRGclient
 
-compress $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$OSARCH-$OSVER.pkg
+compress -f $PKGBUILD/PKGS/$ARCH/wolfclient-$VERSION-$OSARCH-$OSVER.pkg
 
 # rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION
 # rm -rf $PKGBUILD/PKG/wolfclient-$VERSION
