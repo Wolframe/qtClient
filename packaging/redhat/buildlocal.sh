@@ -31,12 +31,31 @@ cp packaging/redhat/wolfclient.spec $RPMBUILD/SPECS/wolfclient.spec
 cd $RPMBUILD/SPECS
 
 if test -f /opt/intel/bin/iccvars.sh; then
-	export CC='ccache icc'
-	export CXX='ccache icpc'
+	if test -f /opt/intel/bin/iccvars.sh; then
+		MACHINE_ARCH=`uname -m`
+		if test "$MACHINE_ARCH" = "x86_64"; then
+			ICC_ARCH="intel64"
+			export QMAKESPEC="linux-icc-64"
+		else
+			if test "$MACHINE_ARCH" = "i686"; then
+				ICC_ARCH="ia32"
+				export QMAKESPEC="linux-icc-32"
+			else
+				print "ERROR: Unknown Intel architecture $MACHIN_ARCH!"
+				global_unlock
+				exit 1
+			fi
+		fi
+		. /opt/intel/bin/iccvars.sh $ICC_ARCH
+	fi
+	export QMAKE_CXX='ccache icpc'
+	
+	# Note: additionally hack /usr/lib/qt4/mkspecs/linux-icc/qmake.conf
+	# and set QMAKE_CXX to 'ccache icpc'
 else
-	export CC='ccache gcc'
-	export CXX='ccache g++'
+	export QMAKE_CXX='ccache g++'
 fi
+
 rpmbuild -ba --define "$OSB_PLATFORM" wolfclient.spec
 
 echo "Build done."
