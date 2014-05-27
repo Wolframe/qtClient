@@ -30,8 +30,13 @@ cp packaging/redhat/wolfclient.spec $RPMBUILD/SPECS/wolfclient.spec
 
 cd $RPMBUILD/SPECS
 
-export CC='ccache gcc'
-export CXX='ccache g++'
+if test -x /opt/intel/bin/iccvars.sh; then
+	export CC='ccache icc'
+	export CXX='ccache icpc'
+else
+	export CC='ccache gcc'
+	export CXX='ccache g++'
+fi
 rpmbuild -ba --define "$OSB_PLATFORM" wolfclient.spec
 
 echo "Build done."
