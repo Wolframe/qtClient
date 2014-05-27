@@ -30,7 +30,7 @@ cp packaging/redhat/wolfclient.spec $RPMBUILD/SPECS/wolfclient.spec
 
 cd $RPMBUILD/SPECS
 
-if test -x /opt/intel/bin/iccvars.sh; then
+if test -f /opt/intel/bin/iccvars.sh; then
 	export CC='ccache icc'
 	export CXX='ccache icpc'
 else
