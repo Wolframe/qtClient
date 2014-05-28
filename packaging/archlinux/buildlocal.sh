@@ -32,6 +32,22 @@ cp wolfclient-$VERSION.tar.gz $PKGBUILD/BUILD/.
 cp packaging/archlinux/* $PKGBUILD/BUILD/.
 sed -i 's|\(qmake\-qt4.*\)|\1 QMAKE_CXX="\$CXX" QMAKE_LINK=\"$CXX\" QMAKE_LINK_SHLIB=\"$CXX\"|g' $PKGBUILD/BUILD/PKGBUILD
 
+if test -x /etc/profile.d/intel_compilers.sh; then
+	MACHINE_ARCH=`uname -m`
+	if test "$MACHINE_ARCH" = "x86_64"; then
+		export QMAKESPEC="linux-icc-64"
+	else
+		if test "$MACHINE_ARCH" = "i686"; then
+			export QMAKESPEC="linux-icc-32"
+		else
+			print "ERROR: Unknown Intel architecture $MACHINE_ARCH!"
+			exit 1
+		fi
+	fi
+	. /etc/profile.d/intel_compilers.sh
+	export QMAKE_CXX='ccache icpc'
+fi
+
 cd $PKGBUILD/BUILD
 sed -i 's|"http://sourceforge.net/projects/wolframe/files/.*"|"${pkgname}-${pkgver}.tar.gz"|g' PKGBUILD
 makepkg --asroot -g >> PKGBUILD

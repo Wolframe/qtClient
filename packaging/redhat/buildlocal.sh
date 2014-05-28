@@ -41,7 +41,7 @@ if test -f /opt/intel/bin/iccvars.sh; then
 				ICC_ARCH="ia32"
 				export QMAKESPEC="linux-icc-32"
 			else
-				print "ERROR: Unknown Intel architecture $MACHIN_ARCH!"
+				print "ERROR: Unknown Intel architecture $MACHINE_ARCH!"
 				global_unlock
 				exit 1
 			fi
