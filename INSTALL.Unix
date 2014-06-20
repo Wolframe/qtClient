@@ -109,7 +109,7 @@ For Qt 4 you need the 'libqt4-dev' package.
 
 For Qt 5 compile your own version of the library.
 
-Ubuntu 13.10
+Ubuntu 13.10 and 14.04
 
 For Qt 4 you need the 'libqt4-dev' package.
 
