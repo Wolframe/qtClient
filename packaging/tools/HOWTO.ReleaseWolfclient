@@ -1,6 +1,9 @@
 Wolfclient Release Guide
 ========================
 
+Pre-release work
+----------------
+
 Start from master (for a release) or from last release branch
 (for a patch).
 
@@ -8,14 +11,6 @@ Make sure the build tests shows all green.
 
 Test the packages produced by the build system manually
 (see HowToTestPackage guide).
-
-Choose a reasonable version number, get inspired by http://semver.org/
-
-Create a release branch 'release-M.m.p' where only critical bugs will
-be fixed. Build tags indicate trials to build 'b' (and they correlate 
-to the distance to the branch in git commits, which are added to the
-artifacts for instance on OBS). The last one with the highest 'b' 
-is the official release.
 
 In Wolframe build the current installation documentation with:
 
@@ -26,6 +21,22 @@ cp InstallationUnixClient.txt ~/wolfclient/INSTALL.Unix
 make InstallationWindowsClient.txt
 cp InstallationWindowsClient.txt ~/wolfclient/INSTALL.Windows
 
+Choose a reasonable version number, get inspired by http://semver.org/
+
+Create a release branch 'release-M.m.p' where only critical bugs will
+be fixed. Build tags indicate trials to build 'b' (and they correlate 
+to the distance to the branch in git commits, which are added to the
+artifacts for instance on OBS). The last one with the highest 'b' 
+is the official release.
+
+Set new version of package with:
+
+packaging/tools/setversion.sh M.m.p.b
+
 Update changelog in packaging/redhat/wolframe.spec for Redhat/Suse distros.
 
 Update packaging/debian/changelog for Debian/Ubuntu distros.
+
+Create the tag 'release_M.m.p'.
+
+Create source tarball from 

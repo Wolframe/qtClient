@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=0.0.3
+VERSION=0.0.4
 PKGBUILD=$HOME/bsdbuild
 ORIG_ARCH=`uname -m`
 if test "x$ORIG_ARCH" = "xamd64"; then

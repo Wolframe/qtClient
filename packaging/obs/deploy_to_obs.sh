@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=0.0.3
+VERSION=0.0.4
 OSC_HOME=$HOME/home:wolframe_user/wolfclient
 
 if test "x$TMPDIR" = "x"; then

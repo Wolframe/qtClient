@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=0.0.3
+VERSION=0.0.4
 PKGBUILD=$HOME/bsdbuild
 ORIG_ARCH=`uname -m`
 ORIG_OS_VER=`uname -r | cut -f 1 -d -`

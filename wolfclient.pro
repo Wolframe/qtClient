@@ -17,7 +17,7 @@ test.depends = first
 QMAKE_EXTRA_TARGETS += test dist-gz dist-Z
 
 PACKAGE_NAME = wolfclient
-PACKAGE_VERSION = 0.0.3
+PACKAGE_VERSION = 0.0.4
 
 isEmpty(TMPDIR) {
   TMPDIR = $${PREFIX}/tmp

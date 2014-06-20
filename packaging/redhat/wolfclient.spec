@@ -98,7 +98,7 @@
 
 Summary: Qt client for Wolframe
 Name: wolfclient
-Version: 0.0.3
+Version: 0.0.4
 Release: 0.1
 License: Wolframe License
 Group: Application/Business
@@ -178,6 +178,9 @@ Requires: %{name} >= %{version}-%{release}
 %{_libdir}/wolframe/libqtwolfclient.so    
 
 %changelog
+* Tue Jun 20 2014 Andreas Baumann <abaumann@yahoo.com> 0.0.4-0.1
+- intermediary release
+
 * Tue Dec 04 2013 Andreas Baumann <abaumann@yahoo.com> 0.0.3-0.1
 - intermediary release
 

@@ -1,6 +1,6 @@
 PKG="WFRGclient"
 NAME="Wolframe client"
-VERSION="0.0.3"
+VERSION="0.0.4"
 CATEGORY="application"
 VENDOR="Wolframe Group"
 EMAIL="contact@wolframe.net"

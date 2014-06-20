@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=0.0.3
+VERSION=0.0.4
 PKGBUILD=$HOME/archbuild
 ARCH=`uname -m`
 LIBDIR="/usr/lib"
