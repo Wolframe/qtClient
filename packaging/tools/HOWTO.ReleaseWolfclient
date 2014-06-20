@@ -68,3 +68,7 @@ mv -v /mnt/sf/wolfclient-binaries/0.0.3 /mnt/sf/wolfclient-binaries/old
 packaging/obs/release_local_binaries.sh
 packaging/obs/release_osb_binaries.sh
 
+git tag -a -m 'release M.m.p' release_M.m.p
+
+git push --tags
+
