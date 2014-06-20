@@ -20,30 +20,29 @@ create_sf_dir( )
 map_platform_and_arch( )
 {
 	case $PLATFORM in
-		RedHat_RHEL-5)		NICE_PLATFORM="RHEL-5"			;;
 		RedHat_RHEL-6)		NICE_PLATFORM="RHEL-6"			;;
-		CentOS_CentOS-5)	NICE_PLATFORM="CentOS-5"		;;
 		CentOS_CentOS-6)	NICE_PLATFORM="CentOS-6"		;;
 		Fedora_19)		NICE_PLATFORM="Fedora-19"		;;
-		Fedora_18)		NICE_PLATFORM="Fedora-18"		;;
+		Fedora_20)		NICE_PLATFORM="Fedora-20"		;;
 		Debian_7.0)		NICE_PLATFORM="Debian-7"		;;
 		Debian_6.0)		NICE_PLATFORM="Debian-6"		;;
 		Arch_Extra)		NICE_PLATFORM="ArchLinux"		;;
 		SLE_11_SP2)		NICE_PLATFORM="SLES-11_SP2"		;;
 		SLE_11_SP3)		NICE_PLATFORM="SLES-11_SP3"		;;
 		openSUSE_12.3)		NICE_PLATFORM="openSUSE-12.3"		;;
-		openSUSE_13.1)		NICE_PLATFORM="openSUSE-13.1"		;;
+		openSUSE_13.1 )		NICE_PLATFORM="openSUSE-13.1"		;;
 		xUbuntu_10.04)		NICE_PLATFORM="Ubuntu-10.04_LTS"	;;
 		xUbuntu_12.04)		NICE_PLATFORM="Ubuntu-12.04_LTS"	;;
+		xUbuntu_12.10)		NICE_PLATFORM="Ubuntu-12.10"		;;
+		xUbuntu_13.04)		NICE_PLATFORM="Ubuntu-13.04"		;;
 		xUbuntu_13.10)		NICE_PLATFORM="Ubuntu-13.10"		;;
-		xUbuntu_14.04)		NICE_PLATFORM="Ubuntu-14.04_LTS"	;;
+		xUbuntu_14.04)		NICE_PLATFORM="Ubuntu-14.04"		;;
 		Slackware_14)		NICE_PLATFORM="Slackware-14"		;;
 		FreeBSD_10)		NICE_PLATFORM="FreeBSD-10"		;;
 		FreeBSD_9)		NICE_PLATFORM="FreeBSD-9"		;;
 		FreeBSD_8)		NICE_PLATFORM="FreeBSD-8"		;;
 		NetBSD_6)		NICE_PLATFORM="NetBSD-6"		;;
 		Scientific_Linux-6)	NICE_PLATFORM="Scientific_Linux-6"	;;
-		Scientific_Linux-5)	NICE_PLATFORM="Scientific_Linux-5"	;;
 		*)			NICE_PLATFORM=$PLATFORM			;;
 	esac
 	
