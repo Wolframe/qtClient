@@ -151,9 +151,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr( -, root, root )
 %{_bindir}/wolfclient
 %dir %{_libdir}/wolframe
-%{_libdir}/wolframe/libskeleton.so.0.0.3
+%{_libdir}/wolframe/libskeleton.so.0.0.0
 %{_libdir}/wolframe/libskeleton.so.0
-%{_libdir}/wolframe/libqtwolfclient.so.0.0.3
+%{_libdir}/wolframe/libqtwolfclient.so.0.0.0
 %{_libdir}/wolframe/libqtwolfclient.so.0
 %plugindir/designer/libfilechooser.so
 %plugindir/designer/libpicturechooser.so

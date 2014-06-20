@@ -15,11 +15,11 @@ desc: |-
  using the Wolframe server.
 files:
  /usr/local/bin/wolfclient: 'sha256sum'
- /usr/local/lib/libqtwolfclient.so.0.0.3: 'sha256sum'
+ /usr/local/lib/libqtwolfclient.so.0.0.0: 'sha256sum'
  /usr/local/lib/libqtwolfclient.so.0.0: 'sha256sum'
  /usr/local/lib/libqtwolfclient.so.0: 'sha256sum'
  /usr/local/lib/libqtwolfclient.so: 'sha256sum'
- /usr/local/lib/libskeleton.so.0.0.3: 'sha256sum'
+ /usr/local/lib/libskeleton.so.0.0.0: 'sha256sum'
  /usr/local/lib/libskeleton.so.0.0: 'sha256sum'
  /usr/local/lib/libskeleton.so.0: 'sha256sum'
  /usr/local/lib/libskeleton.so: 'sha256sum'

@@ -4,14 +4,14 @@ i depend
 d none opt 0755 root root
 d none opt/csw 0755 root root
 d none opt/csw/lib 0755 root root
-f none opt/csw/lib/libqtwolfclient.so.0.0.3 0755 root root
-s none opt/csw/lib/libqtwolfclient.so=libqtwolfclient.so.0.0.3
-s none opt/csw/lib/libqtwolfclient.so.0=libqtwolfclient.so.0.0.3
-s none opt/csw/lib/libqtwolfclient.so.0.0=libqtwolfclient.so.0.0.3
-f none opt/csw/lib/libskeleton.so.0.0.3 0755 root root
-s none opt/csw/lib/libskeleton.so=libskeleton.so.0.0.3
-s none opt/csw/lib/libskeleton.so.0=libskeleton.so.0.0.3
-s none opt/csw/lib/libskeleton.so.0.0=libskeleton.so.0.0.3
+f none opt/csw/lib/libqtwolfclient.so.0.0.0 0755 root root
+s none opt/csw/lib/libqtwolfclient.so=libqtwolfclient.so.0.0.0
+s none opt/csw/lib/libqtwolfclient.so.0=libqtwolfclient.so.0.0.0
+s none opt/csw/lib/libqtwolfclient.so.0.0=libqtwolfclient.so.0.0.0
+f none opt/csw/lib/libskeleton.so.0.0.0 0755 root root
+s none opt/csw/lib/libskeleton.so=libskeleton.so.0.0.0
+s none opt/csw/lib/libskeleton.so.0=libskeleton.so.0.0.0
+s none opt/csw/lib/libskeleton.so.0.0=libskeleton.so.0.0.0
 d none opt/csw/lib/qt4 0755 root root
 d none opt/csw/lib/qt4/plugins 0755 root root
 d none opt/csw/lib/qt4/plugins/designer 0755 root root
