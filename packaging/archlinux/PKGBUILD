@@ -9,8 +9,8 @@ arch=('i686' 'x86_64' 'armv6h')
 url="http://wolframe.net/"
 depends=('qt4')
 makedepends=('mesa-libgl' 'gdb')
-source=("http://sourceforge.net/projects/wolframe/files/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz")
-md5sums=('858c6c53b04fc03468d5487f0f53a387')
+source=("http://sourceforge.net/projects/wolframe/files/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+md5sums=('0b53507cbe2f9a69e44949332c48ef4e')
 
 package() {
   cd ${srcdir}/${pkgname}-${pkgver}
