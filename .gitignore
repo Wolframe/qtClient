@@ -8,7 +8,7 @@
 *.so
 *.so.0
 *.so.0.0
-*.so.0.0.1
+*.so.0.0.0
 Makefile
 example/Makefile
 example/example
