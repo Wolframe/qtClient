@@ -9,6 +9,7 @@
 %define rhel 0
 %define rhel5 0
 %define rhel6 0
+%define rhel7 0
 %if 0%{?rhel_version} >= 500 && 0%{?rhel_version} <= 599
 %define dist rhel5
 %define rhel 1
@@ -18,6 +19,11 @@
 %define dist rhel6
 %define rhel 1
 %define rhel6 1
+%endif
+%if 0%{?rhel_version} >= 700 && 0%{?rhel_version} <= 799
+%define dist rhel7
+%define rhel 1
+%define rhel7 1
 %endif
 
 %define centos 0
@@ -35,6 +41,13 @@
 %define centos6 1
 %endif
 
+%define centos7 0
+%if 0%{?centos_version} >= 700 && 0%{?centos_version} <= 799
+%define dist centos7
+%define centos 1
+%define centos7 1
+%endif
+
 %define scilin 0
 %define scilin5 0
 %if 0%{?scilin_version} >= 500 && 0%{?scilin_version} <= 599
@@ -48,6 +61,13 @@
 %define dist scilin6
 %define scilin 1
 %define scilin6 1
+%endif
+
+%define scilin7 0
+%if 0%{?scilin_version} >= 700 && 0%{?scilin_version} <= 799
+%define dist scilin7
+%define scilin 1
+%define scilin7 1
 %endif
 
 %define fedora 0
@@ -111,8 +131,8 @@ BuildRoot: %{_tmppath}/%{name}-root
 %if %{rhel} || %{centos} || %{scilin} || %{fedora}
 BuildRequires: qt4-devel >= 4.5
 Requires: qt4 >= 4.5
-# somehow there is no c++ compiler per default installed on RHEL6/Centos6
-%if %{rhel6} || %{centos6} || %{scilin6}
+# somehow there is no c++ compiler per default installed on RHEL6/7
+%if %{rhel6} || %{centos6} || %{scilin6} || %{rhel7} || %{centos7} || %{scilin7}
 BuildRequires: gcc-c++
 %endif
 %endif
@@ -131,7 +151,7 @@ Client for the Wolframe system.
 %setup -q
 
 %build
-%if 0%{?fedora_version} || 0%{?rhel_version} || 0%{?centos_version} || 0%{?scilin_version}
+%if %{rhel} || %{centos} || %{scilin} || %{fedora}
 qmake-qt4 wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
 %else
 qmake wolfclient.pro -config release -recursive PREFIX=%{_prefix} LIBDIR=%{_libdir}/wolframe
