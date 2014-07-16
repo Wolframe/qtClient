@@ -1,5 +1,7 @@
 Wolfclient Installation Unix
 
+Building the wolfclient
+
 Installation Guide for Unix
 
 Copyright (C) 2010 - 2014 Project Wolframe
@@ -29,16 +31,12 @@ Jul 20, 2014 version 0.0.4
 
 -------------------------------------------------------------------------------
 
-1. Prerequisites
-
 For building the wolfclient you need:
 
   * Qt 4.6.x or later, or Qt 5, http://qt-project.org/
 
   * For secure communication between the wolfclient and the Wolframe server you
     need the OpenSSL library 0.9.7 or newer, http://www.openssl.org
-
-2. Building the wolfclient
 
 The wolfclient is a Qt-based client for the Wolframe server.
 

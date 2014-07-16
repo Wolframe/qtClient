@@ -1,5 +1,7 @@
 Wolfclient Installation Windows
 
+Building the wolfclient
+
 Installation Guide for Windows
 
 Copyright (C) 2010 - 2014 Project Wolframe
@@ -25,11 +27,9 @@ Wolframe. If not, see http://www.gnu.org/licenses/
 If you have questions regarding the use of this file, please contact Project
 Wolframe.
 
-Jun 29, 2014 version 0.0.4
+Jul 20, 2014 version 0.0.4
 
 -------------------------------------------------------------------------------
-
-1. Prerequisites
 
 For building the wolfclient you need:
 
@@ -37,8 +37,6 @@ For building the wolfclient you need:
 
   * For secure communication between the wolfclient and the Wolframe server you
     need the OpenSSL library 0.9.7 or newer, http://www.openssl.org
-
-2. Building the wolfclient
 
 The wolfclient is a Qt-based client for the Wolframe server.
 
@@ -69,7 +67,7 @@ respectively for a release version:
 If you want SSL support you have to download or build OpenSSL and rebuild Qt 4
 or Qt 5 with SSL support:
 
-2.1. Secure Socket Layer (SSL)
+.1. Secure Socket Layer (SSL)
 
 The Wolframe protocol can be secured with SSL. Currently only OpenSSL (http://
 www.openssl.org) is supported.
@@ -141,7 +139,7 @@ Build and install OpenSSL now with:
 More build information is available in INSTALL.W32 and INSTALL.W64 of the
 OpenSSL package itself.
 
-2.2. Qt libraries
+.2. Qt libraries
 
 Use prebuild version of Qt
 
