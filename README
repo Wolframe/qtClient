@@ -3,6 +3,3 @@ skeleton                  - skeleton for building wolframe qt clients
 example                   - example on how to use skeleton/libqtwolfclient
 wolfclient                - the generic wolframe client
 plugins                   - various plugins (designer custom widgets)
-
-Should be moved to Wolframe/crm later:
-demo                      - demo client forms for wolfclient
