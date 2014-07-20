@@ -38,3 +38,4 @@ Makefile.*
 debug/
 release/
 *~
+*.gdb-index
