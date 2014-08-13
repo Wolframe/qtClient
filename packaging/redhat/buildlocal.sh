@@ -14,11 +14,17 @@ VERSION=0.0.4
 RPMBUILD=$HOME/rpmbuild
 #OSB_PLATFORM=
 
-rm -rf $RPMBUILD/BUILDROOT $RPMBUILD/BUILD $RPMBUILD/RPMS/*/* \
-	$RPMBUILD/SRPMS/* $RPMBUILD/SPECS/log
-touch $RPMBUILD/SPECS/log
+rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION \
+	$PKGBUILD/BUILDROOT/wolfclient-$VERSION \
+	$PKGBUILD/RPMS/$ARCH/wolfclient-$VERSION*.rpm \
+	$PKGBUILD/SRPMS//wolfclient-$VERSION*src.rpm
 
-rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
+mkdir -p $PKGBUILD $PKGBUILD/BUILD/wolfclient-$VERSION \
+	$PKGBUILD/BUILDROOT/wolfclient-$VERSION \
+	$PKGBUILD/RPMS/$ARCH $PKGBUILD/SRPMS \
+	$PKGBUILD/SOURCES $PKGBUILD/SPECS
+
+rm -f $PKGBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 
 # This is actually wrong for openSUSE, but we don't build it locally, only
 # on OBS:
