@@ -18,17 +18,17 @@ if test "x$ARCH" = "xx86"; then
 	ARCH="i386"
 fi
 
-rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION \
-	$PKGBUILD/BUILDROOT/wolfclient-$VERSION \
-	$PKGBUILD/RPMS/$ARCH/wolfclient-$VERSION*.rpm \
-	$PKGBUILD/SRPMS/wolfclient-$VERSION*src.rpm
+rm -rf $RPMBUILD/BUILD/wolfclient-$VERSION \
+	$RPMBUILD/BUILDROOT/wolfclient-$VERSION \
+	$RPMBUILD/RPMS/$ARCH/wolfclient-$VERSION*.rpm \
+	$RPMBUILD/SRPMS/wolfclient-$VERSION*src.rpm
 
-mkdir -p $PKGBUILD $PKGBUILD/BUILD/wolfclient-$VERSION \
-	$PKGBUILD/BUILDROOT/wolfclient-$VERSION \
-	$PKGBUILD/RPMS/$ARCH $PKGBUILD/SRPMS \
-	$PKGBUILD/SOURCES $PKGBUILD/SPECS
+mkdir -p $RPMBUILD $RPMBUILD/BUILD/wolfclient-$VERSION \
+	$RPMBUILD/BUILDROOT/wolfclient-$VERSION \
+	$RPMBUILD/RPMS/$ARCH $RPMBUILD/SRPMS \
+	$RPMBUILD/SOURCES $RPMBUILD/SPECS
 
-rm -f $PKGBUILD/SOURCES/wolfclient_$VERSION.tar.gz
+rm -f $RPMBUILD/SOURCES/wolfclient_$VERSION.tar.gz
 
 # This is actually wrong for openSUSE, but we don't build it locally, only
 # on OBS:
