@@ -13,6 +13,10 @@
 VERSION=0.0.4
 RPMBUILD=$HOME/rpmbuild
 #OSB_PLATFORM=
+ARCH=`uname -m`
+if test "x$ARCH" = "xx86"; then
+	ARCH="i386"
+fi
 
 rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION \
 	$PKGBUILD/BUILDROOT/wolfclient-$VERSION \
