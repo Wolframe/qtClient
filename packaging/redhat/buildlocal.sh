@@ -21,7 +21,7 @@ fi
 rm -rf $PKGBUILD/BUILD/wolfclient-$VERSION \
 	$PKGBUILD/BUILDROOT/wolfclient-$VERSION \
 	$PKGBUILD/RPMS/$ARCH/wolfclient-$VERSION*.rpm \
-	$PKGBUILD/SRPMS//wolfclient-$VERSION*src.rpm
+	$PKGBUILD/SRPMS/wolfclient-$VERSION*src.rpm
 
 mkdir -p $PKGBUILD $PKGBUILD/BUILD/wolfclient-$VERSION \
 	$PKGBUILD/BUILDROOT/wolfclient-$VERSION \
