@@ -22,7 +22,7 @@ rm -rf $RPMBUILD/BUILD/wolfclient-$VERSION \
 	$RPMBUILD/BUILDROOT/wolfclient-$VERSION \
 	$RPMBUILD/RPMS/$ARCH/wolfclient-*$VERSION*.rpm \
 	$RPMBUILD/SRPMS/wolfclient-$VERSION*src.rpm \
-	$RPMBUILD/SPECTS/wolfclient.spec
+	$RPMBUILD/SPECS/wolfclient.spec
 
 mkdir -p $RPMBUILD $RPMBUILD/BUILD/wolfclient-$VERSION \
 	$RPMBUILD/BUILDROOT/wolfclient-$VERSION \
