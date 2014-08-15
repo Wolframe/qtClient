@@ -22,6 +22,9 @@ mkdir -p $PKGBUILD $PKGBUILD/BUILD/wolfclient-$VERSION $PKGBUILD/PKG/wolfclient-
 
 rm -f $PKGBUILD/BUILD/wolfclient_$VERSION.tar.gz
 
+export PATH=/usr/pkg/qt4/bin:/usr/pkg/bin:${PATH}
+export QTDIR=/usr/pkg/qt4
+
 qmake -config release -recursive wolfclient.pro
 gmake dist-gz
 
@@ -29,9 +32,6 @@ cp wolfclient-$VERSION.tar.gz $PKGBUILD/BUILD/.
 cd $PKGBUILD/BUILD
 tar zxf wolfclient-$VERSION.tar.gz
 cd wolfclient-$VERSION
-
-export PATH=/usr/pkg/qt4/bin:/usr/pkg/bin:${PATH}
-export QTDIR=/usr/pkg/qt4
 
 qmake -config release -recursive wolfclient.pro PREFIX=/usr/pkg LIBDIR=/usr/pkg/lib
 find . -name Makefile -exec sh -c \
