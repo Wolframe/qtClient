@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PROJECT=wolfclient
-VERSION=0.0.4
+VERSION=0.0.5
 
 PACKAGE_ROOT=/mnt/packages
 SOURCEFORGE_ROOT=/mnt/sf

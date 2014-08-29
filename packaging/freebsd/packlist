@@ -1,6 +1,6 @@
-@name wolfclient-0.0.4
+@name wolfclient-0.0.5
 @cwd /
-@srcdir PKG/wolfclient-0.0.4
+@srcdir PKG/wolfclient-0.0.5
 usr/local/lib/libqtwolfclient.so.0.0.0
 usr/local/lib/libqtwolfclient.so
 usr/local/lib/libqtwolfclient.so.0

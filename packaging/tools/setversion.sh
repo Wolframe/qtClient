@@ -14,6 +14,10 @@ BUILD=`echo $FULL_VERSION | cut -f 4 -d .`
 
 VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 
+# Package version in installation docu is the one from Wolframe, patching it
+sed -i "s/, 2014 version .*/, 2014 version $VERSION/g" INSTALL.Unix
+sed -i "s/, 2014 version .*/, 2014 version $VERSION/g" INSTALL.Windows
+
 # Set PACKAGE_VERSION in master PRO file (make dist and building)
 sed -i "s/^PACKAGE_VERSION.*=.*/PACKAGE_VERSION = $VERSION/g" wolfclient.pro
 

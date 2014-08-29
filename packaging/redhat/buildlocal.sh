@@ -10,7 +10,7 @@
 # the Centos version is set below as 'centos_version 630' (OSB service
 # linguo for Centos 6.3)
 
-VERSION=0.0.4
+VERSION=0.0.5
 RPMBUILD=$HOME/rpmbuild
 #OSB_PLATFORM=
 ARCH=`uname -m`

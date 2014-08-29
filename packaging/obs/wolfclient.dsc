@@ -1,6 +1,6 @@
 Format: 3.0 (quilt)
 Source: wolfclient
-Version: 0.0.4
+Version: 0.0.5
 Binary: wolfclient
 Maintainer: contact@wolframe.net
 Architecture: any

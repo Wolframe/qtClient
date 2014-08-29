@@ -3,7 +3,7 @@
 OBS_PROJECT=home:wolframe_user
 OBS_PACKAGE=wolfclient
 PROJECT=wolfclient
-VERSION=0.0.4
+VERSION=0.0.5
 
 SOURCEFORGE_ROOT=/mnt/sf
 
