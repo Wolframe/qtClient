@@ -6,10 +6,11 @@ TOPDIR = ..\..
 WIX_DIR = C:\Program Files\Wix Toolset v3.8
 
 # where is Qt installed
-QT_DIR = C:\Qt\Qt5.2.1\5.2.1\msvc2010
+#QT_DIR = C:\Qt\Qt5.2.1\5.2.1\msvc2010
+QT_DIR = C:\Qt\4.8.6
 
 # where is OpenSSL installed
-OPENSSL_DIR = C:\develop\openssl-1.0.0l-win32-debug
+OPENSSL_DIR = C:\develop\openssl-1.0.1g-win32-debug
 
 # libraries to link into the installer
 WIX_LIBS = dutil_2008.lib wcautil_2008.lib
@@ -26,8 +27,8 @@ DEBUG = 1
 WITH_SSL = 1
 
 # set correct major version of Qt
-#QT_MAJOR_VERSION = 4
-QT_MAJOR_VERSION = 5
+QT_MAJOR_VERSION = 4
+#QT_MAJOR_VERSION = 5
 
 # end configuration
 
