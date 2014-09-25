@@ -8,9 +8,9 @@ DEFINES += LIBWOLFRAMECLIENT_VISIBILITY=Q_DECL_IMPORT X_EXPORT=Q_DECL_EXPORT BUI
 
 INCLUDEPATH += ../../wolfclient ../../libqtwolfclient
 
-unix:LIBS += -L../../libqtwolfclient -lqtwolfclient
+unix:!macx:LIBS += -L../../libqtwolfclient -lqtwolfclient
 win32:LIBS += ../../libqtwolfclient/debug/qtwolfclient0.lib
-macx:LIBS += ../../libqtwolfclient/build/Release/libqtwolfclient0.dylib
+macx:LIBS += ../../libqtwolfclient/build/Debug/libqtwolfclient.dylib
 
 QT += core gui network
 

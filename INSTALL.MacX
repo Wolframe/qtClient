@@ -11,7 +11,7 @@ for all subdirectories do (SUBDIR recursive builds don't work with xcode?),
 build in the order plugins/filechooser, plugins/picturechooser, libqtwolfclient,
 skeleton, wolfclient:
 
-qmake -config debug
+qmake -config debug -recursive
 xcodebuild -configuration Debug
 
 On error manually correct -lQtUiTools_debug to -lQtUiTools

@@ -21,7 +21,7 @@ contains(QT_VERSION,^5\\..*) {
 QT += widgets
 }
 
-unix:LIBS += -L../libqtwolfclient -lqtwolfclient
+unix:!macx:LIBS += -L../libqtwolfclient -lqtwolfclient
 win32:LIBS += ../libqtwolfclient/debug/qtwolfclient0.lib
 macx:LIBS += ../libqtwolfclient/build/Debug/libqtwolfclient.dylib
 
